@@ -265,12 +265,16 @@ void
 xkb_file_section_free(struct xkb_file_section *section)
 {
     darray_free(section->includes);
+    free(section);
 }
 
 struct xkb_file_section *
 xkb_parse_iterator_next(struct xkb_file_section_iterator *iter, bool *ok)
 {
     XkbFile *xkb_file = parse_iterator_next(iter->iter, ok);
+    if (!xkb_file)
+        return NULL;
+
     struct xkb_file_section *section = calloc(1, sizeof(*section));
     if (!section)
         return NULL;
@@ -285,7 +289,7 @@ xkb_parse_iterator_next(struct xkb_file_section_iterator *iter, bool *ok)
             continue;
         }
         for (IncludeStmt *include = (IncludeStmt *) stmt; include; include = include->next_incl) {
-            char *path;
+            char *path = NULL;
             unsigned int offset = 0;
             FILE *file = FindFileInXkbPath(iter->scanner->ctx, include->file,
                                            xkb_file->file_type, &path, &offset);
@@ -315,6 +319,8 @@ xkb_parse_iterator_next(struct xkb_file_section_iterator *iter, bool *ok)
             free(path);
         }
     }
+
+    return section;
 }
 
 // FIXME: remove
@@ -342,6 +348,7 @@ xkb_file_get_sections_names_from_string_v1(struct xkb_context *ctx, char *string
     while ((xkb_file = parse_iterator_next(iter, &ok))) {
         xkb_create_include_atom(ctx, xkb_file, &atom);
         darray_append(*sections, atom);
+        FreeXkbFile(xkb_file);
     }
 
     parse_iterator_free(iter);

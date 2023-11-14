@@ -27,11 +27,17 @@
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 // #include <dirent.h>
 // #include <sys/stat.h>
 #include <fts.h>
 
+#include "xkbcommon/xkbcommon.h"
+#include "xkbcommon/xkbregistry.h"
 #include "darray.h"
+#include "src/atom.h"
+#include "src/xkbcomp/ast.h"
 #include "src/xkbcomp/include-list-priv.h"
 
 #define DEFAULT_INCLUDE_PATH_PLACEHOLDER "__defaults__"
@@ -126,8 +132,64 @@ parse_options(int argc, char **argv, const char *(*includes)[MAX_INCLUDES],
     return true;
 }
 
+struct rule_names {
+    xkb_atom_t rules;
+    xkb_atom_t model;
+    xkb_atom_t layout;
+    xkb_atom_t variant;
+    xkb_atom_t options;
+};
+
+struct registry_entry {
+    struct rule_names rlmvo;
+    bool root_include;
+};
+
+struct keymap_component_file {
+    struct include_atom file;
+    darray(struct include_atom) includes;
+    darray(struct include_atom) reverse_includes;
+    darray(struct registry_entry) registry_entries;
+};
+
+struct keymap_component {
+    enum xkb_file_type type;
+    darray(struct keymap_component_file) files;
+    darray(struct include_atom) refs;
+};
+
+struct keymap_components {
+    struct keymap_component keycodes;
+    struct keymap_component compat;
+    struct keymap_component symbols;
+    struct keymap_component types;
+};
+
+static void
+keymap_component_free(struct keymap_component *component)
+{
+    struct keymap_component_file *file;
+    darray_foreach(file, component->files) {
+        darray_free(file->includes);
+        darray_free(file->reverse_includes);
+        darray_free(file->registry_entries);
+    }
+    darray_free(component->files);
+    darray_free(component->refs);
+}
+
+static void
+keymap_components_free(struct keymap_components *components)
+{
+    keymap_component_free(&components->keycodes);
+    keymap_component_free(&components->compat);
+    keymap_component_free(&components->symbols);
+    keymap_component_free(&components->types);
+}
+
 static bool
-analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
+analyze_file(struct xkb_context *ctx, struct keymap_component *component,
+             const char *path, char *file_name)
 {
     /* Load file */
     FILE *file = fopen(path, "rb");
@@ -149,6 +211,37 @@ analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
         return false;
     }
 
+    struct include_atom atom = {
+        .path = xkb_atom_intern(ctx, path, strlen(path)),
+        .file = xkb_atom_intern(ctx, file_name, strlen(file_name)),
+        .map = XKB_ATOM_NONE,
+        .is_map_default = false,
+        .valid = true
+    };
+
+    struct xkb_file_section_iterator *iter;
+    iter = xkb_parse_iterator_new_from_string_v1(ctx, string, size, file_name);
+
+    struct xkb_file_section *section;
+    while ((section = xkb_parse_iterator_next(iter, &ok))) {
+        atom.map = section->name;
+        atom.is_map_default = section->is_default;
+        struct keymap_component_file comp_file = {
+            .file = atom,
+            .includes = darray_new(),
+            .reverse_includes = darray_new(),
+            .registry_entries = darray_new()
+        };
+        size_t idx = darray_size(component->files);
+        darray_append(component->files, comp_file);
+        struct keymap_component_file *cur = &darray_item(component->files, idx);
+        darray_copy(cur->includes, section->includes);
+        xkb_file_section_free(section);
+    }
+
+    xkb_parse_iterator_free(iter);
+
+    /*
     struct xkb_file_section_iterator *iter;
     iter = xkb_parse_iterator_new_from_string_v1(ctx, string, size, path);
 
@@ -171,6 +264,7 @@ analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
     }
 
     xkb_parse_iterator_free(iter);
+    */
 
     unmap_file(string, size);
 
@@ -178,7 +272,8 @@ analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
 }
 
 static void
-analyze_path(struct xkb_context *ctx, const char *path)
+analyze_path(struct xkb_context *ctx, struct keymap_component *component,
+             const char *path)
 {
     fprintf(stderr, "~~~ Analyze path: %s ~~~\n", path);
 
@@ -197,8 +292,8 @@ analyze_path(struct xkb_context *ctx, const char *path)
                 // FIXME directory
                 break;
             case FTS_F:
-                analyze_file(ctx, p->fts_accpath, p->fts_name);
-                // fprintf(stderr, "#### File: %s\n", p->fts_accpath);
+                fprintf(stderr, "#### File: %s\n", p->fts_accpath);
+                analyze_file(ctx, component, p->fts_accpath, p->fts_name);
                 break;
             case FTS_SL:
             case FTS_SLNONE:
@@ -241,19 +336,66 @@ analyze_path(struct xkb_context *ctx, const char *path)
     // closedir(my_dir);
 }
 
+// TODO: standard way to get directories names?
+static const char *xkb_file_type_include_dirs[_FILE_TYPE_NUM_ENTRIES] = {
+    [FILE_TYPE_KEYCODES] = "keycodes",
+    [FILE_TYPE_TYPES] = "types",
+    [FILE_TYPE_COMPAT] = "compat",
+    [FILE_TYPE_SYMBOLS] = "symbols",
+    [FILE_TYPE_GEOMETRY] = "geometry",
+    [FILE_TYPE_KEYMAP] = "keymap",
+    [FILE_TYPE_RULES] = "rules",
+};
+
+#define COMPONENT_COUNT 4
+
 static void
 check(struct xkb_context *ctx)
 {
+    struct keymap_components components = {
+        .keycodes = {
+            .type = FILE_TYPE_KEYCODES,
+            .files = darray_new(),
+            .refs = darray_new()
+        },
+        .compat = {
+            .type = FILE_TYPE_COMPAT,
+            .files = darray_new(),
+            .refs = darray_new()
+        },
+        .symbols = {
+            .type = FILE_TYPE_SYMBOLS,
+            .files = darray_new(),
+            .refs = darray_new()
+        },
+        .types = {
+            .type = FILE_TYPE_TYPES,
+            .files = darray_new(),
+            .refs = darray_new()
+        }
+    };
+    struct keymap_component *comps[COMPONENT_COUNT] = {
+        &components.keycodes,
+        &components.compat,
+        &components.symbols,
+        &components.types
+    };
+
+    /* Get all files */
     for (unsigned int idx = 0; idx < xkb_context_num_include_paths(ctx); idx++) {
         const char *include_path = xkb_context_include_path_get(ctx, idx);
         fprintf(stderr, "=== Include path: %s ===\n", include_path);
-        const char* components[4] = {"keycodes", "compat", "types", "symbols"};
-        for (int k = 0; k < 4; k++) {
-            char *path = asprintf_safe("%s/%s", include_path, components[k]);
-            analyze_path(ctx, path);
+        for (int k = 0; k < COMPONENT_COUNT; k++) {
+            char *path = asprintf_safe(
+                "%s/%s",
+                include_path, xkb_file_type_include_dirs[comps[k]->type]
+            );
+            analyze_path(ctx, comps[k], path);
             free(path);
         }
     }
+
+    keymap_components_free(&components);
 }
 
 int
