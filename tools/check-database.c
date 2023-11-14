@@ -187,14 +187,19 @@ keymap_components_free(struct keymap_components *components)
     keymap_component_free(&components->types);
 }
 
+#define INDENT_LENGTH 2
+
 static bool
 analyze_file(struct xkb_context *ctx, struct keymap_component *component,
-             const char *path, char *file_name)
+             const char *path, char *file_name, unsigned int indent)
 {
+    printf("%*s\"%s\":\n", INDENT_LENGTH * indent, "", path);
+    indent++;
     /* Load file */
     FILE *file = fopen(path, "rb");
     if (file == NULL) {
         perror(path);
+        printf("%*s  error: Cannot open file\n", INDENT_LENGTH * indent, "");
         return false;
     }
 
@@ -208,6 +213,7 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
         log_err(ctx, XKB_LOG_MESSAGE_NO_ID,
                 "Couldn't read XKB file %s: %s\n",
                 file_name, strerror(errno));
+        printf("%*s  error: Cannot map file\n", INDENT_LENGTH * indent, "");
         return false;
     }
 
@@ -221,11 +227,22 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
 
     struct xkb_file_section_iterator *iter;
     iter = xkb_parse_iterator_new_from_string_v1(ctx, string, size, file_name);
+    bool has_sections = false;
+
 
     struct xkb_file_section *section;
     while ((section = xkb_parse_iterator_next(iter, &ok))) {
+        if (!has_sections) {
+            has_sections = true;
+            printf("%*ssections:\n", INDENT_LENGTH * indent, "");
+        }
         atom.map = section->name;
         atom.is_map_default = section->is_default;
+        printf("%*s- name: %s\n", INDENT_LENGTH * indent, "",
+               xkb_atom_text(ctx, atom.map));
+        if (atom.is_map_default) {
+            printf("%*s  default: true\n", INDENT_LENGTH * indent, "");
+        }
         struct keymap_component_file comp_file = {
             .file = atom,
             .includes = darray_new(),
@@ -236,10 +253,32 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
         darray_append(component->files, comp_file);
         struct keymap_component_file *cur = &darray_item(component->files, idx);
         darray_copy(cur->includes, section->includes);
+        struct include_atom *inc;
+        printf("%*s  includes:", INDENT_LENGTH * indent, "");
+        if (!darray_empty(cur->includes)) {
+            printf("\n");
+            indent++;
+            const char *section_name;
+            darray_foreach(inc, cur->includes) {
+                printf("%*s- file: %s\n", INDENT_LENGTH * indent, "",
+                       xkb_atom_text(ctx, inc->file));
+                printf("%*s  section: %s\n", INDENT_LENGTH * indent, "",
+                        (section_name = xkb_atom_text(ctx, inc->map)) ? section_name : "null");
+                printf("%*s  path: %s\n", INDENT_LENGTH * indent, "",
+                       xkb_atom_text(ctx, inc->path));
+            }
+            indent--;
+        } else {
+            printf(" []\n");
+        }
         xkb_file_section_free(section);
     }
 
     xkb_parse_iterator_free(iter);
+
+    if (!has_sections) {
+        printf("%*serror: Parse error\n", INDENT_LENGTH * indent, "");
+    }
 
     /*
     struct xkb_file_section_iterator *iter;
@@ -273,9 +312,9 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
 
 static void
 analyze_path(struct xkb_context *ctx, struct keymap_component *component,
-             const char *path)
+             const char *path, unsigned int indent)
 {
-    fprintf(stderr, "~~~ Analyze path: %s ~~~\n", path);
+    // printf("%*s- path: %s\n", INDENT_LENGTH * indent, "", path);
 
     char *paths[] = { (char*) path, NULL};
 
@@ -285,6 +324,8 @@ analyze_path(struct xkb_context *ctx, struct keymap_component *component,
         return;
     }
 
+    bool has_files = false;
+
     FTSENT *p;
     while ((p = fts_read(fts))) {
         switch (p->fts_info) {
@@ -292,8 +333,11 @@ analyze_path(struct xkb_context *ctx, struct keymap_component *component,
                 // FIXME directory
                 break;
             case FTS_F:
-                fprintf(stderr, "#### File: %s\n", p->fts_accpath);
-                analyze_file(ctx, component, p->fts_accpath, p->fts_name);
+                if (!has_files) {
+                    has_files = true;
+                    printf("\n");
+                }
+                analyze_file(ctx, component, p->fts_accpath, p->fts_name, indent);
                 break;
             case FTS_SL:
             case FTS_SLNONE:
@@ -302,7 +346,11 @@ analyze_path(struct xkb_context *ctx, struct keymap_component *component,
                 break;
         }
     }
+
     // TODO check errno??
+    if (!has_files) {
+        printf(" []\n");
+    }
 
     fts_close(fts);
 
@@ -384,13 +432,14 @@ check(struct xkb_context *ctx)
     /* Get all files */
     for (unsigned int idx = 0; idx < xkb_context_num_include_paths(ctx); idx++) {
         const char *include_path = xkb_context_include_path_get(ctx, idx);
-        fprintf(stderr, "=== Include path: %s ===\n", include_path);
+        printf("- path: %s\n", include_path);
         for (int k = 0; k < COMPONENT_COUNT; k++) {
+            printf("  %s:", xkb_file_type_to_string(comps[k]->type));
             char *path = asprintf_safe(
                 "%s/%s",
                 include_path, xkb_file_type_include_dirs[comps[k]->type]
             );
-            analyze_path(ctx, comps[k], path);
+            analyze_path(ctx, comps[k], path, 2);
             free(path);
         }
     }
