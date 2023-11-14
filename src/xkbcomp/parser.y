@@ -866,16 +866,16 @@ parse(struct xkb_context *ctx, struct scanner *scanner, const char *map)
     return first;
 }
 
-xkb_file_section_iterator *
+file_section_iterator *
 parse_iterator_new(struct xkb_context *ctx, struct scanner *scanner)
 {
-    xkb_file_section_iterator *iter = calloc(1, sizeof(*iter));
+    file_section_iterator *iter = calloc(1, sizeof(*iter));
     *iter = (struct parser_param) parser_param_init(scanner, ctx);
     return iter;
 }
 
 void
-parse_iterator_free(xkb_file_section_iterator *iter)
+parse_iterator_free(file_section_iterator *iter)
 {
     FreeXkbFile(iter->rtrn);
     iter->rtrn = NULL;
@@ -883,7 +883,7 @@ parse_iterator_free(xkb_file_section_iterator *iter)
 }
 
 XkbFile *
-parse_iterator_next(xkb_file_section_iterator *iter, bool *ok)
+parse_iterator_next(file_section_iterator *iter, bool *ok)
 {
     FreeXkbFile(iter->rtrn);
     *ok = yyparse(iter) == 0;

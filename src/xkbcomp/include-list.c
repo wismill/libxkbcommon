@@ -26,7 +26,6 @@
 #include "include-list-priv.h"
 
 #include "xkbcomp-priv.h"
-#include "parser-priv.h"
 #include "scanner-utils.h"
 #include "rules.h"
 
@@ -40,8 +39,9 @@ xkb_include_tree_subtree_free(struct include_tree *tree)
     darray_free(tree->included);
 }
 
-static void
-create_include_atom(struct xkb_context *ctx, XkbFile *file, struct include_atom *atom)
+void
+xkb_create_include_atom(struct xkb_context *ctx, XkbFile *file,
+                        struct include_atom *atom)
 {
     atom->file = isempty(file->file_name)
         ? XKB_ATOM_NONE
@@ -69,7 +69,7 @@ xkb_get_include_tree(struct xkb_context *ctx, include_trees *includes, XkbFile *
             }
 
             struct include_atom atom;
-            create_include_atom(ctx, included_file, &atom);
+            xkb_create_include_atom(ctx, included_file, &atom);
 
             include_trees included_includes = darray_new();
 
@@ -95,13 +95,13 @@ xkb_get_include_tree(struct xkb_context *ctx, include_trees *includes, XkbFile *
     return true;
 }
 
-static struct include_tree *
+struct include_tree *
 xkb_get_component_include_tree(struct xkb_context *ctx, XkbFile *file)
 {
     struct include_atom atom;
     struct include_tree *tree;
 
-    create_include_atom(ctx, file, &atom);
+    xkb_create_include_atom(ctx, file, &atom);
     include_trees includes = darray_new();
     if (xkb_get_include_tree(ctx, &includes, file)) {
         tree = calloc(1, sizeof(*tree));
@@ -121,7 +121,7 @@ xkb_get_keymap_include_tree(struct xkb_context *ctx, XkbFile *file)
     struct include_atom atom;
     struct include_tree *tree;
 
-    create_include_atom(ctx, file, &atom);
+    xkb_create_include_atom(ctx, file, &atom);
     tree = calloc(1, sizeof(*tree));
     tree->file = atom;
     tree->type = file->file_type;
@@ -236,6 +236,37 @@ xkb_get_include_tree_from_names_v1(struct xkb_context *ctx,
     return tree;
 }
 
+struct xkb_file_section_iterator {
+    struct scanner *scanner;
+    file_section_iterator *iter;
+};
+
+struct xkb_file_section_iterator *
+xkb_parse_iterator_new_from_string_v1(struct xkb_context *ctx, char *string,
+                                      size_t size, const char *file_name)
+{
+    struct scanner *scanner = calloc(1, sizeof(*scanner));
+    scanner_init(scanner, ctx, string, size, file_name, NULL);
+
+    struct xkb_file_section_iterator *iter = calloc(1, sizeof(*iter));
+    iter->scanner = scanner;
+    iter->iter = parse_iterator_new(ctx, scanner);
+    return iter;
+}
+
+void
+xkb_parse_iterator_free(struct xkb_file_section_iterator *iter)
+{
+    free(iter->scanner);
+    parse_iterator_free(iter->iter);
+}
+
+XkbFile *
+xkb_parse_iterator_next(struct xkb_file_section_iterator *iter, bool *ok)
+{
+    return parse_iterator_next(iter->iter, ok);
+}
+
 bool
 xkb_file_get_sections_names_from_string_v1(struct xkb_context *ctx, char *string,
                                            size_t size, const char *file_name,
@@ -248,10 +279,10 @@ xkb_file_get_sections_names_from_string_v1(struct xkb_context *ctx, char *string
     struct scanner scanner;
     scanner_init(&scanner, ctx, string, size, file_name, NULL);
 
-    xkb_file_section_iterator *iter = parse_iterator_new(ctx, &scanner);
+    file_section_iterator *iter = parse_iterator_new(ctx, &scanner);
 
     while ((xkb_file = parse_iterator_next(iter, &ok))) {
-        create_include_atom(ctx, xkb_file, &atom);
+        xkb_create_include_atom(ctx, xkb_file, &atom);
         darray_append(*sections, atom);
     }
 

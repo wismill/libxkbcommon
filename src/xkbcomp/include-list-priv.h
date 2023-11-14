@@ -34,6 +34,7 @@
 #include "darray.h"
 #include "xkbcommon/xkbcommon.h"
 #include "ast.h"
+#include "parser-priv.h"
 #include "context.h"
 #include "include.h"
 
@@ -58,12 +59,31 @@ void
 xkb_include_tree_subtree_free(struct include_tree *tree);
 
 struct include_tree *
+xkb_get_component_include_tree(struct xkb_context *ctx, XkbFile *file);
+
+struct include_tree *
 xkb_get_include_tree_from_file_v1(struct xkb_context *ctx,
                                  char *file_name, char *map, FILE *file);
 
 struct include_tree *
 xkb_get_include_tree_from_names_v1(struct xkb_context *ctx,
                                    const struct xkb_rule_names *rmlvo);
+
+void
+xkb_create_include_atom(struct xkb_context *ctx, XkbFile *file,
+                        struct include_atom *atom);
+
+struct xkb_file_section_iterator;
+
+struct xkb_file_section_iterator *
+xkb_parse_iterator_new_from_string_v1(struct xkb_context *ctx, char *string,
+                                      size_t size, const char *file_name);
+
+void
+xkb_parse_iterator_free(struct xkb_file_section_iterator *iter);
+
+XkbFile *
+xkb_parse_iterator_next(struct xkb_file_section_iterator *iter, bool *ok);
 
 bool
 xkb_file_get_sections_names_from_string_v1(struct xkb_context *ctx, char *string,

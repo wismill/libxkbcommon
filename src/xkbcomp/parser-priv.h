@@ -38,16 +38,16 @@ _xkbcommon_lex(YYSTYPE *yylval, struct scanner *scanner);
 XkbFile *
 parse(struct xkb_context *ctx, struct scanner *scanner, const char *map);
 
-typedef struct parser_param xkb_file_section_iterator;
+typedef struct parser_param file_section_iterator;
 
-xkb_file_section_iterator *
+file_section_iterator *
 parse_iterator_new(struct xkb_context *ctx, struct scanner *scanner);
 
 void
-parse_iterator_free(xkb_file_section_iterator *iter);
+parse_iterator_free(file_section_iterator *iter);
 
 XkbFile *
-parse_iterator_next(xkb_file_section_iterator *iter, bool *ok);
+parse_iterator_next(file_section_iterator *iter, bool *ok);
 
 int
 keyword_to_token(const char *string, size_t len);

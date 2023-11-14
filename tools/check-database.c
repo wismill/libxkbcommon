@@ -193,40 +193,41 @@ analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
         return false;
     }
 
-    // bool ok;
-    // char *string;
-    // size_t size;
+    bool ok;
+    char *string;
+    size_t size;
 
-    // ok = map_file(file, &string, &size);
-    // if (!ok) {
-    //     log_err(ctx, XKB_LOG_MESSAGE_NO_ID,
-    //             "Couldn't read XKB file %s: %s\n",
-    //             file_name, strerror(errno));
-    //     return false;
-    // }
-
-    includes_atoms sections = darray_new();
-    xkb_file_get_sections_names_from_file_v1(
-        ctx, path, file, &sections
-    );
-
-    fprintf(stderr, "Found %d sections\n", darray_size(sections));
-
-    struct include_atom *atom;
-    darray_foreach(atom, sections) {
-        printf("- %s(%s)%s\n",
-            xkb_atom_text(ctx, atom->file),
-            xkb_atom_text(ctx, atom->map),
-            atom->is_map_default ? " (default)" : "");
-    }
-    printf("\n");
-    darray_free(sections);
-
-    // ok = xkb_file_get_sections_names_from_string_v1(ctx, string, size,
-    //                                                 file_name, sections);
-    // unmap_file(string, size);
+    ok = map_file(file, &string, &size);
     fclose(file);
+    if (!ok) {
+        log_err(ctx, XKB_LOG_MESSAGE_NO_ID,
+                "Couldn't read XKB file %s: %s\n",
+                file_name, strerror(errno));
+        return false;
+    }
 
+    struct xkb_file_section_iterator *iter;
+    iter = xkb_parse_iterator_new_from_string_v1(ctx, string, size, file_name);
+
+    XkbFile *xkb_file;
+
+    while ((xkb_file = xkb_parse_iterator_next(iter, &ok))) {
+        // TODO: use "ok"
+        struct include_atom atom;
+        xkb_create_include_atom(ctx, xkb_file, &atom);
+        // darray_append(*sections, atom);
+        printf("- %s(%s)%s\n",
+            xkb_atom_text(ctx, atom.file),
+            xkb_atom_text(ctx, atom.map),
+            atom.is_map_default ? " (default)" : "");
+        struct include_tree *tree = xkb_get_component_include_tree(ctx, xkb_file);
+        // TODO save tree
+        xkb_include_tree_subtree_free(tree);
+    }
+
+    xkb_parse_iterator_free(iter);
+
+    unmap_file(string, size);
 
     // return ok;
 
@@ -254,6 +255,7 @@ analyze_path(struct xkb_context *ctx, const char *path)
         // exit(-1);// FIXME
         return;
     }
+    // TODO check max opened files with midir
     while ((info = readdir(midir)) != 0) {
         char *full_path = asprintf_safe("%s/%s", path, info->d_name);
         if (!stat(full_path, &file_stat)) {
@@ -262,7 +264,7 @@ analyze_path(struct xkb_context *ctx, const char *path)
                     analyze_path(ctx, full_path);
                 }
             } else {
-                fprintf(stderr, "Found file: %s\n", info->d_name);
+                fprintf(stderr, "Processing file: %s\n", full_path);
                 analyze_file(ctx, full_path, info->d_name);
             }
         }
