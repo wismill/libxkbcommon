@@ -807,17 +807,19 @@ MapName         :       STRING  { $$ = $1; }
 
 %%
 
+#define parser_param_init(scanner_, ctx_) { \
+    .scanner = scanner_, \
+    .ctx = ctx_, \
+    .rtrn = NULL, \
+    .more_maps = false, \
+}
+
 XkbFile *
 parse(struct xkb_context *ctx, struct scanner *scanner, const char *map)
 {
     int ret;
     XkbFile *first = NULL;
-    struct parser_param param = {
-        .scanner = scanner,
-        .ctx = ctx,
-        .rtrn = NULL,
-        .more_maps = false,
-    };
+    struct parser_param param = parser_param_init(scanner, ctx);
 
     /*
      * If we got a specific map, we look for it exclusively and return
@@ -862,4 +864,34 @@ parse(struct xkb_context *ctx, struct scanner *scanner, const char *map)
                 scanner->file_name, first->name);
 
     return first;
+}
+
+xkb_file_section_iterator *
+parse_iterator_new(struct xkb_context *ctx, struct scanner *scanner)
+{
+    xkb_file_section_iterator *iter = calloc(1, sizeof(*iter));
+    *iter = (struct parser_param) parser_param_init(scanner, ctx);
+    return iter;
+}
+
+void
+parse_iterator_free(xkb_file_section_iterator *iter)
+{
+    FreeXkbFile(iter->rtrn);
+    iter->rtrn = NULL;
+    free(iter);
+}
+
+XkbFile *
+parse_iterator_next(xkb_file_section_iterator *iter, bool *ok)
+{
+    FreeXkbFile(iter->rtrn);
+    *ok = yyparse(iter) == 0;
+
+    if (*ok && iter->more_maps) {
+        return iter->rtrn;
+    }
+
+    FreeXkbFile(iter->rtrn);
+    return NULL;
 }

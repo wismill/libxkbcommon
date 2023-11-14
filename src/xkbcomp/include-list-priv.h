@@ -43,6 +43,8 @@ struct include_atom {
     bool is_map_default;
 };
 
+typedef darray(struct include_atom) includes_atoms;
+
 typedef darray(struct include_tree) include_trees;
 
 struct include_tree {
@@ -62,4 +64,15 @@ xkb_get_include_tree_from_file_v1(struct xkb_context *ctx,
 struct include_tree *
 xkb_get_include_tree_from_names_v1(struct xkb_context *ctx,
                                    const struct xkb_rule_names *rmlvo);
+
+bool
+xkb_file_get_sections_names_from_string_v1(struct xkb_context *ctx, char *string,
+                                           size_t size, const char *file_name,
+                                           includes_atoms *sections);
+
+bool
+xkb_file_get_sections_names_from_file_v1(struct xkb_context *ctx,
+                                         const char *file_name, FILE *file,
+                                         includes_atoms *sections);
+
 #endif

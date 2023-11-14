@@ -26,6 +26,8 @@
 #include "include-list-priv.h"
 
 #include "xkbcomp-priv.h"
+#include "parser-priv.h"
+#include "scanner-utils.h"
 #include "rules.h"
 
 void
@@ -232,4 +234,50 @@ xkb_get_include_tree_from_names_v1(struct xkb_context *ctx,
     struct include_tree *tree = xkb_get_keymap_include_tree(ctx, file);
     FreeXkbFile(file);
     return tree;
+}
+
+bool
+xkb_file_get_sections_names_from_string_v1(struct xkb_context *ctx, char *string,
+                                           size_t size, const char *file_name,
+                                           includes_atoms *sections)
+{
+    struct include_atom atom;
+    XkbFile *xkb_file;
+    bool ok;
+
+    struct scanner scanner;
+    scanner_init(&scanner, ctx, string, size, file_name, NULL);
+
+    xkb_file_section_iterator *iter = parse_iterator_new(ctx, &scanner);
+
+    while ((xkb_file = parse_iterator_next(iter, &ok))) {
+        create_include_atom(ctx, xkb_file, &atom);
+        darray_append(*sections, atom);
+    }
+
+    parse_iterator_free(iter);
+    return ok;
+}
+
+bool
+xkb_file_get_sections_names_from_file_v1(struct xkb_context *ctx,
+                                         const char *file_name, FILE *file,
+                                         includes_atoms *sections)
+{
+    bool ok;
+    char *string;
+    size_t size;
+
+    ok = map_file(file, &string, &size);
+    if (!ok) {
+        log_err(ctx, XKB_LOG_MESSAGE_NO_ID,
+                "Couldn't read XKB file %s: %s\n",
+                file_name, strerror(errno));
+        return false;
+    }
+
+    ok = xkb_file_get_sections_names_from_string_v1(ctx, string, size,
+                                                    file_name, sections);
+    unmap_file(string, size);
+    return ok;
 }
