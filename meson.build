@@ -469,6 +469,17 @@ if build_tools
                include_directories: [include_directories('src', 'include')],
                install: false)
 
+    # Tool: list-includes
+    executable('list-includes',
+               'src/xkbcomp/include-list.c',
+               'src/xkbcomp/include-list-priv.h',
+               'tools/list-includes.c',
+               libxkbcommon_sources,
+               dependencies: [tools_dep],
+               c_args: ['-DENABLE_PRIVATE_APIS'],
+               include_directories: [include_directories('src', 'include')],
+               install: false)
+
     # Tool: compose
     executable('compose',
                'tools/compose.c',
