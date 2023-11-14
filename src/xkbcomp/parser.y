@@ -263,7 +263,7 @@ XkbFile         :       XkbCompositeMap
 XkbCompositeMap :       OptFlags XkbCompositeType OptMapName OBRACE
                             XkbMapConfigList
                         CBRACE SEMI
-                        { $$ = XkbFileCreate($2, param->scanner->file_name, $3, (ParseCommon *) $5.head, $1); }
+                        { $$ = XkbFileCreate($2, param->scanner->path, $3, (ParseCommon *) $5.head, $1); }
                 ;
 
 XkbCompositeType:       XKB_KEYMAP      { $$ = FILE_TYPE_KEYMAP; }
@@ -281,7 +281,7 @@ XkbMapConfig    :       OptFlags FileType OptMapName OBRACE
                             DeclList
                         CBRACE SEMI
                         {
-                            $$ = XkbFileCreate($2, param->scanner->file_name, $3, $5.head, $1);
+                            $$ = XkbFileCreate($2, param->scanner->path, $3, $5.head, $1);
                         }
                 ;
 
@@ -861,7 +861,7 @@ parse(struct xkb_context *ctx, struct scanner *scanner, const char *map)
                 XKB_WARNING_MISSING_DEFAULT_SECTION,
                 "No map in include statement, but \"%s\" contains several; "
                 "Using first defined map, \"%s\"\n",
-                scanner->file_name, first->name);
+                scanner->path, first->name);
 
     return first;
 }

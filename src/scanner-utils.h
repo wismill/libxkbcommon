@@ -52,7 +52,7 @@ struct scanner {
     size_t line, column;
     /* The line/column of the start of the current token. */
     size_t token_line, token_column;
-    const char *file_name;
+    const char *path;
     struct xkb_context *ctx;
     void *priv;
 };
@@ -60,14 +60,14 @@ struct scanner {
 #define scanner_log_with_code(scanner, level, log_msg_id, fmt, ...) \
     xkb_log_with_code((scanner)->ctx, (level), 0, log_msg_id, \
                     "%s:%zu:%zu: " fmt "\n", \
-                    (scanner)->file_name, \
+                    (scanner)->path, \
                     (scanner)->token_line, \
                     (scanner)->token_column, ##__VA_ARGS__)
 
 #define scanner_log(scanner, level, fmt, ...) \
     xkb_log((scanner)->ctx, (level), 0, \
             "%s:%zu:%zu: " fmt "\n", \
-            (scanner)->file_name, \
+            (scanner)->path, \
             (scanner)->token_line, (scanner)->token_column, ##__VA_ARGS__)
 
 #define scanner_err_with_code(scanner, id, fmt, ...) \
@@ -84,7 +84,7 @@ struct scanner {
 
 static inline void
 scanner_init(struct scanner *s, struct xkb_context *ctx,
-             const char *string, size_t len, const char *file_name,
+             const char *string, size_t len, const char *path,
              void *priv)
 {
     s->s = string;
@@ -92,7 +92,7 @@ scanner_init(struct scanner *s, struct xkb_context *ctx,
     s->pos = 0;
     s->line = s->column = 1;
     s->token_line = s->token_column = 1;
-    s->file_name = file_name;
+    s->path = path;
     s->ctx = ctx;
     s->priv = priv;
 }

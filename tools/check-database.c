@@ -125,64 +125,6 @@ parse_options(int argc, char **argv, const char *(*includes)[MAX_INCLUDES],
     return true;
 }
 
-// #define INDENT_SIZE 2
-
-// static void
-// print_tree(struct xkb_context *ctx, struct include_tree *tree, unsigned int indent_size)
-// {
-//     struct include_tree *subtree;
-//     const char *merge;
-//     bool has_no_file;
-
-//     if (tree->type != FILE_TYPE_KEYMAP) {
-
-//         if (!indent_size) {
-//             printf("- %s:\n", xkb_file_type_to_string(tree->type));
-//             indent_size += INDENT_SIZE;
-//         }
-
-//         if (tree->file.file == XKB_ATOM_NONE) {
-//             has_no_file = true;
-//         } else {
-//             has_no_file = false;
-//             printf("%*s- file: \"%s(%s)\"\n", indent_size, "",
-//                 xkb_atom_text(ctx, tree->file.file),
-//                 xkb_atom_text(ctx, tree->file.map));
-//         }
-
-//         switch (tree->merge) {
-//             case MERGE_DEFAULT:
-//                 merge = "include";
-//                 break;
-//             case MERGE_AUGMENT:
-//                 merge = "augment";
-//                 break;
-//             case MERGE_OVERRIDE:
-//                 merge = "override";
-//                 break;
-//             case MERGE_REPLACE:
-//                 merge = "replace";
-//                 break;
-//             default:
-//                 merge = "(unknown)";
-//         }
-//         printf("%*s%smerge mode: %s\n", indent_size, "",
-//                has_no_file ? "- " : "  ", merge);
-//         if (darray_size(tree->included)) {
-//             printf("%*s  included files:\n", indent_size, "");
-//             darray_foreach(subtree, tree->included) {
-//                 print_tree(ctx, subtree, indent_size + INDENT_SIZE);
-//             }
-//         }
-//     } else {
-//         if (darray_size(tree->included)) {
-//             darray_foreach(subtree, tree->included) {
-//                 print_tree(ctx, subtree, indent_size);
-//             }
-//         }
-//     }
-// }
-
 static bool
 analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
 {
@@ -207,7 +149,7 @@ analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
     }
 
     struct xkb_file_section_iterator *iter;
-    iter = xkb_parse_iterator_new_from_string_v1(ctx, string, size, file_name);
+    iter = xkb_parse_iterator_new_from_string_v1(ctx, string, size, path);
 
     XkbFile *xkb_file;
 
@@ -222,22 +164,14 @@ analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
             atom.is_map_default ? " (default)" : "");
         struct include_tree *tree = xkb_get_component_include_tree(ctx, xkb_file);
         // TODO save tree
-        xkb_include_tree_subtree_free(tree);
+        xkb_include_tree_subtrees_free(tree);
+        free(tree);
+        // FIXME FreeXkbFile(file);
     }
 
     xkb_parse_iterator_free(iter);
 
     unmap_file(string, size);
-
-    // return ok;
-
-    // tree = xkb_get_include_tree_from_file_v1(ctx, path, from_xkb.map, file);
-
-    // if (!tree) {
-    //     fprintf(stderr, "Couldn't load include tree of file: %s\n", from_xkb.path);
-    //     ret = EXIT_FAILURE;
-    //     goto out;
-    // }
 
     return true;
 }
@@ -245,18 +179,18 @@ analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
 static void
 analyze_path(struct xkb_context *ctx, const char *path)
 {
-    DIR *midir;
+    DIR *my_dir;
     struct dirent* info;
     struct stat file_stat;
 
     fprintf(stderr, "~~~ Analyze path: %s ~~~\n", path);
-    if ((midir=opendir(path)) == NULL) {
+    if ((my_dir=opendir(path)) == NULL) {
         perror("Error in opendir");
         // exit(-1);// FIXME
         return;
     }
-    // TODO check max opened files with midir
-    while ((info = readdir(midir)) != 0) {
+    // TODO check max opened files with readdir
+    while ((info = readdir(my_dir)) != 0) {
         char *full_path = asprintf_safe("%s/%s", path, info->d_name);
         if (!stat(full_path, &file_stat)) {
             if (S_ISDIR(file_stat.st_mode)) {
@@ -270,7 +204,7 @@ analyze_path(struct xkb_context *ctx, const char *path)
         }
         free(full_path);
     }
-    closedir(midir);
+    closedir(my_dir);
 }
 
 static void

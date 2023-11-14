@@ -534,7 +534,7 @@ err:
 }
 
 XkbFile *
-XkbFileCreate(enum xkb_file_type type, const char *file_name, char *name,
+XkbFileCreate(enum xkb_file_type type, const char *path, char *name,
               ParseCommon *defs, enum xkb_map_flags flags)
 {
     XkbFile *file;
@@ -545,7 +545,7 @@ XkbFileCreate(enum xkb_file_type type, const char *file_name, char *name,
 
     XkbEscapeMapName(name);
     file->file_type = type;
-    file->file_name = file_name;
+    file->path = path;
     file->name = name ? name : strdup("(unnamed)");
     file->defs = defs;
     file->flags = flags;

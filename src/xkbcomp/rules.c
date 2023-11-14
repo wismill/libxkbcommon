@@ -365,7 +365,7 @@ matcher_include(struct matcher *m, struct scanner *parent_scanner,
     FILE *file;
 
     scanner_init(&s, m->ctx, inc.start, inc.len,
-                 parent_scanner->file_name, NULL);
+                 parent_scanner->path, NULL);
     s.token_line = parent_scanner->token_line;
     s.token_column = parent_scanner->token_column;
     s.buf_pos = 0;

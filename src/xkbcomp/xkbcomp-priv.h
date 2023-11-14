@@ -42,12 +42,12 @@ text_v1_keymap_get_as_string(struct xkb_keymap *keymap);
 
 XkbFile *
 XkbParseFile(struct xkb_context *ctx, FILE *file,
-             const char *file_name, const char *map);
+             const char *path, const char *map);
 
 XkbFile *
 XkbParseString(struct xkb_context *ctx,
                const char *string, size_t len,
-               const char *file_name, const char *map);
+               const char *path, const char *map);
 
 void
 FreeXkbFile(XkbFile *file);

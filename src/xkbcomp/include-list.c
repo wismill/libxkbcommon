@@ -30,11 +30,11 @@
 #include "rules.h"
 
 void
-xkb_include_tree_subtree_free(struct include_tree *tree)
+xkb_include_tree_subtrees_free(struct include_tree *tree)
 {
     struct include_tree *subtree;
     darray_foreach(subtree, tree->included) {
-        xkb_include_tree_subtree_free(subtree);
+        xkb_include_tree_subtrees_free(subtree);
     }
     darray_free(tree->included);
 }
@@ -43,9 +43,9 @@ void
 xkb_create_include_atom(struct xkb_context *ctx, XkbFile *file,
                         struct include_atom *atom)
 {
-    atom->file = isempty(file->file_name)
+    atom->file = isempty(file->path)
         ? XKB_ATOM_NONE
-        : xkb_atom_intern(ctx, file->file_name, strlen(file->file_name));
+        : xkb_atom_intern(ctx, file->path, strlen(file->path));
     atom->map = isempty(file->name)
         ? XKB_ATOM_NONE
         : xkb_atom_intern(ctx, file->name, strlen(file->name));
@@ -64,7 +64,6 @@ xkb_get_include_tree(struct xkb_context *ctx, include_trees *includes, XkbFile *
             XkbFile *included_file = ProcessIncludeFile(ctx, include, file->file_type);
 
             if (!included_file) {
-                FreeXkbFile(included_file);
                 continue;
             }
 
@@ -259,6 +258,7 @@ xkb_parse_iterator_free(struct xkb_file_section_iterator *iter)
 {
     free(iter->scanner);
     parse_iterator_free(iter->iter);
+    free(iter);
 }
 
 XkbFile *

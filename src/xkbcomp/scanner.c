@@ -195,10 +195,10 @@ skip_more_whitespace_and_comments:
 
 XkbFile *
 XkbParseString(struct xkb_context *ctx, const char *string, size_t len,
-               const char *file_name, const char *map)
+               const char *path, const char *map)
 {
     struct scanner scanner;
-    scanner_init(&scanner, ctx, string, len, file_name, NULL);
+    scanner_init(&scanner, ctx, string, len, path, NULL);
 
     /* Basic detection of wrong character encoding.
        The first character relevant to the grammar must be ASCII:
@@ -218,7 +218,7 @@ XkbParseString(struct xkb_context *ctx, const char *string, size_t len,
 
 XkbFile *
 XkbParseFile(struct xkb_context *ctx, FILE *file,
-             const char *file_name, const char *map)
+             const char *path, const char *map)
 {
     bool ok;
     XkbFile *xkb_file;
@@ -229,11 +229,11 @@ XkbParseFile(struct xkb_context *ctx, FILE *file,
     if (!ok) {
         log_err(ctx, XKB_LOG_MESSAGE_NO_ID,
                 "Couldn't read XKB file %s: %s\n",
-                file_name, strerror(errno));
+                path, strerror(errno));
         return NULL;
     }
 
-    xkb_file = XkbParseString(ctx, string, size, file_name, map);
+    xkb_file = XkbParseString(ctx, string, size, path, map);
     unmap_file(string, size);
     return xkb_file;
 }

@@ -306,14 +306,18 @@ ProcessIncludeFile(struct xkb_context *ctx, IncludeStmt *stmt,
 {
     FILE *file;
     XkbFile *xkb_file = NULL;
+    char *path = NULL;
     unsigned int offset = 0;
 
-    file = FindFileInXkbPath(ctx, stmt->file, file_type, NULL, &offset);
-    if (!file)
+    file = FindFileInXkbPath(ctx, stmt->file, file_type, &path, &offset);
+    if (!file) {
+        if (path)
+            free(path);
         return NULL;
+    }
 
     while (file) {
-        xkb_file = XkbParseFile(ctx, file, stmt->file, stmt->map);
+        xkb_file = XkbParseFile(ctx, file, path, stmt->map);
         fclose(file);
 
         if (xkb_file) {
@@ -331,8 +335,10 @@ ProcessIncludeFile(struct xkb_context *ctx, IncludeStmt *stmt,
             }
         }
 
+        free(path);
+        path = NULL;
         offset++;
-        file = FindFileInXkbPath(ctx, stmt->file, file_type, NULL, &offset);
+        file = FindFileInXkbPath(ctx, stmt->file, file_type, &path, &offset);
     }
 
     if (!xkb_file) {
@@ -346,6 +352,8 @@ ProcessIncludeFile(struct xkb_context *ctx, IncludeStmt *stmt,
                     XKB_ERROR_INVALID_INCLUDED_FILE,
                     "Couldn't process include statement for '%s'\n",
                     stmt->file);
+        if (path)
+            free(path);
     }
 
     return xkb_file;

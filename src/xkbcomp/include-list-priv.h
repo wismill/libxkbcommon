@@ -56,7 +56,7 @@ struct include_tree {
 };
 
 void
-xkb_include_tree_subtree_free(struct include_tree *tree);
+xkb_include_tree_subtrees_free(struct include_tree *tree);
 
 struct include_tree *
 xkb_get_component_include_tree(struct xkb_context *ctx, XkbFile *file);

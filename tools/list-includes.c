@@ -309,7 +309,7 @@ main(int argc, char *argv[])
 
     print_tree(ctx, tree, 0);
 
-    xkb_include_tree_subtree_free(tree);
+    xkb_include_tree_subtrees_free(tree);
     free(tree);
 
 out:
