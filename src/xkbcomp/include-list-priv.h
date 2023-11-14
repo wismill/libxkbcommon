@@ -39,9 +39,11 @@
 #include "include.h"
 
 struct include_atom {
+    xkb_atom_t path;
     xkb_atom_t file;
     xkb_atom_t map;
     bool is_map_default;
+    bool valid;
 };
 
 typedef darray(struct include_atom) includes_atoms;
@@ -82,8 +84,20 @@ xkb_parse_iterator_new_from_string_v1(struct xkb_context *ctx, char *string,
 void
 xkb_parse_iterator_free(struct xkb_file_section_iterator *iter);
 
-XkbFile *
+struct xkb_file_section {
+    xkb_atom_t name;
+    bool is_default;
+    darray(struct include_atom) includes;
+};
+
+void
+xkb_file_section_free(struct xkb_file_section *section);
+
+struct xkb_file_section *
 xkb_parse_iterator_next(struct xkb_file_section_iterator *iter, bool *ok);
+
+XkbFile *
+xkb_parse_iterator_next_legacy(struct xkb_file_section_iterator *iter, bool *ok);
 
 bool
 xkb_file_get_sections_names_from_string_v1(struct xkb_context *ctx, char *string,

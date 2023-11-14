@@ -261,12 +261,70 @@ xkb_parse_iterator_free(struct xkb_file_section_iterator *iter)
     free(iter);
 }
 
-XkbFile *
+void
+xkb_file_section_free(struct xkb_file_section *section)
+{
+    darray_free(section->includes);
+}
+
+struct xkb_file_section *
 xkb_parse_iterator_next(struct xkb_file_section_iterator *iter, bool *ok)
+{
+    XkbFile *xkb_file = parse_iterator_next(iter->iter, ok);
+    struct xkb_file_section *section = calloc(1, sizeof(*section));
+    if (!section)
+        return NULL;
+
+    section->name = xkb_atom_intern(iter->scanner->ctx, xkb_file->name,
+                                    strlen(xkb_file->name));
+    section->is_default = !!(xkb_file->flags & MAP_IS_DEFAULT);
+    darray_init(section->includes);
+
+    for (ParseCommon *stmt = xkb_file->defs; stmt; stmt = stmt->next) {
+        if (stmt->type != STMT_INCLUDE) {
+            continue;
+        }
+        for (IncludeStmt *include = (IncludeStmt *) stmt; include; include = include->next_incl) {
+            char *path;
+            unsigned int offset = 0;
+            FILE *file = FindFileInXkbPath(iter->scanner->ctx, include->file,
+                                           xkb_file->file_type, &path, &offset);
+            bool valid;
+            if (file) {
+                valid = true;
+                fclose(file);
+            } else {
+                valid = false;
+            }
+            const struct include_atom inc = {
+                .path = isempty(path)
+                    ? XKB_ATOM_NONE
+                    : xkb_atom_intern(iter->scanner->ctx, path, strlen(path)),
+                .file = isempty(include->file)
+                    ? XKB_ATOM_NONE
+                    : xkb_atom_intern(iter->scanner->ctx, include->file,
+                                      strlen(include->file)),
+                .map = isempty(include->map)
+                    ? XKB_ATOM_NONE
+                    : xkb_atom_intern(iter->scanner->ctx, include->map,
+                                      strlen(include->map)),
+                .is_map_default = false, // FIXME unknown for now
+                .valid = valid
+            };
+            darray_append(section->includes, inc);
+            free(path);
+        }
+    }
+}
+
+// FIXME: remove
+XkbFile *
+xkb_parse_iterator_next_legacy(struct xkb_file_section_iterator *iter, bool *ok)
 {
     return parse_iterator_next(iter->iter, ok);
 }
 
+// FIXME: remove
 bool
 xkb_file_get_sections_names_from_string_v1(struct xkb_context *ctx, char *string,
                                            size_t size, const char *file_name,
@@ -290,6 +348,7 @@ xkb_file_get_sections_names_from_string_v1(struct xkb_context *ctx, char *string
     return ok;
 }
 
+// FIXME: remove
 bool
 xkb_file_get_sections_names_from_file_v1(struct xkb_context *ctx,
                                          const char *file_name, FILE *file,

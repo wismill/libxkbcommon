@@ -27,8 +27,9 @@
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <dirent.h>
-#include <sys/stat.h>
+// #include <dirent.h>
+// #include <sys/stat.h>
+#include <fts.h>
 
 #include "darray.h"
 #include "src/xkbcomp/include-list-priv.h"
@@ -153,7 +154,7 @@ analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
 
     XkbFile *xkb_file;
 
-    while ((xkb_file = xkb_parse_iterator_next(iter, &ok))) {
+    while ((xkb_file = xkb_parse_iterator_next_legacy(iter, &ok))) {
         // TODO: use "ok"
         struct include_atom atom;
         xkb_create_include_atom(ctx, xkb_file, &atom);
@@ -179,32 +180,65 @@ analyze_file(struct xkb_context *ctx, const char *path, char *file_name)
 static void
 analyze_path(struct xkb_context *ctx, const char *path)
 {
-    DIR *my_dir;
-    struct dirent* info;
-    struct stat file_stat;
-
     fprintf(stderr, "~~~ Analyze path: %s ~~~\n", path);
-    if ((my_dir=opendir(path)) == NULL) {
-        perror("Error in opendir");
-        // exit(-1);// FIXME
+
+    char *paths[] = { (char*) path, NULL};
+
+    FTS *fts;
+    if (!(fts = fts_open(paths, FTS_LOGICAL, NULL))) {
+        // FIXME handle error
         return;
     }
-    // TODO check max opened files with readdir
-    while ((info = readdir(my_dir)) != 0) {
-        char *full_path = asprintf_safe("%s/%s", path, info->d_name);
-        if (!stat(full_path, &file_stat)) {
-            if (S_ISDIR(file_stat.st_mode)) {
-                if (strcmp(info->d_name, ".") != 0 && strcmp(info->d_name, "..") != 0) {
-                    analyze_path(ctx, full_path);
-                }
-            } else {
-                fprintf(stderr, "Processing file: %s\n", full_path);
-                analyze_file(ctx, full_path, info->d_name);
-            }
+
+    FTSENT *p;
+    while ((p = fts_read(fts))) {
+        switch (p->fts_info) {
+            case FTS_DP:
+                // FIXME directory
+                break;
+            case FTS_F:
+                analyze_file(ctx, p->fts_accpath, p->fts_name);
+                // fprintf(stderr, "#### File: %s\n", p->fts_accpath);
+                break;
+            case FTS_SL:
+            case FTS_SLNONE:
+                // FIXME symbolic link
+                // fprintf(stderr, "#### Symbolic link: %s\n", p->fts_accpath);
+                break;
         }
-        free(full_path);
     }
-    closedir(my_dir);
+    // TODO check errno??
+
+    fts_close(fts);
+
+    return;
+
+    // DIR *my_dir;
+    // struct dirent* info;
+    // struct stat file_stat;
+
+    // if ((my_dir=opendir(path)) == NULL) {
+    //     perror("Error in opendir");
+    //     // exit(-1);// FIXME
+    //     return;
+    // }
+
+    // // TODO check max opened files with readdir
+    // while ((info = readdir(my_dir)) != 0) {
+    //     char *full_path = asprintf_safe("%s/%s", path, info->d_name);
+    //     if (!stat(full_path, &file_stat)) {
+    //         if (S_ISDIR(file_stat.st_mode)) {
+    //             if (strcmp(info->d_name, ".") != 0 && strcmp(info->d_name, "..") != 0) {
+    //                 analyze_path(ctx, full_path);
+    //             }
+    //         } else {
+    //             fprintf(stderr, "Processing file: %s\n", full_path);
+    //             analyze_file(ctx, full_path, info->d_name);
+    //         }
+    //     }
+    //     free(full_path);
+    // }
+    // closedir(my_dir);
 }
 
 static void
