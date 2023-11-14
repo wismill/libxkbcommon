@@ -480,6 +480,17 @@ if build_tools
                include_directories: [include_directories('src', 'include')],
                install: false)
 
+    # Tool: check-database
+    executable('check-database',
+               'src/xkbcomp/include-list.c',
+               'src/xkbcomp/include-list-priv.h',
+               'tools/check-database.c',
+               libxkbcommon_sources,
+               dependencies: [tools_dep],
+               c_args: ['-DENABLE_PRIVATE_APIS'],
+               include_directories: [include_directories('src', 'include')],
+               install: false)
+
     # Tool: compose
     executable('compose',
                'tools/compose.c',
