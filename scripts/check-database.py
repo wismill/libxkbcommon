@@ -36,6 +36,7 @@ class RMLVO:
 @dataclass
 class Section:
     name: str
+    default: bool
     registry: Iterable[RMLVO]
     includes: Iterable[Include]
 
@@ -56,7 +57,9 @@ def add_rmlvos_to_all_deps(files, rmlvos, includes):
         assert file_conf, include.get("path")
         section_name = include.get("section")
         for section in file_conf.get("sections"):
-            if section.get("name") == section_name:
+            if section.get("name") == section_name or (
+                section.get("default", False) and not section_name
+            ):
                 registry = section.get("registry", [])
                 if not registry:
                     section["registry"] = list(map(dict, rmlvos))
@@ -74,15 +77,34 @@ def add_rmlvos_to_all_deps(files, rmlvos, includes):
                 add_rmlvos_to_all_deps(files, rmlvos, section.get("includes", ()))
 
 
+def add_dep(files, dep, includes):
+    for include in includes:
+        file_conf = files.get(include.get("path"))
+        assert file_conf, include.get("path")
+        section_name = include.get("section")
+        for section in file_conf.get("sections"):
+            if section.get("name") == section_name or (
+                section.get("default", False) and not section_name
+            ):
+                deps = section.get("included by", [])
+                deps.append(dict(dep))
+                section["included by"] = deps
+
+
 for component in Component:
     files = x.get(component.value)
     for path, file_conf in files.items():
         if file_conf.get("canonical") and not file_conf.get("error"):
             for section in file_conf.get("sections"):
-                if (registry := section.get("registry")) and (
-                    includes := section.get("includes")
-                ):
-                    add_rmlvos_to_all_deps(files, registry, includes)
+                if includes := section.get("includes"):
+                    dep = {
+                        "name": file_conf.get("name"),
+                        "section": section.get("name"),
+                        "path": path,
+                    }
+                    add_dep(files, dep, includes)
+                    if registry := section.get("registry"):
+                        add_rmlvos_to_all_deps(files, registry, includes)
 
 # yaml.safe_dump(x, sys.stdout, encoding="utf-8", sort_keys=False, default_style="\"")
 yaml.safe_dump(x, sys.stdout, encoding="utf-8", sort_keys=False)
