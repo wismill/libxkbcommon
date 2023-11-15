@@ -32,6 +32,7 @@
 // #include <dirent.h>
 // #include <sys/stat.h>
 #include <fts.h>
+// #include <libgen.h>
 
 #include "xkbcommon/xkbcommon.h"
 #include "xkbcommon/xkbregistry.h"
@@ -195,6 +196,8 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
 {
     printf("%*s\"%s\":\n", INDENT_LENGTH * indent, "", path);
     indent++;
+    printf("%*sname: \"%s\"\n", INDENT_LENGTH * indent, "", file_name);
+
     /* Load file */
     FILE *file = fopen(path, "rb");
     if (file == NULL) {
@@ -203,6 +206,7 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
         return false;
     }
 
+    /* Map file */
     bool ok;
     char *string;
     size_t size;
@@ -213,9 +217,22 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
         log_err(ctx, XKB_LOG_MESSAGE_NO_ID,
                 "Couldn't read XKB file %s: %s\n",
                 file_name, strerror(errno));
-        printf("%*s  error: Cannot map file\n", INDENT_LENGTH * indent, "");
+        printf("%*serror: Cannot map file\n", INDENT_LENGTH * indent, "");
         return false;
     }
+
+    unsigned int offset = 0;
+    char *path2;
+    file = FindFileInXkbPath(ctx, file_name, component->type, &path2, &offset);
+    if (file)
+        fclose(file);
+    bool canonical = streq_not_null(path, path2);
+    printf("%*scanonical: %s\n", INDENT_LENGTH * indent, "",
+           canonical ? "true" : "false");
+    if (!canonical && path2) {
+        printf("%*soverriden by: \"%s\"\n", INDENT_LENGTH * indent, "", path2);
+    }
+    free(path2);
 
     struct include_atom atom = {
         .path = xkb_atom_intern(ctx, path, strlen(path)),
@@ -238,7 +255,7 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
         }
         atom.map = section->name;
         atom.is_map_default = section->is_default;
-        printf("%*s- name: %s\n", INDENT_LENGTH * indent, "",
+        printf("%*s- name: \"%s\"\n", INDENT_LENGTH * indent, "",
                xkb_atom_text(ctx, atom.map));
         if (atom.is_map_default) {
             printf("%*s  default: true\n", INDENT_LENGTH * indent, "");
@@ -260,11 +277,11 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
             indent++;
             const char *section_name;
             darray_foreach(inc, cur->includes) {
-                printf("%*s- file: %s\n", INDENT_LENGTH * indent, "",
+                printf("%*s- name: \"%s\"\n", INDENT_LENGTH * indent, "",
                        xkb_atom_text(ctx, inc->file));
-                printf("%*s  section: %s\n", INDENT_LENGTH * indent, "",
+                printf("%*s  section: \"%s\"\n", INDENT_LENGTH * indent, "",
                         (section_name = xkb_atom_text(ctx, inc->map)) ? section_name : "null");
-                printf("%*s  path: %s\n", INDENT_LENGTH * indent, "",
+                printf("%*s  path: \"%s\"\n", INDENT_LENGTH * indent, "",
                        xkb_atom_text(ctx, inc->path));
             }
             indent--;
@@ -309,12 +326,11 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
 
     return true;
 }
-
 static void
 analyze_path(struct xkb_context *ctx, struct keymap_component *component,
              const char *path, unsigned int indent)
 {
-    // printf("%*s- path: %s\n", INDENT_LENGTH * indent, "", path);
+    // printf("%*s# path: %s\n", INDENT_LENGTH * indent, "", path);
 
     char *paths[] = { (char*) path, NULL};
 
@@ -324,20 +340,30 @@ analyze_path(struct xkb_context *ctx, struct keymap_component *component,
         return;
     }
 
-    bool has_files = false;
-
     FTSENT *p;
+    char relative_path[PATH_MAX];
     while ((p = fts_read(fts))) {
         switch (p->fts_info) {
             case FTS_DP:
                 // FIXME directory
                 break;
             case FTS_F:
-                if (!has_files) {
-                    has_files = true;
-                    printf("\n");
+                /* Relative path to */
+                FTSENT *p2 = p->fts_parent;
+                p2->fts_pointer = p;
+                while (p2->fts_level > 0) {
+                    p2->fts_parent->fts_pointer = p2;
+                    p2 = p2->fts_parent;
                 }
-                analyze_file(ctx, component, p->fts_accpath, p->fts_name, indent);
+                size_t len = 0;
+                while ((p2 = p2->fts_pointer)) {
+                    strcpy(&relative_path[len], p2->fts_name);
+                    len += p2->fts_namelen;
+                    relative_path[len] = '/';
+                    len++;
+                }
+                relative_path[len - 1] = '\0';
+                analyze_file(ctx, component, p->fts_path, relative_path, indent);
                 break;
             case FTS_SL:
             case FTS_SLNONE:
@@ -348,10 +374,6 @@ analyze_path(struct xkb_context *ctx, struct keymap_component *component,
     }
 
     // TODO check errno??
-    if (!has_files) {
-        printf(" []\n");
-    }
-
     fts_close(fts);
 
     return;
@@ -430,16 +452,16 @@ check(struct xkb_context *ctx)
     };
 
     /* Get all files */
-    for (unsigned int idx = 0; idx < xkb_context_num_include_paths(ctx); idx++) {
-        const char *include_path = xkb_context_include_path_get(ctx, idx);
-        printf("- path: %s\n", include_path);
-        for (int k = 0; k < COMPONENT_COUNT; k++) {
-            printf("  %s:", xkb_file_type_to_string(comps[k]->type));
+    for (int k = 0; k < COMPONENT_COUNT; k++) {
+        printf("%s:\n", xkb_file_type_to_string(comps[k]->type));
+        for (unsigned int idx = 0; idx < xkb_context_num_include_paths(ctx); idx++) {
+            const char *include_path = xkb_context_include_path_get(ctx, idx);
+            printf("  # include path: %s\n", include_path);
             char *path = asprintf_safe(
                 "%s/%s",
                 include_path, xkb_file_type_include_dirs[comps[k]->type]
             );
-            analyze_path(ctx, comps[k], path, 2);
+            analyze_path(ctx, comps[k], path, 1);
             free(path);
         }
     }
