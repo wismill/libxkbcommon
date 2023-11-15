@@ -447,31 +447,6 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
         printf("%*serror: Parse error\n", INDENT_LENGTH * indent, "");
     }
 
-    /*
-    struct xkb_file_section_iterator *iter;
-    iter = xkb_parse_iterator_new_from_string_v1(ctx, string, size, path);
-
-    XkbFile *xkb_file;
-
-    while ((xkb_file = xkb_parse_iterator_next_legacy(iter, &ok))) {
-        // TODO: use "ok"
-        struct include_atom atom;
-        xkb_create_include_atom(ctx, xkb_file, &atom);
-        // darray_append(*sections, atom);
-        printf("- %s(%s)%s\n",
-            xkb_atom_text(ctx, atom.file),
-            xkb_atom_text(ctx, atom.map),
-            atom.is_map_default ? " (default)" : "");
-        struct include_tree *tree = xkb_get_component_include_tree(ctx, xkb_file);
-        // TODO save tree
-        xkb_include_tree_subtrees_free(tree);
-        free(tree);
-        // FIXME FreeXkbFile(file);
-    }
-
-    xkb_parse_iterator_free(iter);
-    */
-
     unmap_file(string, size);
 
     return true;
@@ -624,89 +599,6 @@ check_files(struct xkb_context *ctx, struct registry_matches *registry)
 }
 
 static void
-print_registry_entry(struct xkb_context *ctx, struct rxkb_context *rctx,
-                     struct xkb_rule_names *names, unsigned int indent)
-{
-    printf("%*s- rmlvo:\n", INDENT_LENGTH * indent, "");
-    indent += 2;
-    printf("%*smodel: \"%s\"\n", INDENT_LENGTH * indent, "", names->model);
-    printf("%*slayout: \"%s\"\n", INDENT_LENGTH * indent, "", names->layout);
-    printf("%*svariant: \"%s\"\n", INDENT_LENGTH * indent, "", names->variant ? names->variant : "");
-    printf("%*soptions: \"%s\"\n", INDENT_LENGTH * indent, "", names->options ? names->options : "");
-    indent -= 2;
-    printf("%*s  kccgst:\n", INDENT_LENGTH * indent, "");
-    struct xkb_component_names kccgst;
-    if (!xkb_components_from_rules(ctx, names, &kccgst))
-        // FIXME
-        return;
-    indent += 2;
-    printf("%*skeycodes: \"%s\"\n", INDENT_LENGTH * indent, "", kccgst.keycodes);
-    printf("%*stypes: \"%s\"\n", INDENT_LENGTH * indent, "", kccgst.types);
-    printf("%*scompat: \"%s\"\n", INDENT_LENGTH * indent, "", kccgst.compat);
-    printf("%*ssymbols: \"%s\"\n", INDENT_LENGTH * indent, "", kccgst.symbols);
-
-    free(kccgst.keycodes);
-    free(kccgst.types);
-    free(kccgst.compat);
-    free(kccgst.symbols);
-}
-
-static void
-check_registry(struct xkb_context *ctx,
-               const char *(*includes)[MAX_INCLUDES], size_t num_includes,
-               darray_string *rulesets)
-{
-    printf("registry:\n");
-    char **ruleset;
-    unsigned int indent = 1;
-    darray_foreach(ruleset, *rulesets) {
-        struct rxkb_context *rctx = rxkb_context_new(
-            RXKB_CONTEXT_NO_DEFAULT_INCLUDES | RXKB_CONTEXT_LOAD_EXOTIC_RULES
-        );
-        if (!rctx)
-            goto rcontext_error;
-
-        for (size_t i = 0; i < num_includes; i++) {
-            const char *include = *includes[i];
-            if (strcmp(include, DEFAULT_INCLUDE_PATH_PLACEHOLDER) == 0)
-                rxkb_context_include_path_append_default(rctx);
-            else
-                rxkb_context_include_path_append(rctx, include);
-        }
-        if (!rxkb_context_parse(rctx, *ruleset)) {
-            fprintf(stderr, "Failed to parse XKB descriptions for ruleset: %s.\n", *ruleset);
-            goto rcontext_error;
-        }
-        printf("%*s\"%s\":\n", INDENT_LENGTH * indent, "", *ruleset);
-        printf("%*s# layouts\n", INDENT_LENGTH * indent, "");
-        struct rxkb_model *m;
-        struct rxkb_layout *l;
-        l = rxkb_layout_first(rctx);
-        while (l) {
-            m = rxkb_model_first(rctx);
-            while (m) {
-                struct xkb_rule_names names = {
-                    .rules = *ruleset,
-                    .model = rxkb_model_get_name(m),
-                    .layout = rxkb_layout_get_name(l),
-                    .variant = rxkb_layout_get_variant(l),
-                    .options = DEFAULT_XKB_OPTIONS,
-                };
-                print_registry_entry(ctx, rctx, &names, indent);
-                m = rxkb_model_next(m);
-            }
-            l = rxkb_layout_next(l);
-        }
-        // TODO
-        printf("%*s# options\n", INDENT_LENGTH * indent, "");
-        // struct rxkb_option_group *g;
-        // TODO
-rcontext_error:
-        rxkb_context_unref(rctx);
-    }
-}
-
-static void
 load_registry(struct xkb_context *ctx,
               const char *(*includes)[MAX_INCLUDES], size_t num_includes,
               darray_string *rulesets, struct registry_matches *registry)
@@ -744,7 +636,6 @@ load_registry(struct xkb_context *ctx,
                     .variant = rxkb_layout_get_variant(l),
                     .options = DEFAULT_XKB_OPTIONS,
                 };
-                // print_registry_entry(ctx, rctx, &names, indent);
                 struct xkb_component_names kccgst;
                 if (!xkb_components_from_rules(ctx, &names, &kccgst))
                     continue; // FIXME
@@ -760,8 +651,35 @@ load_registry(struct xkb_context *ctx,
             // }
             l = rxkb_layout_next(l);
         }
-        // TODO
-        // struct rxkb_option_group *g;
+        struct rxkb_option_group *g;
+        g = rxkb_option_group_first(rctx);
+        while (g) {
+            struct rxkb_option *o;
+            o = rxkb_option_first(g);
+            while (o) {
+                struct xkb_rule_names names = {
+                    .rules = *ruleset,
+                    .model = DEFAULT_XKB_MODEL,
+                    .layout = DEFAULT_XKB_LAYOUT,
+                    .variant = DEFAULT_XKB_VARIANT,
+                    .options = rxkb_option_get_name(o),
+                };
+                struct xkb_component_names kccgst;
+                if (!xkb_components_from_rules(ctx, &names, &kccgst))
+                    continue; // FIXME
+                registry_match_add_raw(ctx, &registry->keycodes, kccgst.keycodes, &names);
+                registry_match_add_raw(ctx, &registry->compat, kccgst.compat, &names);
+                registry_match_add_raw(ctx, &registry->symbols, kccgst.symbols, &names);
+                registry_match_add_raw(ctx, &registry->types, kccgst.types, &names);
+                free(kccgst.keycodes);
+                free(kccgst.types);
+                free(kccgst.compat);
+                free(kccgst.symbols);
+                o = rxkb_option_next(o);
+            }
+
+            g = rxkb_option_group_next(g);
+        }
 rcontext_error:
         rxkb_context_unref(rctx);
     }
@@ -834,9 +752,6 @@ main(int argc, char *argv[])
     free(tree);
 
     registry_matches_free(&registry);
-
-    // /* Registry listing */
-    // check_registry(ctx, &includes, num_includes, &rulesets);
 
 context_error:
     xkb_context_unref(ctx);
