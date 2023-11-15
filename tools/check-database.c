@@ -39,6 +39,7 @@
 #include "darray.h"
 #include "src/atom.h"
 #include "src/xkbcomp/ast.h"
+#include "src/xkbcomp/ast-build.h"
 #include "src/xkbcomp/include-list-priv.h"
 #include "src/xkbcomp/xkbcomp-priv.h"
 #include "src/xkbcomp/rules.h"
@@ -148,6 +149,112 @@ struct registry_entry {
     bool root_include;
 };
 
+struct rmlvo_conf {
+    xkb_atom_t rules;
+    xkb_atom_t model;
+    xkb_atom_t layout;
+    xkb_atom_t variant;
+    xkb_atom_t options;
+};
+
+struct registry_match {
+    xkb_atom_t file;
+    xkb_atom_t section;
+    darray(struct rmlvo_conf) entries;
+};
+
+static void
+registry_match_free(struct registry_match *m)
+{
+    darray_free(m->entries);
+}
+
+typedef darray(struct registry_match) registry_match_array;
+
+struct registry_matches {
+    registry_match_array keycodes;
+    registry_match_array compat;
+    registry_match_array symbols;
+    registry_match_array types;
+};
+
+static void
+registry_matches_free(struct registry_matches *matches)
+{
+    struct registry_match *m;
+    darray_foreach(m, matches->keycodes) {
+        registry_match_free(m);
+    }
+    darray_foreach(m, matches->compat) {
+        registry_match_free(m);
+    }
+    darray_foreach(m, matches->symbols) {
+        registry_match_free(m);
+    }
+    darray_foreach(m, matches->types) {
+        registry_match_free(m);
+    }
+}
+
+static struct registry_match *
+registry_match_lookup(registry_match_array *array, xkb_atom_t file, xkb_atom_t section)
+{
+    struct registry_match *m;
+    darray_foreach(m, *array) {
+        if (m->file == file && m->section == section) {
+            return m;
+        }
+    }
+    /* Not found */
+    return NULL;
+}
+
+static void
+registry_match_add_entry(struct xkb_context *ctx, registry_match_array *array,
+                         xkb_atom_t file, xkb_atom_t section,
+                         struct xkb_rule_names *names)
+{
+    struct registry_match *m;
+    if (!(m = registry_match_lookup(array, file, section))) {
+        struct registry_match new = {
+            .file = file,
+            .section = section,
+            .entries = darray_new()
+        };
+        size_t len = darray_size(*array);
+        darray_append(*array, new);
+        m = &darray_item(*array, len);
+    }
+    struct rmlvo_conf rmlvo = {
+        .rules = xkb_atom_intern(ctx, names->rules, strlen(names->rules)),
+        .model = xkb_atom_intern(ctx, names->model, strlen(names->model)),
+        .layout = xkb_atom_intern(ctx, names->layout, strlen(names->layout)),
+        .variant = names->variant
+            ? xkb_atom_intern(ctx, names->variant, strlen(names->variant))
+            : XKB_ATOM_NONE,
+        .options = names->options
+            ? xkb_atom_intern(ctx, names->options, strlen(names->options))
+            : XKB_ATOM_NONE
+    };
+    darray_append(m->entries, rmlvo);
+}
+
+static void
+registry_match_add_raw(struct xkb_context *ctx, registry_match_array *array,
+                       char *include,
+                       struct xkb_rule_names *names)
+{
+    IncludeStmt *inc = IncludeCreate(ctx, include, MERGE_DEFAULT);
+    for (IncludeStmt *stmt = inc; stmt; stmt = stmt->next_incl) {
+        xkb_atom_t file = xkb_atom_intern(ctx, stmt->file, strlen(stmt->file));
+        xkb_atom_t section = stmt->map
+            ? xkb_atom_intern(ctx, stmt->map, strlen(stmt->map))
+            : XKB_ATOM_NONE;
+        registry_match_add_entry(ctx, array, file, section, names);
+    }
+    FreeStmt((ParseCommon *) inc);
+}
+
 struct keymap_component_file {
     struct include_atom file;
     darray(struct include_atom) includes;
@@ -159,6 +266,7 @@ struct keymap_component {
     enum xkb_file_type type;
     darray(struct keymap_component_file) files;
     darray(struct include_atom) refs;
+    registry_match_array *registry;
 };
 
 struct keymap_components {
@@ -191,6 +299,24 @@ keymap_components_free(struct keymap_components *components)
 }
 
 #define INDENT_LENGTH 2
+
+static void
+print_rmlvo(struct xkb_context *ctx, struct rmlvo_conf *rmlvo, unsigned int indent)
+{
+    printf("%*s- rules: \"%s\"\n", INDENT_LENGTH * indent, "", xkb_atom_text(ctx, rmlvo->rules));
+    printf("%*s  model: \"%s\"\n", INDENT_LENGTH * indent, "", xkb_atom_text(ctx, rmlvo->model));
+    printf("%*s  layout: \"%s\"\n", INDENT_LENGTH * indent, "", xkb_atom_text(ctx, rmlvo->layout));
+    printf("%*s  variant: ", INDENT_LENGTH * indent, "");
+    if (rmlvo->variant)
+        printf("\"%s\"\n", xkb_atom_text(ctx, rmlvo->variant));
+    else
+        printf("null\n");
+    printf("%*s  options: ", INDENT_LENGTH * indent, "");
+    if (rmlvo->options)
+        printf("\"%s\"\n", xkb_atom_text(ctx, rmlvo->options));
+    else
+        printf("null\n");
+}
 
 static bool
 analyze_file(struct xkb_context *ctx, struct keymap_component *component,
@@ -262,6 +388,25 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
         if (atom.is_map_default) {
             printf("%*s  default: true\n", INDENT_LENGTH * indent, "");
         }
+        if (canonical) {
+            struct registry_match *m = registry_match_lookup(
+                component->registry, atom.file, atom.map);
+            if (!m && atom.is_map_default)
+                m = registry_match_lookup(component->registry, atom.file, XKB_ATOM_NONE);
+            if (m) {
+                printf("%*s  registry:\n", INDENT_LENGTH * indent, "");
+                indent++;
+                struct rmlvo_conf *rmlvo;
+                darray_foreach(rmlvo, m->entries) {
+                    print_rmlvo(ctx, rmlvo, indent);
+                }
+                indent--;
+            } else {
+                printf("%*s  registry: null\n", INDENT_LENGTH * indent, "");
+            }
+        } else {
+            printf("%*s  registry: []\n", INDENT_LENGTH * indent, "");
+        }
         struct keymap_component_file comp_file = {
             .file = atom,
             .includes = darray_new(),
@@ -281,8 +426,11 @@ analyze_file(struct xkb_context *ctx, struct keymap_component *component,
             darray_foreach(inc, cur->includes) {
                 printf("%*s- name: \"%s\"\n", INDENT_LENGTH * indent, "",
                        xkb_atom_text(ctx, inc->file));
-                printf("%*s  section: \"%s\"\n", INDENT_LENGTH * indent, "",
-                        (section_name = xkb_atom_text(ctx, inc->map)) ? section_name : "null");
+                printf("%*s  section: ", INDENT_LENGTH * indent, "");
+                if ((section_name = xkb_atom_text(ctx, inc->map)))
+                    printf("\"%s\"\n", section_name);
+                else
+                    printf("null\n");
                 printf("%*s  path: \"%s\"\n", INDENT_LENGTH * indent, "",
                        xkb_atom_text(ctx, inc->path));
             }
@@ -422,28 +570,32 @@ static const char *xkb_file_type_include_dirs[_FILE_TYPE_NUM_ENTRIES] = {
 #define COMPONENT_COUNT 4
 
 static void
-check_files(struct xkb_context *ctx)
+check_files(struct xkb_context *ctx, struct registry_matches *registry)
 {
     struct keymap_components components = {
         .keycodes = {
             .type = FILE_TYPE_KEYCODES,
             .files = darray_new(),
-            .refs = darray_new()
+            .refs = darray_new(),
+            .registry = &registry->keycodes
         },
         .compat = {
             .type = FILE_TYPE_COMPAT,
             .files = darray_new(),
-            .refs = darray_new()
+            .refs = darray_new(),
+            .registry = &registry->compat
         },
         .symbols = {
             .type = FILE_TYPE_SYMBOLS,
             .files = darray_new(),
-            .refs = darray_new()
+            .refs = darray_new(),
+            .registry = &registry->symbols
         },
         .types = {
             .type = FILE_TYPE_TYPES,
             .files = darray_new(),
-            .refs = darray_new()
+            .refs = darray_new(),
+            .registry = &registry->types
         }
     };
     struct keymap_component *comps[COMPONENT_COUNT] = {
@@ -554,6 +706,67 @@ rcontext_error:
     }
 }
 
+static void
+load_registry(struct xkb_context *ctx,
+              const char *(*includes)[MAX_INCLUDES], size_t num_includes,
+              darray_string *rulesets, struct registry_matches *registry)
+{
+    char **ruleset;
+    darray_foreach(ruleset, *rulesets) {
+        struct rxkb_context *rctx = rxkb_context_new(
+            RXKB_CONTEXT_NO_DEFAULT_INCLUDES | RXKB_CONTEXT_LOAD_EXOTIC_RULES
+        );
+        if (!rctx)
+            goto rcontext_error;
+
+        for (size_t i = 0; i < num_includes; i++) {
+            const char *include = *includes[i];
+            if (strcmp(include, DEFAULT_INCLUDE_PATH_PLACEHOLDER) == 0)
+                rxkb_context_include_path_append_default(rctx);
+            else
+                rxkb_context_include_path_append(rctx, include);
+        }
+        if (!rxkb_context_parse(rctx, *ruleset)) {
+            fprintf(stderr, "Failed to parse XKB descriptions for ruleset: %s.\n", *ruleset);
+            goto rcontext_error;
+        }
+        // struct rxkb_model *m;
+        struct rxkb_layout *l;
+        l = rxkb_layout_first(rctx);
+        while (l) {
+            // m = rxkb_model_first(rctx);
+            // while (m) {
+                struct xkb_rule_names names = {
+                    .rules = *ruleset,
+                    // .model = rxkb_model_get_name(m),
+                    .model = DEFAULT_XKB_MODEL,
+                    .layout = rxkb_layout_get_name(l),
+                    .variant = rxkb_layout_get_variant(l),
+                    .options = DEFAULT_XKB_OPTIONS,
+                };
+                // print_registry_entry(ctx, rctx, &names, indent);
+                struct xkb_component_names kccgst;
+                if (!xkb_components_from_rules(ctx, &names, &kccgst))
+                    continue; // FIXME
+                registry_match_add_raw(ctx, &registry->keycodes, kccgst.keycodes, &names);
+                registry_match_add_raw(ctx, &registry->compat, kccgst.compat, &names);
+                registry_match_add_raw(ctx, &registry->symbols, kccgst.symbols, &names);
+                registry_match_add_raw(ctx, &registry->types, kccgst.types, &names);
+                free(kccgst.keycodes);
+                free(kccgst.types);
+                free(kccgst.compat);
+                free(kccgst.symbols);
+                // m = rxkb_model_next(m);
+            // }
+            l = rxkb_layout_next(l);
+        }
+        // TODO
+        // struct rxkb_option_group *g;
+rcontext_error:
+        rxkb_context_unref(rctx);
+    }
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -608,16 +821,22 @@ main(int argc, char *argv[])
             xkb_context_include_path_append(ctx, include);
     }
 
-    char **rule;
-    darray_foreach(rule, rulesets) {
-        fprintf(stderr, "=== Rule: %s ===\n", *rule);
-    }
+    struct registry_matches registry = {
+        .keycodes = darray_new(),
+        .compat = darray_new(),
+        .symbols = darray_new(),
+        .types = darray_new()
+    };
 
-    check_files(ctx);
+    load_registry(ctx, &includes, num_includes, &rulesets, &registry);
+
+    check_files(ctx, &registry);
     free(tree);
 
-    /* Registry listing */
-    check_registry(ctx, &includes, num_includes, &rulesets);
+    registry_matches_free(&registry);
+
+    // /* Registry listing */
+    // check_registry(ctx, &includes, num_includes, &rulesets);
 
 context_error:
     xkb_context_unref(ctx);
