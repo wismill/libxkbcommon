@@ -486,7 +486,7 @@ if build_tools
                'src/xkbcomp/include-list-priv.h',
                'tools/check-database.c',
                libxkbcommon_sources,
-               dependencies: [tools_dep],
+               dependencies: [tools_dep, dep_libxkbregistry],
                c_args: ['-DENABLE_PRIVATE_APIS'],
                include_directories: [include_directories('src', 'include')],
                install: false)

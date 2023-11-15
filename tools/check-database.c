@@ -40,6 +40,8 @@
 #include "src/atom.h"
 #include "src/xkbcomp/ast.h"
 #include "src/xkbcomp/include-list-priv.h"
+#include "src/xkbcomp/xkbcomp-priv.h"
+#include "src/xkbcomp/rules.h"
 
 #define DEFAULT_INCLUDE_PATH_PLACEHOLDER "__defaults__"
 #define MAX_INCLUDES 64
@@ -133,7 +135,7 @@ parse_options(int argc, char **argv, const char *(*includes)[MAX_INCLUDES],
     return true;
 }
 
-struct rule_names {
+struct rulesets {
     xkb_atom_t rules;
     xkb_atom_t model;
     xkb_atom_t layout;
@@ -142,7 +144,7 @@ struct rule_names {
 };
 
 struct registry_entry {
-    struct rule_names rlmvo;
+    struct rulesets rlmvo;
     bool root_include;
 };
 
@@ -420,7 +422,7 @@ static const char *xkb_file_type_include_dirs[_FILE_TYPE_NUM_ENTRIES] = {
 #define COMPONENT_COUNT 4
 
 static void
-check(struct xkb_context *ctx)
+check_files(struct xkb_context *ctx)
 {
     struct keymap_components components = {
         .keycodes = {
@@ -469,6 +471,89 @@ check(struct xkb_context *ctx)
     keymap_components_free(&components);
 }
 
+static void
+print_registry_entry(struct xkb_context *ctx, struct rxkb_context *rctx,
+                     struct xkb_rule_names *names, unsigned int indent)
+{
+    printf("%*s- rmlvo:\n", INDENT_LENGTH * indent, "");
+    indent += 2;
+    printf("%*smodel: \"%s\"\n", INDENT_LENGTH * indent, "", names->model);
+    printf("%*slayout: \"%s\"\n", INDENT_LENGTH * indent, "", names->layout);
+    printf("%*svariant: \"%s\"\n", INDENT_LENGTH * indent, "", names->variant ? names->variant : "");
+    printf("%*soptions: \"%s\"\n", INDENT_LENGTH * indent, "", names->options ? names->options : "");
+    indent -= 2;
+    printf("%*s  kccgst:\n", INDENT_LENGTH * indent, "");
+    struct xkb_component_names kccgst;
+    if (!xkb_components_from_rules(ctx, names, &kccgst))
+        // FIXME
+        return;
+    indent += 2;
+    printf("%*skeycodes: \"%s\"\n", INDENT_LENGTH * indent, "", kccgst.keycodes);
+    printf("%*stypes: \"%s\"\n", INDENT_LENGTH * indent, "", kccgst.types);
+    printf("%*scompat: \"%s\"\n", INDENT_LENGTH * indent, "", kccgst.compat);
+    printf("%*ssymbols: \"%s\"\n", INDENT_LENGTH * indent, "", kccgst.symbols);
+
+    free(kccgst.keycodes);
+    free(kccgst.types);
+    free(kccgst.compat);
+    free(kccgst.symbols);
+}
+
+static void
+check_registry(struct xkb_context *ctx,
+               const char *(*includes)[MAX_INCLUDES], size_t num_includes,
+               darray_string *rulesets)
+{
+    printf("registry:\n");
+    char **ruleset;
+    unsigned int indent = 1;
+    darray_foreach(ruleset, *rulesets) {
+        struct rxkb_context *rctx = rxkb_context_new(
+            RXKB_CONTEXT_NO_DEFAULT_INCLUDES | RXKB_CONTEXT_LOAD_EXOTIC_RULES
+        );
+        if (!rctx)
+            goto rcontext_error;
+
+        for (size_t i = 0; i < num_includes; i++) {
+            const char *include = *includes[i];
+            if (strcmp(include, DEFAULT_INCLUDE_PATH_PLACEHOLDER) == 0)
+                rxkb_context_include_path_append_default(rctx);
+            else
+                rxkb_context_include_path_append(rctx, include);
+        }
+        if (!rxkb_context_parse(rctx, *ruleset)) {
+            fprintf(stderr, "Failed to parse XKB descriptions for ruleset: %s.\n", *ruleset);
+            goto rcontext_error;
+        }
+        printf("%*s\"%s\":\n", INDENT_LENGTH * indent, "", *ruleset);
+        printf("%*s# layouts\n", INDENT_LENGTH * indent, "");
+        struct rxkb_model *m;
+        struct rxkb_layout *l;
+        l = rxkb_layout_first(rctx);
+        while (l) {
+            m = rxkb_model_first(rctx);
+            while (m) {
+                struct xkb_rule_names names = {
+                    .rules = *ruleset,
+                    .model = rxkb_model_get_name(m),
+                    .layout = rxkb_layout_get_name(l),
+                    .variant = rxkb_layout_get_variant(l),
+                    .options = DEFAULT_XKB_OPTIONS,
+                };
+                print_registry_entry(ctx, rctx, &names, indent);
+                m = rxkb_model_next(m);
+            }
+            l = rxkb_layout_next(l);
+        }
+        // TODO
+        printf("%*s# options\n", INDENT_LENGTH * indent, "");
+        // struct rxkb_option_group *g;
+        // TODO
+rcontext_error:
+        rxkb_context_unref(rctx);
+    }
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -477,7 +562,7 @@ main(int argc, char *argv[])
     struct include_tree *tree = NULL;
     const char *includes[MAX_INCLUDES];
     size_t num_includes = 0;
-    darray_string rule_names = darray_new();
+    darray_string rulesets = darray_new();
     struct xkb_rule_names names = {
         .rules = DEFAULT_XKB_RULES,
         .model = DEFAULT_XKB_MODEL,
@@ -493,7 +578,7 @@ main(int argc, char *argv[])
         return EXIT_INVALID_USAGE;
     }
 
-    if (!parse_options(argc, argv, &includes, &num_includes, &rule_names))
+    if (!parse_options(argc, argv, &includes, &num_includes, &rulesets))
         return EXIT_INVALID_USAGE;
 
     // /* Now fill in the layout */
@@ -509,7 +594,7 @@ main(int argc, char *argv[])
     ctx = xkb_context_new(XKB_CONTEXT_NO_DEFAULT_INCLUDES);
     if (!ctx) {
         fprintf(stderr, "Couldn't create xkb context\n");
-        goto out;
+        goto context_error;
     }
 
     if (num_includes == 0)
@@ -524,39 +609,21 @@ main(int argc, char *argv[])
     }
 
     char **rule;
-    darray_foreach(rule, rule_names) {
+    darray_foreach(rule, rulesets) {
         fprintf(stderr, "=== Rule: %s ===\n", *rule);
     }
 
-    check(ctx);
-
-    // if (from_xkb.path != NULL) {
-    //     FILE *file = fopen(from_xkb.path, "rb");
-    //     if (file == NULL) {
-    //         perror(from_xkb.path);
-    //         goto file_error;
-    //     }
-
-    //     tree = xkb_get_include_tree_from_file_v1(ctx, from_xkb.path,
-    //                                              from_xkb.map, file);
-
-    //     fclose(file);
-    //     if (!tree) {
-    //         fprintf(stderr, "Couldn't load include tree of file: %s\n", from_xkb.path);
-    //         ret = EXIT_FAILURE;
-    //         goto out;
-    //     }
-    // } else {
-    //     tree = xkb_get_include_tree_from_names_v1(ctx, &names);
-    // }
-    // xkb_include_tree_subtree_free(tree);
-
+    check_files(ctx);
     free(tree);
 
-out:
-    darray_free(rule_names);
-file_error:
+    /* Registry listing */
+    check_registry(ctx, &includes, num_includes, &rulesets);
+
+context_error:
     xkb_context_unref(ctx);
+
+out:
+    darray_free(rulesets);
 
     return ret;
 }
