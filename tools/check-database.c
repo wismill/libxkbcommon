@@ -236,6 +236,21 @@ registry_match_add_entry(struct xkb_context *ctx, registry_match_array *array,
             ? xkb_atom_intern(ctx, names->options, strlen(names->options))
             : XKB_ATOM_NONE
     };
+    struct rmlvo_conf *rmlvo_prev;
+    // /* Find previous identical entry */
+    // darray_foreach(rmlvo_prev, m->entries) {
+    //     if (rmlvo_prev->rules == rmlvo.rules &&
+    //         rmlvo_prev->model == rmlvo.model &&
+    //         rmlvo_prev->layout == rmlvo.layout &&
+    //         rmlvo_prev->variant == rmlvo.variant &&
+    //         rmlvo_prev->options == rmlvo.options)
+    //         return;
+    // }
+    /* Find previous entry of the same ruleset */
+    darray_foreach(rmlvo_prev, m->entries) {
+        if (rmlvo_prev->rules == rmlvo.rules)
+            return;
+    }
     darray_append(m->entries, rmlvo);
 }
 
@@ -622,33 +637,56 @@ load_registry(struct xkb_context *ctx,
             fprintf(stderr, "Failed to parse XKB descriptions for ruleset: %s.\n", *ruleset);
             goto rcontext_error;
         }
-        // struct rxkb_model *m;
-        struct rxkb_layout *l;
-        l = rxkb_layout_first(rctx);
+        struct rxkb_layout *l = rxkb_layout_first(rctx);
         while (l) {
-            // m = rxkb_model_first(rctx);
-            // while (m) {
+            struct xkb_rule_names names_ref = {
+                .rules = *ruleset,
+                // .model = rxkb_model_get_name(m),
+                .model = DEFAULT_XKB_MODEL,
+                .layout = rxkb_layout_get_name(l),
+                .variant = rxkb_layout_get_variant(l),
+                .options = DEFAULT_XKB_OPTIONS,
+            };
+            struct xkb_component_names kccgst_ref;
+            if (!xkb_components_from_rules(ctx, &names_ref, &kccgst_ref))
+                goto no_kccgst_ref;
+            registry_match_add_raw(ctx, &registry->keycodes, kccgst_ref.keycodes, &names_ref);
+            registry_match_add_raw(ctx, &registry->compat, kccgst_ref.compat, &names_ref);
+            registry_match_add_raw(ctx, &registry->symbols, kccgst_ref.symbols, &names_ref);
+            registry_match_add_raw(ctx, &registry->types, kccgst_ref.types, &names_ref);
+            struct rxkb_model *m = rxkb_model_first(rctx);
+            while (m) {
                 struct xkb_rule_names names = {
                     .rules = *ruleset,
-                    // .model = rxkb_model_get_name(m),
-                    .model = DEFAULT_XKB_MODEL,
+                    .model = rxkb_model_get_name(m),
                     .layout = rxkb_layout_get_name(l),
                     .variant = rxkb_layout_get_variant(l),
                     .options = DEFAULT_XKB_OPTIONS,
                 };
                 struct xkb_component_names kccgst;
-                if (!xkb_components_from_rules(ctx, &names, &kccgst))
-                    continue; // FIXME
-                registry_match_add_raw(ctx, &registry->keycodes, kccgst.keycodes, &names);
-                registry_match_add_raw(ctx, &registry->compat, kccgst.compat, &names);
-                registry_match_add_raw(ctx, &registry->symbols, kccgst.symbols, &names);
-                registry_match_add_raw(ctx, &registry->types, kccgst.types, &names);
+                if (xkb_components_from_rules(ctx, &names, &kccgst)) {
+                    if (!streq(kccgst.keycodes, kccgst_ref.keycodes) ||
+                        !streq(kccgst.compat, kccgst_ref.compat) ||
+                        !streq(kccgst.symbols, kccgst_ref.symbols) ||
+                        !streq(kccgst.types, kccgst_ref.types))
+                    {
+                        registry_match_add_raw(ctx, &registry->keycodes, kccgst.keycodes, &names);
+                        registry_match_add_raw(ctx, &registry->compat, kccgst.compat, &names);
+                        registry_match_add_raw(ctx, &registry->symbols, kccgst.symbols, &names);
+                        registry_match_add_raw(ctx, &registry->types, kccgst.types, &names);
+                    }
+                }
                 free(kccgst.keycodes);
                 free(kccgst.types);
                 free(kccgst.compat);
                 free(kccgst.symbols);
-                // m = rxkb_model_next(m);
-            // }
+                m = rxkb_model_next(m);
+            }
+no_kccgst_ref:
+            free(kccgst_ref.keycodes);
+            free(kccgst_ref.types);
+            free(kccgst_ref.compat);
+            free(kccgst_ref.symbols);
             l = rxkb_layout_next(l);
         }
         struct rxkb_option_group *g;
