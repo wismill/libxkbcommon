@@ -1,12 +1,30 @@
 #!/usr/bin/env python3
+
+from __future__ import annotations
 import argparse
+from dataclasses import dataclass
 import multiprocessing
 import sys
 import subprocess
 import os
+from typing import TYPE_CHECKING, ClassVar, Generator, Optional, TypeAlias
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from ctypes import (
+    POINTER,
+    Structure,
+    _Pointer,
+    byref,
+    c_char,
+    c_char_p,
+    c_int,
+    cdll,
+    create_string_buffer,
+    string_at,
+)
+from ctypes.util import find_library
 
+import wurlitzer
 
 verbose = False
 
@@ -14,7 +32,7 @@ DEFAULT_RULES_XML = "@XKB_CONFIG_ROOT@/rules/evdev.xml"
 
 # Meson needs to fill this in so we can call the tool in the buildir.
 EXTRA_PATH = "@MESON_BUILD_ROOT@"
-os.environ["PATH"] = ":".join([EXTRA_PATH, os.getenv("PATH")])
+os.environ["PATH"] = ":".join([EXTRA_PATH, os.getenv("PATH", "")])
 
 
 def escape(s):
@@ -38,60 +56,73 @@ def create_progress_bar(verbose):
     return progress_bar
 
 
-class Invocation:
-    def __init__(self, r, m, l, v, o):
-        self.command = ""
-        self.rules = r
-        self.model = m
-        self.layout = l
-        self.variant = v
-        self.option = o
-        self.exitstatus = 77  # default to skipped
-        self.error = None
-        self.keymap = None  # The fully compiled keymap
+@dataclass
+class RMLVO:
+    rules: str = "evdev"
+    model: str = "pc105"
+    layout: str = "us"
+    variant: str = ""
+    option: str = ""
+
+    def __iter__(self) -> Generator[str, None, None]:
+        yield self.rules
+        yield self.model
+        yield self.layout
+        yield self.variant
+        yield self.option
+
+
+@dataclass
+class Invocation(RMLVO):
+    exitstatus: int = 77  # default to skipped
+    error: str = ""
+    keymap: str = ""  # The fully compiled keymap
+    command: str = ""
 
     @property
-    def rmlvo(self):
-        return self.rules, self.model, self.layout, self.variant, self.option
-
-    def __str__(self):
-        s = []
-        rmlvo = [x or "" for x in self.rmlvo]
-        rmlvo = ", ".join([f'"{x}"' for x in rmlvo])
-        s.append(f"- rmlvo: [{rmlvo}]")
-        s.append(f'  cmd: "{escape(self.command)}"')
-        s.append(f"  status: {self.exitstatus}")
+    def __str(self) -> Generator[str, None, None]:
+        rmlvo = ", ".join(f'"{x}"' for x in self)
+        yield f"- rmlvo: [{rmlvo}]"
+        yield f'  cmd: "{escape(self.command)}"'
+        yield f"  status: {self.exitstatus}"
         if self.error:
-            s.append(f'  error: "{escape(self.error.strip())}"')
-        return "\n".join(s)
+            yield f'  error: "{escape(self.error.strip())}"'
 
-    def run(self):
+    def __str__(self) -> str:
+        return "\n".join(self.__str)
+
+    def _run(self):
         raise NotImplementedError
 
+    @staticmethod
+    def run(i: Invocation):
+        i._run()
+        return i
 
+
+@dataclass
 class XkbCompInvocation(Invocation):
-    def run(self):
-        r, m, l, v, o = self.rmlvo
+    xkbcomp_args: ClassVar[list[str]] = ["xkbcomp", "-xkb", "-", "-"]
+
+    def _run(self):
         args = ["setxkbmap", "-print"]
-        if r is not None:
+        if self.rules:
             args.append("-rules")
-            args.append("{}".format(r))
-        if m is not None:
+            args.append("{}".format(self.rules))
+        if self.model:
             args.append("-model")
-            args.append("{}".format(m))
-        if l is not None:
+            args.append("{}".format(self.model))
+        if self.layout:
             args.append("-layout")
-            args.append("{}".format(l))
-        if v is not None:
+            args.append("{}".format(self.layout))
+        if self.variant:
             args.append("-variant")
-            args.append("{}".format(v))
-        if o is not None:
+            args.append("{}".format(self.variant))
+        if self.option:
             args.append("-option")
-            args.append("{}".format(o))
+            args.append("{}".format(self.option))
 
-        xkbcomp_args = ["xkbcomp", "-xkb", "-", "-"]
-
-        self.command = " ".join(args + ["|"] + xkbcomp_args)
+        self.command = " ".join(args + ["|"] + self.xkbcomp_args)
 
         setxkbmap = subprocess.Popen(
             args,
@@ -105,7 +136,7 @@ class XkbCompInvocation(Invocation):
             self.exitstatus = 90
         else:
             xkbcomp = subprocess.Popen(
-                xkbcomp_args,
+                self.xkbcomp_args,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -120,27 +151,28 @@ class XkbCompInvocation(Invocation):
                 self.exitstatus = 0
 
 
+@dataclass
 class XkbcommonInvocation(Invocation):
-    UNRECOGNIZED_KEYSYM_ERROR = "XKB-107"
+    UNRECOGNIZED_KEYSYM_ERROR: ClassVar[str] = "XKB-107"
 
-    def run(self):
-        r, m, l, v, o = self.rmlvo
-        args = [
+    def _run(self):
+        args: tuple[str, ...] = (
             "xkbcli-compile-keymap",  # this is run in the builddir
             "--verbose",
             "--rules",
-            r,
+            self.rules,
             "--model",
-            m,
+            self.model,
             "--layout",
-            l,
-        ]
-        if v is not None:
-            args += ["--variant", v]
-        if o is not None:
-            args += ["--options", o]
+            self.layout,
+        )
+        if self.variant:
+            args += ("--variant", self.variant)
+        if self.option:
+            args += ("--options", self.option)
 
         self.command = " ".join(args)
+
         try:
             output = subprocess.check_output(
                 args, stderr=subprocess.STDOUT, universal_newlines=True
@@ -158,57 +190,265 @@ class XkbcommonInvocation(Invocation):
             self.exitstatus = err.returncode
 
 
-def xkbcommontool(rmlvo):
-    try:
-        r = rmlvo.get("r", "evdev")
-        m = rmlvo.get("m", "pc105")
-        l = rmlvo.get("l", "us")
-        v = rmlvo.get("v", None)
-        o = rmlvo.get("o", None)
-        tool = XkbcommonInvocation(r, m, l, v, o)
-        tool.run()
-        return tool
-    except KeyboardInterrupt:
-        pass
+################################################################################
+# ctypes for xkbcommon
+################################################################################
 
 
-def xkbcomp(rmlvo):
-    try:
-        r = rmlvo.get("r", "evdev")
-        m = rmlvo.get("m", "pc105")
-        l = rmlvo.get("l", "us")
-        v = rmlvo.get("v", None)
-        o = rmlvo.get("o", None)
-        tool = XkbCompInvocation(r, m, l, v, o)
-        tool.run()
-        return tool
-    except KeyboardInterrupt:
-        pass
+class allocated_c_char_p(c_char_p):
+    """
+    This class is used in place of c_char_p when we need to free it manually.
+    Python would convert c_char_p to a bytes string and we would not be able to free it.
+    """
+
+    pass
 
 
-def parse(path):
+class xkb_context(Structure):
+    pass
+
+
+class xkb_keymap(Structure):
+    pass
+
+
+class xkb_rule_names(Structure):
+    _fields_ = [
+        ("rules", POINTER(c_char)),
+        ("model", POINTER(c_char)),
+        ("layout", POINTER(c_char)),
+        ("variant", POINTER(c_char)),
+        ("options", POINTER(c_char)),
+    ]
+
+
+# [HACK] Typing ctypes correctly is difficult. The following works, but there
+#        could be another better way.
+if TYPE_CHECKING:
+    xkb_context_p: TypeAlias = _Pointer[xkb_context]
+    xkb_rule_names_p: TypeAlias = _Pointer[xkb_rule_names]
+    xkb_keymap_p: TypeAlias = _Pointer[xkb_keymap]
+else:
+    xkb_context_p = POINTER(xkb_context)
+    xkb_rule_names_p = POINTER(xkb_rule_names)
+    xkb_keymap_p = POINTER(xkb_keymap)
+xkb_context_flags = c_int
+xkb_keymap_compile_flags = c_int
+xkb_keymap_format = c_int
+
+XKB_CONTEXT_NO_DEFAULT_INCLUDES = 1 << 0
+XKB_CONTEXT_NO_ENVIRONMENT_NAMES = 1 << 1
+XKB_KEYMAP_FORMAT_TEXT_V1 = 1
+
+if libc_path := find_library("c"):
+    libc = cdll.LoadLibrary(libc_path)
+else:
+    raise ValueError("Cannot import libc")
+
+xkbcommon_path = os.environ.get("XKBCOMMON_LIB_PATH")
+
+if xkbcommon_path:
+    xkbcommon_path = str(Path(xkbcommon_path).resolve())
+    xkbcommon = cdll.LoadLibrary(xkbcommon_path)
+else:
+    xkbcommon_path = find_library("xkbcommon")
+    if xkbcommon_path:
+        xkbcommon = cdll.LoadLibrary(xkbcommon_path)
+    else:
+        raise OSError("Cannot load libxbcommon")
+
+xkbcommon.xkb_context_new.argtypes = [xkb_context_flags]
+xkbcommon.xkb_context_new.restype = POINTER(xkb_context)
+
+xkbcommon.xkb_keymap_new_from_names.argtypes = [
+    POINTER(xkb_context),
+    POINTER(xkb_rule_names),
+    xkb_keymap_compile_flags,
+]
+xkbcommon.xkb_keymap_new_from_names.restype = POINTER(xkb_keymap)
+
+xkbcommon.xkb_keymap_get_as_string.argtypes = [POINTER(xkb_keymap), xkb_keymap_format]
+# Note: should be c_char_p; see comment in the definiton of allocated_c_char_p.
+xkbcommon.xkb_keymap_get_as_string.restype = allocated_c_char_p
+
+
+def load_keymap(
+    xkb_config_root: Path | None = None,
+    rules=None,
+    model=None,
+    layout=None,
+    variant=None,
+    options=None,
+) -> xkb_keymap_p:
+    # Create context
+    flags = XKB_CONTEXT_NO_ENVIRONMENT_NAMES
+    if xkb_config_root is not None:
+        flags |= XKB_CONTEXT_NO_DEFAULT_INCLUDES
+    context = xkbcommon.xkb_context_new(flags)
+    if not context:
+        raise ValueError("Couldn't create xkb context")
+    if xkb_config_root is not None:
+        raw_path = create_string_buffer(str(xkb_config_root).encode("utf-8"))
+        xkbcommon.xkb_context_include_path_append(context, raw_path)
+    rmlvo = xkb_rule_names(
+        rules=create_string_buffer(rules.encode("utf-8")) if rules else None,
+        model=create_string_buffer(model.encode("utf-8")) if model else None,
+        layout=create_string_buffer(layout.encode("utf-8")) if layout else None,
+        variant=create_string_buffer(variant.encode("utf-8")) if variant else None,
+        options=create_string_buffer(options.encode("utf-8")) if options else None,
+    )
+    # Load keymap
+    keymap = xkbcommon.xkb_keymap_new_from_names(context, byref(rmlvo), 0)
+    if not keymap:
+        raise ValueError(
+            f"Failed to compile RMLVO: {rules=}, {model=}, {layout=}, "
+            f"{variant=}, {options=}"
+        )
+
+    xkbcommon.xkb_context_unref(context)
+    return keymap
+
+
+def keymap_as_string(keymap: xkb_keymap_p) -> str:
+    p = xkbcommon.xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1)
+    s = string_at(p).decode("utf-8")
+    libc.free(p)
+    return s
+
+
+class ForeignKeymap:
+    """
+    Context manager to ensure proper handling of foreign `xkb_keymap` object.
+
+    Intended use::
+
+        with ForeignKeymap(xkb_base, layout="de") as keymap:
+            with ForeignState(keymap) as state:
+                # Use state safely here
+                state.process_key_event(...)
+    """
+
+    def __init__(
+        self,
+        xkb_base: Optional[Path] = None,
+        rules: Optional[str] = None,
+        model: Optional[str] = None,
+        layout: Optional[str] = None,
+        variant: Optional[str] = None,
+        options: Optional[str] = None,
+    ):
+        self.xkb_base = xkb_base
+        self._keymap = POINTER(xkb_keymap)()  # NULL pointer
+        self.rules = rules
+        self.model = model
+        self.layout = layout
+        self.variant = variant
+        self.options = options
+
+    def __enter__(self) -> xkb_keymap_p:
+        self._keymap = load_keymap(
+            self.xkb_base,
+            model=self.model,
+            layout=self.layout,
+            variant=self.variant,
+            options=self.options,
+        )
+        return self._keymap
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        xkbcommon.xkb_keymap_unref(self._keymap)
+
+    def check(self) -> bool:
+        """
+        Test if keymap compiles with corresponding RMLVO config.
+        """
+        try:
+            with self:
+                return bool(self._keymap)
+        except ValueError:
+            return False
+
+    def as_string(self) -> str:
+        """
+        Export a keymap as a string, or return an empty string on error.
+        """
+        try:
+            with self as keymap:
+                if not bool(keymap):
+                    return ""
+                return keymap_as_string(keymap)
+        except ValueError:
+            return ""
+
+
+################################################################################
+
+
+@dataclass
+class XkbcommonLibInvocation(XkbcommonInvocation):
+    def _run(self):
+        args: tuple[str, ...] = (
+            "--rules",
+            self.rules,
+            "--model",
+            self.model,
+            "--layout",
+            self.layout,
+        )
+        if self.variant:
+            args += ("--variant", self.variant)
+        if self.option:
+            args += ("--options", self.option)
+
+        self.command = " ".join(args)
+
+        with wurlitzer.pipes(bufsize=65536) as (out, err):
+            try:
+                keymap = ForeignKeymap(rules=self.rules, layout=self.layout)
+                self.keymap = keymap.as_string()
+            except ValueError:
+                self.error = "failed to compile keymap"
+                self.exitstatus = 1
+        output = err.read()
+        if self.UNRECOGNIZED_KEYSYM_ERROR in output:
+            for line in output.split("\n"):
+                if self.UNRECOGNIZED_KEYSYM_ERROR in line:
+                    self.error = line
+            self.exitstatus = 99  # tool doesn't generate this one
+        else:
+            self.exitstatus = 0
+            self.keymap = output + self.keymap
+
+
+def parse(path, tool):
     root = ET.fromstring(open(path).read())
     layouts = root.findall("layoutList/layout")
 
-    options = [e.text for e in root.findall("optionList/group/option/configItem/name")]
+    options = tuple(
+        e.text or "" for e in root.findall("optionList/group/option/configItem/name")
+    )
 
-    combos = []
+    count = 0
     for l in layouts:
-        layout = l.find("configItem/name").text
-        combos.append({"l": layout})
+        count += 1 + len(l.findall("variantList/variant")) * (1 + len(options))
 
-        variants = l.findall("variantList/variant")
-        for v in variants:
-            variant = v.find("configItem/name").text
+    def iter_combos() -> Generator[Invocation, None, None]:
+        for l in layouts:
+            layout = l.find("configItem/name").text or ""
+            yield tool(layout=layout)
 
-            combos.append({"l": layout, "v": variant})
-            for option in options:
-                combos.append({"l": layout, "v": variant, "o": option})
+            variants = l.findall("variantList/variant")
+            for v in variants:
+                variant = v.find("configItem/name").text or ""
+                yield tool(layout=layout, variant=variant)
 
-    return combos
+                for option in options:
+                    yield tool(layout=layout, variant=variant, option=option)
+
+    return count, iter_combos()
 
 
-def run(combos, tool, njobs, keymap_output_dir):
+def run(combos, combos_count, tool, njobs, keymap_output_dir):
     if keymap_output_dir:
         keymap_output_dir = Path(keymap_output_dir)
         try:
@@ -222,8 +462,8 @@ def run(combos, tool, njobs, keymap_output_dir):
 
     failed = False
     with multiprocessing.Pool(njobs) as p:
-        results = p.imap_unordered(tool, combos)
-        for invocation in progress_bar(results, total=len(combos), file=sys.stdout):
+        results = p.imap_unordered(tool.run, combos)
+        for invocation in progress_bar(results, total=combos_count, file=sys.stdout):
             if invocation.exitstatus != 0:
                 failed = True
                 target = sys.stderr
@@ -246,10 +486,11 @@ def run(combos, tool, njobs, keymap_output_dir):
                         keymap_file_fd.close()
                     keymap_file_fd = open(keymap_file, "a")
 
-                rmlvo = ", ".join([x or "" for x in invocation.rmlvo])
+                rmlvo = ", ".join(x or "" for x in invocation.rmlvo)
                 print(f"// {rmlvo}", file=keymap_file_fd)
                 print(invocation.keymap, file=keymap_file_fd)
-                keymap_file_fd.flush()
+                if keymap_file_fd:
+                    keymap_file_fd.flush()
 
     return failed
 
@@ -259,8 +500,9 @@ def main(args):
     global verbose
 
     tools = {
-        "libxkbcommon": xkbcommontool,
-        "xkbcomp": xkbcomp,
+        # "libxkbcommon": XkbcommonInvocation,
+        "libxkbcommon": XkbcommonLibInvocation,
+        "xkbcomp": XkbCompInvocation,
     }
 
     parser = argparse.ArgumentParser(
@@ -290,7 +532,7 @@ def main(args):
         "--jobs",
         "-j",
         type=int,
-        default=os.cpu_count() * 4,
+        default=(os.cpu_count() or 1) * 4,
         help="number of processes to use",
     )
     parser.add_argument("--verbose", "-v", default=False, action="store_true")
@@ -319,16 +561,13 @@ def main(args):
     tool = tools[args.tool]
 
     if any([args.layout, args.variant, args.option]):
-        combos = [
-            {
-                "l": args.layout,
-                "v": args.variant,
-                "o": args.option,
-            }
-        ]
+        combos = (tool(layout=args.layout, variant=args.variant, option=args.option),)
+        count = len(combos)
     else:
-        combos = parse(args.path)
-    failed = run(combos, tool, args.jobs, keymapdir)
+        count, combos = parse(args.path, tool)
+    os.environ["XKB_LOG_LEVEL"] = "debug"
+    os.environ["XKB_LOG_VERBOSITY"] = "10"
+    failed = run(combos, count, tool, args.jobs, keymapdir)
     sys.exit(failed)
 
 
