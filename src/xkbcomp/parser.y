@@ -41,7 +41,6 @@
 
 struct parser_param {
     struct xkb_context *ctx;
-    bool check_deprecated_keysyms;
     struct scanner *scanner;
     XkbFile *rtrn;
     bool more_maps;
@@ -77,11 +76,8 @@ resolve_keysym(struct parser_param *param, const char *name, xkb_keysym_t *sym_r
     sym = xkb_keysym_from_name(name, XKB_KEYSYM_NO_FLAGS);
     if (sym != XKB_KEY_NoSymbol) {
         *sym_rtrn = sym;
-        check_deprecated_keysyms(
-                parser_warn, param,
-                //  param->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM,
-                param->check_deprecated_keysyms,
-                *sym_rtrn, name, name, "%s", "");
+        check_deprecated_keysyms(parser_warn, param, param->ctx,
+                                 sym, name, name, "%s", "");
         return true;
     }
 
@@ -741,13 +737,6 @@ KeySym          :       IDENT
                                 );
                                 $$ = XKB_KEY_NoSymbol;
                             }
-                            /*
-                            check_deprecated_keysyms(
-                                 parser_warn, param,
-                                 //  param->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM,
-                                 param->check_deprecated_keysyms,
-                                 $$, $1, $1, "%s", "");
-                            */
                             free($1);
                         }
                 |       SECTION { $$ = XKB_KEY_section; }
@@ -770,9 +759,7 @@ KeySym          :       IDENT
                                 if ($1 <= XKB_KEYSYM_MAX) {
                                     $$ = (xkb_keysym_t) $1;
                                     check_deprecated_keysyms(
-                                        parser_warn, param,
-                                        // param->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM,
-                                        param->check_deprecated_keysyms,
+                                        parser_warn, param, param->ctx,
                                         $$, NULL, $$, "0x%"PRIx32, "");
                                 } else {
                                     parser_warn(
@@ -832,8 +819,6 @@ parse(struct xkb_context *ctx, struct scanner *scanner, const char *map)
     struct parser_param param = {
         .scanner = scanner,
         .ctx = ctx,
-        .check_deprecated_keysyms =
-            ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM,
         .rtrn = NULL,
         .more_maps = false,
     };

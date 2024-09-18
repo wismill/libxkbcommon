@@ -114,19 +114,19 @@ xkb_keysym_is_deprecated(xkb_keysym_t keysym,
                          const char **reference_name);
 
 #define XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM 5
-#define check_deprecated_keysyms(log_func, log_param, guard, keysym, name, token, format, end) \
-    if (unlikely(guard)) {                                                                     \
-        const char *ref_name = NULL;                                                           \
-        if (xkb_keysym_is_deprecated(keysym, name, &ref_name)) {                               \
-            if (ref_name == NULL) {                                                            \
-                log_func(log_param, XKB_WARNING_DEPRECATED_KEYSYM,                             \
-                         "deprecated keysym \"" format "\"" end, token);                       \
-            } else {                                                                           \
-                log_func(log_param, XKB_WARNING_DEPRECATED_KEYSYM,                             \
-                         "deprecated keysym \"" format "\"; please use \"%s\"" end,            \
-                         token, ref_name);                                                     \
-            }                                                                                  \
-        }                                                                                      \
+#define check_deprecated_keysyms(log_func, log_param, ctx, keysym, name, token, format, end) \
+    if (unlikely((ctx)->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {             \
+        const char *ref_name = NULL;                                                         \
+        if (xkb_keysym_is_deprecated(keysym, name, &ref_name)) {                             \
+            if (ref_name == NULL) {                                                          \
+                log_func(log_param, XKB_WARNING_DEPRECATED_KEYSYM,                           \
+                         "deprecated keysym \"" format "\"" end, token);                     \
+            } else {                                                                         \
+                log_func(log_param, XKB_WARNING_DEPRECATED_KEYSYM,                           \
+                         "deprecated keysym \"" format "\"; please use \"%s\"" end,          \
+                         token, ref_name);                                                   \
+            }                                                                                \
+        }                                                                                    \
     }
 
 bool
