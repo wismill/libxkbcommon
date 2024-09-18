@@ -711,19 +711,8 @@ ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
         const char *str = xkb_atom_text(ctx, expr->ident.ident);
         *sym_rtrn = xkb_keysym_from_name(str, 0);
         if (*sym_rtrn != XKB_KEY_NoSymbol) {
-            if (unlikely(ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
-                const char *ref_name = NULL;
-                if (xkb_keysym_is_deprecated(*sym_rtrn, str, &ref_name)) {
-                    if (ref_name == NULL) {
-                        log_warn(ctx, XKB_WARNING_DEPRECATED_KEYSYM,
-                                 "deprecated keysym \"%s\"\n", str);
-                    } else {
-                        log_warn(ctx, XKB_WARNING_DEPRECATED_KEYSYM,
-                                 "deprecated keysym \"%s\"; please use \"%s\"\n",
-                                 str, ref_name);
-                    }
-                }
-            }
+            check_deprecated_keysyms(log_warn, ctx, ctx,
+                                     *sym_rtrn, str, str, "%s", "\n");
             return true;
         }
     }
@@ -745,13 +734,7 @@ ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
     }
 
     if (val <= XKB_KEYSYM_MAX) {
-        if (unlikely(ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
-            const char *ref_name = NULL;
-            if (xkb_keysym_is_deprecated(val, NULL, &ref_name)) {
-                log_warn(ctx, XKB_WARNING_DEPRECATED_KEYSYM,
-                         "deprecated keysym \"0x%x\" (%d)\n", val, val);
-            }
-        }
+        check_deprecated_keysyms(log_warn, ctx, ctx, val, NULL, val, "0x%x", "\n");
         log_warn(ctx, XKB_WARNING_NUMERIC_KEYSYM,
                  "numeric keysym \"0x%x\" (%d)",
                  (unsigned int) val, val);

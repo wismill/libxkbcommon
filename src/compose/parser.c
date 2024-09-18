@@ -487,22 +487,6 @@ parse_string_literal(struct xkb_context *ctx, const char *string)
     }
 }
 
-static void
-check_deprecated_keysym(struct scanner *s, xkb_keysym_t keysym,
-                        const char *name)
-{
-    const char *ref_name = NULL;
-    if (xkb_keysym_is_deprecated(keysym, name, &ref_name)) {
-        if (ref_name == NULL) {
-            scanner_warn(s, "deprecated keysym \"%s\"", name);
-        } else {
-            scanner_warn(s,
-                        "deprecated keysym \"%s\"; please use \"%s\"",
-                        name, ref_name);
-        }
-    }
-}
-
 static bool
 parse(struct xkb_compose_table *table, struct scanner *s,
       unsigned include_depth);
@@ -647,9 +631,8 @@ lhs_keysym_tok:
                         val.string.str);
             goto error;
         }
-        if (unlikely(s->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
-            check_deprecated_keysym(s, keysym, val.string.str);
-        }
+        check_deprecated_keysyms(scanner_warn_with_code, s, s->ctx,
+                                 keysym, val.string.str, val.string.str, "%s", "\n");
         if (production.len + 1 > MAX_LHS_LEN) {
             scanner_warn(s, "too many keysyms (%d) on left-hand side; skipping line",
                          MAX_LHS_LEN + 1);
@@ -723,7 +706,8 @@ rhs:
                         val.string.str);
             goto error;
         }
-        check_deprecated_keysym(s, keysym, val.string.str);
+        check_deprecated_keysyms(scanner_warn_with_code, s, s->ctx,
+                                 keysym, val.string.str, val.string.str, "%s", "\n");
         if (production.has_keysym) {
             scanner_warn(s, "right-hand side can have at most one keysym; skipping line");
             goto skip;

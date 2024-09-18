@@ -108,14 +108,26 @@ xkb_keysym_iterator_get_name(struct xkb_keysym_iterator *iter,
 bool
 xkb_keysym_iterator_is_explicitly_named(struct xkb_keysym_iterator *iter);
 
-#define XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM 5
-
-typedef uint8_t xkb_keysym_format_t;
-
 bool
 xkb_keysym_is_deprecated(xkb_keysym_t keysym,
                          const char *name,
                          const char **reference_name);
+
+#define XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM 5
+#define check_deprecated_keysyms(log_func, log_param, ctx, keysym, name, token, format, end) \
+    if (unlikely((ctx)->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {             \
+        const char *ref_name = NULL;                                                         \
+        if (xkb_keysym_is_deprecated(keysym, name, &ref_name)) {                             \
+            if (ref_name == NULL) {                                                          \
+                log_func(log_param, XKB_WARNING_DEPRECATED_KEYSYM,                           \
+                         "deprecated keysym \"" format "\"" end, token);                     \
+            } else {                                                                         \
+                log_func(log_param, XKB_WARNING_DEPRECATED_KEYSYM,                           \
+                         "deprecated keysym \"" format "\"; please use \"%s\"" end,          \
+                         token, ref_name);                                                   \
+            }                                                                                \
+        }                                                                                    \
+    }
 
 bool
 xkb_keysym_is_lower(xkb_keysym_t keysym);
