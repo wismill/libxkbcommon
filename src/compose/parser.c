@@ -560,8 +560,6 @@ parse(struct xkb_compose_table *table, struct scanner *s,
     struct production production;
     enum { MAX_ERRORS = 10 };
     int num_errors = 0;
-    bool check_deprecated_keysyms =
-        s->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM;
 
     /* Basic detection of wrong character encoding.
        The first character relevant to the grammar must be ASCII:
@@ -649,7 +647,7 @@ lhs_keysym_tok:
                         val.string.str);
             goto error;
         }
-        if (unlikely(check_deprecated_keysyms)) {
+        if (unlikely(s->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
             check_deprecated_keysym(s, keysym, val.string.str);
         }
         if (production.len + 1 > MAX_LHS_LEN) {

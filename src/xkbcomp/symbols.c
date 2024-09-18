@@ -1199,8 +1199,6 @@ HandleModMapDef(SymbolsInfo *info, ModMapDef *def)
     bool ok;
     struct xkb_context *ctx = info->ctx;
     const char *modifier_name = xkb_atom_text(ctx, def->modifier);
-    bool check_deprecated_keysyms =
-        ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM;
 
     if (istreq(modifier_name, "none")) {
         // Handle special "None" entry
@@ -1230,7 +1228,7 @@ HandleModMapDef(SymbolsInfo *info, ModMapDef *def)
             tmp.haveSymbol = false;
             tmp.u.keyName = key->key_name.key_name;
         }
-        else if (ExprResolveKeySym(ctx, check_deprecated_keysyms, key, &sym)) {
+        else if (ExprResolveKeySym(ctx, key, &sym)) {
             tmp.haveSymbol = true;
             tmp.u.keySym = sym;
         }

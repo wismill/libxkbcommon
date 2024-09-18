@@ -41,7 +41,6 @@
 
 struct parser_param {
     struct xkb_context *ctx;
-    bool check_deprecated_keysyms;
     struct scanner *scanner;
     XkbFile *rtrn;
     bool more_maps;
@@ -77,7 +76,7 @@ resolve_keysym(struct parser_param *param, const char *name, xkb_keysym_t *sym_r
     sym = xkb_keysym_from_name(name, XKB_KEYSYM_NO_FLAGS);
     if (sym != XKB_KEY_NoSymbol) {
         *sym_rtrn = sym;
-        if (unlikely(param->check_deprecated_keysyms)) {
+        if (unlikely(param->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
             const char *ref_name = NULL;
             if (xkb_keysym_is_deprecated(sym, name, &ref_name)) {
                 if (ref_name == NULL) {
@@ -771,7 +770,7 @@ KeySym          :       IDENT
                                 if ($1 <= XKB_KEYSYM_MAX) {
                                     $$ = (xkb_keysym_t) $1;
 
-                                    if (unlikely(param->check_deprecated_keysyms)) {
+                                    if (unlikely(param->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
                                         const char *ref_name = NULL;
                                         if (xkb_keysym_is_deprecated($$, NULL, &ref_name)) {
                                             if (ref_name == NULL) {
@@ -842,8 +841,6 @@ parse(struct xkb_context *ctx, struct scanner *scanner, const char *map)
     struct parser_param param = {
         .scanner = scanner,
         .ctx = ctx,
-        .check_deprecated_keysyms =
-            ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM,
         .rtrn = NULL,
         .more_maps = false,
     };
