@@ -702,8 +702,8 @@ ExprResolveModMask(struct xkb_context *ctx, const ExprDef *expr,
 }
 
 bool
-ExprResolveKeySym(struct xkb_context *ctx, bool check_deprecated,
-                  const ExprDef *expr, xkb_keysym_t *sym_rtrn)
+ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
+                  xkb_keysym_t *sym_rtrn)
 {
     int val;
 
@@ -712,8 +712,7 @@ ExprResolveKeySym(struct xkb_context *ctx, bool check_deprecated,
         *sym_rtrn = xkb_keysym_from_name(str, 0);
         if (*sym_rtrn != XKB_KEY_NoSymbol) {
             check_deprecated_keysyms(log_warn, ctx,
-                                     // ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM,
-                                     check_deprecated,
+                                     ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM,
                                      *sym_rtrn, str, str, "%s", "\n");
             return true;
         }
@@ -737,8 +736,7 @@ ExprResolveKeySym(struct xkb_context *ctx, bool check_deprecated,
 
     if (val <= XKB_KEYSYM_MAX) {
         check_deprecated_keysyms(log_warn, ctx,
-                                 // ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM,
-                                 check_deprecated,
+                                 ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM,
                                  val, NULL, val, "0x%x", "\n");
         log_warn(ctx, XKB_WARNING_NUMERIC_KEYSYM,
                  "numeric keysym \"0x%x\" (%d)",

@@ -79,7 +79,7 @@ ExprResolveMask(struct xkb_context *ctx, const ExprDef *expr,
                 unsigned int *mask_rtrn, const LookupEntry *values);
 
 bool
-ExprResolveKeySym(struct xkb_context *ctx, bool check_deprecated,
-                  const ExprDef *expr, xkb_keysym_t *sym_rtrn);
+ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
+                  xkb_keysym_t *sym_rtrn);
 
 #endif
