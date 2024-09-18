@@ -733,8 +733,8 @@ ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
 
     if (val < XKB_KEYSYM_MIN) {
         log_warn(ctx, XKB_WARNING_UNRECOGNIZED_KEYSYM,
-                           "unrecognized keysym \"-0x%x\" (%d)\n",
-                           (unsigned int) -val, val);
+                 "unrecognized keysym \"-0x%x\" (%d)\n",
+                 (unsigned int) -val, val);
         return false;
     }
 

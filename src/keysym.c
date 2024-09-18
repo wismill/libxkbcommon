@@ -85,11 +85,7 @@ find_keysym_index(xkb_keysym_t ks)
     return -1;
 }
 
-static inline const char *
-get_name_by_index(uint16_t index)
-{
-    return keysym_names + index;
-}
+#define get_name_by_index(index) keysym_names + index
 
 static inline const char *
 get_name(const struct name_keysym *entry)
@@ -268,9 +264,8 @@ xkb_keysym_from_name(const char *name, enum xkb_keysym_flags flags)
         size_t pos = keysym_name_perfect_hash(name);
         if (pos < ARRAY_SIZE(name_to_keysym)) {
             const char *s = get_name(&name_to_keysym[pos]);
-            if (strcmp(name, s) == 0) {
+            if (strcmp(name, s) == 0)
                 return name_to_keysym[pos].keysym;
-            }
         }
     }
     /*
@@ -325,9 +320,8 @@ xkb_keysym_from_name(const char *name, enum xkb_keysym_flags flags)
 
         if (val < 0x20 || (val > 0x7e && val < 0xa0))
             return XKB_KEY_NoSymbol;
-        if (val < 0x100) {
+        if (val < 0x100)
             return (xkb_keysym_t) val;
-        }
         if (val > 0x10ffff)
             return XKB_KEY_NoSymbol;
         return (xkb_keysym_t) val | XKB_KEYSYM_UNICODE_OFFSET;
