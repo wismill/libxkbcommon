@@ -117,20 +117,18 @@ test_keypad(xkb_keysym_t ks, char *name)
 }
 
 static int
-test_string(const char *string, xkb_keysym_t expected_keysym,
-            xkb_keysym_format_t expected_format)
+test_string(const char *string, xkb_keysym_t expected_keysym)
 {
     xkb_keysym_t keysym;
-    xkb_keysym_format_t keysym_format;
 
-    keysym = xkb_keysym_with_format_from_name(string, 0, &keysym_format);
+    keysym = xkb_keysym_from_name(string, 0);
 
-    fprintf(stderr, "Expected string %s -> %x (%u)\n",
-            string, expected_keysym, expected_format);
-    fprintf(stderr, "Received string %s -> %x (%u)\n\n",
-            string, keysym, keysym_format);
+    fprintf(stderr, "Expected string %s -> %x\n",
+            string, expected_keysym);
+    fprintf(stderr, "Received string %s -> %x\n\n",
+            string, keysym);
 
-    return keysym == expected_keysym && keysym_format == expected_format;
+    return keysym == expected_keysym;
 }
 
 static int
@@ -174,14 +172,11 @@ test_keysym(xkb_keysym_t keysym, const char *expected)
 }
 
 static bool
-test_deprecated(xkb_keysym_t keysym,
-                xkb_keysym_format_t keysym_format, const char *name,
+test_deprecated(xkb_keysym_t keysym, const char *name,
                 bool expected_deprecated, const char *expected_reference)
 {
     const char *reference;
-    bool deprecated = xkb_keysym_is_deprecated(
-        keysym, keysym_format, name, &reference
-    );
+    bool deprecated = xkb_keysym_is_deprecated(keysym, name, &reference);
 
     fprintf(stderr, "Expected keysym %#x -> deprecated: %d, reference: %s\n",
             keysym, expected_deprecated, expected_reference);
@@ -405,8 +400,8 @@ test_github_issue_42(void)
         return;
     }
 
-    assert(test_string("i", XKB_KEY_i, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("I", XKB_KEY_I, XKB_KEYSYM_FORMAT_NAME));
+    assert(test_string("i", XKB_KEY_i));
+    assert(test_string("I", XKB_KEY_I));
     assert(test_casestring("i", XKB_KEY_i));
     assert(test_casestring("I", XKB_KEY_i));
     assert(xkb_keysym_to_upper(XKB_KEY_i) == XKB_KEY_I);
@@ -528,86 +523,86 @@ main(void)
     assert(count == XKB_KEYSYM_UNICODE_MAX - XKB_KEYSYM_UNICODE_MIN + 1 + count_non_unicode);
 
     /* Named keysyms */
-    assert(test_string("NoSymbol", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("Undo", 0xFF65, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("UNDO", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* Require XKB_KEYSYM_CASE_INSENSITIVE */
-    assert(test_string("ThisKeyShouldNotExist", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("XF86_Switch_VT_5", 0x1008FE05, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("VoidSymbol", 0xFFFFFF, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("0", 0x30, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("9", 0x39, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("a", 0x61, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("A", 0x41, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("ch", 0xfea0, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("Ch", 0xfea1, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("CH", 0xfea2, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("THORN", 0x00de, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("Thorn", 0x00de, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string("thorn", 0x00fe, XKB_KEYSYM_FORMAT_NAME));
-    assert(test_string(" thorn", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("thorn ", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
+    assert(test_string("NoSymbol", XKB_KEY_NoSymbol));
+    assert(test_string("Undo", 0xFF65));
+    assert(test_string("UNDO", XKB_KEY_NoSymbol)); /* Require XKB_KEYSYM_CASE_INSENSITIVE */
+    assert(test_string("ThisKeyShouldNotExist", XKB_KEY_NoSymbol));
+    assert(test_string("XF86_Switch_VT_5", 0x1008FE05));
+    assert(test_string("VoidSymbol", 0xFFFFFF));
+    assert(test_string("0", 0x30));
+    assert(test_string("9", 0x39));
+    assert(test_string("a", 0x61));
+    assert(test_string("A", 0x41));
+    assert(test_string("ch", 0xfea0));
+    assert(test_string("Ch", 0xfea1));
+    assert(test_string("CH", 0xfea2));
+    assert(test_string("THORN", 0x00de));
+    assert(test_string("Thorn", 0x00de));
+    assert(test_string("thorn", 0x00fe));
+    assert(test_string(" thorn", XKB_KEY_NoSymbol));
+    assert(test_string("thorn ", XKB_KEY_NoSymbol));
 
     /* Decimal keysyms are not supported (digits are special cases) */
-    assert(test_string("-1", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("10", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("010", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("4567", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
+    assert(test_string("-1", XKB_KEY_NoSymbol));
+    assert(test_string("10", XKB_KEY_NoSymbol));
+    assert(test_string("010", XKB_KEY_NoSymbol));
+    assert(test_string("4567", XKB_KEY_NoSymbol));
 
     /* Unicode: test various ranges */
-    assert(test_string("U0000", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* Min Unicode */
-    assert(test_string("U001f", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("U0020", 0x0000020, XKB_KEYSYM_FORMAT_UNICODE));
-    assert(test_string("U007E", 0x000007e, XKB_KEYSYM_FORMAT_UNICODE));
-    assert(test_string("U007f", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("U009f", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("U00a0", 0x00000a0, XKB_KEYSYM_FORMAT_UNICODE));
-    assert(test_string("U00ff", 0x00000ff, XKB_KEYSYM_FORMAT_UNICODE));
-    assert(test_string("U0100", XKB_KEYSYM_UNICODE_MIN, XKB_KEYSYM_FORMAT_UNICODE));
-    assert(test_string("U4567", 0x1004567, XKB_KEYSYM_FORMAT_UNICODE));
-    assert(test_string("U1F4A9", 0x0101F4A9, XKB_KEYSYM_FORMAT_UNICODE));
-    assert(test_string("U10FFFF", XKB_KEYSYM_UNICODE_MAX, XKB_KEYSYM_FORMAT_UNICODE)); /* Max Unicode */
-    assert(test_string("U110000", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
+    assert(test_string("U0000", XKB_KEY_NoSymbol)); /* Min Unicode */
+    assert(test_string("U001f", XKB_KEY_NoSymbol));
+    assert(test_string("U0020", 0x0000020));
+    assert(test_string("U007E", 0x000007e));
+    assert(test_string("U007f", XKB_KEY_NoSymbol));
+    assert(test_string("U009f", XKB_KEY_NoSymbol));
+    assert(test_string("U00a0", 0x00000a0));
+    assert(test_string("U00ff", 0x00000ff));
+    assert(test_string("U0100", XKB_KEYSYM_UNICODE_MIN));
+    assert(test_string("U4567", 0x1004567));
+    assert(test_string("U1F4A9", 0x0101F4A9));
+    assert(test_string("U10FFFF", XKB_KEYSYM_UNICODE_MAX)); /* Max Unicode */
+    assert(test_string("U110000", XKB_KEY_NoSymbol));
     /* Unicode: test syntax */
-    assert(test_string("U00004567", 0x1004567, XKB_KEYSYM_FORMAT_UNICODE));      /* OK:  8 digits */
-    assert(test_string("U000004567", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* ERR: 9 digits */
-    assert(test_string("U+4567", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));     /* ERR: Standard Unicode notation */
-    assert(test_string("U+4567ffff", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("U+4567ffffff", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("U-456", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* No negative number */
-    assert(test_string("U456w", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* Not hexadecimal digit */
-    assert(test_string("U4567   ", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("   U4567", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("U   4567", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("U  +4567", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("u4567", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* Require XKB_KEYSYM_CASE_INSENSITIVE */
+    assert(test_string("U00004567", 0x1004567));      /* OK:  8 digits */
+    assert(test_string("U000004567", XKB_KEY_NoSymbol)); /* ERR: 9 digits */
+    assert(test_string("U+4567", XKB_KEY_NoSymbol));     /* ERR: Standard Unicode notation */
+    assert(test_string("U+4567ffff", XKB_KEY_NoSymbol));
+    assert(test_string("U+4567ffffff", XKB_KEY_NoSymbol));
+    assert(test_string("U-456", XKB_KEY_NoSymbol)); /* No negative number */
+    assert(test_string("U456w", XKB_KEY_NoSymbol)); /* Not hexadecimal digit */
+    assert(test_string("U4567   ", XKB_KEY_NoSymbol));
+    assert(test_string("   U4567", XKB_KEY_NoSymbol));
+    assert(test_string("U   4567", XKB_KEY_NoSymbol));
+    assert(test_string("U  +4567", XKB_KEY_NoSymbol));
+    assert(test_string("u4567", XKB_KEY_NoSymbol)); /* Require XKB_KEYSYM_CASE_INSENSITIVE */
 
     /* Hexadecimal: test ranges */
-    assert(test_string(STRINGIFY2(XKB_KEYSYM_MIN), XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NUMERIC)); /* Min keysym. */
-    assert(test_string("0x1", 0x00000001, XKB_KEYSYM_FORMAT_NUMERIC));
-    assert(test_string("0x01234567", 0x01234567, XKB_KEYSYM_FORMAT_NUMERIC));
-    assert(test_string("0x09abcdef", 0x09abcdef, XKB_KEYSYM_FORMAT_NUMERIC));
-    assert(test_string("0x01000100", XKB_KEYSYM_UNICODE_MIN, XKB_KEYSYM_FORMAT_NUMERIC)); /* Min Unicode. */
-    assert(test_string("0x0110ffff", XKB_KEYSYM_UNICODE_MAX, XKB_KEYSYM_FORMAT_NUMERIC)); /* Max Unicode. */
-    assert(test_string(STRINGIFY2(XKB_KEYSYM_MAX), XKB_KEYSYM_MAX, XKB_KEYSYM_FORMAT_NUMERIC)); /* Max keysym. */
-    assert(test_string("0x20000000", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("0xffffffff", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("0x100000000", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
+    assert(test_string(STRINGIFY2(XKB_KEYSYM_MIN), XKB_KEY_NoSymbol)); /* Min keysym. */
+    assert(test_string("0x1", 0x00000001));
+    assert(test_string("0x01234567", 0x01234567));
+    assert(test_string("0x09abcdef", 0x09abcdef));
+    assert(test_string("0x01000100", XKB_KEYSYM_UNICODE_MIN)); /* Min Unicode. */
+    assert(test_string("0x0110ffff", XKB_KEYSYM_UNICODE_MAX)); /* Max Unicode. */
+    assert(test_string(STRINGIFY2(XKB_KEYSYM_MAX), XKB_KEYSYM_MAX)); /* Max keysym. */
+    assert(test_string("0x20000000", XKB_KEY_NoSymbol));
+    assert(test_string("0xffffffff", XKB_KEY_NoSymbol));
+    assert(test_string("0x100000000", XKB_KEY_NoSymbol));
     /* Hexadecimal: test syntax */
-    assert(test_string("0x10203040", 0x10203040, XKB_KEYSYM_FORMAT_NUMERIC));     /* OK:  8 digits */
-    assert(test_string("0x102030400", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* ERR: 9 digits */
-    assert(test_string("0x01020304", 0x1020304, XKB_KEYSYM_FORMAT_NUMERIC));      /* OK:  8 digits, starts with 0 */
-    assert(test_string("0x010203040", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* ERR: 9 digits, starts with 0 */
-    assert(test_string("0x+10203040", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("0x01020304w", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* Not hexadecimal digit */
-    assert(test_string("0x102030  ", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("0x  102030", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("  0x102030", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("0x  +10203040", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("0x-10203040", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
-    assert(test_string("0X10203040", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* Require XKB_KEYSYM_CASE_INSENSITIVE */
-    assert(test_string("10203040", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* Missing prefix/decimal not implemented */
-    assert(test_string("0b0101", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* Wrong prefix: binary not implemented */
-    assert(test_string("0o0701", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE)); /* Wrong prefix: octal not implemented */
+    assert(test_string("0x10203040", 0x10203040));     /* OK:  8 digits */
+    assert(test_string("0x102030400", XKB_KEY_NoSymbol)); /* ERR: 9 digits */
+    assert(test_string("0x01020304", 0x1020304));      /* OK:  8 digits, starts with 0 */
+    assert(test_string("0x010203040", XKB_KEY_NoSymbol)); /* ERR: 9 digits, starts with 0 */
+    assert(test_string("0x+10203040", XKB_KEY_NoSymbol));
+    assert(test_string("0x01020304w", XKB_KEY_NoSymbol)); /* Not hexadecimal digit */
+    assert(test_string("0x102030  ", XKB_KEY_NoSymbol));
+    assert(test_string("0x  102030", XKB_KEY_NoSymbol));
+    assert(test_string("  0x102030", XKB_KEY_NoSymbol));
+    assert(test_string("0x  +10203040", XKB_KEY_NoSymbol));
+    assert(test_string("0x-10203040", XKB_KEY_NoSymbol));
+    assert(test_string("0X10203040", XKB_KEY_NoSymbol)); /* Require XKB_KEYSYM_CASE_INSENSITIVE */
+    assert(test_string("10203040", XKB_KEY_NoSymbol)); /* Missing prefix/decimal not implemented */
+    assert(test_string("0b0101", XKB_KEY_NoSymbol)); /* Wrong prefix: binary not implemented */
+    assert(test_string("0o0701", XKB_KEY_NoSymbol)); /* Wrong prefix: octal not implemented */
 
     assert(test_keysym(0x1008FF56, "XF86Close"));
     assert(test_keysym(0x0, "NoSymbol"));
@@ -641,35 +636,35 @@ main(void)
 
     /* Name is assumed to be correct but we provide garbage */
     const char garbage_name[] = "bla bla bla";
-    assert(test_deprecated(XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NAME, NULL, false, NULL));
-    assert(test_deprecated(XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NAME, "NoSymbol", false, NULL));
-    assert(test_deprecated(XKB_KEY_A, XKB_KEYSYM_FORMAT_NAME, "A", false, NULL));
-    assert(test_deprecated(XKB_KEY_A, XKB_KEYSYM_FORMAT_NAME, NULL, false, NULL));
-    assert(test_deprecated(XKB_KEY_A, XKB_KEYSYM_FORMAT_NAME, garbage_name, false, NULL));
-    assert(test_deprecated(XKB_KEY_ETH, XKB_KEYSYM_FORMAT_NAME, "ETH", false, "ETH"));
-    assert(test_deprecated(XKB_KEY_ETH, XKB_KEYSYM_FORMAT_NAME, "Eth", true, "ETH"));
-    assert(test_deprecated(XKB_KEY_ETH, XKB_KEYSYM_FORMAT_NAME, garbage_name, true, "ETH"));
-    assert(test_deprecated(XKB_KEY_topleftradical, XKB_KEYSYM_FORMAT_NAME, NULL, true, NULL));
-    assert(test_deprecated(XKB_KEY_topleftradical, XKB_KEYSYM_FORMAT_NAME, "topleftradical", true, NULL));
-    assert(test_deprecated(XKB_KEY_topleftradical, XKB_KEYSYM_FORMAT_NAME, garbage_name, true, NULL));
+    assert(test_deprecated(XKB_KEY_NoSymbol, NULL, false, NULL));
+    assert(test_deprecated(XKB_KEY_NoSymbol, "NoSymbol", false, NULL));
+    assert(test_deprecated(XKB_KEY_A, "A", false, NULL));
+    assert(test_deprecated(XKB_KEY_A, NULL, false, NULL));
+    assert(test_deprecated(XKB_KEY_A, garbage_name, false, NULL));
+    assert(test_deprecated(XKB_KEY_ETH, "ETH", false, "ETH"));
+    assert(test_deprecated(XKB_KEY_ETH, "Eth", true, "ETH"));
+    assert(test_deprecated(XKB_KEY_ETH, garbage_name, true, "ETH"));
+    assert(test_deprecated(XKB_KEY_topleftradical, NULL, true, NULL));
+    assert(test_deprecated(XKB_KEY_topleftradical, "topleftradical", true, NULL));
+    assert(test_deprecated(XKB_KEY_topleftradical, garbage_name, true, NULL));
     /* Mixed deprecated and not deprecated aliases */
-    assert(test_deprecated(XKB_KEY_Mode_switch, XKB_KEYSYM_FORMAT_NAME, NULL, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_Mode_switch, XKB_KEYSYM_FORMAT_NAME, "Mode_switch", false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_Mode_switch, XKB_KEYSYM_FORMAT_NAME, garbage_name, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, XKB_KEYSYM_FORMAT_NAME, NULL, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, XKB_KEYSYM_FORMAT_NAME, "ISO_Group_Shift", false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, XKB_KEYSYM_FORMAT_NAME, garbage_name, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_SunAltGraph, XKB_KEYSYM_FORMAT_NAME, NULL, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_SunAltGraph, XKB_KEYSYM_FORMAT_NAME, "SunAltGraph", true, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_SunAltGraph, XKB_KEYSYM_FORMAT_NAME, garbage_name, false, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_Mode_switch, NULL, false, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_Mode_switch, "Mode_switch", false, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_Mode_switch, garbage_name, false, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, NULL, false, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, "ISO_Group_Shift", false, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, garbage_name, false, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_SunAltGraph, NULL, false, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_SunAltGraph, "SunAltGraph", true, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_SunAltGraph, garbage_name, false, "Mode_switch"));
     /* Unicode is never deprecated */
-    assert(test_deprecated(0x0100250C, XKB_KEYSYM_FORMAT_UNICODE, "U250C", false, NULL));
-    assert(test_deprecated(0x0100250C, XKB_KEYSYM_FORMAT_NUMERIC, "0x0100250C", false, NULL));
-    assert(test_deprecated(XKB_KEYSYM_MAX, XKB_KEYSYM_FORMAT_NAME, NULL, false, NULL));
-    assert(test_deprecated(XKB_KEYSYM_MAX, XKB_KEYSYM_FORMAT_NUMERIC, NULL, false, NULL));
+    assert(test_deprecated(0x0100250C, "U250C", false, NULL));
+    assert(test_deprecated(0x0100250C, "0x0100250C", false, NULL));
+    assert(test_deprecated(XKB_KEYSYM_MAX, NULL, false, NULL));
+    assert(test_deprecated(XKB_KEYSYM_MAX, NULL, false, NULL));
     /* Invalid keysym */
-    assert(test_deprecated(0xffffffff, XKB_KEYSYM_FORMAT_NAME, NULL, false, NULL));
-    assert(test_deprecated(0xffffffff, XKB_KEYSYM_FORMAT_NUMERIC, NULL, false, NULL));
+    assert(test_deprecated(0xffffffff, NULL, false, NULL));
+    assert(test_deprecated(0xffffffff, NULL, false, NULL));
 
     assert(test_casestring("Undo", 0xFF65));
     assert(test_casestring("UNDO", 0xFF65));
@@ -698,7 +693,7 @@ main(void)
         test_ambiguous_icase_names(&ambiguous_icase_ks_names[k]);
     }
 
-    assert(test_string("", XKB_KEY_NoSymbol, XKB_KEYSYM_FORMAT_NONE));
+    assert(test_string("", XKB_KEY_NoSymbol));
     assert(test_casestring("", XKB_KEY_NoSymbol));
 
     /* Latin-1 keysyms (1:1 mapping in UTF-32) */

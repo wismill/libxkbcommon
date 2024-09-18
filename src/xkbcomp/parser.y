@@ -73,13 +73,12 @@ resolve_keysym(struct parser_param *param, const char *name, xkb_keysym_t *sym_r
         return true;
     }
 
-    xkb_keysym_format_t keysym_format;
-    sym = xkb_keysym_with_format_from_name(name, XKB_KEYSYM_NO_FLAGS, &keysym_format);
+    sym = xkb_keysym_from_name(name, XKB_KEYSYM_NO_FLAGS);
     if (sym != XKB_KEY_NoSymbol) {
         *sym_rtrn = sym;
         if (unlikely(param->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
             const char *ref_name = NULL;
-            if (xkb_keysym_is_deprecated(sym, keysym_format, name, &ref_name)) {
+            if (xkb_keysym_is_deprecated(sym, name, &ref_name)) {
                 if (ref_name == NULL) {
                     parser_warn(param, XKB_WARNING_DEPRECATED_KEYSYM,
                                 "deprecated keysym \"%s\"", name);
@@ -773,7 +772,7 @@ KeySym          :       IDENT
 
                                     if (unlikely(param->ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
                                         const char *ref_name = NULL;
-                                        if (xkb_keysym_is_deprecated($$, XKB_KEYSYM_FORMAT_NUMERIC, NULL, &ref_name)) {
+                                        if (xkb_keysym_is_deprecated($$, NULL, &ref_name)) {
                                             if (ref_name == NULL) {
                                                 parser_warn(param, XKB_WARNING_DEPRECATED_KEYSYM,
                                                             "deprecated keysym \"0x%"PRIx64"\"", $1);
