@@ -1219,6 +1219,7 @@ HandleModMapDef(SymbolsInfo *info, ModMapDef *def)
     ok = true;
     tmp.modifier = ndx;
     tmp.merge = def->merge;
+    bool check_deprecated = ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM;
 
     for (ExprDef *key = def->keys; key; key = (ExprDef *) key->common.next) {
         xkb_keysym_t sym;
@@ -1228,7 +1229,7 @@ HandleModMapDef(SymbolsInfo *info, ModMapDef *def)
             tmp.haveSymbol = false;
             tmp.u.keyName = key->key_name.key_name;
         }
-        else if (ExprResolveKeySym(ctx, key, &sym)) {
+        else if (ExprResolveKeySym(ctx, check_deprecated, key, &sym)) {
             tmp.haveSymbol = true;
             tmp.u.keySym = sym;
         }
