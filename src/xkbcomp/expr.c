@@ -702,8 +702,8 @@ ExprResolveModMask(struct xkb_context *ctx, const ExprDef *expr,
 }
 
 bool
-ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
-                  xkb_keysym_t *sym_rtrn)
+ExprResolveKeySym(struct xkb_context *ctx, bool check_deprecated,
+                  const ExprDef *expr, xkb_keysym_t *sym_rtrn)
 {
     int val;
 
@@ -711,7 +711,7 @@ ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
         const char *str = xkb_atom_text(ctx, expr->ident.ident);
         *sym_rtrn = xkb_keysym_from_name(str, 0);
         if (*sym_rtrn != XKB_KEY_NoSymbol) {
-            if (unlikely(ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
+            if (unlikely(check_deprecated)) {
                 const char *ref_name = NULL;
                 if (xkb_keysym_is_deprecated(*sym_rtrn, str, &ref_name)) {
                     if (ref_name == NULL) {
@@ -745,7 +745,7 @@ ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
     }
 
     if (val <= XKB_KEYSYM_MAX) {
-        if (unlikely(ctx->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {
+        if (unlikely(check_deprecated)) {
             const char *ref_name = NULL;
             if (xkb_keysym_is_deprecated(val, NULL, &ref_name)) {
                 log_warn(ctx, XKB_WARNING_DEPRECATED_KEYSYM,
