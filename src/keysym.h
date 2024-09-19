@@ -115,7 +115,7 @@ xkb_keysym_is_deprecated(xkb_keysym_t keysym,
 
 #define XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM 5
 #define check_deprecated_keysyms(log_func, log_param, ctx, keysym, name, token, format, end) \
-    if (unlikely((ctx)->log_verbosity >= XKB_MIN_VERBOSITY_DEPRECATED_KEYSYM)) {             \
+    if (unlikely((ctx)->log_verbosity)) {             \
         const char *ref_name = NULL;                                                         \
         if (xkb_keysym_is_deprecated(keysym, name, &ref_name)) {                             \
             log_func(log_param, XKB_WARNING_DEPRECATED_KEYSYM,                               \

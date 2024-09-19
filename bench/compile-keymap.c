@@ -28,18 +28,22 @@
 #include <getopt.h>
 
 #include "xkbcommon/xkbcommon.h"
+#include "utils.h"
 
-#include "../test/test.h"
 #include "bench.h"
 
-#define BENCHMARK_ITERATIONS 3000
+#define DEFAULT_ITERATIONS 3000
+#define DEFAULT_STDEV 0.05
 
 int
 main(int argc, char **argv)
 {
     struct xkb_context *context;
     struct bench bench;
-    char *elapsed_str;
+    struct bench_time elapsed;
+    struct estimate est;
+    bool explicit_iterations = false;
+    int ret = 0;
     struct xkb_rule_names rmlvo = {
         .rules = DEFAULT_XKB_RULES,
         .model = DEFAULT_XKB_MODEL,
@@ -49,7 +53,8 @@ main(int argc, char **argv)
         .variant = NULL,
         .options = DEFAULT_XKB_OPTIONS,
     };
-    int max_iterations = BENCHMARK_ITERATIONS;
+    int max_iterations = DEFAULT_ITERATIONS;
+    double stdev = DEFAULT_STDEV;
 
     enum options {
         OPT_RULES,
@@ -57,7 +62,8 @@ main(int argc, char **argv)
         OPT_LAYOUT,
         OPT_VARIANT,
         OPT_OPTION,
-        OPT_ITERATIONS
+        OPT_ITERATIONS,
+        OPT_STDEV,
     };
 
     static struct option opts[] = {
@@ -67,6 +73,7 @@ main(int argc, char **argv)
         {"variant",          required_argument,      0, OPT_VARIANT},
         {"options",          required_argument,      0, OPT_OPTION},
         {"iter",             required_argument,      0, OPT_ITERATIONS},
+        {"stdev",            required_argument,      0, OPT_STDEV},
         {0, 0, 0, 0},
     };
 
@@ -96,7 +103,13 @@ main(int argc, char **argv)
         case OPT_ITERATIONS:
             max_iterations = atoi(optarg);
             if (max_iterations <= 0)
-                max_iterations = BENCHMARK_ITERATIONS;
+                max_iterations = DEFAULT_ITERATIONS;
+            explicit_iterations = true;
+            break;
+        case OPT_STDEV:
+            stdev = atof(optarg) / 100;
+            if (stdev <= 0)
+                stdev = DEFAULT_STDEV;
             break;
         default:
             exit(EXIT_INVALID_USAGE);
@@ -113,11 +126,21 @@ main(int argc, char **argv)
         rmlvo.variant = DEFAULT_XKB_VARIANT;
     }
 
-    context = test_get_context(CONTEXT_NO_FLAG);
-    assert(context);
+    context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+    if (!context)
+        exit(1);
 
     struct xkb_keymap *keymap;
     char *keymap_str;
+
+    keymap = xkb_keymap_new_from_names(context, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
+    if (!keymap) {
+        fprintf(stderr, "ERROR: Cannot compile keymap.\n");
+        goto keymap_error;
+        exit(1);
+    }
+    keymap_str = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
+    xkb_keymap_unref(keymap);
 
     /* Suspend stdout and stderr outputs */
     fflush(stdout);
@@ -131,19 +154,32 @@ main(int argc, char **argv)
     dup2(stderr_new, STDERR_FILENO);
     close(stderr_new);
 
-    keymap = xkb_keymap_new_from_names(context, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
-    keymap_str = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
-    xkb_keymap_unref(keymap);
+    if (explicit_iterations) {
+        stdev = 0;
+        bench_start2(&bench);
+        for (int i = 0; i < max_iterations; i++) {
+            keymap = xkb_keymap_new_from_string(
+                context, keymap_str,
+                XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
+            assert(keymap);
+            xkb_keymap_unref(keymap);
+        }
+        bench_stop2(&bench);
 
-    bench_start(&bench);
-    for (int i = 0; i < max_iterations; i++) {
-        keymap = xkb_keymap_new_from_string(
-            context, keymap_str,
-            XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
-        assert(keymap);
-        xkb_keymap_unref(keymap);
+        bench_elapsed(&bench, &elapsed);
+        est.elapsed = (bench_time_elapsed_nanoseconds(&elapsed)) / max_iterations;
+        est.stdev = 0;
+    } else {
+        bench_start2(&bench);
+        BENCH(stdev, max_iterations, elapsed, est,
+            keymap = xkb_keymap_new_from_string(
+                context, keymap_str,
+                XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
+            assert(keymap);
+            xkb_keymap_unref(keymap);
+        );
+        bench_stop2(&bench);
     }
-    bench_stop(&bench);
 
     /* Restore stdout and stderr outputs */
     fflush(stdout);
@@ -155,15 +191,24 @@ main(int argc, char **argv)
 
     free(keymap_str);
 
-    struct bench_time elapsed;
-    bench_elapsed(&bench, &elapsed);
-    long long elapsed_us = elapsed.microseconds + 1000000 * elapsed.seconds;
+    struct bench_time total_elapsed;
+    bench_elapsed(&bench, &total_elapsed);
+    if (explicit_iterations) {
+        fprintf(stderr,
+                "mean: %lld µs; compiled %d keymaps in %ld.%06lds\n",
+                est.elapsed / 1000, max_iterations,
+                total_elapsed.seconds, total_elapsed.nanoseconds / 1000);
+    } else {
+        fprintf(stderr,
+                "mean: %lld µs; stdev: %f%% (target: %f%%); "
+                "last run: compiled %d keymaps in %ld.%06lds; "
+                "total time: %ld.%06lds\n",
+                est.elapsed / 1000, est.stdev * 100.0 / est.elapsed, stdev * 100,
+                max_iterations, elapsed.seconds, elapsed.nanoseconds / 1000,
+                total_elapsed.seconds, total_elapsed.nanoseconds / 1000);
+    }
 
-    elapsed_str = bench_elapsed_str(&bench);
-    fprintf(stderr, "compiled %d keymaps in %ss (mean: %lld µs)\n",
-            max_iterations, elapsed_str, elapsed_us / max_iterations);
-    free(elapsed_str);
-
+keymap_error:
     xkb_context_unref(context);
-    return 0;
+    return ret;
 }
