@@ -557,6 +557,18 @@ write_key(struct xkb_keymap *keymap, struct buf *buf,
         break;
     }
 
+    for (xkb_overlay_index_t overlay = 0; overlay < key->num_overlays; overlay++) {
+        if (key->overlays[overlay] == 0)
+            continue;
+        const struct xkb_key *overlay_key = XkbKey(keymap, key->overlays[overlay]);
+        /* FIXME remove debug */
+        fprintf(stderr, "dump overlay %u: %u (%u)\n", overlay + 1, overlay_key->keycode, !!overlay_key);
+        if (!overlay_key)
+            return false; /* impossible */
+        write_buf(buf, "\n\t\toverlay%u= %s,",
+                  overlay + 1, KeyNameText(keymap->ctx, overlay_key->name));
+    }
+
     show_actions = (key->explicit & EXPLICIT_INTERP);
 
     if (key->num_groups > 1 || show_actions)

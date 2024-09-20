@@ -82,6 +82,9 @@ xkb_keymap_unref(struct xkb_keymap *keymap)
                 }
                 free(key->groups);
             }
+            if (key->overlays) {
+                free(key->overlays);
+            }
         }
         free(keymap->keys);
     }

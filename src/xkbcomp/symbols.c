@@ -95,6 +95,7 @@ typedef struct {
     xkb_atom_t name;
 
     darray(GroupInfo) groups;
+    darray(xkb_atom_t) overlays;
 
     enum key_repeat repeat;
     xkb_mod_mask_t vmodmap;
@@ -157,6 +158,7 @@ ClearKeyInfo(KeyInfo *keyi)
     darray_foreach(groupi, keyi->groups)
         ClearGroupInfo(groupi);
     darray_free(keyi->groups);
+    darray_free(keyi->overlays);
 }
 
 /***====================================================================***/
@@ -349,6 +351,17 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
 }
 
 static bool
+MergeOverlays(SymbolsInfo *info, KeyInfo *into, KeyInfo *from, bool clobber,
+              bool report, xkb_atom_t key_name)
+{
+    /* FIXME: handle conflicts */
+    darray_free(into->overlays);
+    into->overlays = from->overlays;
+    darray_init(from->overlays);
+    return true;
+}
+
+static bool
 UseNewKeyField(enum key_field field, enum key_field old, enum key_field new,
                bool clobber, bool report, enum key_field *collide)
 {
@@ -382,6 +395,9 @@ MergeKeys(SymbolsInfo *info, KeyInfo *into, KeyInfo *from, bool same_file)
         InitKeyInfo(info->ctx, from);
         return true;
     }
+
+    /* TODO: check */
+    MergeOverlays(info, into, from, clobber, report, into->name);
 
     groups_in_both = MIN(darray_size(into->groups), darray_size(from->groups));
     for (i = 0; i < groups_in_both; i++)
@@ -894,8 +910,31 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
                 "Ignoring radio group specification for key %s\n",
                 KeyInfoText(info, keyi));
     }
-    else if (istreq_prefix("overlay", field) ||
-             istreq_prefix("permanentoverlay", field)) {
+    else if (istreq_prefix("overlay", field)) {
+        char *endptr;
+        unsigned long overlay = strtoul(field + 7, &endptr, 10);
+        if (endptr[0] != '\0' || overlay <= 0 || overlay >= XKB_MAX_OVERLAYS) {
+            log_err(info->ctx, XKB_LOG_MESSAGE_NO_ID,
+                    "Invalid overlay index: %s for key %s\n",
+                    field, KeyInfoText(info, keyi));
+            return false;
+        }
+        if (value->expr.op == EXPR_VALUE &&
+            value->expr.value_type == EXPR_TYPE_KEYNAME) {
+            darray_resize0(keyi->overlays, overlay);
+            /* TODO: warn multiple overlay values for same index */
+            /* FIXME: print */
+            fprintf(stderr, "Adding %u to overlay %lu of key %s\n",
+                    value->key_name.key_name, overlay, KeyInfoText(info, keyi));
+            darray_item(keyi->overlays, overlay - 1) = value->key_name.key_name;
+        } else {
+            log_err(info->ctx, XKB_LOG_MESSAGE_NO_ID,
+                    "Invalid overlay %lu value: %s for key %s\n",
+                    overlay, field, KeyInfoText(info, keyi));
+            return false;
+        }
+    }
+    else if (istreq_prefix("permanentoverlay", field)) {
         log_vrb(info->ctx, 1,
                 XKB_WARNING_UNSUPPORTED_SYMBOLS_FIELD,
                 "Overlays not supported; "
@@ -1601,6 +1640,7 @@ CopySymbolsToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info)
 {
     KeyInfo *keyi;
     ModMapEntry *mm;
+    struct xkb_key *key;
 
     keymap->symbols_section_name = strdup_safe(info->name);
     XkbEscapeMapName(keymap->symbols_section_name);
@@ -1614,9 +1654,36 @@ CopySymbolsToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info)
         if (!CopySymbolsDefToKeymap(keymap, info, keyi))
             info->errorCount++;
 
-    if (xkb_context_get_log_verbosity(keymap->ctx) > 3) {
-        struct xkb_key *key;
+    darray_foreach(keyi, info->keys) {
+        if (!darray_size(keyi->overlays))
+            continue;
 
+        darray(xkb_keycode_t) overlays = darray_new();
+        darray_resize0(overlays, darray_size(keyi->overlays));
+        xkb_atom_t *key_name;
+        xkb_overlay_index_t overlay;
+        darray_enumerate(overlay, key_name, keyi->overlays) {
+            /* Name may be an alias */
+            key = XkbKeyByName(keymap, *key_name, true);
+            if (!key) {
+                log_err(info->ctx, XKB_WARNING_UNDEFINED_KEYCODE,
+                        "Key <%s> not found in keycodes; "
+                        "Overlay %u entry for key %s not updated\n",
+                        xkb_atom_text(info->ctx, *key_name), overlay + 1,
+                        KeyNameText(info->ctx, keyi->name));
+                return false;
+            }
+            /* FIXME remove debug */
+            fprintf(stderr, "copy overlay %u: %s\n",
+                    overlay + 1, KeyNameText(info->ctx, *key_name));
+            darray_item(overlays, overlay) = key->keycode;
+            /* Name cannot be an alias */
+            key = XkbKeyByName(keymap, keyi->name, false);
+            darray_steal(overlays, &key->overlays, &key->num_overlays);
+        }
+    }
+
+    if (xkb_context_get_log_verbosity(keymap->ctx) > 3) {
         xkb_keys_foreach(key, keymap) {
             if (key->name == XKB_ATOM_NONE)
                 continue;

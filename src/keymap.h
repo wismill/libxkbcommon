@@ -88,6 +88,9 @@
 #include "utils.h"
 #include "context.h"
 
+/* TODO: doc */
+#define XKB_MAX_OVERLAYS 2
+
 /* This limit is artificially enforced, we do not depend on it any where.
  * The reason it's still here is that the rules file format does not
  * support multiple groups very well, and the rules shipped with
@@ -165,11 +168,13 @@ enum xkb_action_controls {
     CONTROL_AX_FEEDBACK = (1 << 8),
     CONTROL_BELL = (1 << 9),
     CONTROL_IGNORE_GROUP_LOCK = (1 << 10),
+    CONTROL_OVERLAY1 = (1 << 11),
+    CONTROL_OVERLAY2 = (1 << 12),
     CONTROL_ALL = \
         (CONTROL_REPEAT | CONTROL_SLOW | CONTROL_DEBOUNCE | CONTROL_STICKY | \
          CONTROL_MOUSEKEYS | CONTROL_MOUSEKEYS_ACCEL | CONTROL_AX | \
          CONTROL_AX_TIMEOUT | CONTROL_AX_FEEDBACK | CONTROL_BELL | \
-         CONTROL_IGNORE_GROUP_LOCK)
+         CONTROL_IGNORE_GROUP_LOCK | CONTROL_OVERLAY1 | CONTROL_OVERLAY2)
 };
 
 enum xkb_match_operation {
@@ -332,9 +337,14 @@ struct xkb_group {
     struct xkb_level *levels;
 };
 
+typedef uint8_t xkb_overlay_index_t;
+
 struct xkb_key {
     xkb_keycode_t keycode;
     xkb_atom_t name;
+
+    xkb_overlay_index_t num_overlays;
+    xkb_keycode_t *overlays;
 
     enum xkb_explicit_components explicit;
 
