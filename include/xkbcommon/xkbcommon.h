@@ -1510,6 +1510,9 @@ xkb_state_update_mask(struct xkb_state *state,
                       xkb_layout_index_t latched_layout,
                       xkb_layout_index_t locked_layout);
 
+xkb_keycode_t
+xkb_state_key_get_overlay_keycode(struct xkb_state *state, xkb_keycode_t kc);
+
 /**
  * Get the keysyms obtained from pressing a particular key in a given
  * keyboard state.
