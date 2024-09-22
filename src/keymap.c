@@ -95,6 +95,7 @@ xkb_keymap_unref(struct xkb_keymap *keymap)
         }
         free(keymap->types);
     }
+    free(keymap->incompatible_overlays);
     free(keymap->sym_interprets);
     free(keymap->key_aliases);
     free(keymap->group_names);

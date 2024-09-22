@@ -1438,7 +1438,15 @@ enum xkb_state_component {
      *  Use this unless you explicitly care how the state came about. */
     XKB_STATE_LAYOUT_EFFECTIVE = (1 << 7),
     /** LEDs (derived from the other state components). */
-    XKB_STATE_LEDS = (1 << 8)
+    XKB_STATE_LEDS = (1 << 8),
+    /** TODO: doc */
+    XKB_STATE_OVERLAYS_SET = (1 << 9),
+    /** TODO: doc */
+    XKB_STATE_OVERLAYS_LOCKED = (1 << 10),
+    /** TODO: doc */
+    XKB_STATE_OVERLAYS_EFFECTIVE = (1 << 11),
+    /** TODO: doc */
+    XKB_STATE_OVERLAID_KEYS = (1 << 12),
 };
 
 /**

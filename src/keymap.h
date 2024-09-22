@@ -88,9 +88,6 @@
 #include "utils.h"
 #include "context.h"
 
-/* TODO: doc */
-#define XKB_MAX_OVERLAYS 2
-
 /* This limit is artificially enforced, we do not depend on it any where.
  * The reason it's still here is that the rules file format does not
  * support multiple groups very well, and the rules shipped with
@@ -122,6 +119,15 @@ enum mod_type {
     MOD_BOTH = (MOD_REAL | MOD_VIRT),
 };
 #define MOD_REAL_MASK_ALL ((xkb_mod_mask_t) 0x000000ff)
+
+/* TODO: doc */
+#define XKB_MAX_OVERLAYS 8
+
+#if XKB_MAX_OVERLAYS > 8
+    #error "Cannot store overlays indexes"
+#endif
+typedef uint8_t xkb_overlay_index_t;
+typedef uint8_t xkb_overlay_mask_t;
 
 enum xkb_action_type {
     ACTION_TYPE_NONE = 0,
@@ -168,6 +174,8 @@ enum xkb_action_controls {
     CONTROL_AX_FEEDBACK = (1 << 8),
     CONTROL_BELL = (1 << 9),
     CONTROL_IGNORE_GROUP_LOCK = (1 << 10),
+#define _CONTROL_OVERLAY1_LOG2 11
+#define CONTROL_OVERLAYS (CONTROL_OVERLAY1 | CONTROL_OVERLAY2)
     CONTROL_OVERLAY1 = (1 << 11),
     CONTROL_OVERLAY2 = (1 << 12),
     CONTROL_ALL = \
@@ -206,6 +214,7 @@ struct xkb_controls_action {
     enum xkb_action_type type;
     enum xkb_action_flags flags;
     enum xkb_action_controls ctrls;
+    xkb_overlay_mask_t overlays;
 };
 
 struct xkb_pointer_default_action {
@@ -337,13 +346,11 @@ struct xkb_group {
     struct xkb_level *levels;
 };
 
-typedef uint8_t xkb_overlay_index_t;
-
 struct xkb_key {
     xkb_keycode_t keycode;
     xkb_atom_t name;
 
-    xkb_overlay_index_t num_overlays;
+    xkb_overlay_mask_t overlays_mask;
     xkb_keycode_t *overlays;
 
     enum xkb_explicit_components explicit;
@@ -380,6 +387,8 @@ struct xkb_keymap {
     enum xkb_keymap_format format;
 
     enum xkb_action_controls enabled_ctrls;
+    xkb_overlay_index_t num_overlays;
+    xkb_overlay_mask_t *incompatible_overlays;
 
     xkb_keycode_t min_key_code;
     xkb_keycode_t max_key_code;

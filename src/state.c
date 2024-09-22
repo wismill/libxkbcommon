@@ -76,6 +76,14 @@ struct xkb_filter {
     int refcnt;
 };
 
+struct xkb_overlaid_key {
+    xkb_keycode_t keycode;
+    xkb_overlay_index_t overlay;
+    uint8_t count;
+};
+
+typedef darray(struct xkb_overlaid_key) xkb_overlay_keys_t;
+
 struct state_components {
     /* These may be negative, because of -1 group actions. */
     int32_t base_group; /**< depressed */
@@ -87,6 +95,11 @@ struct state_components {
     xkb_mod_mask_t latched_mods;
     xkb_mod_mask_t locked_mods;
     xkb_mod_mask_t mods; /**< effective */
+
+    xkb_overlay_mask_t base_overlays;
+    xkb_overlay_mask_t locked_overlays;
+    xkb_overlay_mask_t overlays; /**< effective */
+    xkb_overlay_keys_t overlaid_keys;
 
     xkb_led_mask_t leds;
 };
@@ -739,6 +752,7 @@ xkb_state_unref(struct xkb_state *state)
 
     xkb_keymap_unref(state->keymap);
     darray_free(state->filters);
+    darray_free(state->components.overlaid_keys);
     free(state);
 }
 
