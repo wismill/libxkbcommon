@@ -782,7 +782,8 @@ AddActionsToKey(SymbolsInfo *info, KeyInfo *keyi, ExprDef *arrayNdx,
     for (unsigned i = 0; i < nActs; i++) {
         union xkb_action *toAct = &darray_item(groupi->levels, i).action;
 
-        if (!HandleActionDef(info->ctx, info->actions, &info->mods, act, toAct))
+        if (!HandleActionDef(info->ctx, info->keymap->format, info->actions,
+                             &info->mods, act, toAct))
             log_err(info->ctx, XKB_ERROR_INVALID_VALUE,
                     "Illegal action definition for %s; "
                     "Action for group %u/level %u ignored\n",
@@ -1052,8 +1053,8 @@ HandleGlobalVar(SymbolsInfo *info, VarDef *stmt)
         ret = true;
     }
     else {
-        ret = SetActionField(info->ctx, info->actions, &info->mods,
-                             elem, field, arrayNdx, stmt->value);
+        ret = SetActionField(info->ctx, info->keymap->format, info->actions,
+                             &info->mods, elem, field, arrayNdx, stmt->value);
     }
 
     return ret;
