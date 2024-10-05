@@ -45,7 +45,8 @@ test_garbage_key(void)
 
     assert(context);
 
-    keymap = test_compile_rules(context, NULL, NULL, "garbage", NULL, NULL);
+    keymap = test_compile_rules(context, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                NULL, NULL, "garbage", NULL, NULL);
     assert(keymap);
 
     /* TLDE uses the 'us' sym on the first level and is thus [grave, exclam] */
@@ -90,7 +91,8 @@ test_keymap(void)
 
     assert(context);
 
-    keymap = test_compile_rules(context, "evdev", "pc104", "us,ru", NULL, "grp:menu_toggle");
+    keymap = test_compile_rules(context, XKB_KEYMAP_FORMAT_TEXT_V1, "evdev",
+                                "pc104", "us,ru", NULL, "grp:menu_toggle");
     assert(keymap);
 
     kc = xkb_keymap_key_by_name(keymap, "AE09");
@@ -167,7 +169,8 @@ test_numeric_keysyms(void)
 
     assert(context);
 
-    keymap = test_compile_rules(context, "evdev", "pc104", "numeric_keysyms", NULL, NULL);
+    keymap = test_compile_rules(context, XKB_KEYMAP_FORMAT_TEXT_V1, "evdev",
+                                "pc104", "numeric_keysyms", NULL, NULL);
     assert(keymap);
 
     kc = xkb_keymap_key_by_name(keymap, "AD01");
@@ -210,7 +213,8 @@ test_multiple_keysyms_per_level(void)
 
     assert(context);
 
-    keymap = test_compile_rules(context, "evdev", "pc104", "awesome", NULL, NULL);
+    keymap = test_compile_rules(context, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                "evdev", "pc104", "awesome", NULL, NULL);
     assert(keymap);
 
     kc = xkb_keymap_key_by_name(keymap, "AD01");
