@@ -512,6 +512,16 @@ if build_tools
                c_args: ['-DENABLE_PRIVATE_APIS'],
                include_directories: [include_directories('src', 'include')],
                install: false)
+    if cc.has_header('sys/un.h')
+        # The same tool again, but for batch processing.
+        executable('compile-keymap-server',
+                'tools/compile-keymap.c',
+                libxkbcommon_sources,
+                dependencies: [tools_dep],
+                c_args: ['-DUSE_SOCKET'],
+                include_directories: [include_directories('src', 'include')],
+                install: false)
+    endif
 
     # Tool: compose
     executable('xkbcli-compile-compose',

@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#define USE_SOCKET
+
 #include <assert.h>
 #include <errno.h>
 #include <getopt.h>
@@ -30,6 +32,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef USE_SOCKET
+#include <sys/socket.h>
+#include <sys/un.h>
+#endif
 
 #include "xkbcommon/xkbcommon.h"
 #if ENABLE_PRIVATE_APIS
@@ -37,6 +43,7 @@
 #include "xkbcomp/rules.h"
 #endif
 #include "tools-common.h"
+#include "src/utils.h"
 
 #define DEFAULT_INCLUDE_PATH_PLACEHOLDER "__defaults__"
 
@@ -49,6 +56,37 @@ static enum output_format {
 } output_format = FORMAT_KEYMAP;
 static const char *includes[64];
 static size_t num_includes = 0;
+
+#ifdef USE_SOCKET
+
+static void
+usage(char **argv)
+{
+    printf("Usage: %s [OPTIONS]\n"
+           "\n"
+           "Start a server to compile keymaps\n"
+           "Options:\n"
+           " --help\n"
+           "    Print this help and exit\n"
+           " --verbose\n"
+           "    Enable verbose debugging output\n"
+           " --socket <path>\n"
+           "    Path of the Unix socket\n"
+           " --include\n"
+           "    Add the given path to the include path list. This option is\n"
+           "    order-dependent, include paths given first are searched first.\n"
+           "    If an include path is given, the default include path list is\n"
+           "    not used. Use --include-defaults to add the default include\n"
+           "    paths\n"
+           " --include-defaults\n"
+           "    Add the default set of include directories.\n"
+           "    This option is order-dependent, include paths given first\n"
+           "    are searched first.\n"
+           "\n",
+           argv[0]);
+}
+
+#else
 
 static void
 usage(char **argv)
@@ -102,8 +140,11 @@ usage(char **argv)
            DEFAULT_XKB_OPTIONS ? DEFAULT_XKB_OPTIONS : "<none>");
 }
 
+#endif
+
 static bool
-parse_options(int argc, char **argv, struct xkb_rule_names *names)
+parse_options(int argc, char **argv, struct xkb_rule_names *names,
+              char **socket_address)
 {
     enum options {
         OPT_VERBOSE,
@@ -117,22 +158,30 @@ parse_options(int argc, char **argv, struct xkb_rule_names *names)
         OPT_LAYOUT,
         OPT_VARIANT,
         OPT_OPTION,
+        OPT_SOCKET,
     };
     static struct option opts[] = {
         {"help",             no_argument,            0, 'h'},
         {"verbose",          no_argument,            0, OPT_VERBOSE},
+#ifdef USE_SOCKET
+        {"socket",           required_argument,      0, OPT_SOCKET},
+#endif
 #if ENABLE_PRIVATE_APIS
         {"kccgst",           no_argument,            0, OPT_KCCGST},
 #endif
+#ifndef USE_SOCKET
         {"rmlvo",            no_argument,            0, OPT_RMLVO},
         {"from-xkb",         no_argument,            0, OPT_FROM_XKB},
+#endif
         {"include",          required_argument,      0, OPT_INCLUDE},
         {"include-defaults", no_argument,            0, OPT_INCLUDE_DEFAULTS},
+#ifndef USE_SOCKET
         {"rules",            required_argument,      0, OPT_RULES},
         {"model",            required_argument,      0, OPT_MODEL},
         {"layout",           required_argument,      0, OPT_LAYOUT},
         {"variant",          required_argument,      0, OPT_VARIANT},
         {"options",          required_argument,      0, OPT_OPTION},
+#endif
         {0, 0, 0, 0},
     };
 
@@ -149,6 +198,9 @@ parse_options(int argc, char **argv, struct xkb_rule_names *names)
             exit(0);
         case OPT_VERBOSE:
             verbose = true;
+            break;
+        case OPT_SOCKET:
+            *socket_address = optarg;
             break;
         case OPT_KCCGST:
             output_format = FORMAT_KCCGST;
@@ -198,6 +250,7 @@ parse_options(int argc, char **argv, struct xkb_rule_names *names)
     return true;
 }
 
+#ifndef USE_SOCKET
 static bool
 print_rmlvo(struct xkb_context *ctx, const struct xkb_rule_names *rmlvo)
 {
@@ -311,6 +364,148 @@ out:
     return success;
 }
 
+#else
+
+#define INPUT_BUFFER_SIZE 1024
+static bool
+parse_component(char **input, size_t *max_len, const char **output)
+{
+    if (!(*input) || !(*max_len)) {
+        *input = NULL;
+        *max_len = 0;
+        *output = NULL;
+        return true;
+    }
+    char *start = *input;
+    char *next = strchr(start, '\n');
+    size_t len;
+    if (next == NULL) {
+        len = *max_len;
+        *input = NULL;
+        *max_len = 0;
+    } else {
+        len = (size_t)(next - start);
+        *max_len -= len + 1;
+        *input += len + 1;
+    }
+    *output = strndup(start, len);
+    if (!(*output)) {
+        fprintf(stderr, "ERROR: Cannot allocate memory\n");
+        return false;
+    }
+    return true;
+}
+
+static int
+process_query(struct xkb_context *ctx, int accept_socket_fd)
+{
+    char input_buffer[INPUT_BUFFER_SIZE];
+    ssize_t count = read(accept_socket_fd, input_buffer, INPUT_BUFFER_SIZE);
+    if (count <= 0) {
+        // TODO: error message
+        return EXIT_FAILURE;
+    }
+    if (input_buffer[0] == '\x1b') {
+        // Escape = exit
+        return -1;
+    }
+    /* We expect RMLVO to be provided with one component per line */
+    char *input = input_buffer;
+    size_t len = count;
+    struct xkb_rule_names rmlvo = {
+        .rules = NULL,
+        .model = NULL,
+        .layout = NULL,
+        .variant = NULL,
+        .options = NULL,
+    };
+    int rc = EXIT_FAILURE;
+    if (!parse_component(&input, &len, &rmlvo.rules) ||
+        !parse_component(&input, &len, &rmlvo.model) ||
+        !parse_component(&input, &len, &rmlvo.layout) ||
+        !parse_component(&input, &len, &rmlvo.variant) ||
+        !parse_component(&input, &len, &rmlvo.options)) {
+        fprintf(stderr, "ERROR: Cannor parse RMLVO: %s.\n", input_buffer);
+        goto error;
+    }
+
+    /* Compile keymap */
+    struct xkb_keymap *keymap;
+    keymap = xkb_keymap_new_from_names(ctx, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
+    if (keymap == NULL)
+        goto error;
+
+    char *buf = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
+    write(accept_socket_fd, buf, strlen(buf) + 1);
+    free(buf);
+
+    xkb_keymap_unref(keymap);
+    rc = EXIT_SUCCESS;
+
+error:
+    free((char*)rmlvo.rules);
+    free((char*)rmlvo.model);
+    free((char*)rmlvo.layout);
+    free((char*)rmlvo.variant);
+    free((char*)rmlvo.options);
+    return rc;
+}
+
+static int
+serve(struct xkb_context *ctx, const char* socket_address)
+{
+    int rc = EXIT_FAILURE;
+    struct sockaddr_un sockaddr_un = { 0 };
+    int socket_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (socket_fd == -1) {
+        fprintf(stderr, "ERROR: Cannot create Unix socket.\n");
+        return EXIT_FAILURE;
+    }
+    /* Construct the bind address structure. */
+    sockaddr_un.sun_family = AF_UNIX;
+    strcpy(sockaddr_un.sun_path, socket_address);
+
+    rc = bind(socket_fd, (struct sockaddr*) &sockaddr_un,
+              sizeof(struct sockaddr_un));
+    /* If socket_address exists on the filesystem, then bind will fail. */
+    if (rc == -1) {
+        fprintf(stderr, "ERROR: Cannot create Unix socket path.\n");
+        rc = EXIT_FAILURE;
+        goto error_bind;
+    };
+    if (listen(socket_fd, 4096) == -1) {
+        fprintf(stderr, "ERROR: Cannot listen socket.\n");
+        goto error;
+    }
+
+    while (1) {
+        int accept_socket_fd = accept(socket_fd, NULL, NULL);
+        if (accept_socket_fd == -1) {
+            // TODO
+            rc = EXIT_FAILURE;
+            goto error;
+        };
+
+        if (accept_socket_fd > 0) {
+            /* client is connected */
+            rc = process_query(ctx, accept_socket_fd);
+            close(accept_socket_fd);
+            if (rc > 0) {
+                fprintf(stderr, "ERROR: failed to process query\n");
+            } else if (rc < 0) {
+                fprintf(stderr, "Exiting...\n");
+                break;
+            }
+        }
+    }
+error:
+    close(socket_fd);
+    unlink(socket_address);
+error_bind:
+    return rc;
+}
+#endif
+
 int
 main(int argc, char **argv)
 {
@@ -324,16 +519,18 @@ main(int argc, char **argv)
         .variant = NULL,
         .options = DEFAULT_XKB_OPTIONS,
     };
-    int rc = 1;
+    char *socket_address = NULL;
+    int rc = EXIT_FAILURE;
 
     if (argc < 1) {
         usage(argv);
         return EXIT_INVALID_USAGE;
     }
 
-    if (!parse_options(argc, argv, &names))
+    if (!parse_options(argc, argv, &names, &socket_address))
         return EXIT_INVALID_USAGE;
 
+#ifndef USE_SOCKET
     /* Now fill in the layout */
     if (!names.layout || !*names.layout) {
         if (names.variant && *names.variant) {
@@ -343,6 +540,7 @@ main(int argc, char **argv)
         names.layout = DEFAULT_XKB_LAYOUT;
         names.variant = DEFAULT_XKB_VARIANT;
     }
+#endif
 
     ctx = xkb_context_new(XKB_CONTEXT_NO_DEFAULT_INCLUDES);
     assert(ctx);
@@ -363,6 +561,9 @@ main(int argc, char **argv)
             xkb_context_include_path_append(ctx, include);
     }
 
+#ifdef USE_SOCKET
+    serve(ctx, socket_address);
+#else
     if (output_format == FORMAT_RMLVO) {
         rc = print_rmlvo(ctx, &names) ? EXIT_SUCCESS : EXIT_FAILURE;
     } else if (output_format == FORMAT_KEYMAP) {
@@ -372,6 +573,7 @@ main(int argc, char **argv)
     } else if (output_format == FORMAT_KEYMAP_FROM_XKB) {
         rc = print_keymap_from_file(ctx);
     }
+#endif
 
     xkb_context_unref(ctx);
 
