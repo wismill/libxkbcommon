@@ -23,7 +23,7 @@
 
 #include "config.h"
 
-#define USE_SOCKET
+// #define ENABLE_KEYMAP_SOCKET
 
 #include <assert.h>
 #include <errno.h>
@@ -32,7 +32,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef USE_SOCKET
+#ifdef ENABLE_KEYMAP_SOCKET
 #include <sys/socket.h>
 #include <sys/un.h>
 #endif
@@ -41,6 +41,10 @@
 #if ENABLE_PRIVATE_APIS
 #include "xkbcomp/xkbcomp-priv.h"
 #include "xkbcomp/rules.h"
+#endif
+#ifdef ENABLE_KEYMAP_CACHE
+#include "src/utils.h"
+#include "src/context.h"
 #endif
 #include "tools-common.h"
 #include "src/utils.h"
@@ -57,7 +61,7 @@ static enum output_format {
 static const char *includes[64];
 static size_t num_includes = 0;
 
-#ifdef USE_SOCKET
+#ifdef ENABLE_KEYMAP_SOCKET
 
 static void
 usage(char **argv)
@@ -163,19 +167,19 @@ parse_options(int argc, char **argv, struct xkb_rule_names *names,
     static struct option opts[] = {
         {"help",             no_argument,            0, 'h'},
         {"verbose",          no_argument,            0, OPT_VERBOSE},
-#ifdef USE_SOCKET
+#ifdef ENABLE_KEYMAP_SOCKET
         {"socket",           required_argument,      0, OPT_SOCKET},
 #endif
 #if ENABLE_PRIVATE_APIS
         {"kccgst",           no_argument,            0, OPT_KCCGST},
 #endif
-#ifndef USE_SOCKET
+#ifndef ENABLE_KEYMAP_SOCKET
         {"rmlvo",            no_argument,            0, OPT_RMLVO},
         {"from-xkb",         no_argument,            0, OPT_FROM_XKB},
 #endif
         {"include",          required_argument,      0, OPT_INCLUDE},
         {"include-defaults", no_argument,            0, OPT_INCLUDE_DEFAULTS},
-#ifndef USE_SOCKET
+#ifndef ENABLE_KEYMAP_SOCKET
         {"rules",            required_argument,      0, OPT_RULES},
         {"model",            required_argument,      0, OPT_MODEL},
         {"layout",           required_argument,      0, OPT_LAYOUT},
@@ -250,7 +254,7 @@ parse_options(int argc, char **argv, struct xkb_rule_names *names,
     return true;
 }
 
-#ifndef USE_SOCKET
+#ifndef ENABLE_KEYMAP_SOCKET
 static bool
 print_rmlvo(struct xkb_context *ctx, const struct xkb_rule_names *rmlvo)
 {
@@ -530,7 +534,7 @@ main(int argc, char **argv)
     if (!parse_options(argc, argv, &names, &socket_address))
         return EXIT_INVALID_USAGE;
 
-#ifndef USE_SOCKET
+#ifndef ENABLE_KEYMAP_SOCKET
     /* Now fill in the layout */
     if (!names.layout || !*names.layout) {
         if (names.variant && *names.variant) {
@@ -561,7 +565,7 @@ main(int argc, char **argv)
             xkb_context_include_path_append(ctx, include);
     }
 
-#ifdef USE_SOCKET
+#ifdef ENABLE_KEYMAP_SOCKET
     serve(ctx, socket_address);
 #else
     if (output_format == FORMAT_RMLVO) {

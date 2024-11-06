@@ -518,7 +518,7 @@ if build_tools
                 'tools/compile-keymap.c',
                 libxkbcommon_sources,
                 dependencies: [tools_dep],
-                c_args: ['-DUSE_SOCKET'],
+                c_args: ['-DENABLE_KEYMAP_SOCKET', '-DENABLE_KEYMAP_CACHE'],
                 include_directories: [include_directories('src', 'include')],
                 install: false)
     endif
