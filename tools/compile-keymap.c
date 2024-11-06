@@ -43,8 +43,8 @@
 #include "xkbcomp/rules.h"
 #endif
 #ifdef ENABLE_KEYMAP_CACHE
-#include "src/utils.h"
 #include "src/context.h"
+#include "src/xkbcomp/cache.h"
 #endif
 #include "tools-common.h"
 #include "src/utils.h"
@@ -566,7 +566,17 @@ main(int argc, char **argv)
     }
 
 #ifdef ENABLE_KEYMAP_SOCKET
+#ifdef ENABLE_KEYMAP_CACHE
+    struct xkb_keymap_cache *keymap_cache = xkb_keymap_cache_new();
+    if (keymap_cache)
+        ctx->keymap_cache = keymap_cache;
+    else
+        fprintf(stderr, "ERROR: Cannot create keymap cache.\n");
+#endif
     serve(ctx, socket_address);
+#ifdef ENABLE_KEYMAP_CACHE
+    xkb_keymap_cache_free(keymap_cache);
+#endif
 #else
     if (output_format == FORMAT_RMLVO) {
         rc = print_rmlvo(ctx, &names) ? EXIT_SUCCESS : EXIT_FAILURE;

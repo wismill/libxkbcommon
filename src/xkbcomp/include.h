@@ -36,21 +36,6 @@
 #define is_merge_mode_prefix(ch) \
     ((ch) == MERGE_OVERRIDE_PREFIX || (ch) == MERGE_AUGMENT_PREFIX)
 
-#ifdef ENABLE_KEYMAP_CACHE
-#include "src/darray.h"
-#include "ast.h"
-struct xkb_keymap_cache_entry {
-    int hash;
-    char *file;
-    char *section;
-    void *data;
-};
-
-struct xkb_keymap_cache {
-    darray(struct xkb_keymap_cache_entry) entries[LAST_KEYMAP_FILE_TYPE+1];
-};
-#endif
-
 bool
 ParseIncludeMap(char **str_inout, char **file_rtrn, char **map_rtrn,
                 char *nextop_rtrn, char **extra_data);

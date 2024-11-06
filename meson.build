@@ -516,6 +516,8 @@ if build_tools
         # The same tool again, but for batch processing.
         executable('compile-keymap-server',
                 'tools/compile-keymap.c',
+                'src/xkbcomp/cache.c',
+                'src/xkbcomp/cache.h',
                 libxkbcommon_sources,
                 dependencies: [tools_dep],
                 c_args: ['-DENABLE_KEYMAP_SOCKET', '-DENABLE_KEYMAP_CACHE'],
