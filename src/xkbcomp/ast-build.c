@@ -962,7 +962,8 @@ DupStmt(ParseCommon *stmt)
     ParseCommon new = {0};
     ParseCommon *next = &new;
     do {
-        fprintf(stderr, "~~~ CopyStmt: type=%d\n", stmt->type);
+        // FIXME debug
+        // fprintf(stderr, "~~~ CopyStmt: type=%d\n", stmt->type);
 
         switch (stmt->type) {
         case STMT_INCLUDE:
@@ -1150,9 +1151,11 @@ DupXkbFile(XkbFile *file)
         return NULL;
     XkbFile *new = memdup(file, 1, sizeof(*file));
     XkbFile *next = new;
-    fprintf(stderr, "~~~ DupXkbFile: start\n");
+    // FIXME debug
+    // fprintf(stderr, "~~~ DupXkbFile: start\n");
     do {
-        fprintf(stderr, "~~~ DupXkbFile: file_type=%d, %s\n", file->file_type, file->name);
+        // FIXME debug
+        // fprintf(stderr, "~~~ DupXkbFile: file_type=%d, %s\n", file->file_type, file->name);
         if (!next)
             goto error;
         next->common.next = NULL;
@@ -1174,7 +1177,8 @@ DupXkbFile(XkbFile *file)
         case FILE_TYPE_SYMBOLS:
         case FILE_TYPE_KEYCODES:
         case FILE_TYPE_GEOMETRY:
-            fprintf(stderr, "~~~ DupXkbFile: stmt=%d\n", file->defs->type);
+            // FIXME debug
+            // fprintf(stderr, "~~~ DupXkbFile: stmt=%d\n", file->defs->type);
             next->defs = DupStmt(file->defs);
             if (!next->defs)
                 goto error;

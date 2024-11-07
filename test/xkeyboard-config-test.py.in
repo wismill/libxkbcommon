@@ -6,8 +6,10 @@ import argparse
 import itertools
 import multiprocessing
 import os
+import socket
 import subprocess
 import sys
+import tempfile
 import xml.etree.ElementTree as ET
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
@@ -53,7 +55,6 @@ class RMLVO:
     variant: str | None
     option: str | None
 
-    @property
     def __iter__(self) -> Iterator[str | None]:
         yield self.rules
         yield self.model
@@ -89,6 +90,66 @@ class RMLVO:
             variant,
             option,
         )
+
+
+@dataclass
+class CompileKeymapPool:
+    count: int
+    pool: list[subprocess.Popen] | None = None
+    queue: multiprocessing.Queue[Path] | None = None
+    tmp: tempfile.TemporaryDirectory | None = None
+
+    @property
+    def sockets(self) -> Iterable[Path]:
+        for k in range(self.count):
+            yield Path(self.tmp.name) / str(k)
+
+    def __enter__(self):
+        if self.queue is None:
+            self.queue = multiprocessing.Queue(self.count)
+        if self.queue.empty():
+            self.tmp = tempfile.TemporaryDirectory()
+            if self.pool:
+                for p in self.pool:
+                    p.kill()
+            self.pool = []
+            for path in self.sockets:
+                args = ("compile-keymap-server", "--socket", str(path))
+                self.pool.append(
+                    subprocess.Popen(
+                        args,
+                        close_fds=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                )
+                self.queue.put_nowait(path)
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.queue is not None:
+            self.queue.close()
+        for path in self.sockets:
+            self.message(path, b"\x1b")
+        if self.pool:
+            for p in self.pool:
+                p.kill()
+        self.pool = None
+        self.tmp.cleanup()
+
+    @classmethod
+    def message(cls, socket_path: Path, msg: bytes) -> bytes:
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        s.connect(str(socket_path))
+        s.sendall(msg)
+        response = s.recv(10_000_000)
+        s.close()
+        return response
+
+    @classmethod
+    def get_keymap(cls, socket_path: Path, rmlvo: RMLVO):
+        query = "\n".join(v or "" for v in rmlvo)
+        return cls.message(socket_path, query.encode())
 
 
 @dataclass
@@ -141,6 +202,7 @@ class Invocation(RMLVO, metaclass=ABCMeta):
         verbose: bool,
         short: bool,
         progress_bar: ProgressBar[Iterable[Self]],
+        chunksize: int,
     ) -> bool:
         if keymap_output_dir:
             try:
@@ -154,7 +216,7 @@ class Invocation(RMLVO, metaclass=ABCMeta):
 
         failed = False
         with multiprocessing.Pool(njobs) as p:
-            results = p.imap_unordered(cls.run, combos)
+            results = p.imap_unordered(cls.run, combos, chunksize=chunksize)
             for invocation in progress_bar(
                 results, total=combos_count, file=sys.stdout
             ):
@@ -260,6 +322,88 @@ class XkbcommonInvocation(Invocation):
             self.error = "failed to compile keymap"
             self.exitstatus = err.returncode
         return self
+
+
+@dataclass
+class XkbcommonInvocationServer(XkbcommonInvocation):
+    @classmethod
+    def _run2(cls, x: tuple[Self, Path]) -> Self:
+        r, path = x
+        # print(r)
+        # FIXME handle errors
+        r.keymap = CompileKeymapPool.get_keymap(path, r)
+        # FIXME
+        r.exitstatus = 0 if r.keymap else 1
+        return r
+
+    @classmethod
+    def run_all(
+        cls,
+        combos: Iterable[Self],
+        combos_count: int,
+        njobs: int,
+        keymap_output_dir: Path | None,
+        verbose: bool,
+        short: bool,
+        progress_bar: ProgressBar[Iterable[Self]],
+        chunksize: int,
+    ) -> bool:
+        if keymap_output_dir:
+            try:
+                keymap_output_dir.mkdir(parents=True)
+            except FileExistsError as e:
+                print(e, file=sys.stderr)
+                return False
+
+        keymap_file: Path | None = None
+        keymap_file_fd: TextIO | None = None
+
+        failed = False
+        # with CompileKeymapPool((njobs // 2) or 1) as kmp:
+        with CompileKeymapPool(njobs) as kmp:
+            with multiprocessing.Pool(njobs) as p:
+                results = p.imap_unordered(
+                    cls._run2,
+                    zip(combos, itertools.cycle(kmp.sockets)),
+                    chunksize=chunksize,
+                )
+                for invocation in progress_bar(
+                    results, total=combos_count, file=sys.stdout
+                ):
+                    if invocation.exitstatus != 0:
+                        failed = True
+                        target = sys.stderr
+                    else:
+                        target = sys.stdout if verbose else None
+
+                    if target:
+                        if short:
+                            print("-", cls.to_yaml(invocation.short), file=target)
+                        else:
+                            print(invocation, file=target)
+
+                    if keymap_output_dir:
+                        # we're running through the layouts in a somewhat sorted manner,
+                        # so let's keep the fd open until we switch layouts
+                        layout = invocation.layout
+                        if invocation.variant:
+                            layout += f"({invocation.variant})"
+                        (keymap_output_dir / invocation.model).mkdir(exist_ok=True)
+                        fname = keymap_output_dir / invocation.model / layout
+                        if fname != keymap_file:
+                            keymap_file = fname
+                            if keymap_file_fd:
+                                keymap_file_fd.close()
+                            keymap_file_fd = open(keymap_file, "a")
+
+                        print(
+                            f"// {cls.to_yaml(invocation.rmlvo)}", file=keymap_file_fd
+                        )
+                        print(invocation.keymap, file=keymap_file_fd)
+                        assert keymap_file_fd
+                        keymap_file_fd.flush()
+
+            return failed
 
 
 @dataclass
@@ -411,6 +555,7 @@ def main() -> NoReturn:
     )
     tools: dict[str, type[Invocation]] = {
         "libxkbcommon": XkbcommonInvocation,
+        "libxkbcommon-server": XkbcommonInvocationServer,
         "xkbcomp": XkbCompInvocation,
     }
     parser.add_argument(
@@ -443,6 +588,7 @@ def main() -> NoReturn:
     parser.add_argument(
         "--layout", default=WILDCARD, type=str, help="Only test the given layout"
     )
+    parser.add_argument("--chunksize", default=1, type=int)
     parser.add_argument(
         "--variant",
         default=WILDCARD,
@@ -484,7 +630,14 @@ def main() -> NoReturn:
         )
 
     failed = tool.run_all(
-        iter_combos, count, args.jobs, keymapdir, verbose, short, progress_bar
+        iter_combos,
+        count,
+        args.jobs,
+        keymapdir,
+        verbose,
+        short,
+        progress_bar,
+        args.chunksize,
     )
     sys.exit(failed)
 
