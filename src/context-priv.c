@@ -34,6 +34,11 @@
 #include "utils.h"
 #include "context.h"
 
+#ifdef ENABLE_KEYMAP_CACHE
+#include <pthread.h>
+static pthread_mutex_t atom_table_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
 char *
 xkb_context_getenv(struct xkb_context *ctx, const char *name)
 {
@@ -63,13 +68,21 @@ xkb_context_failed_include_path_get(struct xkb_context *ctx,
 xkb_atom_t
 xkb_atom_lookup(struct xkb_context *ctx, const char *string)
 {
+#ifdef ENABLE_KEYMAP_CACHE
+    return atom_intern(ctx->atom_table, string, strlen(string), false, &atom_table_mutex);
+#else
     return atom_intern(ctx->atom_table, string, strlen(string), false);
+#endif
 }
 
 xkb_atom_t
 xkb_atom_intern(struct xkb_context *ctx, const char *string, size_t len)
 {
+#ifdef ENABLE_KEYMAP_CACHE
+    return atom_intern(ctx->atom_table, string, len, true, &atom_table_mutex);
+#else
     return atom_intern(ctx->atom_table, string, len, true);
+#endif
 }
 
 const char *

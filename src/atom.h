@@ -36,8 +36,15 @@ atom_table_new(void);
 void
 atom_table_free(struct atom_table *table);
 
+#ifdef ENABLE_KEYMAP_CACHE
+#include <pthread.h>
+xkb_atom_t
+atom_intern(struct atom_table *table, const char *string, size_t len, bool add,
+            pthread_mutex_t *mutex);
+#else
 xkb_atom_t
 atom_intern(struct atom_table *table, const char *string, size_t len, bool add);
+#endif
 
 const char *
 atom_text(struct atom_table *table, xkb_atom_t atom);

@@ -24,10 +24,12 @@
 #include "config.h"
 
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "cache.h"
 #include "xkbcomp-priv.h"
 
+static pthread_mutex_t keymap_cache_mutext = PTHREAD_MUTEX_INITIALIZER;
 
 struct xkb_keymap_cache*
 xkb_keymap_cache_new(void)
@@ -44,6 +46,8 @@ xkb_keymap_cache_new(void)
 void
 xkb_keymap_cache_free(struct xkb_keymap_cache *cache)
 {
+    if (!cache)
+        return;
     hdestroy_r(&cache->index);
     struct xkb_keymap_cache_entry* entry;
     darray_foreach(entry, cache->data) {
@@ -64,15 +68,20 @@ xkb_keymap_cache_add(struct xkb_keymap_cache *cache, char *key, XkbFile *data)
     if (!entry.key || !entry.data)
         goto error;
     size_t idx = darray_size(cache->data);
+    pthread_mutex_lock(&keymap_cache_mutext);
     darray_append(cache->data, entry);
-    if (darray_size(cache->data) == idx)
+    if (darray_size(cache->data) == idx) {
+        pthread_mutex_unlock(&keymap_cache_mutext);
         goto error;
+    }
     ENTRY input = {
         .key = entry.key,
         .data = entry.data
     };
     ENTRY *output;
-    return (!hsearch_r(input, ENTER, &output, &cache->index));
+    bool ret = !hsearch_r(input, ENTER, &output, &cache->index);
+    pthread_mutex_unlock(&keymap_cache_mutext);
+    return ret;
 error:
     if (entry.key)
         free(entry.key);

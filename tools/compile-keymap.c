@@ -35,6 +35,7 @@
 #ifdef ENABLE_KEYMAP_SOCKET
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <pthread.h>
 #endif
 
 #include "xkbcommon/xkbcommon.h"
@@ -400,18 +401,29 @@ parse_component(char **input, size_t *max_len, const char **output)
     return true;
 }
 
-static int
-process_query(struct xkb_context *ctx, int accept_socket_fd)
+struct query_args {
+    struct xkb_context *ctx;
+    int accept_socket_fd;
+};
+
+static pthread_mutex_t server_state_mutext = PTHREAD_MUTEX_INITIALIZER;
+static bool server_on = true;
+
+static void*
+process_query(void *x)
 {
+    struct query_args *args = x;
     char input_buffer[INPUT_BUFFER_SIZE];
-    ssize_t count = read(accept_socket_fd, input_buffer, INPUT_BUFFER_SIZE);
+    ssize_t count = read(args->accept_socket_fd, input_buffer, INPUT_BUFFER_SIZE);
     if (count <= 0) {
         // TODO: error message
-        return EXIT_FAILURE;
+        // return EXIT_FAILURE;
+        return NULL;
     }
     if (input_buffer[0] == '\x1b') {
         // Escape = exit
-        return -1;
+        // return -1;
+        return NULL;
     }
     /* We expect RMLVO to be provided with one component per line */
     char *input = input_buffer;
@@ -435,12 +447,13 @@ process_query(struct xkb_context *ctx, int accept_socket_fd)
 
     /* Compile keymap */
     struct xkb_keymap *keymap;
-    keymap = xkb_keymap_new_from_names(ctx, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
+    struct xkb_context ctx = *args->ctx;
+    keymap = xkb_keymap_new_from_names(&ctx, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
     if (keymap == NULL)
         goto error;
 
     char *buf = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
-    write(accept_socket_fd, buf, strlen(buf) + 1);
+    write(args->accept_socket_fd, buf, strlen(buf) + 1);
     free(buf);
 
     xkb_keymap_unref(keymap);
@@ -452,7 +465,17 @@ error:
     free((char*)rmlvo.layout);
     free((char*)rmlvo.variant);
     free((char*)rmlvo.options);
-    return rc;
+    close(args->accept_socket_fd);
+    free(args);
+    if (rc > 0) {
+        fprintf(stderr, "ERROR: failed to process query\n");
+    } else if (rc < 0) {
+        pthread_mutex_lock(&server_state_mutext);
+        server_on = false;
+        pthread_mutex_unlock(&server_state_mutext);
+    }
+    // return rc;
+    return NULL;
 }
 
 static int
@@ -482,7 +505,7 @@ serve(struct xkb_context *ctx, const char* socket_address)
         goto error;
     }
 
-    while (1) {
+    while (server_on) {
         int accept_socket_fd = accept(socket_fd, NULL, NULL);
         if (accept_socket_fd == -1) {
             // TODO
@@ -492,20 +515,27 @@ serve(struct xkb_context *ctx, const char* socket_address)
 
         if (accept_socket_fd > 0) {
             /* client is connected */
-            rc = process_query(ctx, accept_socket_fd);
-            close(accept_socket_fd);
-            if (rc > 0) {
-                fprintf(stderr, "ERROR: failed to process query\n");
-            } else if (rc < 0) {
-                fprintf(stderr, "Exiting...\n");
-                break;
-            }
+            pthread_t thread;
+            struct query_args *args = calloc(1, sizeof(struct query_args));
+            args->ctx = ctx;
+            args->accept_socket_fd = accept_socket_fd;
+            pthread_create(&thread, NULL, process_query, args);
+            pthread_detach(thread);
+            // rc = process_query(ctx, args);
+            // close(accept_socket_fd);
+            // if (rc > 0) {
+            //     fprintf(stderr, "ERROR: failed to process query\n");
+            // } else if (rc < 0) {
+            //     fprintf(stderr, "Exiting...\n");
+            //     break;
+            // }
         }
     }
 error:
     close(socket_fd);
     unlink(socket_address);
 error_bind:
+    fprintf(stderr, "Exiting...\n");
     return rc;
 }
 #endif

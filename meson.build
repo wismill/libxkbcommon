@@ -512,17 +512,18 @@ if build_tools
                c_args: ['-DENABLE_PRIVATE_APIS'],
                include_directories: [include_directories('src', 'include')],
                install: false)
-    if cc.has_header('sys/un.h')
+    thread_dep = dependency('threads', required: false)
+    if thread_dep.found() and cc.has_header('sys/un.h')
         # The same tool again, but for batch processing.
         executable('compile-keymap-server',
-                'tools/compile-keymap.c',
-                'src/xkbcomp/cache.c',
-                'src/xkbcomp/cache.h',
-                libxkbcommon_sources,
-                dependencies: [tools_dep],
-                c_args: ['-DENABLE_KEYMAP_SOCKET', '-DENABLE_KEYMAP_CACHE'],
-                include_directories: [include_directories('src', 'include')],
-                install: false)
+                   'tools/compile-keymap.c',
+                   'src/xkbcomp/cache.c',
+                   'src/xkbcomp/cache.h',
+                   libxkbcommon_sources,
+                   dependencies: [tools_dep, thread_dep],
+                   c_args: ['-DENABLE_KEYMAP_SOCKET', '-DENABLE_KEYMAP_CACHE'],
+                   include_directories: [include_directories('src', 'include')],
+                   install: false)
     endif
 
     # Tool: compose

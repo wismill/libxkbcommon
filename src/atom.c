@@ -142,10 +142,21 @@ atom_text(struct atom_table *table, xkb_atom_t atom)
     return darray_item(table->strings, atom);
 }
 
+
+#ifdef ENABLE_KEYMAP_CACHE
+xkb_atom_t
+atom_intern(struct atom_table *table, const char *string, size_t len, bool add,
+            pthread_mutex_t *mutex)
+#else
 xkb_atom_t
 atom_intern(struct atom_table *table, const char *string, size_t len, bool add)
+#endif
 {
     if (darray_size(table->strings) > 0.80 * table->index_size) {
+#ifdef ENABLE_KEYMAP_CACHE
+        if (mutex)
+            pthread_mutex_lock(mutex);
+#endif
         table->index_size *= 2;
         table->index = realloc(table->index, table->index_size * sizeof(*table->index));
         memset(table->index, 0, table->index_size * sizeof(*table->index));
@@ -164,6 +175,10 @@ atom_intern(struct atom_table *table, const char *string, size_t len, bool add)
                 }
             }
         }
+#ifdef ENABLE_KEYMAP_CACHE
+        if (mutex)
+            pthread_mutex_unlock(mutex);
+#endif
     }
 
     uint32_t hash = hash_buf(string, len);
@@ -175,9 +190,17 @@ atom_intern(struct atom_table *table, const char *string, size_t len, bool add)
         xkb_atom_t existing_atom = table->index[index_pos];
         if (existing_atom == XKB_ATOM_NONE) {
             if (add) {
+#ifdef ENABLE_KEYMAP_CACHE
+                if (mutex)
+                    pthread_mutex_lock(mutex);
+#endif
                 xkb_atom_t new_atom = darray_size(table->strings);
                 darray_append(table->strings, strndup(string, len));
                 table->index[index_pos] = new_atom;
+#ifdef ENABLE_KEYMAP_CACHE
+                if (mutex)
+                    pthread_mutex_unlock(mutex);
+#endif
                 return new_atom;
             } else {
                 return XKB_ATOM_NONE;
