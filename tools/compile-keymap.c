@@ -452,82 +452,81 @@ process_query(void *x)
 {
     struct query_args *args = x;
     char input_buffer[INPUT_BUFFER_SIZE];
-    ssize_t count = read(args->accept_socket_fd, input_buffer, INPUT_BUFFER_SIZE);
+    ssize_t count;
     int rc = EXIT_FAILURE;
-    if (count <= 0) {
-        // TODO: error message
-        // return EXIT_FAILURE;
-        goto exit;
-    }
-    if (input_buffer[0] == '\x1b') {
-        // Escape = exit
-        // return -1;
-        rc = -1;
-        goto exit;
-    }
-    if (count < 3 || input_buffer[1] != '\n')
-        goto exit;
-    bool serialize = input_buffer[0] == '1';
+    while ((count = read(args->accept_socket_fd, input_buffer, INPUT_BUFFER_SIZE)) > 0) {
+        rc = EXIT_FAILURE;
+        if (input_buffer[0] == '\x1b') {
+            // Escape = exit
+            // return -1;
+            rc = -1;
+            break;
+        }
+        if (count < 3 || input_buffer[1] != '\n')
+            break;
+        bool serialize = input_buffer[0] == '1';
 
-    /* We expect RMLVO to be provided with one component per line */
-    char *input = input_buffer + 2;
-    size_t len = count - 2;
-    struct xkb_rule_names rmlvo = {
-        .rules = NULL,
-        .model = NULL,
-        .layout = NULL,
-        .variant = NULL,
-        .options = NULL,
-    };
-    if (!parse_component(&input, &len, &rmlvo.rules) ||
-        !parse_component(&input, &len, &rmlvo.model) ||
-        !parse_component(&input, &len, &rmlvo.layout) ||
-        !parse_component(&input, &len, &rmlvo.variant) ||
-        !parse_component(&input, &len, &rmlvo.options)) {
-        fprintf(stderr, "ERROR: Cannor parse RMLVO: %s.\n", input_buffer);
-        goto error;
-    }
+        /* We expect RMLVO to be provided with one component per line */
+        char *input = input_buffer + 2;
+        size_t len = count - 2;
+        struct xkb_rule_names rmlvo = {
+            .rules = NULL,
+            .model = NULL,
+            .layout = NULL,
+            .variant = NULL,
+            .options = NULL,
+        };
+        if (!parse_component(&input, &len, &rmlvo.rules) ||
+            !parse_component(&input, &len, &rmlvo.model) ||
+            !parse_component(&input, &len, &rmlvo.layout) ||
+            !parse_component(&input, &len, &rmlvo.variant) ||
+            !parse_component(&input, &len, &rmlvo.options)) {
+            fprintf(stderr, "ERROR: Cannor parse RMLVO: %s.\n", input_buffer);
+            goto error;
+        }
 
-    /* Compile keymap */
-    struct xkb_keymap *keymap;
-    struct xkb_context ctx = *args->ctx;
-    keymap = xkb_keymap_new_from_names(&ctx, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
-    if (keymap == NULL) {
-        // FIXME: remove debug
-        // fprintf(stderr, "Keymap compilation error! %s\n", input_buffer);
-        count = -1;
-        send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
-        goto keymap_error;
-    }
+        /* Compile keymap */
+        struct xkb_keymap *keymap;
+        struct xkb_context ctx = *args->ctx;
+        keymap = xkb_keymap_new_from_names(&ctx, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
+        if (keymap == NULL) {
+            // FIXME: remove debug
+            // fprintf(stderr, "Keymap compilation error! %s\n", input_buffer);
+            count = -1;
+            send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
+            goto keymap_error;
+        }
 
-    /* Send the keymap, if required */
-    if (serialize) {
-        char *buf = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
-        len = strlen(buf);
-        send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
-        send(args->accept_socket_fd, buf, len + 1, MSG_NOSIGNAL);
-        free(buf);
-    } else {
-        len = 0;
-        send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
-    }
+        /* Send the keymap, if required */
+        if (serialize) {
+            char *buf = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
+            len = strlen(buf);
+            send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
+            send(args->accept_socket_fd, buf, len + 1, MSG_NOSIGNAL);
+            free(buf);
+        } else {
+            len = 0;
+            send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
+        }
 
-    xkb_keymap_unref(keymap);
-    rc = EXIT_SUCCESS;
+        xkb_keymap_unref(keymap);
+        rc = EXIT_SUCCESS;
 
 keymap_error:
-    /* Wait that the client confirm the reception */
-    recv(args->accept_socket_fd, input_buffer, ARRAY_SIZE(input_buffer), 0);
-    // FIXME: remove debug
-    // fprintf(stderr, "Received: %c\n", *input_buffer);
+        /* Wait that the client confirm the reception */
+        recv(args->accept_socket_fd, input_buffer, 1, 0);
+        // FIXME: remove debug
+        // fprintf(stderr, "Received: %c\n", *input_buffer);
 
 error:
-    free((char*)rmlvo.rules);
-    free((char*)rmlvo.model);
-    free((char*)rmlvo.layout);
-    free((char*)rmlvo.variant);
-    free((char*)rmlvo.options);
-exit:
+        free((char*)rmlvo.rules);
+        free((char*)rmlvo.model);
+        free((char*)rmlvo.layout);
+        free((char*)rmlvo.variant);
+        free((char*)rmlvo.options);
+        if (rc != EXIT_SUCCESS)
+            break;
+    }
     // remove_connection();
     close(args->accept_socket_fd);
     free(args);
