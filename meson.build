@@ -517,6 +517,9 @@ if build_tools
         # The same tool again, but for batch processing.
         executable('compile-keymap-server',
                    'tools/compile-keymap.c',
+                   'src/arena.c',
+                   'src/arena.h',
+                   'src/hashmap.h',
                    'src/xkbcomp/cache.c',
                    'src/xkbcomp/cache.h',
                    libxkbcommon_sources,

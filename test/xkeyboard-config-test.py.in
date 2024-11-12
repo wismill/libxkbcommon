@@ -96,18 +96,23 @@ class RMLVO:
 class CompileKeymapPool:
     count: int
     pool: list[subprocess.Popen] | None = None
-    queue: multiprocessing.Queue[Path] | None = None
+    # queue: multiprocessing.Queue[Path] | None = None
     tmp: tempfile.TemporaryDirectory | None = None
+    socket: Path | None = None
 
     @property
     def sockets(self) -> Iterable[Path]:
-        for k in range(self.count):
-            yield Path(self.tmp.name) / str(k)
+        if self.socket:
+            yield self.socket
+        else:
+            for k in range(self.count):
+                yield Path(self.tmp.name) / str(k)
 
     def __enter__(self):
-        if self.queue is None:
-            self.queue = multiprocessing.Queue(self.count)
-        if self.queue.empty():
+        # if self.queue is None:
+        #     self.queue = multiprocessing.Queue(self.count)
+        # if self.queue.empty():
+        if not self.pool and not self.socket:
             self.tmp = tempfile.TemporaryDirectory()
             if self.pool:
                 for p in self.pool:
@@ -123,12 +128,14 @@ class CompileKeymapPool:
                         stderr=subprocess.DEVNULL,
                     )
                 )
-                self.queue.put_nowait(path)
+                # self.queue.put_nowait(path)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.queue is not None:
-            self.queue.close()
+        # if self.queue is not None:
+        #     self.queue.close()
+        if self.socket:
+            return
         for path in self.sockets:
             self.message(path, b"\x1b")
         if self.pool:
@@ -203,6 +210,7 @@ class Invocation(RMLVO, metaclass=ABCMeta):
         short: bool,
         progress_bar: ProgressBar[Iterable[Self]],
         chunksize: int,
+        **kwargs,
     ) -> bool:
         if keymap_output_dir:
             try:
@@ -347,6 +355,7 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
         short: bool,
         progress_bar: ProgressBar[Iterable[Self]],
         chunksize: int,
+        **kwargs,
     ) -> bool:
         if keymap_output_dir:
             try:
@@ -360,7 +369,8 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
 
         failed = False
         # with CompileKeymapPool((njobs // 2) or 1) as kmp:
-        with CompileKeymapPool(njobs) as kmp:
+        # with CompileKeymapPool(njobs) as kmp:
+        with CompileKeymapPool(1, socket=kwargs.get("server_socket")) as kmp:
             with multiprocessing.Pool(njobs) as p:
                 results = p.imap_unordered(
                     cls._run2,
@@ -601,6 +611,7 @@ def main() -> NoReturn:
     parser.add_argument(
         "--no-iterations", "-1", action="store_true", help="Only test one combo"
     )
+    parser.add_argument("--socket", type=Path)
 
     args = parser.parse_args()
 
@@ -638,6 +649,7 @@ def main() -> NoReturn:
         short,
         progress_bar,
         args.chunksize,
+        server_socket=args.socket,
     )
     sys.exit(failed)
 

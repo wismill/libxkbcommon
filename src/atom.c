@@ -80,7 +80,13 @@
 #include "atom.h"
 #include "darray.h"
 #include "utils.h"
+// #define ENABLE_KEYMAP_CACHE
+#ifdef ENABLE_KEYMAP_CACHE
+#include "hashmap.h"
+#include "arena.h"
+#endif
 
+#ifndef ENABLE_KEYMAP_CACHE
 /* FNV-1a (http://www.isthe.com/chongo/tech/comp/fnv/). */
 static inline uint32_t
 hash_buf(const char *string, size_t len)
@@ -94,6 +100,7 @@ hash_buf(const char *string, size_t len)
     }
     return hash;
 }
+
 
 /*
  * The atom table is an insert-only linear probing hash table
@@ -115,7 +122,12 @@ atom_table_new(void)
 
     darray_init(table->strings);
     darray_append(table->strings, NULL);
+#ifdef ENABLE_KEYMAP_CACHE
+    darray_resize0(table->strings, size);
+    table->index_size = size * 10 / 8;
+#else
     table->index_size = 4;
+#endif
     table->index = calloc(table->index_size, sizeof(*table->index));
 
     return table;
@@ -142,21 +154,10 @@ atom_text(struct atom_table *table, xkb_atom_t atom)
     return darray_item(table->strings, atom);
 }
 
-
-#ifdef ENABLE_KEYMAP_CACHE
-xkb_atom_t
-atom_intern(struct atom_table *table, const char *string, size_t len, bool add,
-            pthread_mutex_t *mutex)
-#else
 xkb_atom_t
 atom_intern(struct atom_table *table, const char *string, size_t len, bool add)
-#endif
 {
     if (darray_size(table->strings) > 0.80 * table->index_size) {
-#ifdef ENABLE_KEYMAP_CACHE
-        if (mutex)
-            pthread_mutex_lock(mutex);
-#endif
         table->index_size *= 2;
         table->index = realloc(table->index, table->index_size * sizeof(*table->index));
         memset(table->index, 0, table->index_size * sizeof(*table->index));
@@ -175,10 +176,6 @@ atom_intern(struct atom_table *table, const char *string, size_t len, bool add)
                 }
             }
         }
-#ifdef ENABLE_KEYMAP_CACHE
-        if (mutex)
-            pthread_mutex_unlock(mutex);
-#endif
     }
 
     uint32_t hash = hash_buf(string, len);
@@ -190,17 +187,9 @@ atom_intern(struct atom_table *table, const char *string, size_t len, bool add)
         xkb_atom_t existing_atom = table->index[index_pos];
         if (existing_atom == XKB_ATOM_NONE) {
             if (add) {
-#ifdef ENABLE_KEYMAP_CACHE
-                if (mutex)
-                    pthread_mutex_lock(mutex);
-#endif
                 xkb_atom_t new_atom = darray_size(table->strings);
                 darray_append(table->strings, strndup(string, len));
                 table->index[index_pos] = new_atom;
-#ifdef ENABLE_KEYMAP_CACHE
-                if (mutex)
-                    pthread_mutex_unlock(mutex);
-#endif
                 return new_atom;
             } else {
                 return XKB_ATOM_NONE;
@@ -214,3 +203,39 @@ atom_intern(struct atom_table *table, const char *string, size_t len, bool add)
 
     assert(!"couldn't find an empty slot during probing");
 }
+
+#else
+
+MAKE_HASHMAP(hashmap, char *);
+
+struct atom_table {
+    xkb_atom_t *index;
+    size_t index_size;
+    darray(char *) strings;
+};
+
+struct atom_table *
+atom_table_new(size_t size)
+{
+
+}
+
+void
+atom_table_free(struct atom_table *table)
+{
+
+}
+
+
+xkb_atom_t
+atom_intern(struct atom_table *table, const char *string, size_t len, bool add)
+{
+
+}
+
+const char *
+atom_text(struct atom_table *table, xkb_atom_t atom)
+{
+
+}
+#endif

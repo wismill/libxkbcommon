@@ -68,7 +68,7 @@ xkb_context_failed_include_path_get(struct xkb_context *ctx,
 xkb_atom_t
 xkb_atom_lookup(struct xkb_context *ctx, const char *string)
 {
-#ifdef ENABLE_KEYMAP_CACHE
+#ifdef ENABLE_KEYMAP_CACHE_XXX
     return atom_intern(ctx->atom_table, string, strlen(string), false, &atom_table_mutex);
 #else
     return atom_intern(ctx->atom_table, string, strlen(string), false);
@@ -78,7 +78,7 @@ xkb_atom_lookup(struct xkb_context *ctx, const char *string)
 xkb_atom_t
 xkb_atom_intern(struct xkb_context *ctx, const char *string, size_t len)
 {
-#ifdef ENABLE_KEYMAP_CACHE
+#ifdef ENABLE_KEYMAP_CACHE_XXX
     return atom_intern(ctx->atom_table, string, len, true, &atom_table_mutex);
 #else
     return atom_intern(ctx->atom_table, string, len, true);

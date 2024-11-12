@@ -312,7 +312,11 @@ xkb_context_new(enum xkb_context_flags flags)
         return NULL;
     }
 
+#ifdef ENABLE_KEYMAP_CACHE
+    ctx->atom_table = atom_table_new(100000); // FIXME
+#else
     ctx->atom_table = atom_table_new();
+#endif
     if (!ctx->atom_table) {
         xkb_context_unref(ctx);
         return NULL;

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2009 Dan Nicholson
+ * Copyright © 2024 Pierre Le Marre <dev@wismill.eu>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,35 +21,19 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef ATOM_H
-#define ATOM_H
+#ifndef AREAN_H
+#define AREAN_H
 
-#ifdef ENABLE_KEYMAP_CACHE
+#include <stdbool.h>
 #include <stddef.h>
-typedef  ptrdiff_t xkb_atom_t;
-#else
-typedef uint32_t xkb_atom_t;
+
+typedef struct {
+    unsigned char *beginning;
+    unsigned char *end;
+} arena;
+
+unsigned char *
+arena_alloc(arena *a, ptrdiff_t objsize, ptrdiff_t align,
+            ptrdiff_t count, bool zero);
+
 #endif
-
-#define XKB_ATOM_NONE 0
-
-struct atom_table;
-
-#ifdef ENABLE_KEYMAP_CACHE
-struct atom_table *
-atom_table_new(size_t size);
-#else
-struct atom_table *
-atom_table_new(void);
-#endif
-
-void
-atom_table_free(struct atom_table *table);
-
-xkb_atom_t
-atom_intern(struct atom_table *table, const char *string, size_t len, bool add);
-
-const char *
-atom_text(struct atom_table *table, xkb_atom_t atom);
-
-#endif /* ATOM_H */

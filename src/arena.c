@@ -1,5 +1,5 @@
 /*
- * Copyright © 2009 Dan Nicholson
+ * Copyright © 2024 Pierre Le Marre <dev@wismill.eu>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,35 +21,23 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef ATOM_H
-#define ATOM_H
+#include <stdint.h>
+#include <string.h>
 
-#ifdef ENABLE_KEYMAP_CACHE
-#include <stddef.h>
-typedef  ptrdiff_t xkb_atom_t;
-#else
-typedef uint32_t xkb_atom_t;
-#endif
+#include "arena.h"
 
-#define XKB_ATOM_NONE 0
+typedef unsigned char byte;
+typedef ptrdiff_t     size;
 
-struct atom_table;
-
-#ifdef ENABLE_KEYMAP_CACHE
-struct atom_table *
-atom_table_new(size_t size);
-#else
-struct atom_table *
-atom_table_new(void);
-#endif
-
-void
-atom_table_free(struct atom_table *table);
-
-xkb_atom_t
-atom_intern(struct atom_table *table, const char *string, size_t len, bool add);
-
-const char *
-atom_text(struct atom_table *table, xkb_atom_t atom);
-
-#endif /* ATOM_H */
+byte *
+arena_alloc(arena *a, size objsize, size align, size count, bool zero)
+{
+    size avail = a->end - a->beginning;
+    size pad = -(uintptr_t)a->beginning & (align - 1);
+    if (count > (avail - pad)/objsize)
+        return NULL;
+    a->beginning += pad;
+    byte *r = a->beginning;
+    a->beginning += objsize * count;
+    return zero ? memset(r, 0, objsize*count) : r;
+}

@@ -407,7 +407,7 @@ struct query_args {
 };
 
 static pthread_mutex_t server_state_mutext = PTHREAD_MUTEX_INITIALIZER;
-static bool server_on = true;
+static int socket_fd;
 
 static void*
 process_query(void *x)
@@ -415,15 +415,17 @@ process_query(void *x)
     struct query_args *args = x;
     char input_buffer[INPUT_BUFFER_SIZE];
     ssize_t count = read(args->accept_socket_fd, input_buffer, INPUT_BUFFER_SIZE);
+    int rc = EXIT_FAILURE;
     if (count <= 0) {
         // TODO: error message
         // return EXIT_FAILURE;
-        return NULL;
+        goto exit;
     }
     if (input_buffer[0] == '\x1b') {
         // Escape = exit
         // return -1;
-        return NULL;
+        rc = -1;
+        goto exit;
     }
     /* We expect RMLVO to be provided with one component per line */
     char *input = input_buffer;
@@ -435,7 +437,6 @@ process_query(void *x)
         .variant = NULL,
         .options = NULL,
     };
-    int rc = EXIT_FAILURE;
     if (!parse_component(&input, &len, &rmlvo.rules) ||
         !parse_component(&input, &len, &rmlvo.model) ||
         !parse_component(&input, &len, &rmlvo.layout) ||
@@ -465,13 +466,15 @@ error:
     free((char*)rmlvo.layout);
     free((char*)rmlvo.variant);
     free((char*)rmlvo.options);
+exit:
     close(args->accept_socket_fd);
     free(args);
     if (rc > 0) {
         fprintf(stderr, "ERROR: failed to process query\n");
     } else if (rc < 0) {
         pthread_mutex_lock(&server_state_mutext);
-        server_on = false;
+        fprintf(stderr, "Bye!\n");
+        shutdown(socket_fd, SHUT_RD);
         pthread_mutex_unlock(&server_state_mutext);
     }
     // return rc;
@@ -483,7 +486,7 @@ serve(struct xkb_context *ctx, const char* socket_address)
 {
     int rc = EXIT_FAILURE;
     struct sockaddr_un sockaddr_un = { 0 };
-    int socket_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    socket_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (socket_fd == -1) {
         fprintf(stderr, "ERROR: Cannot create Unix socket.\n");
         return EXIT_FAILURE;
@@ -505,7 +508,7 @@ serve(struct xkb_context *ctx, const char* socket_address)
         goto error;
     }
 
-    while (server_on) {
+    while (1) {
         int accept_socket_fd = accept(socket_fd, NULL, NULL);
         if (accept_socket_fd == -1) {
             // TODO
@@ -519,6 +522,7 @@ serve(struct xkb_context *ctx, const char* socket_address)
             struct query_args *args = calloc(1, sizeof(struct query_args));
             args->ctx = ctx;
             args->accept_socket_fd = accept_socket_fd;
+            fprintf(stderr, "Let’s go! %d\n", accept_socket_fd);
             pthread_create(&thread, NULL, process_query, args);
             pthread_detach(thread);
             // rc = process_query(ctx, args);
