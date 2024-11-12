@@ -32,7 +32,7 @@
 #include "src/atom.h"
 #include "ast.h"
 
-#define XKB_KEYMAP_CACHE_SIZE 1000
+#define XKB_KEYMAP_CACHE_SIZE 100000
 
 struct xkb_keymap_cache_entry {
     char *key;

@@ -314,7 +314,7 @@ ProcessIncludeFile(struct xkb_context *ctx, IncludeStmt *stmt,
         if (ret > 0 &&
             (xkb_file = xkb_keymap_cache_search(ctx->keymap_cache, key))) {
             // FIXME: remove debug
-            fprintf(stderr, "Using cache for key: %s\n", key);
+            // fprintf(stderr, "Using cache for key: %s\n", key);
             return xkb_file;
         }
     }

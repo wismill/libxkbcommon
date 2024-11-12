@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef ENABLE_KEYMAP_SOCKET
+#include <signal.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <pthread.h>
@@ -407,7 +408,44 @@ struct query_args {
 };
 
 static pthread_mutex_t server_state_mutext = PTHREAD_MUTEX_INITIALIZER;
-static int socket_fd;
+static volatile int socket_fd;
+// static int active_connections;
+
+// static void
+// add_connection(void)
+// {
+//     pthread_mutex_lock(&server_state_mutext);
+//     active_connections++;
+//     pthread_mutex_unlock(&server_state_mutext);
+// }
+
+// static void
+// remove_connection(void)
+// {
+//     pthread_mutex_lock(&server_state_mutext);
+//     active_connections--;
+//     pthread_mutex_unlock(&server_state_mutext);
+// }
+
+static void
+bye(void)
+{
+    pthread_mutex_lock(&server_state_mutext);
+    fprintf(stderr, "Bye!\n");
+    shutdown(socket_fd, SHUT_RD);
+    pthread_mutex_unlock(&server_state_mutext);
+}
+
+static void
+handle_signal(int signum)
+{
+    switch (signum) {
+        case SIGINT:
+            bye();
+            break;
+    }
+}
+
 
 static void*
 process_query(void *x)
@@ -427,9 +465,13 @@ process_query(void *x)
         rc = -1;
         goto exit;
     }
+    if (count < 3 || input_buffer[1] != '\n')
+        goto exit;
+    bool serialize = input_buffer[0] == '1';
+
     /* We expect RMLVO to be provided with one component per line */
-    char *input = input_buffer;
-    size_t len = count;
+    char *input = input_buffer + 2;
+    size_t len = count - 2;
     struct xkb_rule_names rmlvo = {
         .rules = NULL,
         .model = NULL,
@@ -450,15 +492,34 @@ process_query(void *x)
     struct xkb_keymap *keymap;
     struct xkb_context ctx = *args->ctx;
     keymap = xkb_keymap_new_from_names(&ctx, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
-    if (keymap == NULL)
-        goto error;
+    if (keymap == NULL) {
+        // FIXME: remove debug
+        // fprintf(stderr, "Keymap compilation error! %s\n", input_buffer);
+        count = -1;
+        send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
+        goto keymap_error;
+    }
 
-    char *buf = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
-    write(args->accept_socket_fd, buf, strlen(buf) + 1);
-    free(buf);
+    /* Send the keymap, if required */
+    if (serialize) {
+        char *buf = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
+        len = strlen(buf);
+        send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
+        send(args->accept_socket_fd, buf, len + 1, MSG_NOSIGNAL);
+        free(buf);
+    } else {
+        len = 0;
+        send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
+    }
 
     xkb_keymap_unref(keymap);
     rc = EXIT_SUCCESS;
+
+keymap_error:
+    /* Wait that the client confirm the reception */
+    recv(args->accept_socket_fd, input_buffer, ARRAY_SIZE(input_buffer), 0);
+    // FIXME: remove debug
+    // fprintf(stderr, "Received: %c\n", *input_buffer);
 
 error:
     free((char*)rmlvo.rules);
@@ -467,15 +528,13 @@ error:
     free((char*)rmlvo.variant);
     free((char*)rmlvo.options);
 exit:
+    // remove_connection();
     close(args->accept_socket_fd);
     free(args);
     if (rc > 0) {
         fprintf(stderr, "ERROR: failed to process query\n");
     } else if (rc < 0) {
-        pthread_mutex_lock(&server_state_mutext);
-        fprintf(stderr, "Bye!\n");
-        shutdown(socket_fd, SHUT_RD);
-        pthread_mutex_unlock(&server_state_mutext);
+        bye();
     }
     // return rc;
     return NULL;
@@ -507,23 +566,41 @@ serve(struct xkb_context *ctx, const char* socket_address)
         fprintf(stderr, "ERROR: Cannot listen socket.\n");
         goto error;
     }
+    signal(SIGINT, handle_signal);
+    fprintf(stderr, "Serving...\n");
 
     while (1) {
         int accept_socket_fd = accept(socket_fd, NULL, NULL);
         if (accept_socket_fd == -1) {
             // TODO
+            fprintf(stderr, "ERROR: fail to accept query\n");
             rc = EXIT_FAILURE;
             goto error;
         };
 
         if (accept_socket_fd > 0) {
+            // add_connection();
+            // fprintf(stderr, "~~~ Active connections: %d\n", active_connections);
             /* client is connected */
             pthread_t thread;
             struct query_args *args = calloc(1, sizeof(struct query_args));
+            if (!args) {
+                close(accept_socket_fd);
+                // remove_connection();
+                continue;
+            }
             args->ctx = ctx;
             args->accept_socket_fd = accept_socket_fd;
-            fprintf(stderr, "Let’s go! %d\n", accept_socket_fd);
-            pthread_create(&thread, NULL, process_query, args);
+            // FIXME: remove debug
+            // fprintf(stderr, "Let’s go! %d\n", accept_socket_fd);
+            rc = pthread_create(&thread, NULL, process_query, args);
+            if (rc) {
+                perror("Error creating thread: ");
+                close(accept_socket_fd);
+                // remove_connection();
+                free(args);
+                continue;
+            }
             pthread_detach(thread);
             // rc = process_query(ctx, args);
             // close(accept_socket_fd);

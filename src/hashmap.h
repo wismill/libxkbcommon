@@ -46,6 +46,13 @@
 
 #include "arena.h"
 
+typedef unsigned char byte;
+
+typedef struct {
+    byte     *buf;
+    ptrdiff_t len;
+} str;
+
 #define MAKE_HASHMAP(map, type)                                        \
     typedef struct map map;                                            \
     struct map {                                                       \
@@ -54,13 +61,27 @@
         type value;                                                    \
     };                                                                 \
     static type*                                                       \
+    lookup(map **m, str key)                                           \
+    {                                                                  \
+        for (uint64_t h = hash64(key);; h <<= 2) {                     \
+            map *n = atomic_load_explicit(m, memory_order_acquire);    \
+            if (!n) {                                                  \
+                return NULL;                                           \
+            }                                                          \
+            if (equals(n->key, key)) {                                 \
+                return &n->value;                                      \
+            }                                                          \
+            m = n->child + (h >> 62);                                  \
+        }                                                              \
+    }                                                                  \
+    static map*                                                        \
     upsert(map **m, str key, arena *a)                                 \
     {                                                                  \
         for (uint64_t h = hash64(key);; h <<= 2) {                     \
             map *n = atomic_load_explicit(m, memory_order_acquire);    \
             if (!n) {                                                  \
                 if (!a) {                                              \
-                    return 0;                                          \
+                    return NULL;                                       \
                 }                                                      \
                 arena rollback = *a;                                   \
                 map *new = new(a, map, 1);                             \
@@ -68,25 +89,18 @@
                 if (atomic_compare_exchange_strong_explicit(           \
                         m, &n, new,                                    \
                         memory_order_release, memory_order_acquire)) { \
-                    return &new->value;                                \
+                    return &new;                                       \
                 }                                                      \
                 *a = rollback;                                         \
             }                                                          \
             if (equals(n->key, key)) {                                 \
-                return &n->value;                                      \
+                return &n;                                             \
             }                                                          \
             m = n->child + (h >> 62);                                  \
         }                                                              \
     }
 
 #define new(a, t, n)  (t *)arena_alloc(a, sizeof(t), _Alignof(t), n, true)
-
-typedef unsigned char byte;
-
-typedef struct {
-    byte     *buf;
-    ptrdiff_t len;
-} str;
 
 static str
 copyinto(str s, arena *a)
@@ -114,19 +128,5 @@ hash64(str s)
     }
     return h ^ h>>32;
 }
-
-typedef struct map map;
-struct map {
-    map *child[4];
-    str  key;
-    int  value;
-};
-
-typedef struct {
-    arena arena;
-    map **root;
-    int   start;
-    int   stop;
-} context;
 
 #endif

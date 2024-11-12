@@ -24,7 +24,7 @@
 #ifndef ATOM_H
 #define ATOM_H
 
-#ifdef ENABLE_KEYMAP_CACHE
+#ifdef ENABLE_KEYMAP_CACHE_XXX
 #include <stddef.h>
 typedef  ptrdiff_t xkb_atom_t;
 #else

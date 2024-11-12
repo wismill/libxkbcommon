@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import itertools
 import multiprocessing
 import os
@@ -145,17 +146,43 @@ class CompileKeymapPool:
         self.tmp.cleanup()
 
     @classmethod
-    def message(cls, socket_path: Path, msg: bytes) -> bytes:
-        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        s.connect(str(socket_path))
-        s.sendall(msg)
-        response = s.recv(10_000_000)
-        s.close()
-        return response
+    def message(cls, socket_path: Path, msg: bytes) -> tuple[bool, bytes]:
+        try:
+            s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        except OSError:
+            # TODO: error handling
+            return False, b""
+        ok = True
+        try:
+            s.connect(str(socket_path))
+            s.sendall(msg)
+            # Get size of the message
+            response = s.recv(ctypes.sizeof(ctypes.c_ssize_t))
+            response_size = int.from_bytes(
+                response, byteorder=sys.byteorder, signed=True
+            )
+            # print(f"{response_size=}", len(response))
+            # Get message
+            if response_size > 0:
+                response = s.recv(response_size)
+                # Confirm reception
+                s.sendall(b"1")
+            else:
+                response = b""
+                ok = not (response_size < 0)
+        except OSError as err:
+            print("Socket error:", err, file=sys.stderr)
+            ok = False
+            response = b""
+        finally:
+            s.close()
+        return ok, response
 
     @classmethod
-    def get_keymap(cls, socket_path: Path, rmlvo: RMLVO):
-        query = "\n".join(v or "" for v in rmlvo)
+    def get_keymap(
+        cls, socket_path: Path, rmlvo: RMLVO, serialize: bool
+    ) -> tuple[bool, bytes]:
+        query = f"{int(serialize)}\n" + "\n".join(v or "" for v in rmlvo)
         return cls.message(socket_path, query.encode())
 
 
@@ -335,13 +362,13 @@ class XkbcommonInvocation(Invocation):
 @dataclass
 class XkbcommonInvocationServer(XkbcommonInvocation):
     @classmethod
-    def _run2(cls, x: tuple[Self, Path]) -> Self:
-        r, path = x
+    def _run2(cls, x: tuple[Self, Path, bool]) -> Self:
+        r, path, serialize = x
         # print(r)
         # FIXME handle errors
-        r.keymap = CompileKeymapPool.get_keymap(path, r)
+        ok, r.keymap = CompileKeymapPool.get_keymap(path, r, serialize)
         # FIXME
-        r.exitstatus = 0 if r.keymap else 1
+        r.exitstatus = 0 if ok else 1
         return r
 
     @classmethod
@@ -374,7 +401,11 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
             with multiprocessing.Pool(njobs) as p:
                 results = p.imap_unordered(
                     cls._run2,
-                    zip(combos, itertools.cycle(kmp.sockets)),
+                    zip(
+                        combos,
+                        itertools.cycle(kmp.sockets),
+                        itertools.repeat(bool(keymap_output_dir)),
+                    ),
                     chunksize=chunksize,
                 )
                 for invocation in progress_bar(

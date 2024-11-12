@@ -34,7 +34,7 @@
 #include "utils.h"
 #include "context.h"
 
-#ifdef ENABLE_KEYMAP_CACHE
+#ifdef ENABLE_KEYMAP_CACHE_XXX
 #include <pthread.h>
 static pthread_mutex_t atom_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
