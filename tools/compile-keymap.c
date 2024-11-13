@@ -36,7 +36,7 @@
 #ifdef ENABLE_KEYMAP_SOCKET
 #include <pthread.h>
 #include <signal.h>
-#include <sys/mman.h>
+// #include <sys/mman.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -438,6 +438,38 @@ struct query_args {
     int accept_socket_fd;
 };
 
+
+static const char *
+log_level_to_prefix(enum xkb_log_level level)
+{
+    switch (level) {
+    case XKB_LOG_LEVEL_DEBUG:
+        return "xkbcommon: DEBUG: ";
+    case XKB_LOG_LEVEL_INFO:
+        return "xkbcommon: INFO: ";
+    case XKB_LOG_LEVEL_WARNING:
+        return "xkbcommon: WARNING: ";
+    case XKB_LOG_LEVEL_ERROR:
+        return "xkbcommon: ERROR: ";
+    case XKB_LOG_LEVEL_CRITICAL:
+        return "xkbcommon: CRITICAL: ";
+    default:
+        return NULL;
+    }
+}
+
+ATTR_PRINTF(3, 0) static void
+keymap_log_fn(struct xkb_context *ctx, enum xkb_log_level level,
+              const char *fmt, va_list args)
+{
+    const char *prefix = log_level_to_prefix(level);
+    FILE *file = xkb_context_get_user_data(ctx);
+
+    if (prefix)
+        fprintf(file, "%s", prefix);
+    vfprintf(file, fmt, args);
+}
+
 /* Process client’s queries */
 static void*
 process_query(void *x)
@@ -451,6 +483,7 @@ process_query(void *x)
     while ((count = recv(args->accept_socket_fd,
                          input_buffer, INPUT_BUFFER_SIZE, 0)) > 0) {
         rc = EXIT_FAILURE;
+        bool stop = true;
         if (input_buffer[0] == '\x1b') {
             /* Escape = exit */
             rc = -0x1b;
@@ -493,31 +526,38 @@ process_query(void *x)
         /* Response load: <length><keymap string> */
 
         /* Capture stderr in an in-memory file */
-        int stderr_new = memfd_create("xkbcommon-worker-stderr", MFD_ALLOW_SEALING);
-        if (stderr_new <= 0) {
-            perror("Cannot create in-memory file");
-            // count = -1;
-            // send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
-            // recv(args->accept_socket_fd, input_buffer, 1, 0);
-            // send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
-            // recv(args->accept_socket_fd, input_buffer, 1, 0);
-            goto stderr_error;
-        }
-        fflush(stderr);
-        int stderr_old = dup(STDERR_FILENO);
-        dup2(stderr_new, STDERR_FILENO);
-
-        rc = EXIT_SUCCESS;
+        // int stderr_new = memfd_create("xkbcommon-worker-stderr", MFD_ALLOW_SEALING);
+        // if (stderr_new <= 0) {
+        //     perror("Cannot create in-memory file");
+        //     goto stderr_error;
+        // }
+        // fflush(stderr);
+        // int stderr_old = dup(STDERR_FILENO);
+        // dup2(stderr_new, STDERR_FILENO);
 
         /* Compile keymap */
         struct xkb_keymap *keymap;
         /* Clone context because it is not thread-safe */
         struct xkb_context ctx = *args->ctx;
+
+        /* Set our own logging function to capture default stderr */
+        char *stderr_buffer = NULL;
+        size_t stderr_size = 0;
+        FILE *stderr_new = open_memstream(&stderr_buffer, &stderr_size);
+        if (!stderr_new) {
+            perror("Failed to create in-memory stderr.");
+            goto stderr_error;
+        }
+        xkb_context_set_user_data(&ctx, stderr_new);
+        xkb_context_set_log_fn(&ctx, keymap_log_fn);
+
+        rc = EXIT_SUCCESS;
+
         keymap = xkb_keymap_new_from_names(&ctx, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
         if (keymap == NULL) {
             /* Send negative message length to convey error */
             count = -1;
-            send(args->accept_socket_fd, &count, sizeof(count), 0); //MSG_NOSIGNAL);
+            send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
             goto keymap_error;
         }
 
@@ -527,16 +567,16 @@ process_query(void *x)
             if (buf) {
                 len = strlen(buf);
                 /* Send message length */
-                send(args->accept_socket_fd, &len, sizeof(len), 0); //MSG_NOSIGNAL);
-                send(args->accept_socket_fd, buf, len, 0); //MSG_NOSIGNAL);
+                send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
+                send(args->accept_socket_fd, buf, len, MSG_NOSIGNAL);
                 free(buf);
             } else {
                 count = -1;
-                send(args->accept_socket_fd, &count, sizeof(count), 0); //MSG_NOSIGNAL);
+                send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
             }
         } else {
             len = 0;
-            send(args->accept_socket_fd, &len, sizeof(len), 0); //MSG_NOSIGNAL);
+            send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
         }
 
         xkb_keymap_unref(keymap);
@@ -545,42 +585,50 @@ keymap_error:
         /* Wait that the client confirm the reception */
         recv(args->accept_socket_fd, input_buffer, 1, 0);
 
-        /* Restore stderr */
-        fsync(stderr_new);
-        dup2(stderr_old, STDERR_FILENO);
-        close(stderr_old);
+        // /* Restore stderr */
+        // fsync(stderr_new);
+        // dup2(stderr_old, STDERR_FILENO);
+        // close(stderr_old);
+        fflush(stderr_new);
+        xkb_context_set_user_data(&ctx, stderr);
+        fclose(stderr_new);
 
         /* Send captured stderr */
-        char *stderr_buffer = NULL;
-        struct stat stat_buf;
-        len = 0;
-        if (fstat(stderr_new, &stat_buf) == EXIT_SUCCESS && stat_buf.st_size > 0) {
-            fprintf(stderr, "stderr fd %d len: %zu\n", stderr_new, stat_buf.st_size);
-            fflush(stderr);
+        // char *stderr_buffer = NULL;
+        // struct stat stat_buf;
+        // len = 0;
+        // if (fstat(stderr_new, &stat_buf) == EXIT_SUCCESS && stat_buf.st_size > 0) {
+        //     fprintf(stderr, "stderr fd %d len: %zu\n", stderr_new, stat_buf.st_size);
+        //     fflush(stderr);
 
-            stderr_buffer = mmap(NULL, stat_buf.st_size, PROT_READ, MAP_SHARED, stderr_new, 0);
-            if (stderr_buffer == MAP_FAILED) {
-                perror("mmap failed");
-                stderr_buffer = NULL;
-                rc = EXIT_FAILURE;
-            }
-            else if (stderr_buffer)
-                len = stat_buf.st_size;
-        } else {
-            // perror("fstat failed.");
-            rc = EXIT_FAILURE;
+        //     stderr_buffer = mmap(NULL, stat_buf.st_size, PROT_READ, MAP_SHARED, stderr_new, 0);
+        //     if (stderr_buffer == MAP_FAILED) {
+        //         perror("mmap failed");
+        //         stderr_buffer = NULL;
+        //         rc = EXIT_FAILURE;
+        //     }
+        //     else if (stderr_buffer)
+        //         len = stat_buf.st_size;
+        // } else {
+        //     // perror("fstat failed.");
+        //     rc = EXIT_FAILURE;
+        // }
+        // close(stderr_new);
+
+        // send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
+        // if (len && stderr_buffer) {
+        //     send(args->accept_socket_fd, stderr_buffer, len, MSG_NOSIGNAL);
+        //     munmap(stderr_buffer, len);
+        send(args->accept_socket_fd, &stderr_size, sizeof(stderr_size), MSG_NOSIGNAL);
+        if (stderr_size && stderr_buffer) {
+            send(args->accept_socket_fd, stderr_buffer, stderr_size, MSG_NOSIGNAL);
         }
-        close(stderr_new);
-        send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
-        if (len && stderr_buffer) {
-            send(args->accept_socket_fd, stderr_buffer, len, MSG_NOSIGNAL);
-            munmap(stderr_buffer, len);
-        }
-        fprintf(stderr, "stderr len: %zu\n", len);
+        free(stderr_buffer);
 
         /* Wait that the client confirm the reception */
+        input_buffer[0] = '0';
         recv(args->accept_socket_fd, input_buffer, 1, 0);
-        bool stop = input_buffer[0] == 0;
+        stop = input_buffer[0] == '0';
 
 stderr_error:
 error:
@@ -635,6 +683,11 @@ serve(struct xkb_context *ctx, const char* socket_address)
     signal(SIGINT, handle_signal);
     fprintf(stderr, "Serving...\n");
 
+    struct timeval timeout = {
+        .tv_sec = 3,
+        .tv_usec = 0
+    };
+
     while (1) {
         int accept_socket_fd = accept(socket_fd, NULL, NULL);
         if (accept_socket_fd == -1) {
@@ -656,6 +709,10 @@ serve(struct xkb_context *ctx, const char* socket_address)
             /* Context will be cloned in worker */
             args->ctx = xkb_context_ref(ctx);
             args->accept_socket_fd = accept_socket_fd;
+
+            if (setsockopt(accept_socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout,
+                           sizeof timeout) < 0)
+                perror("setsockopt failed\n");
 
             /* Launch worker */
             rc = pthread_create(&thread, NULL, process_query, args);

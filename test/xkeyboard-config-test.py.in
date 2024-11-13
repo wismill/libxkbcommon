@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+import gc
+import gzip
 import itertools
 import multiprocessing
 import os
@@ -11,12 +13,14 @@ import socket
 import subprocess
 import sys
 import tempfile
+import traceback
 import xml.etree.ElementTree as ET
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    BinaryIO,
     ClassVar,
     Iterable,
     Iterator,
@@ -146,47 +150,57 @@ class CompileKeymapPool:
         self.tmp.cleanup()
 
     @classmethod
-    def _get_response(cls, s: socket.socket, more: bool) -> tuple[bool, bytes]:
+    def _get_response(cls, s: socket.socket, more: bool) -> tuple[bool, int, bytes]:
         # Get size of the message
         response = s.recv(ctypes.sizeof(ctypes.c_ssize_t))
         response_size = int.from_bytes(response, byteorder=sys.byteorder, signed=True)
         # print(f"{response_size=}", len(response), response)
         # Get message
+        response = b""
         if response_size > 0:
-            # Get exactly the expected length, if no error
-            response = s.recv(response_size, socket.MSG_WAITALL)
+            # # Get exactly the expected length, if no error
+            # response = s.recv(response_size, socket.MSG_WAITALL)
+            ba = bytearray(response_size)
+            view = memoryview(ba)
+            to_read = response_size
+            while to_read:
+                nbytes = s.recv_into(view, to_read, 0)
+                view = view[nbytes:]
+                to_read -= nbytes
+            response = bytes(ba)
+            #     print(f"{size=}", file=sys.stderr)
+            # while len(response) < response_size:
+            #     response += s.recv(4096, 0)
+            assert len(response) == response_size, (response_size, len(response))
             ok = True
         else:
             response = b""
             ok = not (response_size < 0)
         # Confirm reception
         s.sendall(b"1" if more else b"0")
-        return ok, response
+        return ok, response_size, response
 
     @classmethod
     def message(cls, socket_path: Path, msg: bytes) -> tuple[bool, bytes, bytes]:
         response = b""
+        response_size = 0
         stderr = b""
-        try:
-            s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        except OSError:
-            # TODO: error handling
-            return False, b""
-        ok = True
-        try:
-            s.connect(str(socket_path))
-            s.sendall(msg)
-            _ok, response = cls._get_response(s, True)
-            if response and (response[-1] != 0x0A):
-                raise ValueError((response, len(response)))
-            ok &= _ok
-            _ok, stderr = cls._get_response(s, False)
-            ok &= _ok
-        except OSError as err:
-            print("Socket error:", err, file=sys.stderr)
-            ok = False
-        finally:
-            s.close()
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            ok = True
+            try:
+                s.settimeout(6)
+                s.connect(str(socket_path))
+                s.sendall(msg)
+                _ok, response_size, response = cls._get_response(s, True)
+                ok &= _ok
+                _ok, response_size, stderr = cls._get_response(s, False)
+                ok &= _ok
+            except OSError as err:
+                print(
+                    "Socket error:", err, ok, response_size, response, file=sys.stderr
+                )
+                traceback.print_exception(err, file=sys.stderr)
+                ok = False
         return ok, response, stderr
 
     @classmethod
@@ -201,7 +215,7 @@ class CompileKeymapPool:
 class Invocation(RMLVO, metaclass=ABCMeta):
     exitstatus: int = 77  # default to “skipped”
     error: str | None = None
-    keymap: str = ""
+    keymap: bytes = b""
     command: str = ""  # The fully compiled keymap
 
     def __str_iter(self) -> Iterator[str]:
@@ -248,6 +262,7 @@ class Invocation(RMLVO, metaclass=ABCMeta):
         short: bool,
         progress_bar: ProgressBar[Iterable[Self]],
         chunksize: int,
+        compress: int,
         **kwargs,
     ) -> bool:
         if keymap_output_dir:
@@ -256,9 +271,6 @@ class Invocation(RMLVO, metaclass=ABCMeta):
             except FileExistsError as e:
                 print(e, file=sys.stderr)
                 return False
-
-        keymap_file: Path | None = None
-        keymap_file_fd: TextIO | None = None
 
         failed = False
         with multiprocessing.Pool(njobs) as p:
@@ -279,23 +291,18 @@ class Invocation(RMLVO, metaclass=ABCMeta):
                         print(invocation, file=target)
 
                 if keymap_output_dir:
-                    # we're running through the layouts in a somewhat sorted manner,
-                    # so let's keep the fd open until we switch layouts
                     layout = invocation.layout
                     if invocation.variant:
                         layout += f"({invocation.variant})"
                     (keymap_output_dir / invocation.model).mkdir(exist_ok=True)
-                    fname = keymap_output_dir / invocation.model / layout
-                    if fname != keymap_file:
-                        keymap_file = fname
-                        if keymap_file_fd:
-                            keymap_file_fd.close()
-                        keymap_file_fd = open(keymap_file, "at", encoding="utf-8")
+                    keymap_file = keymap_output_dir / invocation.model / layout
 
-                    assert keymap_file_fd
-                    keymap_file_fd.write(f"// {cls.to_yaml(invocation.rmlvo)}\n")
-                    keymap_file_fd.write(invocation.keymap)
-                    keymap_file_fd.flush()
+                    with keymap_file.open("wb") as fd:
+                        fd.write(
+                            f"// {cls.to_yaml(invocation.rmlvo)}\n".encode("utf-8")
+                        )
+                        fd.write(invocation.keymap)
+                        fd.flush()
 
         return failed
 
@@ -336,7 +343,7 @@ class XkbCompInvocation(Invocation):
                 self.error = "failed to compile keymap"
                 self.exitstatus = xkbcomp.returncode
             else:
-                self.keymap = stdout
+                self.keymap = stdout.encode("utf-8")
                 self.exitstatus = 0
         return self
 
@@ -363,7 +370,7 @@ class XkbcommonInvocation(Invocation):
                         break
             else:
                 self.exitstatus = 0
-                self.keymap = completed.stdout
+                self.keymap = completed.stdout.encode("utf-8")
         except subprocess.CalledProcessError as err:
             self.error = "failed to compile keymap"
             self.exitstatus = err.returncode
@@ -372,11 +379,17 @@ class XkbcommonInvocation(Invocation):
 
 @dataclass
 class XkbcommonInvocationServer(XkbcommonInvocation):
+    def _write(self, fd: BinaryIO):
+        fd.write(f"// {self.to_yaml(self.rmlvo)}\n".encode("utf-8"))
+        if self.keymap:
+            fd.write(self.keymap)
+            fd.write(b"\n")
+
     @classmethod
-    def _run2(cls, x: tuple[Self, Path, bool]) -> Self:
-        r, path, serialize = x
-        ok, keymap, _stderr = CompileKeymapPool.get_keymap(path, r, serialize)
-        r.keymap = keymap.decode("utf-8")
+    def _run2(cls, x: tuple[Self, Path, Path, int]) -> Self:
+        r, path, output_dir, compress = x
+        serialize = bool(output_dir)
+        ok, r.keymap, _stderr = CompileKeymapPool.get_keymap(path, r, serialize)
         r.exitstatus = 0 if ok else 1
         stderr = _stderr.decode("utf-8")
         if cls.UNRECOGNIZED_KEYSYM_ERROR in stderr:
@@ -385,6 +398,20 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
                     r.error = line
                     r.exitstatus = 99  # tool doesn't generate this one
                     break
+
+        layout = r.layout
+        if r.variant:
+            layout += f"({r.variant})"
+        (output_dir / r.model).mkdir(exist_ok=True)
+        keymap_file = output_dir / r.model / layout
+        if compress:
+            keymap_file = keymap_file.with_suffix(".gz")
+            with gzip.open(keymap_file, "wb", compresslevel=compress) as fd:
+                r._write(fd)
+                fd.close()
+        else:
+            with keymap_file.open("wb") as fd:
+                r._write(fd)
         return r
 
     @classmethod
@@ -398,6 +425,7 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
         short: bool,
         progress_bar: ProgressBar[Iterable[Self]],
         chunksize: int,
+        compress: int,
         **kwargs,
     ) -> bool:
         if keymap_output_dir:
@@ -407,25 +435,41 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
                 print(e, file=sys.stderr)
                 return False
 
-        keymap_file: Path | None = None
-        keymap_file_fd: TextIO | None = None
-
         failed = False
         # with CompileKeymapPool((njobs // 2) or 1) as kmp:
         # with CompileKeymapPool(njobs) as kmp:
+
+        def write(invocation: Invocation, fd: BinaryIO):
+            fd.write(f"// {cls.to_yaml(invocation.rmlvo)}\n".encode("utf-8"))
+            if invocation.keymap:
+                fd.write(invocation.keymap)
+                fd.write(b"\n")
+
+        # def write(invocation: Invocation, fd: BinaryIO):
+        #     with io.BytesIO() as f:
+        #         f.write(f"// {cls.to_yaml(invocation.rmlvo)}\n".encode("utf-8"))
+        #         f.write(invocation.keymap)
+        #         if invocation.keymap:
+        #             f.write(b"\n")
+        #         f.seek(0)
+        #         shutil.copyfileobj(f, fd)
+
+        # tracemalloc.start()
+
         with CompileKeymapPool(1, socket=kwargs.get("server_socket")) as kmp:
-            with multiprocessing.Pool(njobs) as p:
+            with multiprocessing.Pool(njobs, maxtasksperchild=1000) as p:
                 results = p.imap_unordered(
                     cls._run2,
                     zip(
                         combos,
                         itertools.cycle(kmp.sockets),
-                        itertools.repeat(bool(keymap_output_dir)),
+                        itertools.repeat(keymap_output_dir),
+                        itertools.repeat(compress),
                     ),
                     chunksize=chunksize,
                 )
-                for invocation in progress_bar(
-                    results, total=combos_count, file=sys.stdout
+                for k, invocation in enumerate(
+                    progress_bar(results, total=combos_count, file=sys.stdout)
                 ):
                     if invocation.exitstatus != 0:
                         failed = True
@@ -439,26 +483,63 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
                         else:
                             print(invocation, file=target)
 
-                    if keymap_output_dir:
-                        # we're running through the layouts in a somewhat sorted manner,
-                        # so let's keep the fd open until we switch layouts
+                    if False and keymap_output_dir and compress >= 0:
+                        if k % 100 == 0:
+                            # snapshot=tracemalloc.take_snapshot()
+                            # for i, stat in enumerate(snapshot.statistics('filename')[:10], 1):
+                            #     print("top_current", i, stat)
+                            gc.collect()
                         layout = invocation.layout
                         if invocation.variant:
                             layout += f"({invocation.variant})"
                         (keymap_output_dir / invocation.model).mkdir(exist_ok=True)
-                        fname = keymap_output_dir / invocation.model / layout
-                        if fname != keymap_file:
-                            keymap_file = fname
-                            if keymap_file_fd:
-                                keymap_file_fd.close()
-                            keymap_file_fd = open(keymap_file, "at", encoding="utf-8")
+                        keymap_file = keymap_output_dir / invocation.model / layout
+                        if compress:
+                            keymap_file = keymap_file.with_suffix(".gz")
 
-                        assert keymap_file_fd
-                        keymap_file_fd.write(f"// {cls.to_yaml(invocation.rmlvo)}\n")
-                        keymap_file_fd.write(invocation.keymap)
-                        if invocation.keymap:
-                            keymap_file_fd.write("\n")
-                        keymap_file_fd.flush()
+                        if compress:
+                            with gzip.open(
+                                keymap_file, "wb", compresslevel=compress
+                            ) as fd:
+                                write(invocation, fd)
+                                fd.close()
+                            # with keymap_file.open("wb") as fd:
+                            #     with io.BytesIO() as f:
+                            #         write(invocation, f)
+                            #         f.seek(0)
+                            #         content = f.read()
+                            #     del invocation.keymap
+                            #     # gunzip = subprocess.Popen(
+                            #     #     ("gzip", "-f", f"-{compress}"),
+                            #     #     stdout=subprocess.PIPE,
+                            #     #     stderr=subprocess.DEVNULL,
+                            #     # )
+                            #     # stdout, _ = gunzip.communicate(content)
+                            #     # print(gunzip.stdout)
+                            #     gunzip = subprocess.run(
+                            #         ("gzip", "-f", f"-{compress}"),
+                            #         capture_output=True,
+                            #         input=content,
+                            #         check=True
+                            #     )
+                            #     del content
+                            #     # print(gunzip.stdout)
+                            #     fd.write(gunzip.stdout)
+                        else:
+                            with keymap_file.open("wb") as fd:
+                                write(invocation, fd)
+                        # with keymap_file.open("wb") as fd:
+                        #     keymap = f"// {cls.to_yaml(invocation.rmlvo)}\n".encode(
+                        #         "utf-8"
+                        #     )
+                        #     if invocation.keymap:
+                        #         keymap += invocation.keymap
+                        #         keymap += b"\n"
+                        #     if compress:
+                        #         fd.write(gzip.compress(keymap, compresslevel=compress))
+                        #     else:
+                        #         fd.write(keymap)
+                        del invocation
 
             return failed
 
@@ -639,6 +720,7 @@ def main() -> NoReturn:
         type=Path,
         help="Directory to print compiled keymaps to",
     )
+    parser.add_argument("--compress", type=int, default=0)
     parser.add_argument(
         "--model", default="", type=str, help="Only test the given model"
     )
@@ -697,6 +779,7 @@ def main() -> NoReturn:
         progress_bar,
         args.chunksize,
         server_socket=args.socket,
+        compress=args.compress,
     )
     sys.exit(failed)
 
