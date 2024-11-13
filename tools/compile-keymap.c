@@ -32,22 +32,28 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+
 #ifdef ENABLE_KEYMAP_SOCKET
-#include <signal.h>
-#include <sys/socket.h>
-#include <sys/un.h>
 #include <pthread.h>
+#include <signal.h>
+#include <sys/mman.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/un.h>
 #endif
 
 #include "xkbcommon/xkbcommon.h"
+
 #if ENABLE_PRIVATE_APIS
 #include "xkbcomp/xkbcomp-priv.h"
 #include "xkbcomp/rules.h"
 #endif
+
 #ifdef ENABLE_KEYMAP_CACHE
 #include "src/context.h"
 #include "src/xkbcomp/cache.h"
 #endif
+
 #include "tools-common.h"
 #include "src/utils.h"
 
@@ -373,6 +379,31 @@ out:
 #else
 
 #define INPUT_BUFFER_SIZE 1024
+
+static pthread_mutex_t server_state_mutext = PTHREAD_MUTEX_INITIALIZER;
+static volatile int socket_fd;
+
+/* Shutdown the server */
+static void
+bye(void)
+{
+    pthread_mutex_lock(&server_state_mutext);
+    fprintf(stderr, "Bye!\n");
+    shutdown(socket_fd, SHUT_RD);
+    pthread_mutex_unlock(&server_state_mutext);
+}
+
+static void
+handle_signal(int signum)
+{
+    switch (signum) {
+        case SIGINT:
+            bye();
+            break;
+    }
+}
+
+/* Load parser for a RMLVO component */
 static bool
 parse_component(char **input, size_t *max_len, const char **output)
 {
@@ -407,63 +438,34 @@ struct query_args {
     int accept_socket_fd;
 };
 
-static pthread_mutex_t server_state_mutext = PTHREAD_MUTEX_INITIALIZER;
-static volatile int socket_fd;
-// static int active_connections;
-
-// static void
-// add_connection(void)
-// {
-//     pthread_mutex_lock(&server_state_mutext);
-//     active_connections++;
-//     pthread_mutex_unlock(&server_state_mutext);
-// }
-
-// static void
-// remove_connection(void)
-// {
-//     pthread_mutex_lock(&server_state_mutext);
-//     active_connections--;
-//     pthread_mutex_unlock(&server_state_mutext);
-// }
-
-static void
-bye(void)
-{
-    pthread_mutex_lock(&server_state_mutext);
-    fprintf(stderr, "Bye!\n");
-    shutdown(socket_fd, SHUT_RD);
-    pthread_mutex_unlock(&server_state_mutext);
-}
-
-static void
-handle_signal(int signum)
-{
-    switch (signum) {
-        case SIGINT:
-            bye();
-            break;
-    }
-}
-
-
+/* Process client’s queries */
 static void*
 process_query(void *x)
 {
     struct query_args *args = x;
-    char input_buffer[INPUT_BUFFER_SIZE];
-    ssize_t count;
     int rc = EXIT_FAILURE;
-    while ((count = read(args->accept_socket_fd, input_buffer, INPUT_BUFFER_SIZE)) > 0) {
+    char input_buffer[INPUT_BUFFER_SIZE];
+
+    /* Loop while client send queries */
+    ssize_t count;
+    while ((count = recv(args->accept_socket_fd,
+                         input_buffer, INPUT_BUFFER_SIZE, 0)) > 0) {
         rc = EXIT_FAILURE;
         if (input_buffer[0] == '\x1b') {
-            // Escape = exit
-            // return -1;
-            rc = -1;
+            /* Escape = exit */
+            rc = -0x1b;
             break;
         }
-        if (count < 3 || input_buffer[1] != '\n')
+
+        /*
+         * Expected message load:
+         * <1|0>\n<rules>\n<model>\n<layout>\nvariant>\n<options>
+         */
+
+        if (count < 3 || input_buffer[1] != '\n') {
+            /* Invalid length */
             break;
+        }
         bool serialize = input_buffer[0] == '1';
 
         /* We expect RMLVO to be provided with one component per line */
@@ -485,49 +487,114 @@ process_query(void *x)
             goto error;
         }
 
+        // FIXME: remove debug
+        // fprintf(stderr, "%s\n%s\n%s\n%s\n%s\n", rmlvo.rules, rmlvo.model, rmlvo.layout, rmlvo.variant, rmlvo.options);
+
+        /* Response load: <length><keymap string> */
+
+        /* Capture stderr in an in-memory file */
+        int stderr_new = memfd_create("xkbcommon-worker-stderr", MFD_ALLOW_SEALING);
+        if (stderr_new <= 0) {
+            perror("Cannot create in-memory file");
+            // count = -1;
+            // send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
+            // recv(args->accept_socket_fd, input_buffer, 1, 0);
+            // send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
+            // recv(args->accept_socket_fd, input_buffer, 1, 0);
+            goto stderr_error;
+        }
+        fflush(stderr);
+        int stderr_old = dup(STDERR_FILENO);
+        dup2(stderr_new, STDERR_FILENO);
+
+        rc = EXIT_SUCCESS;
+
         /* Compile keymap */
         struct xkb_keymap *keymap;
+        /* Clone context because it is not thread-safe */
         struct xkb_context ctx = *args->ctx;
         keymap = xkb_keymap_new_from_names(&ctx, &rmlvo, XKB_KEYMAP_COMPILE_NO_FLAGS);
         if (keymap == NULL) {
-            // FIXME: remove debug
-            // fprintf(stderr, "Keymap compilation error! %s\n", input_buffer);
+            /* Send negative message length to convey error */
             count = -1;
-            send(args->accept_socket_fd, &count, sizeof(count), MSG_NOSIGNAL);
+            send(args->accept_socket_fd, &count, sizeof(count), 0); //MSG_NOSIGNAL);
             goto keymap_error;
         }
 
         /* Send the keymap, if required */
         if (serialize) {
             char *buf = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
-            len = strlen(buf);
-            send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
-            send(args->accept_socket_fd, buf, len + 1, MSG_NOSIGNAL);
-            free(buf);
+            if (buf) {
+                len = strlen(buf);
+                /* Send message length */
+                send(args->accept_socket_fd, &len, sizeof(len), 0); //MSG_NOSIGNAL);
+                send(args->accept_socket_fd, buf, len, 0); //MSG_NOSIGNAL);
+                free(buf);
+            } else {
+                count = -1;
+                send(args->accept_socket_fd, &count, sizeof(count), 0); //MSG_NOSIGNAL);
+            }
         } else {
             len = 0;
-            send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
+            send(args->accept_socket_fd, &len, sizeof(len), 0); //MSG_NOSIGNAL);
         }
 
         xkb_keymap_unref(keymap);
-        rc = EXIT_SUCCESS;
 
 keymap_error:
         /* Wait that the client confirm the reception */
         recv(args->accept_socket_fd, input_buffer, 1, 0);
-        // FIXME: remove debug
-        // fprintf(stderr, "Received: %c\n", *input_buffer);
 
+        /* Restore stderr */
+        fsync(stderr_new);
+        dup2(stderr_old, STDERR_FILENO);
+        close(stderr_old);
+
+        /* Send captured stderr */
+        char *stderr_buffer = NULL;
+        struct stat stat_buf;
+        len = 0;
+        if (fstat(stderr_new, &stat_buf) == EXIT_SUCCESS && stat_buf.st_size > 0) {
+            fprintf(stderr, "stderr fd %d len: %zu\n", stderr_new, stat_buf.st_size);
+            fflush(stderr);
+
+            stderr_buffer = mmap(NULL, stat_buf.st_size, PROT_READ, MAP_SHARED, stderr_new, 0);
+            if (stderr_buffer == MAP_FAILED) {
+                perror("mmap failed");
+                stderr_buffer = NULL;
+                rc = EXIT_FAILURE;
+            }
+            else if (stderr_buffer)
+                len = stat_buf.st_size;
+        } else {
+            // perror("fstat failed.");
+            rc = EXIT_FAILURE;
+        }
+        close(stderr_new);
+        send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
+        if (len && stderr_buffer) {
+            send(args->accept_socket_fd, stderr_buffer, len, MSG_NOSIGNAL);
+            munmap(stderr_buffer, len);
+        }
+        fprintf(stderr, "stderr len: %zu\n", len);
+
+        /* Wait that the client confirm the reception */
+        recv(args->accept_socket_fd, input_buffer, 1, 0);
+        bool stop = input_buffer[0] == 0;
+
+stderr_error:
 error:
         free((char*)rmlvo.rules);
         free((char*)rmlvo.model);
         free((char*)rmlvo.layout);
         free((char*)rmlvo.variant);
         free((char*)rmlvo.options);
-        if (rc != EXIT_SUCCESS)
+
+        /* Close client connection if there was an error */
+        if (rc != EXIT_SUCCESS || stop)
             break;
     }
-    // remove_connection();
+    xkb_context_unref(args->ctx);
     close(args->accept_socket_fd);
     free(args);
     if (rc > 0) {
@@ -535,10 +602,10 @@ error:
     } else if (rc < 0) {
         bye();
     }
-    // return rc;
     return NULL;
 }
 
+/* Create a server using Unix sockets */
 static int
 serve(struct xkb_context *ctx, const char* socket_address)
 {
@@ -571,44 +638,34 @@ serve(struct xkb_context *ctx, const char* socket_address)
     while (1) {
         int accept_socket_fd = accept(socket_fd, NULL, NULL);
         if (accept_socket_fd == -1) {
-            // TODO
             fprintf(stderr, "ERROR: fail to accept query\n");
             rc = EXIT_FAILURE;
             goto error;
         };
 
         if (accept_socket_fd > 0) {
-            // add_connection();
-            // fprintf(stderr, "~~~ Active connections: %d\n", active_connections);
-            /* client is connected */
+            /* Client is connected */
             pthread_t thread;
+
+            /* Prepare worker’s context */
             struct query_args *args = calloc(1, sizeof(struct query_args));
             if (!args) {
                 close(accept_socket_fd);
-                // remove_connection();
                 continue;
             }
-            args->ctx = ctx;
+            /* Context will be cloned in worker */
+            args->ctx = xkb_context_ref(ctx);
             args->accept_socket_fd = accept_socket_fd;
-            // FIXME: remove debug
-            // fprintf(stderr, "Let’s go! %d\n", accept_socket_fd);
+
+            /* Launch worker */
             rc = pthread_create(&thread, NULL, process_query, args);
             if (rc) {
                 perror("Error creating thread: ");
                 close(accept_socket_fd);
-                // remove_connection();
                 free(args);
                 continue;
             }
             pthread_detach(thread);
-            // rc = process_query(ctx, args);
-            // close(accept_socket_fd);
-            // if (rc > 0) {
-            //     fprintf(stderr, "ERROR: failed to process query\n");
-            // } else if (rc < 0) {
-            //     fprintf(stderr, "Exiting...\n");
-            //     break;
-            // }
         }
     }
 error:

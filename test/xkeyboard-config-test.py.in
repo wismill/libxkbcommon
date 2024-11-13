@@ -146,7 +146,27 @@ class CompileKeymapPool:
         self.tmp.cleanup()
 
     @classmethod
-    def message(cls, socket_path: Path, msg: bytes) -> tuple[bool, bytes]:
+    def _get_response(cls, s: socket.socket, more: bool) -> tuple[bool, bytes]:
+        # Get size of the message
+        response = s.recv(ctypes.sizeof(ctypes.c_ssize_t))
+        response_size = int.from_bytes(response, byteorder=sys.byteorder, signed=True)
+        # print(f"{response_size=}", len(response), response)
+        # Get message
+        if response_size > 0:
+            # Get exactly the expected length, if no error
+            response = s.recv(response_size, socket.MSG_WAITALL)
+            ok = True
+        else:
+            response = b""
+            ok = not (response_size < 0)
+        # Confirm reception
+        s.sendall(b"1" if more else b"0")
+        return ok, response
+
+    @classmethod
+    def message(cls, socket_path: Path, msg: bytes) -> tuple[bool, bytes, bytes]:
+        response = b""
+        stderr = b""
         try:
             s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         except OSError:
@@ -156,32 +176,23 @@ class CompileKeymapPool:
         try:
             s.connect(str(socket_path))
             s.sendall(msg)
-            # Get size of the message
-            response = s.recv(ctypes.sizeof(ctypes.c_ssize_t))
-            response_size = int.from_bytes(
-                response, byteorder=sys.byteorder, signed=True
-            )
-            # print(f"{response_size=}", len(response))
-            # Get message
-            if response_size > 0:
-                response = s.recv(response_size)
-                # Confirm reception
-                s.sendall(b"1")
-            else:
-                response = b""
-                ok = not (response_size < 0)
+            _ok, response = cls._get_response(s, True)
+            if response and (response[-1] != 0x0A):
+                raise ValueError((response, len(response)))
+            ok &= _ok
+            _ok, stderr = cls._get_response(s, False)
+            ok &= _ok
         except OSError as err:
             print("Socket error:", err, file=sys.stderr)
             ok = False
-            response = b""
         finally:
             s.close()
-        return ok, response
+        return ok, response, stderr
 
     @classmethod
     def get_keymap(
         cls, socket_path: Path, rmlvo: RMLVO, serialize: bool
-    ) -> tuple[bool, bytes]:
+    ) -> tuple[bool, bytes, bytes]:
         query = f"{int(serialize)}\n" + "\n".join(v or "" for v in rmlvo)
         return cls.message(socket_path, query.encode())
 
@@ -279,11 +290,11 @@ class Invocation(RMLVO, metaclass=ABCMeta):
                         keymap_file = fname
                         if keymap_file_fd:
                             keymap_file_fd.close()
-                        keymap_file_fd = open(keymap_file, "a")
+                        keymap_file_fd = open(keymap_file, "at", encoding="utf-8")
 
-                    print(f"// {cls.to_yaml(invocation.rmlvo)}", file=keymap_file_fd)
-                    print(invocation.keymap, file=keymap_file_fd)
                     assert keymap_file_fd
+                    keymap_file_fd.write(f"// {cls.to_yaml(invocation.rmlvo)}\n")
+                    keymap_file_fd.write(invocation.keymap)
                     keymap_file_fd.flush()
 
         return failed
@@ -364,11 +375,16 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
     @classmethod
     def _run2(cls, x: tuple[Self, Path, bool]) -> Self:
         r, path, serialize = x
-        # print(r)
-        # FIXME handle errors
-        ok, r.keymap = CompileKeymapPool.get_keymap(path, r, serialize)
-        # FIXME
+        ok, keymap, _stderr = CompileKeymapPool.get_keymap(path, r, serialize)
+        r.keymap = keymap.decode("utf-8")
         r.exitstatus = 0 if ok else 1
+        stderr = _stderr.decode("utf-8")
+        if cls.UNRECOGNIZED_KEYSYM_ERROR in stderr:
+            for line in stderr.splitlines():
+                if cls.UNRECOGNIZED_KEYSYM_ERROR in line:
+                    r.error = line
+                    r.exitstatus = 99  # tool doesn't generate this one
+                    break
         return r
 
     @classmethod
@@ -435,13 +451,13 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
                             keymap_file = fname
                             if keymap_file_fd:
                                 keymap_file_fd.close()
-                            keymap_file_fd = open(keymap_file, "a")
+                            keymap_file_fd = open(keymap_file, "at", encoding="utf-8")
 
-                        print(
-                            f"// {cls.to_yaml(invocation.rmlvo)}", file=keymap_file_fd
-                        )
-                        print(invocation.keymap, file=keymap_file_fd)
                         assert keymap_file_fd
+                        keymap_file_fd.write(f"// {cls.to_yaml(invocation.rmlvo)}\n")
+                        keymap_file_fd.write(invocation.keymap)
+                        if invocation.keymap:
+                            keymap_file_fd.write("\n")
                         keymap_file_fd.flush()
 
             return failed
