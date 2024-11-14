@@ -36,7 +36,6 @@
 #ifdef ENABLE_KEYMAP_SOCKET
 #include <pthread.h>
 #include <signal.h>
-// #include <sys/mman.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -525,16 +524,6 @@ process_query(void *x)
 
         /* Response load: <length><keymap string> */
 
-        /* Capture stderr in an in-memory file */
-        // int stderr_new = memfd_create("xkbcommon-worker-stderr", MFD_ALLOW_SEALING);
-        // if (stderr_new <= 0) {
-        //     perror("Cannot create in-memory file");
-        //     goto stderr_error;
-        // }
-        // fflush(stderr);
-        // int stderr_old = dup(STDERR_FILENO);
-        // dup2(stderr_new, STDERR_FILENO);
-
         /* Compile keymap */
         struct xkb_keymap *keymap;
         /* Clone context because it is not thread-safe */
@@ -585,40 +574,12 @@ keymap_error:
         /* Wait that the client confirm the reception */
         recv(args->accept_socket_fd, input_buffer, 1, 0);
 
-        // /* Restore stderr */
-        // fsync(stderr_new);
-        // dup2(stderr_old, STDERR_FILENO);
-        // close(stderr_old);
+        /* Restore stderr for logging */
         fflush(stderr_new);
         xkb_context_set_user_data(&ctx, stderr);
         fclose(stderr_new);
 
         /* Send captured stderr */
-        // char *stderr_buffer = NULL;
-        // struct stat stat_buf;
-        // len = 0;
-        // if (fstat(stderr_new, &stat_buf) == EXIT_SUCCESS && stat_buf.st_size > 0) {
-        //     fprintf(stderr, "stderr fd %d len: %zu\n", stderr_new, stat_buf.st_size);
-        //     fflush(stderr);
-
-        //     stderr_buffer = mmap(NULL, stat_buf.st_size, PROT_READ, MAP_SHARED, stderr_new, 0);
-        //     if (stderr_buffer == MAP_FAILED) {
-        //         perror("mmap failed");
-        //         stderr_buffer = NULL;
-        //         rc = EXIT_FAILURE;
-        //     }
-        //     else if (stderr_buffer)
-        //         len = stat_buf.st_size;
-        // } else {
-        //     // perror("fstat failed.");
-        //     rc = EXIT_FAILURE;
-        // }
-        // close(stderr_new);
-
-        // send(args->accept_socket_fd, &len, sizeof(len), MSG_NOSIGNAL);
-        // if (len && stderr_buffer) {
-        //     send(args->accept_socket_fd, stderr_buffer, len, MSG_NOSIGNAL);
-        //     munmap(stderr_buffer, len);
         send(args->accept_socket_fd, &stderr_size, sizeof(stderr_size), MSG_NOSIGNAL);
         if (stderr_size && stderr_buffer) {
             send(args->accept_socket_fd, stderr_buffer, stderr_size, MSG_NOSIGNAL);

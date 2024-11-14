@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import ctypes
-import gc
 import gzip
 import itertools
 import multiprocessing
@@ -436,26 +435,9 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
                 return False
 
         failed = False
+
         # with CompileKeymapPool((njobs // 2) or 1) as kmp:
         # with CompileKeymapPool(njobs) as kmp:
-
-        def write(invocation: Invocation, fd: BinaryIO):
-            fd.write(f"// {cls.to_yaml(invocation.rmlvo)}\n".encode("utf-8"))
-            if invocation.keymap:
-                fd.write(invocation.keymap)
-                fd.write(b"\n")
-
-        # def write(invocation: Invocation, fd: BinaryIO):
-        #     with io.BytesIO() as f:
-        #         f.write(f"// {cls.to_yaml(invocation.rmlvo)}\n".encode("utf-8"))
-        #         f.write(invocation.keymap)
-        #         if invocation.keymap:
-        #             f.write(b"\n")
-        #         f.seek(0)
-        #         shutil.copyfileobj(f, fd)
-
-        # tracemalloc.start()
-
         with CompileKeymapPool(1, socket=kwargs.get("server_socket")) as kmp:
             with multiprocessing.Pool(njobs, maxtasksperchild=1000) as p:
                 results = p.imap_unordered(
@@ -482,64 +464,6 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
                             print("-", cls.to_yaml(invocation.short), file=target)
                         else:
                             print(invocation, file=target)
-
-                    if False and keymap_output_dir and compress >= 0:
-                        if k % 100 == 0:
-                            # snapshot=tracemalloc.take_snapshot()
-                            # for i, stat in enumerate(snapshot.statistics('filename')[:10], 1):
-                            #     print("top_current", i, stat)
-                            gc.collect()
-                        layout = invocation.layout
-                        if invocation.variant:
-                            layout += f"({invocation.variant})"
-                        (keymap_output_dir / invocation.model).mkdir(exist_ok=True)
-                        keymap_file = keymap_output_dir / invocation.model / layout
-                        if compress:
-                            keymap_file = keymap_file.with_suffix(".gz")
-
-                        if compress:
-                            with gzip.open(
-                                keymap_file, "wb", compresslevel=compress
-                            ) as fd:
-                                write(invocation, fd)
-                                fd.close()
-                            # with keymap_file.open("wb") as fd:
-                            #     with io.BytesIO() as f:
-                            #         write(invocation, f)
-                            #         f.seek(0)
-                            #         content = f.read()
-                            #     del invocation.keymap
-                            #     # gunzip = subprocess.Popen(
-                            #     #     ("gzip", "-f", f"-{compress}"),
-                            #     #     stdout=subprocess.PIPE,
-                            #     #     stderr=subprocess.DEVNULL,
-                            #     # )
-                            #     # stdout, _ = gunzip.communicate(content)
-                            #     # print(gunzip.stdout)
-                            #     gunzip = subprocess.run(
-                            #         ("gzip", "-f", f"-{compress}"),
-                            #         capture_output=True,
-                            #         input=content,
-                            #         check=True
-                            #     )
-                            #     del content
-                            #     # print(gunzip.stdout)
-                            #     fd.write(gunzip.stdout)
-                        else:
-                            with keymap_file.open("wb") as fd:
-                                write(invocation, fd)
-                        # with keymap_file.open("wb") as fd:
-                        #     keymap = f"// {cls.to_yaml(invocation.rmlvo)}\n".encode(
-                        #         "utf-8"
-                        #     )
-                        #     if invocation.keymap:
-                        #         keymap += invocation.keymap
-                        #         keymap += b"\n"
-                        #     if compress:
-                        #         fd.write(gzip.compress(keymap, compresslevel=compress))
-                        #     else:
-                        #         fd.write(keymap)
-                        del invocation
 
             return failed
 
