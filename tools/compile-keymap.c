@@ -397,13 +397,15 @@ out:
 
 static pthread_mutex_t server_state_mutext = PTHREAD_MUTEX_INITIALIZER;
 static volatile int socket_fd;
+static volatile bool serving = false;
 
 /* Shutdown the server */
 static void
 bye(void)
 {
     pthread_mutex_lock(&server_state_mutext);
-    fprintf(stderr, "Bye!\n");
+    fprintf(stderr, "Shuting down. Bye!\n");
+    serving = false;
     shutdown(socket_fd, SHUT_RD);
     pthread_mutex_unlock(&server_state_mutext);
 }
@@ -623,7 +625,7 @@ error:
     close(args->accept_socket_fd);
     free(args);
     if (rc > 0) {
-        fprintf(stderr, "ERROR: failed to process query\n");
+        fprintf(stderr, "ERROR: failed to process query. Code: %d\n", rc);
     } else if (rc < 0) {
         bye();
     }
@@ -659,6 +661,7 @@ serve(struct xkb_context *ctx, const char* socket_address)
     }
     signal(SIGINT, handle_signal);
     fprintf(stderr, "Serving...\n");
+    serving = true;
 
     struct timeval timeout = {
         .tv_sec = 3,
@@ -668,8 +671,12 @@ serve(struct xkb_context *ctx, const char* socket_address)
     while (1) {
         int accept_socket_fd = accept(socket_fd, NULL, NULL);
         if (accept_socket_fd == -1) {
-            fprintf(stderr, "ERROR: fail to accept query\n");
-            rc = EXIT_FAILURE;
+            if (serving) {
+                fprintf(stderr, "ERROR: fail to accept query\n");
+                rc = EXIT_FAILURE;
+            } else {
+                rc = EXIT_SUCCESS;
+            }
             goto error;
         };
 

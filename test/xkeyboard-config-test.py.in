@@ -12,6 +12,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+from time import sleep
 import traceback
 import xml.etree.ElementTree as ET
 from abc import ABCMeta, abstractmethod
@@ -98,120 +99,6 @@ class RMLVO:
 
 
 @dataclass
-class CompileKeymapPool:
-    count: int
-    pool: list[subprocess.Popen] | None = None
-    # queue: multiprocessing.Queue[Path] | None = None
-    tmp: tempfile.TemporaryDirectory | None = None
-    socket: Path | None = None
-
-    @property
-    def sockets(self) -> Iterable[Path]:
-        if self.socket:
-            yield self.socket
-        else:
-            for k in range(self.count):
-                yield Path(self.tmp.name) / str(k)
-
-    def __enter__(self):
-        # if self.queue is None:
-        #     self.queue = multiprocessing.Queue(self.count)
-        # if self.queue.empty():
-        if not self.pool and not self.socket:
-            self.tmp = tempfile.TemporaryDirectory()
-            if self.pool:
-                for p in self.pool:
-                    p.kill()
-            self.pool = []
-            for path in self.sockets:
-                args = ("compile-keymap-server", "--socket", str(path))
-                self.pool.append(
-                    subprocess.Popen(
-                        args,
-                        close_fds=True,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                    )
-                )
-                # self.queue.put_nowait(path)
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        # if self.queue is not None:
-        #     self.queue.close()
-        if self.socket:
-            return
-        for path in self.sockets:
-            self.message(path, b"\x1b")
-        if self.pool:
-            for p in self.pool:
-                p.kill()
-        self.pool = None
-        self.tmp.cleanup()
-
-    @classmethod
-    def _get_response(cls, s: socket.socket, more: bool) -> tuple[bool, int, bytes]:
-        # Get size of the message
-        response = s.recv(ctypes.sizeof(ctypes.c_ssize_t))
-        response_size = int.from_bytes(response, byteorder=sys.byteorder, signed=True)
-        # print(f"{response_size=}", len(response), response)
-        # Get message
-        response = b""
-        if response_size > 0:
-            # # Get exactly the expected length, if no error
-            # response = s.recv(response_size, socket.MSG_WAITALL)
-            ba = bytearray(response_size)
-            view = memoryview(ba)
-            to_read = response_size
-            while to_read:
-                nbytes = s.recv_into(view, to_read, 0)
-                view = view[nbytes:]
-                to_read -= nbytes
-            response = bytes(ba)
-            #     print(f"{size=}", file=sys.stderr)
-            # while len(response) < response_size:
-            #     response += s.recv(4096, 0)
-            assert len(response) == response_size, (response_size, len(response))
-            ok = True
-        else:
-            response = b""
-            ok = not (response_size < 0)
-        # Confirm reception
-        s.sendall(b"1" if more else b"0")
-        return ok, response_size, response
-
-    @classmethod
-    def message(cls, socket_path: Path, msg: bytes) -> tuple[bool, bytes, bytes]:
-        response = b""
-        response_size = 0
-        stderr = b""
-        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
-            ok = True
-            try:
-                s.settimeout(6)
-                s.connect(str(socket_path))
-                s.sendall(msg)
-                _ok, response_size, response = cls._get_response(s, True)
-                ok &= _ok
-                _ok, response_size, stderr = cls._get_response(s, False)
-                ok &= _ok
-            except OSError as err:
-                print(
-                    "Socket error:", err, ok, response_size, response, file=sys.stderr
-                )
-                traceback.print_exception(err, file=sys.stderr)
-                ok = False
-        return ok, response, stderr
-
-    @classmethod
-    def get_keymap(
-        cls, socket_path: Path, rmlvo: RMLVO, serialize: bool
-    ) -> tuple[bool, bytes, bytes]:
-        query = f"{int(serialize)}\n" + "\n".join(v or "" for v in rmlvo)
-        return cls.message(socket_path, query.encode())
-
-
-@dataclass
 class Invocation(RMLVO, metaclass=ABCMeta):
     exitstatus: int = 77  # default to “skipped”
     error: str | None = None
@@ -246,8 +133,7 @@ class Invocation(RMLVO, metaclass=ABCMeta):
 
     def _write(self, fd: BinaryIO) -> None:
         fd.write(f"// {self.to_yaml(self.rmlvo)}\n".encode("utf-8"))
-        if self.keymap:
-            fd.write(self.keymap)
+        fd.write(self.keymap)
 
     def _write_keymap(self, output_dir: Path, compress: int) -> None:
         layout = self.layout
@@ -381,6 +267,18 @@ class XkbCompInvocation(Invocation):
 class XkbcommonInvocation(Invocation):
     UNRECOGNIZED_KEYSYM_ERROR: ClassVar[str] = "XKB-107"
 
+    def _check_stderr(self, stderr: str) -> bool:
+        if self.UNRECOGNIZED_KEYSYM_ERROR in stderr:
+            for line in stderr.splitlines():
+                if self.UNRECOGNIZED_KEYSYM_ERROR in line:
+                    self.error = line
+                    break
+            self.exitstatus = 99  # tool doesn't generate this one
+            return False
+        else:
+            self.exitstatus = 0
+            return True
+
     @classmethod
     def run(
         cls,
@@ -409,18 +307,126 @@ class XkbcommonInvocation(Invocation):
             self.error = "failed to compile keymap"
             self.exitstatus = err.returncode
         else:
-            if self.UNRECOGNIZED_KEYSYM_ERROR in completed.stderr:
-                for line in completed.stderr.splitlines():
-                    if self.UNRECOGNIZED_KEYSYM_ERROR in line:
-                        self.error = line
-                        self.exitstatus = 99  # tool doesn't generate this one
-                        break
-            else:
-                self.exitstatus = 0
+            if self._check_stderr(completed.stderr):
                 self.keymap = completed.stdout.encode("utf-8")
-
         if output_dir:
             self._write_keymap(output_dir, compress)
+
+
+@dataclass
+class CompileKeymapPool:
+    count: int
+    pool: tuple[subprocess.Popen] = ()
+    tmp: tempfile.TemporaryDirectory | None = None
+    socket: Path | None = None
+
+    @property
+    def sockets(self) -> Iterable[Path]:
+        if self.socket:
+            yield self.socket
+        elif self.tmp:
+            for k in range(self.count):
+                yield Path(self.tmp.name) / str(k)
+
+    def __enter__(self):
+        if not self.pool and not self.socket:
+            self.tmp = tempfile.TemporaryDirectory()
+            if self.pool:
+                for p in self.pool:
+                    p.kill()
+            pool: list[subprocess.Popen] = []
+            for path in self.sockets:
+                args = ("compile-keymap-server", "--socket", str(path))
+                pool.append(
+                    subprocess.Popen(
+                        args,
+                        close_fds=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        # stderr=None,
+                    )
+                )
+            self.pool = tuple(pool)
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.socket:
+            return
+        for path in self.sockets:
+            self.bye(path)
+        sleep(0.5)
+        if self.pool:
+            for p in self.pool:
+                p.kill()
+        self.pool = ()
+        self.tmp.cleanup()
+
+    @classmethod
+    def _get_response(cls, s: socket.socket, more: bool) -> tuple[bool, int, bytes]:
+        # Get size of the message
+        response = s.recv(ctypes.sizeof(ctypes.c_ssize_t))
+        response_size = int.from_bytes(response, byteorder=sys.byteorder, signed=True)
+        # Get message
+        response = b""
+        if response_size > 0:
+            to_read = response_size
+            ba = bytearray(response_size)
+            view = memoryview(ba)
+            while to_read:
+                nbytes = s.recv_into(view, to_read, 0)
+                view = view[nbytes:]
+                to_read -= nbytes
+            response = bytes(ba)
+            assert len(response) == response_size, (response_size, len(response))
+            ok = True
+        else:
+            response = b""
+            ok = not (response_size < 0)
+        # Confirm reception
+        s.sendall(b"1" if more else b"0")
+        return ok, response_size, response
+
+    @classmethod
+    def message(cls, socket_path: Path, msg: bytes) -> tuple[bool, bytes, bytes]:
+        response = b""
+        response_size = 0
+        stderr = b""
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            ok = True
+            try:
+                s.settimeout(6)
+                s.connect(str(socket_path))
+                s.sendall(msg)
+                _ok, response_size, response = cls._get_response(s, True)
+                ok &= _ok
+                _ok, response_size, stderr = cls._get_response(s, False)
+                ok &= _ok
+            except OSError as err:
+                print(
+                    "Socket error:", err, ok, response_size, response, file=sys.stderr
+                )
+                traceback.print_exception(err, file=sys.stderr)
+                ok = False
+            s.shutdown(socket.SHUT_RDWR)
+        return ok, response, stderr
+
+    @classmethod
+    def bye(cls, socket_path: Path) -> None:
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                s.settimeout(6)
+                s.connect(str(socket_path))
+                s.sendall(b"\x1b")
+                s.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+
+    @classmethod
+    def get_keymap(
+        cls, socket_path: Path, rmlvo: RMLVO, serialize: bool
+    ) -> tuple[bool, bytes, bytes]:
+        query = f"{int(serialize)}\n" + "\n".join(v or "" for v in rmlvo)
+        return cls.message(socket_path, query.encode())
 
 
 @dataclass
@@ -445,18 +451,12 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
 
     def _run(self, output_dir: Path | None, compress: int, socket_path: Path) -> None:
         serialize = bool(output_dir)
-        ok, self.keymap, _stderr = CompileKeymapPool.get_keymap(
+        ok, self.keymap, stderr = CompileKeymapPool.get_keymap(
             socket_path, self, serialize
         )
 
         self.exitstatus = 0 if ok else 1
-        stderr = _stderr.decode("utf-8")
-        if self.UNRECOGNIZED_KEYSYM_ERROR in stderr:
-            for line in stderr.splitlines():
-                if self.UNRECOGNIZED_KEYSYM_ERROR in line:
-                    self.error = line
-                    self.exitstatus = 99  # tool doesn't generate this one
-                    break
+        self._check_stderr(stderr.decode("utf-8"))
 
         if output_dir:
             self._write_keymap(output_dir, compress)
@@ -500,7 +500,7 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
                         failed = True
                     invocation._print_result(short, verbose)
 
-            return failed
+        return failed
 
 
 @dataclass
