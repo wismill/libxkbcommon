@@ -16,6 +16,7 @@ import traceback
 import xml.etree.ElementTree as ET
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
+from functools import partial
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -243,12 +244,43 @@ class Invocation(RMLVO, metaclass=ABCMeta):
     def escape(s: str) -> str:
         return s.replace('"', '\\"')
 
-    @abstractmethod
-    def _run(self) -> Self: ...
+    def _write(self, fd: BinaryIO) -> None:
+        fd.write(f"// {self.to_yaml(self.rmlvo)}\n".encode("utf-8"))
+        if self.keymap:
+            fd.write(self.keymap)
+
+    def _write_keymap(self, output_dir: Path, compress: int) -> None:
+        layout = self.layout
+        if self.variant:
+            layout += f"({self.variant})"
+        (output_dir / self.model).mkdir(exist_ok=True)
+        keymap_file = output_dir / self.model / layout
+        if compress:
+            keymap_file = keymap_file.with_suffix(".gz")
+            with gzip.open(keymap_file, "wb", compresslevel=compress) as fd:
+                self._write(fd)
+                fd.close()
+        else:
+            with keymap_file.open("wb") as fd:
+                self._write(fd)
+
+    def _print_result(self, short: bool, verbose: bool) -> None:
+        if self.exitstatus != 0:
+            target = sys.stderr
+        else:
+            target = sys.stdout if verbose else None
+
+        if target:
+            if short:
+                print("-", self.to_yaml(self.short), file=target)
+            else:
+                print(self, file=target)
 
     @classmethod
-    def run(cls, x: Self) -> Self:
-        return x._run()
+    @abstractmethod
+    def run(
+        cls, i: Self, output_dir: Path | None, compress: int, *args, **kwargs
+    ) -> Self: ...
 
     @classmethod
     def run_all(
@@ -273,35 +305,19 @@ class Invocation(RMLVO, metaclass=ABCMeta):
 
         failed = False
         with multiprocessing.Pool(njobs) as p:
-            results = p.imap_unordered(cls.run, combos, chunksize=chunksize)
+            f = partial(
+                cls.run,
+                output_dir=keymap_output_dir,
+                compress=compress,
+            )
+            results = p.imap_unordered(f, combos, chunksize=chunksize)
             for invocation in progress_bar(
                 results, total=combos_count, file=sys.stdout
             ):
                 if invocation.exitstatus != 0:
                     failed = True
-                    target = sys.stderr
-                else:
-                    target = sys.stdout if verbose else None
 
-                if target:
-                    if short:
-                        print("-", cls.to_yaml(invocation.short), file=target)
-                    else:
-                        print(invocation, file=target)
-
-                if keymap_output_dir:
-                    layout = invocation.layout
-                    if invocation.variant:
-                        layout += f"({invocation.variant})"
-                    (keymap_output_dir / invocation.model).mkdir(exist_ok=True)
-                    keymap_file = keymap_output_dir / invocation.model / layout
-
-                    with keymap_file.open("wb") as fd:
-                        fd.write(
-                            f"// {cls.to_yaml(invocation.rmlvo)}\n".encode("utf-8")
-                        )
-                        fd.write(invocation.keymap)
-                        fd.flush()
+                invocation._print_result(short, verbose)
 
         return failed
 
@@ -310,7 +326,19 @@ class Invocation(RMLVO, metaclass=ABCMeta):
 class XkbCompInvocation(Invocation):
     xkbcomp_args: ClassVar[tuple[str, ...]] = ("xkbcomp", "-xkb", "-", "-")
 
-    def _run(self) -> Self:
+    @classmethod
+    def run(
+        cls,
+        i: Self,
+        output_dir: Path | None,
+        compress: int,
+        *args,
+        **kwargs,
+    ) -> Self:
+        i._run(output_dir, compress)
+        return i
+
+    def _run(self, output_dir: Path | None, compress: int) -> None:
         args = (
             "setxkbmap",
             "-print",
@@ -344,23 +372,43 @@ class XkbCompInvocation(Invocation):
             else:
                 self.keymap = stdout.encode("utf-8")
                 self.exitstatus = 0
-        return self
+
+        if output_dir:
+            self._write_keymap(output_dir, compress)
 
 
 @dataclass
 class XkbcommonInvocation(Invocation):
     UNRECOGNIZED_KEYSYM_ERROR: ClassVar[str] = "XKB-107"
 
-    def _run(self) -> Self:
+    @classmethod
+    def run(
+        cls,
+        i: Self,
+        output_dir: Path | None,
+        compress: int,
+        *args,
+        **kwargs,
+    ) -> Self:
+        i._run(output_dir, compress)
+        return i
+
+    def _run(self, output_dir: Path | None, compress: int) -> None:
         args = (
             "xkbcli-compile-keymap",  # this is run in the builddir
             # Not needed, because we set XKB_LOG_LEVEL and XKB_LOG_VERBOSITY in env
             # "--verbose",
             *itertools.chain.from_iterable((f"--{k}", v) for k, v in self.rmlvo),
         )
+        if not output_dir:
+            args += ("--test",)
         self.command = " ".join(args)
         try:
             completed = subprocess.run(args, text=True, check=True, capture_output=True)
+        except subprocess.CalledProcessError as err:
+            self.error = "failed to compile keymap"
+            self.exitstatus = err.returncode
+        else:
             if self.UNRECOGNIZED_KEYSYM_ERROR in completed.stderr:
                 for line in completed.stderr.splitlines():
                     if self.UNRECOGNIZED_KEYSYM_ERROR in line:
@@ -370,48 +418,48 @@ class XkbcommonInvocation(Invocation):
             else:
                 self.exitstatus = 0
                 self.keymap = completed.stdout.encode("utf-8")
-        except subprocess.CalledProcessError as err:
-            self.error = "failed to compile keymap"
-            self.exitstatus = err.returncode
-        return self
+
+        if output_dir:
+            self._write_keymap(output_dir, compress)
 
 
 @dataclass
 class XkbcommonInvocationServer(XkbcommonInvocation):
-    def _write(self, fd: BinaryIO):
-        fd.write(f"// {self.to_yaml(self.rmlvo)}\n".encode("utf-8"))
+    def _write(self, fd: BinaryIO) -> None:
+        super()._write(fd)
         if self.keymap:
-            fd.write(self.keymap)
             fd.write(b"\n")
 
     @classmethod
-    def _run2(cls, x: tuple[Self, Path, Path, int]) -> Self:
-        r, path, output_dir, compress = x
+    def run(
+        cls,
+        i: Self,
+        output_dir: Path | None,
+        compress: int,
+        socket_path: Path,
+        *args,
+        **kwargs,
+    ) -> Self:
+        i._run(output_dir, compress, socket_path)
+        return i
+
+    def _run(self, output_dir: Path | None, compress: int, socket_path: Path) -> None:
         serialize = bool(output_dir)
-        ok, r.keymap, _stderr = CompileKeymapPool.get_keymap(path, r, serialize)
-        r.exitstatus = 0 if ok else 1
+        ok, self.keymap, _stderr = CompileKeymapPool.get_keymap(
+            socket_path, self, serialize
+        )
+
+        self.exitstatus = 0 if ok else 1
         stderr = _stderr.decode("utf-8")
-        if cls.UNRECOGNIZED_KEYSYM_ERROR in stderr:
+        if self.UNRECOGNIZED_KEYSYM_ERROR in stderr:
             for line in stderr.splitlines():
-                if cls.UNRECOGNIZED_KEYSYM_ERROR in line:
-                    r.error = line
-                    r.exitstatus = 99  # tool doesn't generate this one
+                if self.UNRECOGNIZED_KEYSYM_ERROR in line:
+                    self.error = line
+                    self.exitstatus = 99  # tool doesn't generate this one
                     break
 
-        layout = r.layout
-        if r.variant:
-            layout += f"({r.variant})"
-        (output_dir / r.model).mkdir(exist_ok=True)
-        keymap_file = output_dir / r.model / layout
-        if compress:
-            keymap_file = keymap_file.with_suffix(".gz")
-            with gzip.open(keymap_file, "wb", compresslevel=compress) as fd:
-                r._write(fd)
-                fd.close()
-        else:
-            with keymap_file.open("wb") as fd:
-                r._write(fd)
-        return r
+        if output_dir:
+            self._write_keymap(output_dir, compress)
 
     @classmethod
     def run_all(
@@ -436,34 +484,21 @@ class XkbcommonInvocationServer(XkbcommonInvocation):
 
         failed = False
 
-        # with CompileKeymapPool((njobs // 2) or 1) as kmp:
-        # with CompileKeymapPool(njobs) as kmp:
         with CompileKeymapPool(1, socket=kwargs.get("server_socket")) as kmp:
             with multiprocessing.Pool(njobs, maxtasksperchild=1000) as p:
-                results = p.imap_unordered(
-                    cls._run2,
-                    zip(
-                        combos,
-                        itertools.cycle(kmp.sockets),
-                        itertools.repeat(keymap_output_dir),
-                        itertools.repeat(compress),
-                    ),
-                    chunksize=chunksize,
+                f = partial(
+                    cls.run,
+                    socket_path=tuple(kmp.sockets)[0],
+                    output_dir=keymap_output_dir,
+                    compress=compress,
                 )
-                for k, invocation in enumerate(
-                    progress_bar(results, total=combos_count, file=sys.stdout)
+                results = p.imap_unordered(f, combos, chunksize=chunksize)
+                for invocation in progress_bar(
+                    results, total=combos_count, file=sys.stdout
                 ):
                     if invocation.exitstatus != 0:
                         failed = True
-                        target = sys.stderr
-                    else:
-                        target = sys.stdout if verbose else None
-
-                    if target:
-                        if short:
-                            print("-", cls.to_yaml(invocation.short), file=target)
-                        else:
-                            print(invocation, file=target)
+                    invocation._print_result(short, verbose)
 
             return failed
 

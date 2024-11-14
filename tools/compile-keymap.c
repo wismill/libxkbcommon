@@ -67,6 +67,7 @@ static enum output_format {
 } output_format = FORMAT_KEYMAP;
 static const char *includes[64];
 static size_t num_includes = 0;
+static bool test = false;
 
 #ifdef ENABLE_KEYMAP_SOCKET
 
@@ -111,6 +112,8 @@ usage(char **argv)
            "    Print this help and exit\n"
            " --verbose\n"
            "    Enable verbose debugging output\n"
+           " --test\n"
+           "    Test compilation but do not serialize the keymap.\n"
 #if ENABLE_PRIVATE_APIS
            " --kccgst\n"
            "    Print a keymap which only includes the KcCGST component names instead of the full keymap\n"
@@ -159,6 +162,7 @@ parse_options(int argc, char **argv, struct xkb_rule_names *names,
 {
     enum options {
         OPT_VERBOSE,
+        OPT_TEST,
         OPT_KCCGST,
         OPT_RMLVO,
         OPT_FROM_XKB,
@@ -174,19 +178,17 @@ parse_options(int argc, char **argv, struct xkb_rule_names *names,
     static struct option opts[] = {
         {"help",             no_argument,            0, 'h'},
         {"verbose",          no_argument,            0, OPT_VERBOSE},
+        {"include",          required_argument,      0, OPT_INCLUDE},
+        {"include-defaults", no_argument,            0, OPT_INCLUDE_DEFAULTS},
 #ifdef ENABLE_KEYMAP_SOCKET
         {"socket",           required_argument,      0, OPT_SOCKET},
-#endif
+#else
+        {"test",             no_argument,            0, OPT_TEST},
 #if ENABLE_PRIVATE_APIS
         {"kccgst",           no_argument,            0, OPT_KCCGST},
-#endif
-#ifndef ENABLE_KEYMAP_SOCKET
         {"rmlvo",            no_argument,            0, OPT_RMLVO},
         {"from-xkb",         no_argument,            0, OPT_FROM_XKB},
 #endif
-        {"include",          required_argument,      0, OPT_INCLUDE},
-        {"include-defaults", no_argument,            0, OPT_INCLUDE_DEFAULTS},
-#ifndef ENABLE_KEYMAP_SOCKET
         {"rules",            required_argument,      0, OPT_RULES},
         {"model",            required_argument,      0, OPT_MODEL},
         {"layout",           required_argument,      0, OPT_LAYOUT},
@@ -209,6 +211,9 @@ parse_options(int argc, char **argv, struct xkb_rule_names *names,
             exit(0);
         case OPT_VERBOSE:
             verbose = true;
+            break;
+        case OPT_TEST:
+            test = true;
             break;
         case OPT_SOCKET:
             *socket_address = optarg;
@@ -262,6 +267,7 @@ parse_options(int argc, char **argv, struct xkb_rule_names *names,
 }
 
 #ifndef ENABLE_KEYMAP_SOCKET
+
 static bool
 print_rmlvo(struct xkb_context *ctx, const struct xkb_rule_names *rmlvo)
 {
@@ -280,6 +286,8 @@ print_kccgst(struct xkb_context *ctx, const struct xkb_rule_names *rmlvo)
 
         if (!xkb_components_from_rules(ctx, rmlvo, &kccgst, NULL))
             return false;
+        if (test)
+            goto out;
 
         printf("xkb_keymap {\n"
                "  xkb_keycodes { include \"%s\" };\n"
@@ -288,6 +296,8 @@ print_kccgst(struct xkb_context *ctx, const struct xkb_rule_names *rmlvo)
                "  xkb_symbols { include \"%s\" };\n"
                "};\n",
                kccgst.keycodes, kccgst.types, kccgst.compat, kccgst.symbols);
+
+out:
         free(kccgst.keycodes);
         free(kccgst.types);
         free(kccgst.compat);
@@ -308,10 +318,13 @@ print_keymap(struct xkb_context *ctx, const struct xkb_rule_names *rmlvo)
     if (keymap == NULL)
         return false;
 
+    if (test)
+        goto out;
     char *buf = xkb_keymap_get_as_string(keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
     printf("%s\n", buf);
     free(buf);
 
+out:
     xkb_keymap_unref(keymap);
     return true;
 }
@@ -354,6 +367,9 @@ print_keymap_from_file(struct xkb_context *ctx)
                                       XKB_KEYMAP_FORMAT_TEXT_V1, 0);
     if (!keymap) {
         fprintf(stderr, "Couldn't create xkb keymap\n");
+        goto out;
+    } else if (test) {
+        success = true;
         goto out;
     }
 
