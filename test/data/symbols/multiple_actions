@@ -99,6 +99,10 @@ xkb_symbols "basic" {
 		actions[1] = [ { SetMods(modifiers=LevelThree), SetGroup(group=+1) } ]
 	};
 
+	// Overrides
+	key <AB08> { [ A ] };
+	key <AB08> { [ {A, A} ], [ {SetMods(), SetMods()} ] };
+
 	// Mix various number of keysyms/actions
 	key <AC01> {
 		symbols[1] = [ ISO_Level3_Shift             , { ISO_Level3_Shift,              ISO_Group_Shift    } ]
