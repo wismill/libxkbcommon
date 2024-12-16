@@ -1502,6 +1502,7 @@ xkb_state_update_key(struct xkb_state *state, xkb_keycode_t key,
  *
  * @endparblock
  *
+ * @param state The keyboard state object.
  * @param affect_latched_mods
  * @param latched_mods
  *     Modifiers to set as latched or unlatched. Only modifiers in

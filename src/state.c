@@ -949,8 +949,9 @@ update_latch_modifiers(struct xkb_state *state,
         mod_mask_get_effective(state->keymap, mask & ~latches);
     state->components.latched_mods &= ~clear;
 
-    /* Clear any pending latch to locks. */
-    const struct xkb_level synthetic_key_level_break_mod_latch = {
+    /* Clear any pending latch to locks using ad hoc action:
+     * only affect corresponding modifier latches and no group latch. */
+    struct xkb_level synthetic_key_level_break_mod_latch = {
         .num_syms = 1,
         .s = { XKB_KEY_NoSymbol },
         .a = { { .internal = {
@@ -959,17 +960,18 @@ update_latch_modifiers(struct xkb_state *state,
             .clear_latched_mods = clear
         } } }
     };
-    const struct xkb_group synthetic_key_group_break_mod_latch = {
+    struct xkb_group synthetic_key_group_break_mod_latch = {
         .type = &synthetic_key_type,
         .levels = &synthetic_key_level_break_mod_latch
     };
-    const const struct xkb_key synthetic_key_break_mod_latch = {
+    const struct xkb_key synthetic_key_break_mod_latch = {
         .num_groups = 1,
         .groups = &synthetic_key_group_break_mod_latch
     };
     xkb_filter_apply_all(state, &synthetic_key_break_mod_latch, XKB_KEY_DOWN);
 
-    /* Simulate tapping a key with a modifier latch action */
+    /* Finally set the latched mods by simulate tapping a key with the
+     * corresponding action */
     const struct xkb_key *key = &synthetic_key;
     const union xkb_action latch_mods = {
         .mods = {
