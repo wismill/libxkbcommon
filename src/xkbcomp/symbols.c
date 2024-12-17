@@ -416,12 +416,26 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
                 }
                 if (clobber) {
                     if (unlikely(fromLevel->num_syms > 1)) {
-                        /* Steal */
-                        // FIXME: only when empty actions?
+                        /* Steal
+                         * First copy the actions from `into` that are undefined
+                         * in `from` */
+                        // FIXME: check action copy
+                        for (unsigned int k = 0; k < fromLevel->num_syms; k++) {
+                            if (fromLevel->a.actions[k].type == ACTION_TYPE_NONE)
+                                fromLevel->a.actions[k] = intoLevel->a.actions[k];
+                        }
                         free(intoLevel->a.actions);
                         intoLevel->a.actions = steal(&fromLevel->a.actions);
                     } else {
                         intoLevel->a.action = fromLevel->a.action;
+                    }
+                } else if (unlikely(intoLevel->num_syms > 1)) {
+                    /* Copy only the actions from `from` that are undefined
+                     * in `into` */
+                    // FIXME: check action copy
+                    for (unsigned int k = 0; k < intoLevel->num_syms; k++) {
+                        if (intoLevel->a.actions[k].type == ACTION_TYPE_NONE)
+                            intoLevel->a.actions[k] = fromLevel->a.actions[k];
                     }
                 }
             }

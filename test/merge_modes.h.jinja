@@ -10,7 +10,10 @@
         {{- entry.key.c }}, BOTH, {{ entry[type].levels[level].keysyms_c -}}
         {% else %}
         {{- entry.key.c }}, DOWN, {{ entry[type].levels[level].keysyms_c }}, NEXT,
-        {{ entry.key.c }}, UP, {{ alt_keysym(entry[type].levels[level].target_group, level).c -}}
+        {{ entry.key.c }}, UP, {{
+            alt_keysym(entry[type].levels[level].target_group,
+                       entry[type].levels[level].target_level + level).c
+        -}}
         {% endif %}
 {% endmacro %}
 
@@ -19,7 +22,7 @@
         "xkb_keymap {\n"
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
-        "  xkb_compat { include \"basic\" };\n"
+        "  xkb_compat { include \"complete\" };\n"
         "  xkb_symbols { include \"pc+{{symbols_file}}({{ tests_group.name }}_base)
         {{- '|' if type == 'augment' else '+' -}}
         {{symbols_file}}({{ tests_group.name }}_new)+

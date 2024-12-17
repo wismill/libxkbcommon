@@ -16,7 +16,7 @@ xkb_symbols "{{ tests_group.name }}_new" {
 
 xkb_symbols "group{{ g + 2 }}" {
 	{% for key in keycodes %}
-	key {{ key.xkb }} { [{{ alt_keysym(g, 0) }}, {{ alt_keysym(g, 1) }}] };
+	key {{ key.xkb }} { [{{ alt_keysym(g, 0) }}, {{ alt_keysym(g, 1) }}, {{ alt_keysym(g, 2) }}, {{ alt_keysym(g, 3) }}] };
 	{% endfor %}
 };
 {% endfor %}

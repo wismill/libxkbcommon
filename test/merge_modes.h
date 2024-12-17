@@ -19,7 +19,7 @@ test_merge_modes(struct xkb_context *ctx)
         "xkb_keymap {\n"
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
-        "  xkb_compat { include \"basic\" };\n"
+        "  xkb_compat { include \"complete\" };\n"
         "  xkb_symbols { include \"pc+merge_modes(keysyms_only_base)|merge_modes(keysyms_only_new)+merge_modes(group2):2+merge_modes(group3):3\" };"
         "};";
     fprintf(stderr, "*** test_merge_modes: keysyms_only, augment ***\n");
@@ -170,7 +170,7 @@ test_merge_modes(struct xkb_context *ctx)
         "xkb_keymap {\n"
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
-        "  xkb_compat { include \"basic\" };\n"
+        "  xkb_compat { include \"complete\" };\n"
         "  xkb_symbols { include \"pc+merge_modes(keysyms_only_base)+merge_modes(keysyms_only_new)+merge_modes(group2):2+merge_modes(group3):3\" };"
         "};";
     fprintf(stderr, "*** test_merge_modes: keysyms_only, override ***\n");
@@ -324,7 +324,7 @@ test_merge_modes(struct xkb_context *ctx)
         "xkb_keymap {\n"
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
-        "  xkb_compat { include \"basic\" };\n"
+        "  xkb_compat { include \"complete\" };\n"
         "  xkb_symbols { include \"pc+merge_modes(actions_only_base)|merge_modes(actions_only_new)+merge_modes(group2):2+merge_modes(group3):3\" };"
         "};";
     fprintf(stderr, "*** test_merge_modes: actions_only, augment ***\n");
@@ -401,6 +401,12 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_G, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_G, UP, XKB_KEY_SCHWA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_H, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_H, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_H, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_H, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
         KEY_J, DOWN, XKB_KEY_NoSymbol, NEXT,
         KEY_J, UP, XKB_KEY_Greek_alpha, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
@@ -431,17 +437,63 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_APOSTROPHE, DOWN, XKB_KEY_NoSymbol, NEXT,
         KEY_APOSTROPHE, UP, XKB_KEY_Greek_ALPHA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_BACKSLASH, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_BACKSLASH, UP, XKB_KEY_Greek_alpha, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_BACKSLASH, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_BACKSLASH, UP, XKB_KEY_Greek_ALPHA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_Z, BOTH, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_Z, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_Z, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
         KEY_X, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_X, UP, XKB_KEY_schwa, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_X, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_X, UP, XKB_KEY_SCHWA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_C, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_C, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_C, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_C, UP, XKB_KEY_Greek_ALPHA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
         KEY_V, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_V, UP, XKB_KEY_Greek_alpha, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_V, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_V, UP, XKB_KEY_Greek_ALPHA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_B, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_B, UP, XKB_KEY_Greek_alphaaccent, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_B, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_B, UP, XKB_KEY_Greek_ALPHAaccent, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_N, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_N, UP, XKB_KEY_Greek_alpha, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_N, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_N, UP, XKB_KEY_Greek_ALPHA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_M, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_M, UP, XKB_KEY_Greek_alpha, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_M, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_M, UP, XKB_KEY_Greek_ALPHA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_GRAVE, BOTH, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_GRAVE, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_GRAVE, UP, XKB_KEY_Greek_ALPHA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_1, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_1, UP, XKB_KEY_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_1, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_1, UP, XKB_KEY_Greek_ALPHA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
         KEY_2, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_2, UP, XKB_KEY_Greek_alpha, NEXT,
@@ -454,6 +506,24 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_3, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_3, UP, XKB_KEY_Greek_ALPHA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_4, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_4, UP, XKB_KEY_Greek_alpha, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_4, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_4, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_5, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_5, UP, XKB_KEY_Greek_alpha, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_5, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_5, UP, XKB_KEY_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_6, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_6, UP, XKB_KEY_Greek_alpha, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_6, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_6, UP, XKB_KEY_Greek_ALPHA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, FINISH
     ));
     xkb_keymap_unref(keymap);
@@ -463,7 +533,7 @@ test_merge_modes(struct xkb_context *ctx)
         "xkb_keymap {\n"
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
-        "  xkb_compat { include \"basic\" };\n"
+        "  xkb_compat { include \"complete\" };\n"
         "  xkb_symbols { include \"pc+merge_modes(actions_only_base)+merge_modes(actions_only_new)+merge_modes(group2):2+merge_modes(group3):3\" };"
         "};";
     fprintf(stderr, "*** test_merge_modes: actions_only, override ***\n");
@@ -540,6 +610,12 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_G, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_G, UP, XKB_KEY_SCHWA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_H, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_H, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_H, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_H, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
         KEY_J, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_J, UP, XKB_KEY_schwa, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
@@ -570,17 +646,63 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_APOSTROPHE, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_APOSTROPHE, UP, XKB_KEY_SCHWA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_BACKSLASH, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_BACKSLASH, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_BACKSLASH, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_BACKSLASH, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_Z, BOTH, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_Z, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_Z, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
         KEY_X, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_X, UP, XKB_KEY_schwa, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_X, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_X, UP, XKB_KEY_SCHWA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_C, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_C, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_C, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_C, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
         KEY_V, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_V, UP, XKB_KEY_schwa, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_V, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_V, UP, XKB_KEY_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_B, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_B, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_B, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_B, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_N, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_N, UP, XKB_KEY_Greek_alpha, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_N, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_N, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_M, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_M, UP, XKB_KEY_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_M, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_M, UP, XKB_KEY_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_GRAVE, BOTH, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_GRAVE, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_GRAVE, UP, XKB_KEY_Greek_ALPHA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_1, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_1, UP, XKB_KEY_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_1, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_1, UP, XKB_KEY_SCHWA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
         KEY_2, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
         KEY_2, UP, XKB_KEY_Greek_alpha, NEXT,
@@ -593,6 +715,24 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_3, DOWN, XKB_KEY_NoSymbol, NEXT,
         KEY_3, UP, XKB_KEY_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_4, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_4, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_4, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_4, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_5, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_5, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_5, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_5, UP, XKB_KEY_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_6, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_6, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_6, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_6, UP, XKB_KEY_SCHWA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, FINISH
     ));
     xkb_keymap_unref(keymap);
