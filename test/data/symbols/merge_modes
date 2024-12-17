@@ -21,6 +21,20 @@ xkb_symbols "base" {
 	key <AC10> { symbols=[a, A] };
 	key <AC11> { symbols=[a, A] };
 	key <AC12> { symbols=[a, A] };
+	key <AB01> { symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}] };
+	key <AB02> { symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}] };
+	key <AB03> { symbols=[{NoSymbol, NoSymbol}, {A, B}] };
+	key <AB04> { symbols=[{a, NoSymbol}, {NoSymbol, B}] };
+	key <AB05> { symbols=[{a, NoSymbol}, {NoSymbol, B}] };
+	key <AB06> { symbols=[{a, b}, {A, B}] };
+	key <AB07> { symbols=[{a, b}, {A, B}] };
+	key <TLDE> { symbols=[{NoSymbol, NoSymbol}, {A, B}] };
+	key <AE01> { symbols=[{NoSymbol, NoSymbol}, {A, B}] };
+	key <AE02> { symbols=[{a, NoSymbol}, {NoSymbol, B}] };
+	key <AE03> { symbols=[{a, NoSymbol}, {NoSymbol, B}] };
+	key <AE04> { symbols=[a] };
+	key <AE05> { symbols=[{a, b}] };
+	key <AE06> { symbols=[a, {A, B}] };
 };
 
 xkb_symbols "new" {
@@ -44,4 +58,18 @@ xkb_symbols "new" {
 	key <AC10> { symbols=[{NoSymbol, NoSymbol}, {C, NoSymbol}] };
 	key <AC11> { symbols=[{c, NoSymbol}, {C, NoSymbol}] };
 	key <AC12> { symbols=[{c, d}, {C, D}] };
+	key <AB01> { symbols=[{NoSymbol, NoSymbol}, {C, D}] };
+	key <AB02> { symbols=[{c, NoSymbol}, {NoSymbol, D}] };
+	key <AB03> { symbols=[{c, d}, {C, D}] };
+	key <AB04> { symbols=[{c, NoSymbol}, {NoSymbol, D}] };
+	key <AB05> { symbols=[{c, d}, {C, D}] };
+	key <AB06> { symbols=[{NoSymbol, NoSymbol}, {C, D}] };
+	key <AB07> { symbols=[{c, NoSymbol}, {NoSymbol, D}] };
+	key <TLDE> { symbols=[NoSymbol, NoSymbol] };
+	key <AE01> { symbols=[c, C] };
+	key <AE02> { symbols=[NoSymbol, NoSymbol] };
+	key <AE03> { symbols=[c, C] };
+	key <AE04> { symbols=[{c, d}, {C, D}] };
+	key <AE05> { symbols=[{c, d}, C] };
+	key <AE06> { symbols=[{c, d}, C] };
 };

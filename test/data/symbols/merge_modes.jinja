@@ -8,6 +8,6 @@ xkb_symbols "base" {
 
 xkb_symbols "new" {
 	{% for entry in tests %}
-	key {{ entry.key.xkb }} { {{ "".join(entry.conflict.xkb) }} };
+	key {{ entry.key.xkb }} { {{ "".join(entry.update.xkb) }} };
 	{% endfor %}
 };

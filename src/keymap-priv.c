@@ -160,7 +160,7 @@ XkbLevelHasNoKeysym(const struct xkb_level *level)
     if (level->num_syms == 1)
         return level->s.sym == XKB_KEY_NoSymbol;
     for (unsigned int k = 0; k < level->num_syms; k++) {
-        if (level->s.syms != XKB_KEY_NoSymbol)
+        if (level->s.syms[k] != XKB_KEY_NoSymbol)
             return false;
     }
     return true;

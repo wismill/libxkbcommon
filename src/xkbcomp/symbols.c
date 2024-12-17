@@ -350,14 +350,25 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
                 }
 
                 if (clobber) {
-                    /* Same count of keysyms: steal keysyms */
-                    // FIXME only if != NoSymbol??
                     if (unlikely(intoLevel->num_syms > 1)) {
-                        /* Steal */
+                        /* Steal
+                         * First copy the keysyms from `into` that are undefined
+                         * in `from` */
+                        for (unsigned int k = 0; k < fromLevel->num_syms; k++) {
+                            if (fromLevel->s.syms[k] == XKB_KEY_NoSymbol)
+                                fromLevel->s.syms[k] = intoLevel->s.syms[k];
+                        }
                         free(intoLevel->s.syms);
                         intoLevel->s.syms = steal(&fromLevel->s.syms);
                     } else {
                         intoLevel->s.sym = fromLevel->s.sym;
+                    }
+                } else if (unlikely(intoLevel->num_syms > 1)) {
+                    /* Copy only the keysyms from `from` that are undefined
+                     * in `into` */
+                    for (unsigned int k = 0; k < intoLevel->num_syms; k++) {
+                        if (intoLevel->s.syms[k] == XKB_KEY_NoSymbol)
+                            intoLevel->s.syms[k] = fromLevel->s.syms[k];
                     }
                 }
             }
