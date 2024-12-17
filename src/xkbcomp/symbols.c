@@ -302,17 +302,41 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
         struct xkb_level *intoLevel = &darray_item(into->levels, i);
         struct xkb_level *fromLevel = &darray_item(from->levels, i);
 
-        if (fromLevel->num_syms == 0) {
+        if (XkbLevelHasNoKeysym(fromLevel) && XkbLevelHasNoAction(fromLevel)) {
             /* Empty `from`: do nothing */
             continue;
         }
-        else if (intoLevel->num_syms == 0) {
+        else if (XkbLevelHasNoKeysym(intoLevel) && XkbLevelHasNoAction(intoLevel)) {
             /* Empty `into`: use `from` keysyms and actions */
             StealLevelInfo(intoLevel, fromLevel);
             continue;
         }
+        else if (intoLevel->num_syms != fromLevel->num_syms) {
+            /* Handle different keysyms/actions count */
+            assert(intoLevel->num_syms > 0);
+            assert(fromLevel->num_syms > 0);
+            if (report) {
+                log_warn(info->ctx, XKB_WARNING_CONFLICTING_KEY_SYMBOL,
+                         "Multiple definitions for level %d/group %u on key %s "
+                         "with incompatible keysyms/actions count; "
+                         "Using %s (count: %u), ignoring %s (count: %u)\n",
+                         i + 1, group + 1, KeyNameText(info->ctx, key_name),
+                         (clobber ? "from" : "to"),
+                         (clobber ? "to" : "from"),
+                         (clobber ? fromLevel->num_syms : intoLevel->num_syms),
+                         (clobber ? intoLevel->num_syms : fromLevel->num_syms));
+            }
+            if (clobber) {
+                /* There is no obvious way to deal with this case other than
+                 * just cloning `from` */
+                StealLevelInfo(intoLevel, fromLevel);
+            }
+            continue;
+        }
         else {
-            /* Level conflict */
+            /* Possible level conflict */
+            assert(intoLevel->num_syms > 0);
+            assert(fromLevel->num_syms == intoLevel->num_syms);
 
             /* Handle keysyms */
             if (!XkbLevelsSameSyms(fromLevel, intoLevel)) {
@@ -325,32 +349,16 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
                              (clobber ? "to" : "from"));
                 }
 
-                // FIXME augment
-
                 if (clobber) {
-                    /* Use `from` keysyms and actions */
-                    if (report && !XkbLevelHasNoAction(intoLevel)) {
-                        if (fromLevel->num_syms > 1) {
-                            log_warn(
-                                info->ctx, XKB_WARNING_CONFLICTING_KEY_ACTION,
-                                "Multiple actions for level %d/group %u "
-                                "on key %s; Using from, ignoring to\n",
-                                i + 1, group + 1,
-                                KeyNameText(info->ctx, key_name));
-                        } else {
-                            log_warn(
-                                info->ctx, XKB_WARNING_CONFLICTING_KEY_ACTION,
-                                "Multiple actions for level %d/group %u "
-                                "on key %s; Using %s, ignoring %s\n",
-                                i + 1, group + 1,
-                                KeyNameText(info->ctx, key_name),
-                                ActionTypeText(fromLevel->a.action.type),
-                                ActionTypeText(intoLevel->a.action.type));
-                        }
+                    /* Same count of keysyms: steal keysyms */
+                    // FIXME only if != NoSymbol??
+                    if (unlikely(intoLevel->num_syms > 1)) {
+                        /* Steal */
+                        free(intoLevel->s.syms);
+                        intoLevel->s.syms = steal(&fromLevel->s.syms);
+                    } else {
+                        intoLevel->s.sym = fromLevel->s.sym;
                     }
-                    StealLevelInfo(intoLevel, fromLevel);
-                    /* Actions already handled together with keysyms */
-                    continue;
                 }
             }
 
@@ -359,22 +367,17 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
                 /* It's empty for consistency with other comparisons */
             } else if (XkbLevelHasNoAction(intoLevel)) {
                 /* Take actions from `from` */
-                StealLevelInfo(intoLevel, fromLevel);
-            } else {
+                if (unlikely(fromLevel->num_syms > 1)) {
+                    /* Steal */
+                    free(intoLevel->a.actions);
+                    intoLevel->a.actions = steal(&fromLevel->a.actions);
+                } else {
+                    intoLevel->a.action = fromLevel->a.action;
+                }
+            } else if (!XkbLevelsSameActions(intoLevel, fromLevel)) {
                 /* Incompatible actions */
                 if (report) {
-                    if (intoLevel->num_syms != fromLevel->num_syms) {
-                        /* Incompatible keysyms/actions count */
-                        assert(!clobber);
-                        log_warn(
-                            info->ctx, XKB_WARNING_CONFLICTING_KEY_ACTION,
-                            "Multiple actions for level %d/group %u on key %s "
-                            "with incompatible count; "
-                            "Using into (%u), ignoring from (%u)\n",
-                            i + 1, group + 1, KeyNameText(info->ctx, key_name),
-                            intoLevel->num_syms, fromLevel->num_syms);
-                        continue;
-                    } else if (intoLevel->num_syms > 1) {
+                    if (unlikely(intoLevel->num_syms > 1)) {
                         log_warn(
                             info->ctx, XKB_WARNING_CONFLICTING_KEY_ACTION,
                             "Multiple actions for level %d/group %u on key %s; "
@@ -400,14 +403,32 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
                                  ActionTypeText(ignore->type));
                     }
                 }
-                if (clobber)
-                    StealLevelInfo(intoLevel, fromLevel);
+                if (clobber) {
+                    if (unlikely(fromLevel->num_syms > 1)) {
+                        /* Steal */
+                        // FIXME: only when empty actions?
+                        free(intoLevel->a.actions);
+                        intoLevel->a.actions = steal(&fromLevel->a.actions);
+                    } else {
+                        intoLevel->a.action = fromLevel->a.action;
+                    }
+                }
+            }
+
+            /* If we stole keysyms or actions, make sure to free both */
+            if (unlikely(fromLevel->num_syms > 1) &&
+                (!fromLevel->s.syms || !fromLevel->a.actions)) {
+                free(fromLevel->s.syms);
+                free(fromLevel->a.actions);
+                fromLevel->num_syms = 0;
             }
         }
     }
     /* If @from has extra levels, get them as well. */
     darray_foreach_from(level, from->levels, levels_in_both) {
         darray_append(into->levels, *level);
+        /* We may have stolen keysyms or actions arrays:
+         * do not free them in when clearing `from` */
         level->num_syms = 0;
     }
     into->defined |= (from->defined & GROUP_FIELD_ACTS);
