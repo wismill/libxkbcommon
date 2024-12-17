@@ -8,7 +8,7 @@ import argparse
 from dataclasses import dataclass
 from enum import IntFlag
 from pathlib import Path
-from typing import Any, ClassVar, Iterator, Self
+from typing import Any, ClassVar, Iterable, Iterator, Self
 
 import jinja2
 
@@ -110,8 +110,12 @@ class Level:
                 return "{" + ", ".join(map(str, xs)) + "}"
 
     @classmethod
-    def empty_symbols(cls, keysyms: tuple[Keysym, ...]) -> bool:
+    def has_empty_symbols(cls, keysyms: tuple[Keysym, ...]) -> bool:
         return all(ks == NoSymbol for ks in keysyms)
+
+    @property
+    def empty_symbols(self) -> bool:
+        return self.has_empty_symbols(self.keysyms)
 
     @property
     def keysyms_c(self) -> str:
@@ -122,8 +126,12 @@ class Level:
         return self._xkb(NoSymbol, self.keysyms)
 
     @classmethod
-    def empty_actions(cls, actions: tuple[Action, ...]) -> bool:
+    def has_empty_actions(cls, actions: tuple[Action, ...]) -> bool:
         return not any(actions)
+
+    @property
+    def empty_actions(self) -> bool:
+        return self.has_empty_actions(self.actions)
 
     @property
     def actions_xkb(self) -> str:
@@ -132,6 +140,14 @@ class Level:
     @classmethod
     def Keysyms(cls, *keysyms: str | None) -> Self:
         return cls(tuple(map(Keysym.parse, keysyms)), ())
+
+    @property
+    def target_group(self) -> int:
+        for a in self.actions:
+            if a.group > 1:
+                return a.group
+        else:
+            return 0
 
 
 @dataclass
@@ -144,9 +160,9 @@ class KeyEntry:
     @property
     def xkb(self) -> Iterator[str]:
         keysyms = tuple(l.keysyms for l in self.levels)
-        has_keysyms = not any(Level.empty_symbols(s) for s in keysyms)
+        has_keysyms = not any(Level.has_empty_symbols(s) for s in keysyms)
         actions = tuple(l.actions for l in self.levels)
-        has_actions = not any(Level.empty_actions(a) for a in actions)
+        has_actions = not any(Level.has_empty_actions(a) for a in actions)
         if has_keysyms or not has_actions:
             yield "symbols=["
             yield ", ".join(l.keysyms_xkb for l in self.levels)
@@ -169,6 +185,14 @@ class TestEntry:
     # TODO: replace
     symbols_file: ClassVar[str] = "merge_modes"
     test_file: ClassVar[str] = "merge_modes.h"
+    group_keysyms: ClassVar[tuple[tuple[str, str], ...]] = (
+        ("Greek_alpha", "Greek_ALPHA"),
+        ("schwa", "SCHWA"),
+    )
+
+    @classmethod
+    def alt_keysym(cls, group: int, level: int) -> str:
+        return cls.group_keysyms[group % 2][level % 2]
 
     @classmethod
     def write_symbols(
@@ -176,7 +200,7 @@ class TestEntry:
         root: Path,
         jinja_env: jinja2.Environment,
         tests: tuple[Self, ...],
-        groups: tuple[dict[str, tuple[str, str]], ...],
+        keycodes: Iterable[KeyCode],
     ) -> None:
         path = root / f"test/data/symbols/{cls.symbols_file}"
         template_path = path.with_suffix(f"{path.suffix}.jinja")
@@ -185,19 +209,15 @@ class TestEntry:
             fd.writelines(
                 template.generate(
                     symbols_file=cls.symbols_file,
+                    keycodes=keycodes,
                     tests_groups=tests,
-                    groups=groups,
                     script=SCRIPT.relative_to(root),
                 )
             )
 
     @classmethod
     def write_c_tests(
-        cls,
-        root: Path,
-        jinja_env: jinja2.Environment,
-        tests: tuple[Self, ...],
-        groups: tuple[dict[str, tuple[str, str]], ...],
+        cls, root: Path, jinja_env: jinja2.Environment, tests: tuple[Self, ...]
     ) -> None:
         path = root / f"test/{cls.test_file}"
         template_path = path.with_suffix(f"{path.suffix}.jinja")
@@ -207,7 +227,6 @@ class TestEntry:
                 template.generate(
                     symbols_file=cls.symbols_file,
                     tests_groups=tests,
-                    groups=groups,
                     script=SCRIPT.relative_to(root),
                 )
             )
@@ -473,86 +492,6 @@ TESTS = (TESTS_KEYSYMS_ONLY,)
 KEYCODES = sorted(
     frozenset(t.key for g in TESTS for t in g.tests), key=lambda x: x._xkb
 )
-GREEK: tuple[tuple[str, str], ...] = (
-    ("Greek_alpha", "Greek_ALPHA"),
-    ("Greek_beta", "Greek_BETA"),
-    ("Greek_gamma", "Greek_GAMMA"),
-    ("Greek_delta", "Greek_DELTA"),
-    ("Greek_epsilon", "Greek_EPSILON"),
-    ("Greek_zeta", "Greek_ZETA"),
-    ("Greek_eta", "Greek_ETA"),
-    ("Greek_theta", "Greek_THETA"),
-    ("Greek_iota", "Greek_IOTA"),
-    ("Greek_kappa", "Greek_KAPPA"),
-    ("Greek_lamda", "Greek_LAMDA"),
-    ("Greek_lambda", "Greek_LAMBDA"),
-    ("Greek_mu", "Greek_MU"),
-    ("Greek_nu", "Greek_NU"),
-    ("Greek_xi", "Greek_XI"),
-    ("Greek_omicron", "Greek_OMICRON"),
-    ("Greek_pi", "Greek_PI"),
-    ("Greek_rho", "Greek_RHO"),
-    ("Greek_sigma", "Greek_SIGMA"),
-    ("Greek_tau", "Greek_TAU"),
-    ("Greek_upsilon", "Greek_UPSILON"),
-    ("Greek_phi", "Greek_PHI"),
-    ("Greek_chi", "Greek_CHI"),
-    ("Greek_psi", "Greek_PSI"),
-    ("Greek_omega", "Greek_OMEGA"),
-    ("Greek_alphaaccent", "Greek_ALPHAaccent"),
-    ("Greek_epsilonaccent", "Greek_EPSILONaccent"),
-    ("Greek_etaaccent", "Greek_ETAaccent"),
-    ("Greek_iotaaccent", "Greek_IOTAaccent"),
-    ("Greek_iotadieresis", "Greek_IOTAdieresis"),
-    ("Greek_iotaaccentdieresis", "Greek_IOTAdiaeresis"),
-    ("Greek_omicronaccent", "Greek_OMICRONaccent"),
-    ("Greek_upsilonaccent", "Greek_UPSILONaccent"),
-    ("Greek_upsilondieresis", "Greek_UPSILONdieresis"),
-    ("Greek_omegaaccent", "Greek_OMEGAaccent"),
-)
-assert len(GREEK) >= len(KEYCODES)
-GROUP2: dict[KeyCode, tuple[str, str]] = dict(zip(KEYCODES, GREEK))
-BRAILLE = (
-    ("braille_blank", "braille_dots_36"),
-    ("braille_dots_1", "braille_dots_136"),
-    ("braille_dots_2", "braille_dots_236"),
-    ("braille_dots_12", "braille_dots_1236"),
-    ("braille_dots_3", "braille_dots_46"),
-    ("braille_dots_13", "braille_dots_146"),
-    ("braille_dots_23", "braille_dots_246"),
-    ("braille_dots_123", "braille_dots_1246"),
-    ("braille_dots_4", "braille_dots_346"),
-    ("braille_dots_14", "braille_dots_1346"),
-    ("braille_dots_24", "braille_dots_2346"),
-    ("braille_dots_124", "braille_dots_12346"),
-    ("braille_dots_34", "braille_dots_56"),
-    ("braille_dots_134", "braille_dots_156"),
-    ("braille_dots_234", "braille_dots_256"),
-    ("braille_dots_1234", "braille_dots_1256"),
-    ("braille_dots_5", "braille_dots_356"),
-    ("braille_dots_15", "braille_dots_1356"),
-    ("braille_dots_25", "braille_dots_2356"),
-    ("braille_dots_125", "braille_dots_12356"),
-    ("braille_dots_35", "braille_dots_456"),
-    ("braille_dots_135", "braille_dots_1456"),
-    ("braille_dots_235", "braille_dots_2456"),
-    ("braille_dots_1235", "braille_dots_12456"),
-    ("braille_dots_45", "braille_dots_3456"),
-    ("braille_dots_145", "braille_dots_13456"),
-    ("braille_dots_245", "braille_dots_23456"),
-    ("braille_dots_1245", "braille_dots_123456"),
-    ("braille_dots_345", "braille_dots_7"),
-    ("braille_dots_1345", "braille_dots_17"),
-    ("braille_dots_2345", "braille_dots_27"),
-    ("braille_dots_12345", "braille_dots_127"),
-    ("braille_dots_6", "braille_dots_37"),
-    ("braille_dots_16", "braille_dots_137"),
-    ("braille_dots_26", "braille_dots_237"),
-    ("braille_dots_126", "braille_dots_1237"),
-)
-assert len(BRAILLE) >= len(KEYCODES)
-GROUP3: dict[KeyCode, tuple[str, str]] = dict(zip(KEYCODES, BRAILLE))
-GROUPS = (GROUP2, GROUP3)
 
 if __name__ == "__main__":
     # Root of the project
@@ -575,9 +514,8 @@ if __name__ == "__main__":
         trim_blocks=True,
         lstrip_blocks=True,
     )
+    jinja_env.globals["alt_keysym"] = TestEntry.alt_keysym
     TestEntry.write_symbols(
-        root=args.root, jinja_env=jinja_env, tests=TESTS, groups=GROUPS
+        root=args.root, jinja_env=jinja_env, tests=TESTS, keycodes=KEYCODES
     )
-    TestEntry.write_c_tests(
-        root=args.root, jinja_env=jinja_env, tests=TESTS, groups=GROUPS
-    )
+    TestEntry.write_c_tests(root=args.root, jinja_env=jinja_env, tests=TESTS)
