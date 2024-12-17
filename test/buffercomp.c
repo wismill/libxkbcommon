@@ -28,6 +28,7 @@
 #include <stdlib.h>
 
 #include "test.h"
+#include "merge_modes.h"
 
 #define DATA_PATH "keymaps/stringcomp.data"
 
@@ -334,6 +335,7 @@ main(int argc, char *argv[])
 
     test_recursive(ctx);
     test_multi_keysyms_actions(ctx);
+    test_merge_modes(ctx);
 
     xkb_context_unref(ctx);
 

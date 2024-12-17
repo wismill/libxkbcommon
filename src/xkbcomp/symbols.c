@@ -322,8 +322,8 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
                          "Using %s (count: %u), ignoring %s (count: %u)\n",
                          i + 1, group + 1, KeyNameText(info->ctx, key_name),
                          (clobber ? "from" : "to"),
-                         (clobber ? "to" : "from"),
                          (clobber ? fromLevel->num_syms : intoLevel->num_syms),
+                         (clobber ? "to" : "from"),
                          (clobber ? intoLevel->num_syms : fromLevel->num_syms));
             }
             if (clobber) {
