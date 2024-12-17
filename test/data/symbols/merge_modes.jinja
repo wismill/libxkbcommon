@@ -12,3 +12,11 @@ xkb_symbols "{{ tests_group.name }}_new" {
 	{% endfor %}
 };
 {% endfor %}
+
+{% for g in groups %}
+xkb_symbols "group{{ loop.index + 1}}" {
+	{% for key, keysyms in g.items() %}
+	key {{ key.xkb }} { [{{ ", ".join(keysyms) }}] };
+	{% endfor %}
+}
+{% endfor %}
