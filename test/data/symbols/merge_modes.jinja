@@ -12,11 +12,11 @@ xkb_symbols "{{ tests_group.name }}_new" {
 	{% endfor %}
 };
 {% endfor %}
+{%- for g in range(2) %}
 
-{% for g in range(2) %}
-xkb_symbols "group{{ g + 1 }}" {
+xkb_symbols "group{{ g + 2 }}" {
 	{% for key in keycodes %}
 	key {{ key.xkb }} { [{{ alt_keysym(g, 0) }}, {{ alt_keysym(g, 1) }}] };
 	{% endfor %}
-}
+};
 {% endfor %}

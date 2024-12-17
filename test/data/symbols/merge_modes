@@ -72,8 +72,57 @@ xkb_symbols "keysyms_only_new" {
 	key <AE05> { symbols=[{c, d}, C] };
 	key <AE06> { symbols=[{c, d}, C] };
 };
+xkb_symbols "actions_only_base" {
+	key <AD01> { actions=[NoAction(), NoAction()] };
+	key <AD02> { actions=[NoAction(), NoAction()] };
+	key <AD03> { actions=[NoAction(), NoAction()] };
+	key <AD04> { actions=[NoAction(), NoAction()] };
+	key <AD05> { actions=[SetGroup(group=2), SetGroup(group=2)] };
+	key <AD06> { actions=[SetGroup(group=2), SetGroup(group=2)] };
+	key <AD07> { actions=[SetGroup(group=2), SetGroup(group=2)] };
+	key <AD08> { actions=[SetGroup(group=2), SetGroup(group=2)] };
+	key <AC01> { actions=[NoAction(), NoAction()] };
+	key <AC02> { actions=[NoAction(), NoAction()] };
+	key <AC03> { actions=[NoAction(), NoAction()] };
+	key <AC04> { actions=[NoAction(), NoAction()] };
+	key <AC05> { actions=[NoAction(), NoAction()] };
+	key <AC07> { actions=[SetGroup(group=2), SetGroup(group=2)] };
+	key <AC08> { actions=[SetGroup(group=2), SetGroup(group=2)] };
+	key <AC09> { actions=[SetGroup(group=2), SetGroup(group=2)] };
+	key <AC10> { actions=[SetGroup(group=2), SetGroup(group=2)] };
+	key <AC11> { actions=[SetGroup(group=2), SetGroup(group=2)] };
+	key <AB02> { actions=[{NoAction(), NoAction()}, {NoAction(), NoAction()}] };
+	key <AB04> { actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}] };
+	key <AE02> { actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}] };
+	key <AE03> { actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}] };
+};
 
-xkb_symbols "group1" {
+xkb_symbols "actions_only_new" {
+	key <AD01> { actions=[NoAction(), NoAction()] };
+	key <AD02> { actions=[SetGroup(group=3), NoAction()] };
+	key <AD03> { actions=[NoAction(), SetGroup(group=2)] };
+	key <AD04> { actions=[SetGroup(group=3), SetGroup(group=3)] };
+	key <AD05> { actions=[NoAction(), NoAction()] };
+	key <AD06> { actions=[SetGroup(group=3), NoAction()] };
+	key <AD07> { actions=[NoAction(), SetGroup(group=3)] };
+	key <AD08> { actions=[SetGroup(group=3), SetGroup(group=3)] };
+	key <AC01> { actions=[{SetGroup(group=3), NoAction()}, NoAction()] };
+	key <AC02> { actions=[{SetGroup(group=3), NoAction()}, {NoAction(), NoAction()}] };
+	key <AC03> { actions=[NoAction(), {SetGroup(group=3), NoAction()}] };
+	key <AC04> { actions=[{NoAction(), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	key <AC05> { actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	key <AC07> { actions=[{SetGroup(group=3), NoAction()}, NoAction()] };
+	key <AC08> { actions=[{SetGroup(group=3), NoAction()}, {NoAction(), NoAction()}] };
+	key <AC09> { actions=[NoAction(), {SetGroup(group=3), NoAction()}] };
+	key <AC10> { actions=[{NoAction(), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	key <AC11> { actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	key <AB02> { actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
+	key <AB04> { actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
+	key <AE02> { actions=[NoAction(), NoAction()] };
+	key <AE03> { actions=[SetGroup(group=3), SetGroup(group=3)] };
+};
+
+xkb_symbols "group2" {
 	key <AB01> { [Greek_alpha, Greek_ALPHA] };
 	key <AB02> { [Greek_alpha, Greek_ALPHA] };
 	key <AB03> { [Greek_alpha, Greek_ALPHA] };
@@ -108,8 +157,9 @@ xkb_symbols "group1" {
 	key <AE05> { [Greek_alpha, Greek_ALPHA] };
 	key <AE06> { [Greek_alpha, Greek_ALPHA] };
 	key <TLDE> { [Greek_alpha, Greek_ALPHA] };
-}
-xkb_symbols "group2" {
+};
+
+xkb_symbols "group3" {
 	key <AB01> { [schwa, SCHWA] };
 	key <AB02> { [schwa, SCHWA] };
 	key <AB03> { [schwa, SCHWA] };
@@ -144,4 +194,4 @@ xkb_symbols "group2" {
 	key <AE05> { [schwa, SCHWA] };
 	key <AE06> { [schwa, SCHWA] };
 	key <TLDE> { [schwa, SCHWA] };
-}
+};

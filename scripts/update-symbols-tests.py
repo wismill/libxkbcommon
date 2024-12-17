@@ -5,6 +5,7 @@ This script generate tests for symbols.
 """
 
 import argparse
+import itertools
 from dataclasses import dataclass
 from enum import IntFlag
 from pathlib import Path
@@ -78,10 +79,17 @@ class Action:
         if self.group > 0:
             return f"SetGroup(group={self.group})"
         else:
-            return "NoAction"
+            return "NoAction()"
 
     def __bool__(self) -> bool:
         return bool(self.group)
+
+    @classmethod
+    def parse(cls, raw: int | None) -> Self:
+        if not raw:
+            return cls(0)
+        else:
+            return cls(raw)
 
 
 @dataclass
@@ -119,6 +127,10 @@ class Level:
 
     @property
     def keysyms_c(self) -> str:
+        if not self.keysyms and self.actions:
+            return self._c(
+                NoSymbol.c, tuple(itertools.repeat(NoSymbol, len(self.actions)))
+            )
         return self._c(NoSymbol.c, self.keysyms)
 
     @property
@@ -135,11 +147,15 @@ class Level:
 
     @property
     def actions_xkb(self) -> str:
-        return self._xkb("NoAction", self.actions)
+        return self._xkb("NoAction()", self.actions)
 
     @classmethod
     def Keysyms(cls, *keysyms: str | None) -> Self:
         return cls(tuple(map(Keysym.parse, keysyms)), ())
+
+    @classmethod
+    def Actions(cls, *actions: int | None) -> Self:
+        return cls((), tuple(map(Action.parse, actions)))
 
     @property
     def target_group(self) -> int:
@@ -161,13 +177,14 @@ class KeyEntry:
     def xkb(self) -> Iterator[str]:
         keysyms = tuple(l.keysyms for l in self.levels)
         has_keysyms = not any(Level.has_empty_symbols(s) for s in keysyms)
+        no_keysyms = all(not s for s in keysyms)
         actions = tuple(l.actions for l in self.levels)
         has_actions = not any(Level.has_empty_actions(a) for a in actions)
-        if has_keysyms or not has_actions:
+        if has_keysyms or (not no_keysyms and not has_actions):
             yield "symbols=["
             yield ", ".join(l.keysyms_xkb for l in self.levels)
             yield "]"
-        if has_actions:
+        if has_actions or no_keysyms:
             if has_keysyms:
                 yield ", "
             yield "actions=["
@@ -191,8 +208,8 @@ class TestEntry:
     )
 
     @classmethod
-    def alt_keysym(cls, group: int, level: int) -> str:
-        return cls.group_keysyms[group % 2][level % 2]
+    def alt_keysym(cls, group: int, level: int) -> Keysym:
+        return Keysym(cls.group_keysyms[group % 2][level % 2])
 
     @classmethod
     def write_symbols(
@@ -487,7 +504,268 @@ TESTS_KEYSYMS_ONLY = TestGroup(
     ),
 )
 
-TESTS = (TESTS_KEYSYMS_ONLY,)
+TESTS_ACTIONS_ONLY = TestGroup(
+    "actions_only",
+    (
+        # Single keysyms -> single keysyms
+        TestEntry(
+            KeyCode("Q", "AD01"),
+            KeyEntry(Level.Actions(None), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(None), Level.Actions(None)),
+            augment=KeyEntry(Level.Actions(None), Level.Actions(None)),
+            override=KeyEntry(Level.Actions(None), Level.Actions(None)),
+        ),
+        TestEntry(
+            KeyCode("W", "AD02"),
+            KeyEntry(Level.Actions(None), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(3), Level.Actions(None)),
+            augment=KeyEntry(Level.Actions(3), Level.Actions(None)),
+            override=KeyEntry(Level.Actions(3), Level.Actions(None)),
+        ),
+        TestEntry(
+            KeyCode("E", "AD03"),
+            KeyEntry(Level.Actions(None), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(None), Level.Actions(2)),
+            augment=KeyEntry(Level.Actions(None), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(None), Level.Actions(2)),
+        ),
+        TestEntry(
+            KeyCode("R", "AD04"),
+            KeyEntry(Level.Actions(None), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(3), Level.Actions(3)),
+            augment=KeyEntry(Level.Actions(3), Level.Actions(3)),
+            override=KeyEntry(Level.Actions(3), Level.Actions(3)),
+        ),
+        TestEntry(
+            KeyCode("T", "AD05"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(None), Level.Actions(None)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(2), Level.Actions(2)),
+        ),
+        TestEntry(
+            KeyCode("Y", "AD06"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(3), Level.Actions(None)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(3), Level.Actions(2)),
+        ),
+        TestEntry(
+            KeyCode("U", "AD07"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(None), Level.Actions(3)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(2), Level.Actions(3)),
+        ),
+        TestEntry(
+            KeyCode("I", "AD08"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(3), Level.Actions(3)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(3), Level.Actions(3)),
+        ),
+        # Single keysyms -> multiple keysyms
+        TestEntry(
+            KeyCode("A", "AC01"),
+            KeyEntry(Level.Actions(None), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(3, None), Level.Actions(None)),
+            augment=KeyEntry(Level.Actions(3, None), Level.Actions(None)),
+            override=KeyEntry(Level.Actions(3, None), Level.Actions(None)),
+        ),
+        TestEntry(
+            KeyCode("S", "AC02"),
+            KeyEntry(Level.Actions(None), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(3, None), Level.Actions(None, None)),
+            augment=KeyEntry(Level.Actions(3, None), Level.Actions(None)),
+            override=KeyEntry(Level.Actions(3, None), Level.Actions(None)),
+        ),
+        TestEntry(
+            KeyCode("D", "AC03"),
+            KeyEntry(Level.Actions(None), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(None), Level.Actions(3, None)),
+            augment=KeyEntry(Level.Actions(None), Level.Actions(3, None)),
+            override=KeyEntry(Level.Actions(None), Level.Actions(3, None)),
+        ),
+        TestEntry(
+            KeyCode("F", "AC04"),
+            KeyEntry(Level.Actions(None), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(None, None), Level.Actions(3, None)),
+            augment=KeyEntry(Level.Actions(None), Level.Actions(3, None)),
+            override=KeyEntry(Level.Actions(None), Level.Actions(3, None)),
+        ),
+        TestEntry(
+            KeyCode("G", "AC05"),
+            KeyEntry(Level.Actions(None), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(3, None), Level.Actions(3, None)),
+            augment=KeyEntry(Level.Actions(3, None), Level.Actions(3, None)),
+            override=KeyEntry(Level.Actions(3, None), Level.Actions(3, None)),
+        ),
+        # TODO
+        # TestEntry(
+        #     KeyCode("H", "AC06"),
+        #     KeyEntry(Level.Actions(None), Level.Actions(None)),
+        #     update=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        #     augment=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        #     override=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        # ),
+        TestEntry(
+            KeyCode("J", "AC07"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(3, None), Level.Actions(None)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(3, None), Level.Actions(2)),
+        ),
+        TestEntry(
+            KeyCode("K", "AC08"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(3, None), Level.Actions(None, None)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(3, None), Level.Actions(2)),
+        ),
+        TestEntry(
+            KeyCode("L", "AC09"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(None), Level.Actions(3, None)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(2), Level.Actions(3, None)),
+        ),
+        TestEntry(
+            KeyCode("SEMICOLON", "AC10"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(None, None), Level.Actions(3, None)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(2), Level.Actions(3, None)),
+        ),
+        TestEntry(
+            KeyCode("APOSTROPHE", "AC11"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(3, None), Level.Actions(3, None)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(3, None), Level.Actions(3, None)),
+        ),
+        # TODO
+        # TestEntry(
+        #     KeyCode("BACKSLASH", "AC12"),
+        #     KeyEntry(Level.Actions(2), Level.Actions(2)),
+        #     update=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        #     augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
+        #     override=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        # ),
+        # Multiple keysyms -> multiple keysyms
+        # TODO
+        # TestEntry(
+        #     KeyCode("Z", "AB01"),
+        #     KeyEntry(Level.Actions(None, None), Level.Actions(None, None)),
+        #     update=KeyEntry(Level.Actions(None, None), Level.Actions("C", "D")),
+        #     augment=KeyEntry(Level.Actions(None, None), Level.Actions("C", "D")),
+        #     override=KeyEntry(Level.Actions(None, None), Level.Actions("C", "D")),
+        # ),
+        TestEntry(
+            KeyCode("X", "AB02"),
+            KeyEntry(Level.Actions(None, None), Level.Actions(None, None)),
+            update=KeyEntry(Level.Actions(3, None), Level.Actions(None, 3)),
+            augment=KeyEntry(Level.Actions(3, None), Level.Actions(None, 3)),
+            override=KeyEntry(Level.Actions(3, None), Level.Actions(None, 3)),
+        ),
+        # TODO
+        # TestEntry(
+        #     KeyCode("C", "AB03"),
+        #     KeyEntry(Level.Actions(None, None), Level.Actions("A", 2)),
+        #     update=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        #     augment=KeyEntry(Level.Actions("c", "d"), Level.Actions("A", 2)),
+        #     override=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        # ),
+        TestEntry(
+            KeyCode("V", "AB04"),
+            KeyEntry(Level.Actions(2, None), Level.Actions(None, 2)),
+            update=KeyEntry(Level.Actions(3, None), Level.Actions(None, 3)),
+            augment=KeyEntry(Level.Actions(2, None), Level.Actions(None, 2)),
+            override=KeyEntry(Level.Actions(3, None), Level.Actions(None, 3)),
+        ),
+        # TODO
+        # TestEntry(
+        #     KeyCode(2, "AB05"),
+        #     KeyEntry(Level.Actions("a", None), Level.Actions(None, 2)),
+        #     update=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        #     augment=KeyEntry(Level.Actions("a", "d"), Level.Actions("C", 2)),
+        #     override=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        # ),
+        # TODO
+        # TestEntry(
+        #     KeyCode("N", "AB06"),
+        #     KeyEntry(Level.Actions("a", 2), Level.Actions("A", 2)),
+        #     update=KeyEntry(Level.Actions(None, None), Level.Actions("C", "D")),
+        #     augment=KeyEntry(Level.Actions("a", 2), Level.Actions("A", 2)),
+        #     override=KeyEntry(Level.Actions("a", 2), Level.Actions("C", "D")),
+        # ),
+        # TODO
+        # TestEntry(
+        #     KeyCode("M", "AB07"),
+        #     KeyEntry(Level.Actions("a", 2), Level.Actions("A", 2)),
+        #     update=KeyEntry(Level.Actions("c", None), Level.Actions(None, "D")),
+        #     augment=KeyEntry(Level.Actions("a", 2), Level.Actions("A", 2)),
+        #     override=KeyEntry(Level.Actions("c", 2), Level.Actions("A", "D")),
+        # ),
+        # Multiple keysyms -> single keysyms
+        # TODO
+        # TestEntry(
+        #     KeyCode("GRAVE", "TLDE"),
+        #     KeyEntry(Level.Actions(None, None), Level.Actions("A", 2)),
+        #     update=KeyEntry(Level.Actions(None), Level.Actions(None)),
+        #     augment=KeyEntry(Level.Actions(None, None), Level.Actions("A", 2)),
+        #     override=KeyEntry(Level.Actions(None, None), Level.Actions("A", 2)),
+        # ),
+        # TODO
+        # TestEntry(
+        #     KeyCode("1", "AE01"),
+        #     KeyEntry(Level.Actions(None, None), Level.Actions("A", 2)),
+        #     update=KeyEntry(Level.Actions("c"), Level.Actions("C")),
+        #     augment=KeyEntry(Level.Actions("c"), Level.Actions("A", 2)),
+        #     override=KeyEntry(Level.Actions("c"), Level.Actions("C")),
+        # ),
+        TestEntry(
+            KeyCode("2", "AE02"),
+            KeyEntry(Level.Actions(2, None), Level.Actions(None, 2)),
+            update=KeyEntry(Level.Actions(None), Level.Actions(None)),
+            augment=KeyEntry(Level.Actions(2, None), Level.Actions(None, 2)),
+            override=KeyEntry(Level.Actions(2, None), Level.Actions(None, 2)),
+        ),
+        TestEntry(
+            KeyCode("3", "AE03"),
+            KeyEntry(Level.Actions(2, None), Level.Actions(None, 2)),
+            update=KeyEntry(Level.Actions(3), Level.Actions(3)),
+            augment=KeyEntry(Level.Actions(2, None), Level.Actions(None, 2)),
+            override=KeyEntry(Level.Actions(3), Level.Actions(3)),
+        ),
+        # Mix
+        # TODO
+        # TestEntry(
+        #     KeyCode("4", "AE04"),
+        #     KeyEntry(Level.Actions("a")),
+        #     update=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        #     augment=KeyEntry(Level.Actions("a"), Level.Actions("C", "D")),
+        #     override=KeyEntry(Level.Actions("c", "d"), Level.Actions("C", "D")),
+        # ),
+        # TODO
+        # TestEntry(
+        #     KeyCode("5", "AE05"),
+        #     KeyEntry(Level.Actions("a", 2)),
+        #     update=KeyEntry(Level.Actions("c", "d"), Level.Actions("C")),
+        #     augment=KeyEntry(Level.Actions("a", 2), Level.Actions("C")),
+        #     override=KeyEntry(Level.Actions("c", "d"), Level.Actions("C")),
+        # ),
+        # TODO
+        # TestEntry(
+        #     KeyCode("6", "AE06"),
+        #     KeyEntry(Level.Actions("a"), Level.Actions("A", 2)),
+        #     update=KeyEntry(Level.Actions("c", "d"), Level.Actions("C")),
+        #     augment=KeyEntry(Level.Actions("a"), Level.Actions("A", 2)),
+        #     override=KeyEntry(Level.Actions("c", "d"), Level.Actions("C")),
+        # ),
+    ),
+)
+
+TESTS = (TESTS_KEYSYMS_ONLY, TESTS_ACTIONS_ONLY)
 
 KEYCODES = sorted(
     frozenset(t.key for g in TESTS for t in g.tests), key=lambda x: x._xkb
