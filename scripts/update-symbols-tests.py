@@ -34,6 +34,13 @@ class Keysym(str):
     def c(self) -> str:
         return f"XKB_KEY_{self}"
 
+    @classmethod
+    def parse(cls, raw: str | None) -> Self:
+        if not raw:
+            return cls("NoSymbol")
+        else:
+            return cls(raw)
+
 
 NoSymbol = Keysym("NoSymbol")
 
@@ -108,11 +115,11 @@ class Level:
 
     @property
     def keysyms_c(self) -> str:
-        return self._c(Keysym("NoSymbol").c, self.keysyms)
+        return self._c(NoSymbol.c, self.keysyms)
 
     @property
     def keysyms_xkb(self) -> str:
-        return self._xkb("NoSymbol", self.keysyms)
+        return self._xkb(NoSymbol, self.keysyms)
 
     @classmethod
     def empty_actions(cls, actions: tuple[Action, ...]) -> bool:
@@ -207,171 +214,163 @@ KEYSYMS_cd = (Keysym("c"), Keysym("d"))
 KEYSYMS_CD = (Keysym("C"), Keysym("D"))
 KEYSYMS_None = (NoSymbol,)
 
-KEY_SIMPLE___ = KeyEntry(Level(KEYSYMS_None, ()), Level(KEYSYMS_None, ()))
-KEY_SIMPLE_aA = KeyEntry(Level(KEYSYMS_a, ()), Level(KEYSYMS_A, ()))
-KEY_SIMPLE_bB = KeyEntry(Level(KEYSYMS_b, ()), Level(KEYSYMS_B, ()))
-KEY_SIMPLE__B = KeyEntry(Level(KEYSYMS_None, ()), Level(KEYSYMS_B, ()))
-KEY_SIMPLE_b_ = KeyEntry(Level(KEYSYMS_b, ()), Level(KEYSYMS_None, ()))
-KEY_SIMPLE_bA = KeyEntry(Level(KEYSYMS_b, ()), Level(KEYSYMS_A, ()))
-KEY_SIMPLE_aB = KeyEntry(Level(KEYSYMS_a, ()), Level(KEYSYMS_B, ()))
 
-KEY_MULTIPLE_AB = KeyEntry(Level(KEYSYMS_ab, ()), Level(KEYSYMS_AB, ()))
-KEY_MULTIPLE_CD = KeyEntry(Level(KEYSYMS_cd, ()), Level(KEYSYMS_CD, ()))
-KEY_MULTIPLE_cCD = KeyEntry(Level(KEYSYMS_cd, ()), Level(KEYSYMS_CD, ()))
+def KeysymsLevel(*keysyms: str | None) -> Level:
+    return Level(tuple(map(Keysym.parse, keysyms)), ())
 
-KEY_MIXED_c__ = KeyEntry(Level(KEYSYMS_c_, ()), Level(KEYSYMS_None, ()))
-KEY_MIXED_c___ = KeyEntry(Level(KEYSYMS_c_, ()), Level(KEYSYMS___, ()))
-KEY_MIXED__C_ = KeyEntry(Level(KEYSYMS_None, ()), Level(KEYSYMS_C_, ()))
-KEY_MIXED___C_ = KeyEntry(Level(KEYSYMS___, ()), Level(KEYSYMS_C_, ()))
-KEY_MIXED_cC__ = KeyEntry(Level(KEYSYMS_c_, ()), Level(KEYSYMS_C_, ()))
-KEY_MIXED_cCdD = KeyEntry(Level(KEYSYMS_cd, ()), Level(KEYSYMS_CD, ()))
 
 TESTS = (
     # Single keysyms -> single keysyms
     TestEntry(
         KeyCode("Q", "AD01"),
-        KEY_SIMPLE___,
-        conflict=KEY_SIMPLE___,
-        augment=KEY_SIMPLE___,
-        override=KEY_SIMPLE___,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        augment=KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        override=KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
     ),
     TestEntry(
         KeyCode("W", "AD02"),
-        KEY_SIMPLE___,
-        conflict=KEY_SIMPLE_b_,
-        augment=KEY_SIMPLE_b_,
-        override=KEY_SIMPLE_b_,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel("b"), KeysymsLevel(None)),
+        augment=KeyEntry(KeysymsLevel("b"), KeysymsLevel(None)),
+        override=KeyEntry(KeysymsLevel("b"), KeysymsLevel(None)),
     ),
     TestEntry(
         KeyCode("E", "AD03"),
-        KEY_SIMPLE___,
-        conflict=KEY_SIMPLE__B,
-        augment=KEY_SIMPLE__B,
-        override=KEY_SIMPLE__B,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel(None), KeysymsLevel("B")),
+        augment=KeyEntry(KeysymsLevel(None), KeysymsLevel("B")),
+        override=KeyEntry(KeysymsLevel(None), KeysymsLevel("B")),
     ),
     TestEntry(
         KeyCode("R", "AD04"),
-        KEY_SIMPLE___,
-        conflict=KEY_SIMPLE_bB,
-        augment=KEY_SIMPLE_bB,
-        override=KEY_SIMPLE_bB,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel("b"), KeysymsLevel("B")),
+        augment=KeyEntry(KeysymsLevel("b"), KeysymsLevel("B")),
+        override=KeyEntry(KeysymsLevel("b"), KeysymsLevel("B")),
     ),
     TestEntry(
         KeyCode("T", "AD05"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_SIMPLE___,
-        augment=KEY_SIMPLE_aA,
-        override=KEY_SIMPLE_aA,
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
     ),
     TestEntry(
         KeyCode("Y", "AD06"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_SIMPLE_b_,
-        augment=KEY_SIMPLE_aA,
-        override=KEY_SIMPLE_bA,
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel("b"), KeysymsLevel(None)),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel("b"), KeysymsLevel("A")),
     ),
     TestEntry(
         KeyCode("U", "AD07"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_SIMPLE__B,
-        augment=KEY_SIMPLE_aA,
-        override=KEY_SIMPLE_aB,
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel(None), KeysymsLevel("B")),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel("a"), KeysymsLevel("B")),
     ),
     TestEntry(
         KeyCode("I", "AD08"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_SIMPLE_bB,
-        augment=KEY_SIMPLE_aA,
-        override=KEY_SIMPLE_bB,
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel("b"), KeysymsLevel("B")),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel("b"), KeysymsLevel("B")),
     ),
     # Single keysyms -> multiple keysyms
     TestEntry(
         KeyCode("A", "AC01"),
-        KEY_SIMPLE___,
-        conflict=KEY_MIXED_c__,
-        augment=KEY_MIXED_c__,
-        override=KEY_MIXED_c__,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel("c", None), KeysymsLevel(None)),
+        augment=KeyEntry(KeysymsLevel("c", None), KeysymsLevel(None)),
+        override=KeyEntry(KeysymsLevel("c", None), KeysymsLevel(None)),
     ),
     TestEntry(
         KeyCode("S", "AC02"),
-        KEY_SIMPLE___,
-        conflict=KEY_MIXED_c___,
-        augment=KEY_MIXED_c___,
-        override=KEY_MIXED_c___,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel("c", None), KeysymsLevel(None, None)),
+        augment=KeyEntry(KeysymsLevel("c", None), KeysymsLevel(None, None)),
+        override=KeyEntry(KeysymsLevel("c", None), KeysymsLevel(None, None)),
     ),
     TestEntry(
         KeyCode("D", "AC03"),
-        KEY_SIMPLE___,
-        conflict=KEY_MIXED__C_,
-        augment=KEY_MIXED__C_,
-        override=KEY_MIXED__C_,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel(None), KeysymsLevel("C", None)),
+        augment=KeyEntry(KeysymsLevel(None), KeysymsLevel("C", None)),
+        override=KeyEntry(KeysymsLevel(None), KeysymsLevel("C", None)),
     ),
     TestEntry(
         KeyCode("F", "AC04"),
-        KEY_SIMPLE___,
-        conflict=KEY_MIXED___C_,
-        augment=KEY_MIXED___C_,
-        override=KEY_MIXED___C_,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel(None, None), KeysymsLevel("C", None)),
+        augment=KeyEntry(KeysymsLevel(None, None), KeysymsLevel("C", None)),
+        override=KeyEntry(KeysymsLevel(None, None), KeysymsLevel("C", None)),
     ),
     TestEntry(
         KeyCode("G", "AC05"),
-        KEY_SIMPLE___,
-        conflict=KEY_MIXED_cC__,
-        augment=KEY_MIXED_cC__,
-        override=KEY_MIXED_cC__,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel("c", None), KeysymsLevel("C", None)),
+        augment=KeyEntry(KeysymsLevel("c", None), KeysymsLevel("C", None)),
+        override=KeyEntry(KeysymsLevel("c", None), KeysymsLevel("C", None)),
     ),
     TestEntry(
         KeyCode("H", "AC06"),
-        KEY_SIMPLE___,
-        conflict=KEY_MIXED_cCdD,
-        augment=KEY_MIXED_cCdD,
-        override=KEY_MIXED_cCdD,
+        KeyEntry(KeysymsLevel(None), KeysymsLevel(None)),
+        conflict=KeyEntry(KeysymsLevel("c", "d"), KeysymsLevel("C", "D")),
+        augment=KeyEntry(KeysymsLevel("c", "d"), KeysymsLevel("C", "D")),
+        override=KeyEntry(KeysymsLevel("c", "d"), KeysymsLevel("C", "D")),
     ),
     TestEntry(
         KeyCode("J", "AC07"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_MIXED_c__,
-        augment=KEY_SIMPLE_aA,
-        override=KeyEntry(Level(KEYSYMS_c_, ()), Level(KEYSYMS_A, ())),
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel("c", None), KeysymsLevel(None)),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel("c", None), KeysymsLevel("A")),
     ),
     TestEntry(
         KeyCode("K", "AC08"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_MIXED_c___,
-        augment=KEY_SIMPLE_aA,
-        override=KEY_MIXED_c___,
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel("c", None), KeysymsLevel(None, None)),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel("c", None), KeysymsLevel(None, None)),
     ),
     TestEntry(
         KeyCode("L", "AC09"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_MIXED__C_,
-        augment=KEY_SIMPLE_aA,
-        override=KeyEntry(Level(KEYSYMS_a, ()), Level(KEYSYMS_C_, ())),
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel(None), KeysymsLevel("C", None)),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel("a"), KeysymsLevel("C", "")),
     ),
     TestEntry(
         KeyCode("SEMICOLON", "AC10"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_MIXED___C_,
-        augment=KEY_SIMPLE_aA,
-        override=KEY_MIXED___C_,
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel(None, None), KeysymsLevel("C", None)),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel(None, None), KeysymsLevel("C", None)),
     ),
     TestEntry(
         KeyCode("APOSTROPHE", "AC11"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_MIXED_cC__,
-        augment=KEY_SIMPLE_aA,
-        override=KEY_MIXED_cC__,
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel("c", None), KeysymsLevel("C", None)),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel("c", None), KeysymsLevel("C", None)),
     ),
     TestEntry(
         KeyCode("BACKSLASH", "AC12"),
-        KEY_SIMPLE_aA,
-        conflict=KEY_MIXED_cCdD,
-        augment=KEY_SIMPLE_aA,
-        override=KEY_MIXED_cCdD,
+        KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        conflict=KeyEntry(KeysymsLevel("c", "d"), KeysymsLevel("C", "D")),
+        augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+        override=KeyEntry(KeysymsLevel("c", "d"), KeysymsLevel("C", "D")),
     ),
-    # Multiple keysyms -> single keysyms
-    # FIXME
     # Multiple keysyms -> multiple keysyms
+    # TestEntry(
+    #     KeyCode("Y", "AB01"),
+    #     KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+    #     conflict=KeyEntry(KeysymsLevel("c", "d"), KeysymsLevel("C", "D")),
+    #     augment=KeyEntry(KeysymsLevel("a"), KeysymsLevel("A")),
+    #     override=KeyEntry(KeysymsLevel("c", "d"), KeysymsLevel("C", "D")),
+    # ),
+    # Multiple keysyms -> single keysyms
     # FIXME
 )
 
