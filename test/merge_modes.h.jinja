@@ -5,21 +5,21 @@
 #include "src/utils.h"
 #include "test.h"
 
-{% macro make_test(type) -%}
-    const char keymap_{{ type }}[] =
+{% macro make_test(type, tests_group) -%}
+    const char keymap_{{ tests_group.name }}_{{ type }}[] =
         "xkb_keymap {\n"
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
         "  xkb_compat { include \"basic\" };\n"
-        "  xkb_symbols { include \"pc+{{symbols_file}}(base)
+        "  xkb_symbols { include \"pc+{{symbols_file}}({{ tests_group.name }}_base)
         {{- '|' if type == 'augment' else '+' -}}
-        {{symbols_file}}(new)\" };"
+        {{symbols_file}}({{ tests_group.name }}_new)\" };"
         "};";
-    fprintf(stderr, "*** test_merge_modes: {{ type }} ***\n");
-    keymap = test_compile_buffer(ctx, keymap_{{type}},
-                                 ARRAY_SIZE(keymap_{{type}}));
+    fprintf(stderr, "*** test_merge_modes: {{ tests_group.name }}, {{ type }} ***\n");
+    keymap = test_compile_buffer(ctx, keymap_{{ tests_group.name }}_{{type}},
+                                 ARRAY_SIZE(keymap_{{ tests_group.name }}_{{type}}));
     assert(test_key_seq(keymap,
-        {%- for entry in tests +%}
+        {%- for entry in tests_group.tests +%}
         {{ entry.key.c }}, BOTH, {{ entry[type].levels[0].keysyms_c }}, {%
             if entry[type].levels|length > 1 -%}
         NEXT,
@@ -37,9 +37,15 @@ test_merge_modes(struct xkb_context *ctx)
 {
     struct xkb_keymap *keymap;
 
+    {% for tests_group in tests_groups %}
+    /****************************************************************
+     * Test group: {{ tests_group.name }}
+     ****************************************************************/
+
     /* Mode: Augment */
-    {{ make_test("augment") }}
+    {{ make_test("augment", tests_group) }}
 
     /* Mode: Override */
-    {{ make_test("override") }}
+    {{ make_test("override", tests_group) }}
+    {% endfor %}
 }

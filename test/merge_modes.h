@@ -11,17 +11,21 @@ test_merge_modes(struct xkb_context *ctx)
 {
     struct xkb_keymap *keymap;
 
+    /****************************************************************
+     * Test group: keysyms_only
+     ****************************************************************/
+
     /* Mode: Augment */
-    const char keymap_augment[] =
+    const char keymap_keysyms_only_augment[] =
         "xkb_keymap {\n"
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
         "  xkb_compat { include \"basic\" };\n"
-        "  xkb_symbols { include \"pc+merge_modes(base)|merge_modes(new)\" };"
+        "  xkb_symbols { include \"pc+merge_modes(keysyms_only_base)|merge_modes(keysyms_only_new)\" };"
         "};";
-    fprintf(stderr, "*** test_merge_modes: augment ***\n");
-    keymap = test_compile_buffer(ctx, keymap_augment,
-                                 ARRAY_SIZE(keymap_augment));
+    fprintf(stderr, "*** test_merge_modes: keysyms_only, augment ***\n");
+    keymap = test_compile_buffer(ctx, keymap_keysyms_only_augment,
+                                 ARRAY_SIZE(keymap_keysyms_only_augment));
     assert(test_key_seq(keymap,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
@@ -163,16 +167,16 @@ test_merge_modes(struct xkb_context *ctx)
     xkb_keymap_unref(keymap);
 
     /* Mode: Override */
-    const char keymap_override[] =
+    const char keymap_keysyms_only_override[] =
         "xkb_keymap {\n"
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
         "  xkb_compat { include \"basic\" };\n"
-        "  xkb_symbols { include \"pc+merge_modes(base)+merge_modes(new)\" };"
+        "  xkb_symbols { include \"pc+merge_modes(keysyms_only_base)+merge_modes(keysyms_only_new)\" };"
         "};";
-    fprintf(stderr, "*** test_merge_modes: override ***\n");
-    keymap = test_compile_buffer(ctx, keymap_override,
-                                 ARRAY_SIZE(keymap_override));
+    fprintf(stderr, "*** test_merge_modes: keysyms_only, override ***\n");
+    keymap = test_compile_buffer(ctx, keymap_keysyms_only_override,
+                                 ARRAY_SIZE(keymap_keysyms_only_override));
     assert(test_key_seq(keymap,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
