@@ -5,6 +5,7 @@ This script generate tests for symbols.
 """
 
 import argparse
+import dataclasses
 import itertools
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
@@ -83,6 +84,9 @@ class Action(metaclass=ABCMeta):
         else:
             raise ValueError(raw)
 
+    @abstractmethod
+    def action_to_keysym(self, index: int, level: int) -> Keysym: ...
+
 
 @dataclass
 class GroupAction(Action):
@@ -91,6 +95,16 @@ class GroupAction(Action):
     """
 
     group: int
+    keysyms: ClassVar[dict[tuple[int, int, int], Keysym]] = {
+        (2, 0, 0): Keysym("a"),
+        (2, 0, 1): Keysym("A"),
+        (2, 1, 0): Keysym("b"),
+        (2, 1, 1): Keysym("B"),
+        (3, 0, 0): Keysym("c"),
+        (3, 0, 1): Keysym("C"),
+        (3, 1, 0): Keysym("d"),
+        (3, 1, 1): Keysym("D"),
+    }
 
     def __str__(self) -> str:
         if self.group > 0:
@@ -108,6 +122,16 @@ class GroupAction(Action):
         else:
             return cls(raw)
 
+    def action_to_keysym(self, index: int, level: int) -> Keysym:
+        if not self.group:
+            return NoSymbol
+        else:
+            if (
+                keysym := self.keysyms.get((self.group % 4, index % 2, level % 2))
+            ) is None:
+                raise ValueError((self, index, level))
+            return keysym
+
 
 @dataclass
 class ModAction(Action):
@@ -116,6 +140,16 @@ class ModAction(Action):
     """
 
     mods: Modifier
+    keysyms: ClassVar[dict[tuple[Modifier, int, int], Keysym]] = {
+        (Modifier.Control, 0, 0): Keysym("e"),
+        (Modifier.Control, 0, 1): Keysym("E"),
+        (Modifier.Control, 1, 0): Keysym("f"),
+        (Modifier.Control, 1, 1): Keysym("F"),
+        (Modifier.Mod5, 0, 0): Keysym("g"),
+        (Modifier.Mod5, 0, 1): Keysym("G"),
+        (Modifier.Mod5, 1, 0): Keysym("h"),
+        (Modifier.Mod5, 1, 1): Keysym("H"),
+    }
 
     def __str__(self) -> str:
         if self.mods is Modifier.NoModifier:
@@ -132,6 +166,14 @@ class ModAction(Action):
             return cls(Modifier.NoModifier)
         else:
             return cls(raw)
+
+    def action_to_keysym(self, index: int, level: int) -> Keysym:
+        if self.mods is Modifier.NoModifier:
+            return NoSymbol
+        else:
+            if (keysym := self.keysyms.get((self.mods, index % 2, level % 2))) is None:
+                raise ValueError((self, index, level))
+            return keysym
 
 
 @dataclass
@@ -199,6 +241,14 @@ class Level:
     def Actions(cls, *actions: int | Modifier | None) -> Self:
         return cls((), tuple(map(Action.parse, actions)))
 
+    def add_keysyms(self, level: int) -> Self:
+        return self.__class__(
+            keysyms=tuple(
+                a.action_to_keysym(k, level) for k, a in enumerate(self.actions)
+            ),
+            actions=self.actions,
+        )
+
     @property
     def target_group(self) -> int:
         for a in self.actions:
@@ -230,10 +280,10 @@ class KeyEntry:
     @property
     def xkb(self) -> Iterator[str]:
         keysyms = tuple(l.keysyms for l in self.levels)
-        has_keysyms = not any(Level.has_empty_symbols(s) for s in keysyms)
+        has_keysyms = any(not Level.has_empty_symbols(s) for s in keysyms)
         no_keysyms = all(not s for s in keysyms)
         actions = tuple(l.actions for l in self.levels)
-        has_actions = not any(Level.has_empty_actions(a) for a in actions)
+        has_actions = any(not Level.has_empty_actions(a) for a in actions)
         if has_keysyms or (not no_keysyms and not has_actions):
             yield "symbols=["
             yield ", ".join(l.keysyms_xkb for l in self.levels)
@@ -244,6 +294,9 @@ class KeyEntry:
             yield "actions=["
             yield ", ".join(l.actions_xkb for l in self.levels)
             yield "]"
+
+    def add_keysyms(self) -> Self:
+        return self.__class__(*(l.add_keysyms(k) for k, l in enumerate(self.levels)))
 
 
 @dataclass
@@ -260,6 +313,15 @@ class TestEntry:
         ("Greek_alpha", "Greek_ALPHA", "Greek_alphaaccent", "Greek_ALPHAaccent"),
         ("schwa", "SCHWA", "dead_schwa", "dead_SCHWA"),
     )
+
+    def add_keysyms(self) -> Self:
+        return dataclasses.replace(
+            self,
+            base=self.base.add_keysyms(),
+            update=self.update.add_keysyms(),
+            augment=self.augment.add_keysyms(),
+            override=self.override.add_keysyms(),
+        )
 
     @classmethod
     def alt_keysym(cls, group: int, level: int) -> Keysym:
@@ -579,9 +641,9 @@ TESTS_ACTIONS_ONLY = TestGroup(
         TestEntry(
             KeyCode("E", "AD03"),
             KeyEntry(Level.Actions(None), Level.Actions(None)),
-            update=KeyEntry(Level.Actions(None), Level.Actions(2)),
-            augment=KeyEntry(Level.Actions(None), Level.Actions(2)),
-            override=KeyEntry(Level.Actions(None), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(None), Level.Actions(3)),
+            augment=KeyEntry(Level.Actions(None), Level.Actions(3)),
+            override=KeyEntry(Level.Actions(None), Level.Actions(3)),
         ),
         TestEntry(
             KeyCode("R", "AD04"),
@@ -871,7 +933,14 @@ TESTS_ACTIONS_ONLY = TestGroup(
     ),
 )
 
-TESTS = (TESTS_KEYSYMS_ONLY, TESTS_ACTIONS_ONLY)
+
+# Create a mix
+TESTS_KEYSYMS_AND_ACTIONS = TestGroup(
+    "keysyms_and_actions",
+    tuple(t.add_keysyms() for t in TESTS_ACTIONS_ONLY.tests),
+)
+
+TESTS = (TESTS_KEYSYMS_ONLY, TESTS_ACTIONS_ONLY, TESTS_KEYSYMS_AND_ACTIONS)
 
 KEYCODES = sorted(
     frozenset(t.key for g in TESTS for t in g.tests), key=lambda x: x._xkb
