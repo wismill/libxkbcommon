@@ -250,23 +250,11 @@ KeyInfoText(SymbolsInfo *info, KeyInfo *keyi)
 }
 
 static bool
-MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from,
-            enum merge_mode merge, bool report, xkb_layout_index_t group,
-            xkb_atom_t key_name)
+MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
+            bool report, xkb_layout_index_t group, xkb_atom_t key_name)
 {
     xkb_level_index_t i, levels_in_both;
     struct xkb_level *level;
-
-    fprintf(stderr, "~~~ MergeGroups: merge %s (%d)\n", KeyNameText(info->ctx, key_name), merge);
-    if (merge == MERGE_REPLACE) {
-        fprintf(stderr, "~~~ MergeGroups: replace %s\n", KeyNameText(info->ctx, key_name));
-        ClearGroupInfo(into);
-        *into = *from;
-        InitGroupInfo(from);
-        return true;
-    }
-
-    const bool clobber = (merge != MERGE_AUGMENT);
 
     /* First find the type of the merged group. */
     if (into->type != from->type) {
@@ -489,11 +477,9 @@ MergeKeys(SymbolsInfo *info, KeyInfo *into, KeyInfo *from, bool same_file)
     const bool report = (same_file && verbosity > 0) || verbosity > 9;
 
     if (from->merge == MERGE_REPLACE) {
-        fprintf(stderr, "### MergeKeys: replace %s\n", KeyNameText(info->ctx, into->name));
         ClearKeyInfo(into);
         *into = *from;
         InitKeyInfo(info->ctx, from);
-        fprintf(stderr, "### MergeKeys: merge mode: %d\n", into->merge);
         return true;
     }
 
@@ -502,7 +488,7 @@ MergeKeys(SymbolsInfo *info, KeyInfo *into, KeyInfo *from, bool same_file)
         MergeGroups(info,
                     &darray_item(into->groups, i),
                     &darray_item(from->groups, i),
-                    from->merge, report, i, into->name);
+                    clobber, report, i, into->name);
     /* If @from has extra groups, just move them to @into. */
     for (i = groups_in_both; i < darray_size(from->groups); i++) {
         darray_append(into->groups, darray_item(from->groups, i));
@@ -560,10 +546,6 @@ AddKeySymbols(SymbolsInfo *info, KeyInfo *keyi, bool same_file)
     real_name = XkbResolveKeyAlias(info->keymap, keyi->name);
     if (real_name != XKB_ATOM_NONE)
         keyi->name = real_name;
-
-    if (keyi->merge == MERGE_REPLACE) {
-        fprintf(stderr, "### AddKeySymbols: replace %s\n", KeyNameText(info->ctx, keyi->name));
-    }
 
     darray_foreach(iter, info->keys)
         if (iter->name == keyi->name)
@@ -659,9 +641,7 @@ MergeIncludedSymbols(SymbolsInfo *into, SymbolsInfo *from,
     else {
         KeyInfo *keyi;
         darray_foreach(keyi, from->keys) {
-            // FIXME: check this
-            // keyi->merge = (merge == MERGE_DEFAULT ? keyi->merge : merge);
-            keyi->merge = (keyi->merge == MERGE_DEFAULT ? merge : keyi->merge);
+            keyi->merge = (merge == MERGE_DEFAULT ? keyi->merge : merge);
             if (!AddKeySymbols(into, keyi, false))
                 into->errorCount++;
         }
