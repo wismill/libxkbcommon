@@ -302,16 +302,22 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
         struct xkb_level *intoLevel = &darray_item(into->levels, i);
         struct xkb_level *fromLevel = &darray_item(from->levels, i);
 
-        if (XkbLevelHasNoKeysym(fromLevel) && XkbLevelHasNoAction(fromLevel)) {
+        const bool fromHasNoKeysym = XkbLevelHasNoKeysym(fromLevel);
+        const bool fromHasNoAction = XkbLevelHasNoAction(fromLevel);
+        if (fromHasNoKeysym && fromHasNoAction) {
             /* Empty `from`: do nothing */
             continue;
         }
-        else if (XkbLevelHasNoKeysym(intoLevel) && XkbLevelHasNoAction(intoLevel)) {
+
+        const bool intoHasNoKeysym = XkbLevelHasNoKeysym(intoLevel);
+        const bool intoHasNoAction = XkbLevelHasNoAction(intoLevel);
+        if (intoHasNoKeysym && intoHasNoAction) {
             /* Empty `into`: use `from` keysyms and actions */
             StealLevelInfo(intoLevel, fromLevel);
             continue;
         }
-        else if (intoLevel->num_syms != fromLevel->num_syms) {
+
+        if (intoLevel->num_syms != fromLevel->num_syms) {
             /* Handle different keysyms/actions count */
             assert(intoLevel->num_syms > 0);
             assert(fromLevel->num_syms > 0);
@@ -340,7 +346,8 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
 
             /* Handle keysyms */
             if (!XkbLevelsSameSyms(fromLevel, intoLevel)) {
-                if (report) {
+                /* Incompatible keysyms */
+                if (report && !(intoHasNoKeysym || fromHasNoKeysym)) {
                     log_warn(info->ctx, XKB_WARNING_CONFLICTING_KEY_SYMBOL,
                              "Multiple symbols for level %d/group %u on key %s; "
                              "Using %s, ignoring %s\n",
@@ -350,44 +357,33 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
                 }
 
                 if (clobber) {
+                    /* Override: copy any defined keysym from `from` */
                     if (unlikely(intoLevel->num_syms > 1)) {
-                        /* Steal
-                         * First copy the keysyms from `into` that are undefined
-                         * in `from` */
                         for (unsigned int k = 0; k < fromLevel->num_syms; k++) {
-                            if (fromLevel->s.syms[k] == XKB_KEY_NoSymbol)
-                                fromLevel->s.syms[k] = intoLevel->s.syms[k];
+                            if (fromLevel->s.syms[k] != XKB_KEY_NoSymbol)
+                                intoLevel->s.syms[k] = fromLevel->s.syms[k];
                         }
-                        free(intoLevel->s.syms);
-                        intoLevel->s.syms = steal(&fromLevel->s.syms);
-                    } else {
+                    } else if (fromLevel->s.sym != XKB_KEY_NoSymbol) {
                         intoLevel->s.sym = fromLevel->s.sym;
                     }
-                } else if (unlikely(intoLevel->num_syms > 1)) {
-                    /* Copy only the keysyms from `from` that are undefined
-                     * in `into` */
-                    for (unsigned int k = 0; k < intoLevel->num_syms; k++) {
-                        if (intoLevel->s.syms[k] == XKB_KEY_NoSymbol)
-                            intoLevel->s.syms[k] = fromLevel->s.syms[k];
+                } else {
+                    /* Augment: copy only the keysyms from `from` that are
+                     * undefined in `into` */
+                    if (unlikely(intoLevel->num_syms > 1)) {
+                        for (unsigned int k = 0; k < intoLevel->num_syms; k++) {
+                            if (intoLevel->s.syms[k] == XKB_KEY_NoSymbol)
+                                intoLevel->s.syms[k] = fromLevel->s.syms[k];
+                        }
+                    } else if (intoLevel->s.sym == XKB_KEY_NoSymbol) {
+                        intoLevel->s.sym = fromLevel->s.sym;
                     }
                 }
             }
 
             /* Handle actions */
-            if (XkbLevelHasNoAction(fromLevel)) {
-                /* It's empty for consistency with other comparisons */
-            } else if (XkbLevelHasNoAction(intoLevel)) {
-                /* Take actions from `from` */
-                if (unlikely(fromLevel->num_syms > 1)) {
-                    /* Steal */
-                    free(intoLevel->a.actions);
-                    intoLevel->a.actions = steal(&fromLevel->a.actions);
-                } else {
-                    intoLevel->a.action = fromLevel->a.action;
-                }
-            } else if (!XkbLevelsSameActions(intoLevel, fromLevel)) {
+            if (!XkbLevelsSameActions(intoLevel, fromLevel)) {
                 /* Incompatible actions */
-                if (report) {
+                if (report && !(intoHasNoAction || fromHasNoAction)) {
                     if (unlikely(intoLevel->num_syms > 1)) {
                         log_warn(
                             info->ctx, XKB_WARNING_CONFLICTING_KEY_ACTION,
@@ -415,37 +411,27 @@ MergeGroups(SymbolsInfo *info, GroupInfo *into, GroupInfo *from, bool clobber,
                     }
                 }
                 if (clobber) {
+                    /* Override: copy any defined action from `from` */
                     if (unlikely(fromLevel->num_syms > 1)) {
-                        /* Steal
-                         * First copy the actions from `into` that are undefined
-                         * in `from` */
-                        // FIXME: check action copy
                         for (unsigned int k = 0; k < fromLevel->num_syms; k++) {
-                            if (fromLevel->a.actions[k].type == ACTION_TYPE_NONE)
-                                fromLevel->a.actions[k] = intoLevel->a.actions[k];
+                            if (fromLevel->a.actions[k].type != ACTION_TYPE_NONE)
+                                intoLevel->a.actions[k] = fromLevel->a.actions[k];
                         }
-                        free(intoLevel->a.actions);
-                        intoLevel->a.actions = steal(&fromLevel->a.actions);
-                    } else {
+                    } else if (fromLevel->a.action.type != ACTION_TYPE_NONE) {
                         intoLevel->a.action = fromLevel->a.action;
                     }
-                } else if (unlikely(intoLevel->num_syms > 1)) {
-                    /* Copy only the actions from `from` that are undefined
-                     * in `into` */
-                    // FIXME: check action copy
-                    for (unsigned int k = 0; k < intoLevel->num_syms; k++) {
-                        if (intoLevel->a.actions[k].type == ACTION_TYPE_NONE)
-                            intoLevel->a.actions[k] = fromLevel->a.actions[k];
+                } else {
+                    /* Augment: copy only the actions from `from` that are
+                     * undefined in `into` */
+                    if (unlikely(intoLevel->num_syms > 1)) {
+                        for (unsigned int k = 0; k < intoLevel->num_syms; k++) {
+                            if (intoLevel->a.actions[k].type == ACTION_TYPE_NONE)
+                                intoLevel->a.actions[k] = fromLevel->a.actions[k];
+                        }
+                    } else if (intoLevel->a.action.type == ACTION_TYPE_NONE) {
+                        intoLevel->a.action = fromLevel->a.action;
                     }
                 }
-            }
-
-            /* If we stole keysyms or actions, make sure to free both */
-            if (unlikely(fromLevel->num_syms > 1) &&
-                (!fromLevel->s.syms || !fromLevel->a.actions)) {
-                free(fromLevel->s.syms);
-                free(fromLevel->a.actions);
-                fromLevel->num_syms = 0;
             }
         }
     }

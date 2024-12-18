@@ -315,6 +315,7 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, FINISH
     ));
     xkb_keymap_unref(keymap);
+
     /****************************************************************
      * Test group: actions_only
      ****************************************************************/
