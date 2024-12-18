@@ -934,13 +934,42 @@ TESTS_ACTIONS_ONLY = TestGroup(
 )
 
 
-# Create a mix
-TESTS_KEYSYMS_AND_ACTIONS = TestGroup(
-    "keysyms_and_actions",
+# Create a mix keysyms/actions
+TESTS_KEYSYMS_AND_ACTIONS1 = TestGroup(
+    "keysyms_and_actions_auto",
     tuple(t.add_keysyms() for t in TESTS_ACTIONS_ONLY.tests),
 )
+TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
+    "keysyms_and_actions_extras",
+    (
+        # TODO: further mixes between actions and keysyms
+        # TestEntry(
+        #     KeyCode("GRAVE", "TLDE"),
+        #     KeyEntry(Level.Actions(None, None), Level.Actions(2, Modifier.Control)),
+        #     update=KeyEntry(Level.Actions(None), Level.Actions(None)),
+        #     augment=KeyEntry(
+        #         Level.Actions(None, None), Level.Actions(2, Modifier.Control)
+        #     ),
+        #     override=KeyEntry(
+        #         Level.Actions(None, None), Level.Actions(2, Modifier.Control)
+        #     ),
+        # ),
+        # TestEntry(
+        #     KeyCode("1", "AE01"),
+        #     KeyEntry(Level.Actions(None, None), Level.Actions(2, Modifier.Control)),
+        #     update=KeyEntry(Level.Actions(3), Level.Actions(3)),
+        #     augment=KeyEntry(Level.Actions(3), Level.Actions(2, Modifier.Control)),
+        #     override=KeyEntry(Level.Actions(3), Level.Actions(3)),
+        # ),
+    ),
+)
 
-TESTS = (TESTS_KEYSYMS_ONLY, TESTS_ACTIONS_ONLY, TESTS_KEYSYMS_AND_ACTIONS)
+TESTS = (
+    TESTS_KEYSYMS_ONLY,
+    TESTS_ACTIONS_ONLY,
+    TESTS_KEYSYMS_AND_ACTIONS1,
+    TESTS_KEYSYMS_AND_ACTIONS2,
+)
 
 KEYCODES = sorted(
     frozenset(t.key for g in TESTS for t in g.tests), key=lambda x: x._xkb
