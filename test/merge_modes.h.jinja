@@ -23,10 +23,15 @@
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
         "  xkb_compat { include \"complete\" };\n"
-        "  xkb_symbols { include \"pc+{{symbols_file}}({{ tests_group.name }}_base)
-        {{- '|' if type == 'augment' else '+' -}}
-        {{symbols_file}}({{ tests_group.name }}_new)+
-        {{-symbols_file}}(group2):2+{{symbols_file}}(group3):3\" };"
+        "  xkb_symbols {\n"
+        // NOTE: Separate statements so that *all* the merge modes *really* work.
+        //       Using + and | separators downgrades `replace key` to `override/
+        //       augment key`.
+        "    include \"pc\"\n"
+        "    include \"{{symbols_file}}({{ tests_group.name }}_base)\"\n"
+        "    {{ type }} \"{{symbols_file}}({{ tests_group.name }}_new)\"\n"
+        "    include \"{{-symbols_file}}(group2):2+{{symbols_file}}(group3):3\"\n"
+        "  };\n"
         "};";
     fprintf(stderr, "*** test_merge_modes: {{ tests_group.name }}, {{ type }} ***\n");
     keymap = test_compile_buffer(ctx, keymap_{{ tests_group.name }}_{{type}},

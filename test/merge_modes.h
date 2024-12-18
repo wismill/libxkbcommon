@@ -20,7 +20,15 @@ test_merge_modes(struct xkb_context *ctx)
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
         "  xkb_compat { include \"complete\" };\n"
-        "  xkb_symbols { include \"pc+merge_modes(keysyms_only_base)|merge_modes(keysyms_only_new)+merge_modes(group2):2+merge_modes(group3):3\" };"
+        "  xkb_symbols {\n"
+        // NOTE: Separate statements so that *all* the merge modes *really* work.
+        //       Using + and | separators downgrades `replace key` to `override/
+        //       augment key`.
+        "    include \"pc\"\n"
+        "    include \"merge_modes(keysyms_only_base)\"\n"
+        "    augment \"merge_modes(keysyms_only_new)\"\n"
+        "    include \"merge_modes(group2):2+merge_modes(group3):3\"\n"
+        "  };\n"
         "};";
     fprintf(stderr, "*** test_merge_modes: keysyms_only, augment ***\n");
     keymap = test_compile_buffer(ctx, keymap_keysyms_only_augment,
@@ -171,7 +179,15 @@ test_merge_modes(struct xkb_context *ctx)
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
         "  xkb_compat { include \"complete\" };\n"
-        "  xkb_symbols { include \"pc+merge_modes(keysyms_only_base)+merge_modes(keysyms_only_new)+merge_modes(group2):2+merge_modes(group3):3\" };"
+        "  xkb_symbols {\n"
+        // NOTE: Separate statements so that *all* the merge modes *really* work.
+        //       Using + and | separators downgrades `replace key` to `override/
+        //       augment key`.
+        "    include \"pc\"\n"
+        "    include \"merge_modes(keysyms_only_base)\"\n"
+        "    override \"merge_modes(keysyms_only_new)\"\n"
+        "    include \"merge_modes(group2):2+merge_modes(group3):3\"\n"
+        "  };\n"
         "};";
     fprintf(stderr, "*** test_merge_modes: keysyms_only, override ***\n");
     keymap = test_compile_buffer(ctx, keymap_keysyms_only_override,
@@ -326,7 +342,15 @@ test_merge_modes(struct xkb_context *ctx)
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
         "  xkb_compat { include \"complete\" };\n"
-        "  xkb_symbols { include \"pc+merge_modes(actions_only_base)|merge_modes(actions_only_new)+merge_modes(group2):2+merge_modes(group3):3\" };"
+        "  xkb_symbols {\n"
+        // NOTE: Separate statements so that *all* the merge modes *really* work.
+        //       Using + and | separators downgrades `replace key` to `override/
+        //       augment key`.
+        "    include \"pc\"\n"
+        "    include \"merge_modes(actions_only_base)\"\n"
+        "    augment \"merge_modes(actions_only_new)\"\n"
+        "    include \"merge_modes(group2):2+merge_modes(group3):3\"\n"
+        "  };\n"
         "};";
     fprintf(stderr, "*** test_merge_modes: actions_only, augment ***\n");
     keymap = test_compile_buffer(ctx, keymap_actions_only_augment,
@@ -535,7 +559,15 @@ test_merge_modes(struct xkb_context *ctx)
         "  xkb_keycodes { include \"evdev\" };\n"
         "  xkb_types { include \"complete\" };\n"
         "  xkb_compat { include \"complete\" };\n"
-        "  xkb_symbols { include \"pc+merge_modes(actions_only_base)+merge_modes(actions_only_new)+merge_modes(group2):2+merge_modes(group3):3\" };"
+        "  xkb_symbols {\n"
+        // NOTE: Separate statements so that *all* the merge modes *really* work.
+        //       Using + and | separators downgrades `replace key` to `override/
+        //       augment key`.
+        "    include \"pc\"\n"
+        "    include \"merge_modes(actions_only_base)\"\n"
+        "    override \"merge_modes(actions_only_new)\"\n"
+        "    include \"merge_modes(group2):2+merge_modes(group3):3\"\n"
+        "  };\n"
         "};";
     fprintf(stderr, "*** test_merge_modes: actions_only, override ***\n");
     keymap = test_compile_buffer(ctx, keymap_actions_only_override,
