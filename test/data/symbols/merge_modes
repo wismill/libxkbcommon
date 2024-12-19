@@ -24,55 +24,191 @@ xkb_symbols "keysyms_only_base" {
 	key <AC12> { symbols=[a, A] };
 	key <AB01> { symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}] };
 	key <AB02> { symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}] };
-	key <AB03> { symbols=[{NoSymbol, NoSymbol}, {A, B}] };
+	key <AB03> { symbols=[{NoSymbol, NoSymbol}, {A, Y}] };
 	key <AB04> { symbols=[{a, NoSymbol}, {NoSymbol, B}] };
 	key <AB05> { symbols=[{a, NoSymbol}, {NoSymbol, B}] };
-	key <AB06> { symbols=[{a, b}, {A, B}] };
-	key <AB07> { symbols=[{a, b}, {A, B}] };
-	key <TLDE> { symbols=[{NoSymbol, NoSymbol}, {A, B}] };
-	key <AE01> { symbols=[{NoSymbol, NoSymbol}, {A, B}] };
+	key <AB06> { symbols=[{a, y}, {A, Y}] };
+	key <AB07> { symbols=[{a, y}, {X, B}] };
+	key <TLDE> { symbols=[{NoSymbol, NoSymbol}, {A, Y}] };
+	key <AE01> { symbols=[{NoSymbol, NoSymbol}, {A, Y}] };
 	key <AE02> { symbols=[{a, NoSymbol}, {NoSymbol, B}] };
 	key <AE03> { symbols=[{a, NoSymbol}, {NoSymbol, B}] };
 	key <AE04> { symbols=[a] };
-	key <AE05> { symbols=[{a, b}] };
-	key <AE06> { symbols=[a, {A, B}] };
+	key <AE05> { symbols=[{a, y}] };
+	key <AE06> { symbols=[a, {A, Y}] };
 };
 
 xkb_symbols "keysyms_only_new" {
+
+	// base:     symbols=[NoSymbol, NoSymbol]
 	key <AD01> { symbols=[NoSymbol, NoSymbol] };
-	key <AD02> { symbols=[b, NoSymbol] };
-	key <AD03> { symbols=[NoSymbol, B] };
-	key <AD04> { symbols=[b, B] };
+	// augment:  symbols=[NoSymbol, NoSymbol]
+	// override: symbols=[NoSymbol, NoSymbol]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AD02> { symbols=[Greek_alpha, NoSymbol] };
+	// augment:  symbols=[Greek_alpha, NoSymbol]
+	// override: symbols=[Greek_alpha, NoSymbol]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AD03> { symbols=[NoSymbol, Greek_ALPHA] };
+	// augment:  symbols=[NoSymbol, Greek_ALPHA]
+	// override: symbols=[NoSymbol, Greek_ALPHA]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AD04> { symbols=[Greek_alpha, Greek_ALPHA] };
+	// augment:  symbols=[Greek_alpha, Greek_ALPHA]
+	// override: symbols=[Greek_alpha, Greek_ALPHA]
+
+	// base:     symbols=[a, A]
 	key <AD05> { symbols=[NoSymbol, NoSymbol] };
-	key <AD06> { symbols=[b, NoSymbol] };
-	key <AD07> { symbols=[NoSymbol, B] };
-	key <AD08> { symbols=[b, B] };
-	key <AC01> { symbols=[{c, NoSymbol}, NoSymbol] };
-	key <AC02> { symbols=[{c, NoSymbol}, {NoSymbol, NoSymbol}] };
-	key <AC03> { symbols=[NoSymbol, {C, NoSymbol}] };
-	key <AC04> { symbols=[{NoSymbol, NoSymbol}, {C, NoSymbol}] };
-	key <AC05> { symbols=[{c, NoSymbol}, {C, NoSymbol}] };
-	key <AC06> { symbols=[{c, d}, {C, D}] };
-	key <AC07> { symbols=[{c, NoSymbol}, NoSymbol] };
-	key <AC08> { symbols=[{c, NoSymbol}, {NoSymbol, NoSymbol}] };
-	key <AC09> { symbols=[NoSymbol, {C, NoSymbol}] };
-	key <AC10> { symbols=[{NoSymbol, NoSymbol}, {C, NoSymbol}] };
-	key <AC11> { symbols=[{c, NoSymbol}, {C, NoSymbol}] };
-	key <AC12> { symbols=[{c, d}, {C, D}] };
-	key <AB01> { symbols=[{NoSymbol, NoSymbol}, {C, D}] };
-	key <AB02> { symbols=[{c, NoSymbol}, {NoSymbol, D}] };
-	key <AB03> { symbols=[{c, d}, {C, D}] };
-	key <AB04> { symbols=[{c, NoSymbol}, {NoSymbol, D}] };
-	key <AB05> { symbols=[{c, d}, {C, D}] };
-	key <AB06> { symbols=[{NoSymbol, NoSymbol}, {C, D}] };
-	key <AB07> { symbols=[{c, NoSymbol}, {NoSymbol, D}] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[a, A]
+
+	// base:     symbols=[a, A]
+	key <AD06> { symbols=[Greek_alpha, NoSymbol] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[Greek_alpha, A]
+
+	// base:     symbols=[a, A]
+	key <AD07> { symbols=[NoSymbol, Greek_ALPHA] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[a, Greek_ALPHA]
+
+	// base:     symbols=[a, A]
+	key <AD08> { symbols=[Greek_alpha, Greek_ALPHA] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[Greek_alpha, Greek_ALPHA]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC01> { symbols=[{Greek_alpha, NoSymbol}, NoSymbol] };
+	// augment:  symbols=[{Greek_alpha, NoSymbol}, NoSymbol]
+	// override: symbols=[{Greek_alpha, NoSymbol}, NoSymbol]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC02> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, NoSymbol}] };
+	// augment:  symbols=[{Greek_alpha, NoSymbol}, NoSymbol]
+	// override: symbols=[{Greek_alpha, NoSymbol}, NoSymbol]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC03> { symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}] };
+	// augment:  symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}]
+	// override: symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC04> { symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, NoSymbol}] };
+	// augment:  symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}]
+	// override: symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC05> { symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}] };
+	// augment:  symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}]
+	// override: symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC06> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}] };
+	// augment:  symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}]
+
+	// base:     symbols=[a, A]
+	key <AC07> { symbols=[{Greek_alpha, NoSymbol}, NoSymbol] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[{Greek_alpha, NoSymbol}, A]
+
+	// base:     symbols=[a, A]
+	key <AC08> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, NoSymbol}] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[{Greek_alpha, NoSymbol}, A]
+
+	// base:     symbols=[a, A]
+	key <AC09> { symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[a, {Greek_ALPHA, NoSymbol}]
+
+	// base:     symbols=[a, A]
+	key <AC10> { symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, NoSymbol}] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[a, {Greek_ALPHA, NoSymbol}]
+
+	// base:     symbols=[a, A]
+	key <AC11> { symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}]
+
+	// base:     symbols=[a, A]
+	key <AC12> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}] };
+	// augment:  symbols=[a, A]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}]
+	key <AB01> { symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, Greek_UPSILON}] };
+	// augment:  symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, Greek_UPSILON}]
+	// override: symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, Greek_UPSILON}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}]
+	key <AB02> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}] };
+	// augment:  symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}]
+	// override: symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {A, Y}]
+	key <AB03> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}] };
+	// augment:  symbols=[{Greek_alpha, Greek_upsilon}, {A, Y}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}]
+
+	// base:     symbols=[{a, NoSymbol}, {NoSymbol, B}]
+	key <AB04> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}] };
+	// augment:  symbols=[{a, NoSymbol}, {NoSymbol, B}]
+	// override: symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}]
+
+	// base:     symbols=[{a, NoSymbol}, {NoSymbol, B}]
+	key <AB05> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_XI, Greek_BETA}] };
+	// augment:  symbols=[{a, Greek_upsilon}, {Greek_XI, B}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_XI, Greek_BETA}]
+
+	// base:     symbols=[{a, y}, {A, Y}]
+	key <AB06> { symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, Greek_UPSILON}] };
+	// augment:  symbols=[{a, y}, {A, Y}]
+	// override: symbols=[{a, y}, {Greek_ALPHA, Greek_UPSILON}]
+
+	// base:     symbols=[{a, y}, {X, B}]
+	key <AB07> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}] };
+	// augment:  symbols=[{a, y}, {X, B}]
+	// override: symbols=[{Greek_alpha, y}, {X, Greek_BETA}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {A, Y}]
 	key <TLDE> { symbols=[NoSymbol, NoSymbol] };
-	key <AE01> { symbols=[c, C] };
+	// augment:  symbols=[{NoSymbol, NoSymbol}, {A, Y}]
+	// override: symbols=[{NoSymbol, NoSymbol}, {A, Y}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {A, Y}]
+	key <AE01> { symbols=[Greek_alpha, Greek_ALPHA] };
+	// augment:  symbols=[Greek_alpha, {A, Y}]
+	// override: symbols=[Greek_alpha, Greek_ALPHA]
+
+	// base:     symbols=[{a, NoSymbol}, {NoSymbol, B}]
 	key <AE02> { symbols=[NoSymbol, NoSymbol] };
-	key <AE03> { symbols=[c, C] };
-	key <AE04> { symbols=[{c, d}, {C, D}] };
-	key <AE05> { symbols=[{c, d}, C] };
-	key <AE06> { symbols=[{c, d}, C] };
+	// augment:  symbols=[{a, NoSymbol}, {NoSymbol, B}]
+	// override: symbols=[{a, NoSymbol}, {NoSymbol, B}]
+
+	// base:     symbols=[{a, NoSymbol}, {NoSymbol, B}]
+	key <AE03> { symbols=[Greek_alpha, Greek_ALPHA] };
+	// augment:  symbols=[{a, NoSymbol}, {NoSymbol, B}]
+	// override: symbols=[Greek_alpha, Greek_ALPHA]
+
+	// base:     symbols=[a]
+	key <AE04> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}] };
+	// augment:  symbols=[a, {Greek_ALPHA, Greek_UPSILON}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}]
+
+	// base:     symbols=[{a, y}]
+	key <AE05> { symbols=[{Greek_alpha, Greek_upsilon}, Greek_ALPHA] };
+	// augment:  symbols=[{a, y}, Greek_ALPHA]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, Greek_ALPHA]
+
+	// base:     symbols=[a, {A, Y}]
+	key <AE06> { symbols=[{Greek_alpha, Greek_upsilon}, Greek_ALPHA] };
+	// augment:  symbols=[a, {A, Y}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, Greek_ALPHA]
 };
 
 xkb_symbols "actions_only_base" {
@@ -114,43 +250,179 @@ xkb_symbols "actions_only_base" {
 };
 
 xkb_symbols "actions_only_new" {
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AD01> { actions=[NoAction(), NoAction()] };
+	// augment:  actions=[NoAction(), NoAction()]
+	// override: actions=[NoAction(), NoAction()]
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AD02> { actions=[SetGroup(group=3), NoAction()] };
+	// augment:  actions=[SetGroup(group=3), NoAction()]
+	// override: actions=[SetGroup(group=3), NoAction()]
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AD03> { actions=[NoAction(), SetGroup(group=3)] };
+	// augment:  actions=[NoAction(), SetGroup(group=3)]
+	// override: actions=[NoAction(), SetGroup(group=3)]
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AD04> { actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  actions=[SetGroup(group=3), SetGroup(group=3)]
+	// override: actions=[SetGroup(group=3), SetGroup(group=3)]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AD05> { actions=[NoAction(), NoAction()] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[SetGroup(group=2), SetGroup(group=2)]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AD06> { actions=[SetGroup(group=3), NoAction()] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[SetGroup(group=3), SetGroup(group=2)]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AD07> { actions=[NoAction(), SetGroup(group=3)] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[SetGroup(group=2), SetGroup(group=3)]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AD08> { actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[SetGroup(group=3), SetGroup(group=3)]
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AC01> { actions=[{SetGroup(group=3), NoAction()}, NoAction()] };
+	// augment:  actions=[{SetGroup(group=3), NoAction()}, NoAction()]
+	// override: actions=[{SetGroup(group=3), NoAction()}, NoAction()]
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AC02> { actions=[{SetGroup(group=3), NoAction()}, {NoAction(), NoAction()}] };
+	// augment:  actions=[{SetGroup(group=3), NoAction()}, NoAction()]
+	// override: actions=[{SetGroup(group=3), NoAction()}, NoAction()]
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AC03> { actions=[NoAction(), {SetGroup(group=3), NoAction()}] };
+	// augment:  actions=[NoAction(), {SetGroup(group=3), NoAction()}]
+	// override: actions=[NoAction(), {SetGroup(group=3), NoAction()}]
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AC04> { actions=[{NoAction(), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	// augment:  actions=[NoAction(), {SetGroup(group=3), NoAction()}]
+	// override: actions=[NoAction(), {SetGroup(group=3), NoAction()}]
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AC05> { actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	// augment:  actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}]
+	// override: actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}]
+
+	// base:     actions=[NoAction(), NoAction()]
 	key <AC06> { actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+	// override: actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AC07> { actions=[{SetGroup(group=3), NoAction()}, NoAction()] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[{SetGroup(group=3), NoAction()}, SetGroup(group=2)]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AC08> { actions=[{SetGroup(group=3), NoAction()}, {NoAction(), NoAction()}] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[{SetGroup(group=3), NoAction()}, SetGroup(group=2)]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AC09> { actions=[NoAction(), {SetGroup(group=3), NoAction()}] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[SetGroup(group=2), {SetGroup(group=3), NoAction()}]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AC10> { actions=[{NoAction(), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[SetGroup(group=2), {SetGroup(group=3), NoAction()}]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AC11> { actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}]
+
+	// base:     actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AC12> { actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     actions=[{NoAction(), NoAction()}, {NoAction(), NoAction()}]
 	key <AB01> { actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+	// override: actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     actions=[{NoAction(), NoAction()}, {NoAction(), NoAction()}]
 	key <AB02> { actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
+	// augment:  actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}]
+	// override: actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}]
+
+	// base:     actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
 	key <AB03> { actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
 	key <AB04> { actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
+	// augment:  actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+	// override: actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}]
+
+	// base:     actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
 	key <AB05> { actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetMods(mods=Mod5), SetGroup(group=3)}] };
+	// augment:  actions=[{SetGroup(group=2), SetMods(mods=Mod5)}, {SetMods(mods=Mod5), SetGroup(group=2)}]
+	// override: actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetMods(mods=Mod5), SetGroup(group=3)}]
+
+	// base:     actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=2), SetMods(mods=Control)}]
 	key <AB06> { actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetMods(mods=Control), SetGroup(group=2)}]
 	key <AB07> { actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
+	// augment:  actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetMods(mods=Control), SetGroup(group=2)}]
+	// override: actions=[{SetGroup(group=3), SetMods(mods=Control)}, {SetMods(mods=Control), SetGroup(group=3)}]
+
+	// base:     actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
 	key <TLDE> { actions=[NoAction(), NoAction()] };
+	// augment:  actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
+
+	// base:     actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
 	key <AE01> { actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  actions=[SetGroup(group=3), {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: actions=[SetGroup(group=3), SetGroup(group=3)]
+
+	// base:     actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
 	key <AE02> { actions=[NoAction(), NoAction()] };
+	// augment:  actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+	// override: actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+
+	// base:     actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
 	key <AE03> { actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+	// override: actions=[SetGroup(group=3), SetGroup(group=3)]
+
+	// base:     actions=[SetGroup(group=2)]
 	key <AE04> { actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  actions=[SetGroup(group=2), {SetGroup(group=3), SetMods(mods=Mod5)}]
+	// override: actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     actions=[{SetGroup(group=2), SetMods(mods=Control)}]
 	key <AE05> { actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)] };
+	// augment:  actions=[{SetGroup(group=2), SetMods(mods=Control)}, SetGroup(group=3)]
+	// override: actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)]
+
+	// base:     actions=[SetGroup(group=2), {SetGroup(group=2), SetMods(mods=Control)}]
 	key <AE06> { actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)] };
+	// augment:  actions=[SetGroup(group=2), {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)]
 };
 
-xkb_symbols "keysyms_and_actions_base" {
+xkb_symbols "keysyms_and_actions_auto_base" {
 	replace key <AC12> { [NoSymbol, NoSymbol] };
 	key <AD01> { symbols=[NoSymbol, NoSymbol] };
 	key <AD02> { symbols=[NoSymbol, NoSymbol] };
@@ -174,92 +446,228 @@ xkb_symbols "keysyms_and_actions_base" {
 	key <AC12> { symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)] };
 	key <AB01> { symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}] };
 	key <AB02> { symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}] };
-	key <AB03> { symbols=[{NoSymbol, NoSymbol}, {A, F}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}] };
+	key <AB03> { symbols=[{NoSymbol, NoSymbol}, {A, Y}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}] };
 	key <AB04> { symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}] };
 	key <AB05> { symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}] };
-	key <AB06> { symbols=[{a, f}, {A, F}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=2), SetMods(mods=Control)}] };
-	key <AB07> { symbols=[{a, f}, {E, B}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetMods(mods=Control), SetGroup(group=2)}] };
-	key <TLDE> { symbols=[{NoSymbol, NoSymbol}, {A, F}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}] };
-	key <AE01> { symbols=[{NoSymbol, NoSymbol}, {A, F}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}] };
+	key <AB06> { symbols=[{a, y}, {A, Y}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=2), SetMods(mods=Control)}] };
+	key <AB07> { symbols=[{a, y}, {X, B}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetMods(mods=Control), SetGroup(group=2)}] };
+	key <TLDE> { symbols=[{NoSymbol, NoSymbol}, {A, Y}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}] };
+	key <AE01> { symbols=[{NoSymbol, NoSymbol}, {A, Y}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}] };
 	key <AE02> { symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}] };
 	key <AE03> { symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}] };
 	key <AE04> { symbols=[a], actions=[SetGroup(group=2)] };
-	key <AE05> { symbols=[{a, f}], actions=[{SetGroup(group=2), SetMods(mods=Control)}] };
-	key <AE06> { symbols=[a, {A, F}], actions=[SetGroup(group=2), {SetGroup(group=2), SetMods(mods=Control)}] };
+	key <AE05> { symbols=[{a, y}], actions=[{SetGroup(group=2), SetMods(mods=Control)}] };
+	key <AE06> { symbols=[a, {A, Y}], actions=[SetGroup(group=2), {SetGroup(group=2), SetMods(mods=Control)}] };
 };
 
-xkb_symbols "keysyms_and_actions_new" {
+xkb_symbols "keysyms_and_actions_auto_new" {
+
+	// base:     symbols=[NoSymbol, NoSymbol]
 	key <AD01> { symbols=[NoSymbol, NoSymbol] };
-	key <AD02> { symbols=[c, NoSymbol], actions=[SetGroup(group=3), NoAction()] };
-	key <AD03> { symbols=[NoSymbol, C], actions=[NoAction(), SetGroup(group=3)] };
-	key <AD04> { symbols=[c, C], actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  symbols=[NoSymbol, NoSymbol]
+	// override: symbols=[NoSymbol, NoSymbol]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AD02> { symbols=[Greek_alpha, NoSymbol], actions=[SetGroup(group=3), NoAction()] };
+	// augment:  symbols=[Greek_alpha, NoSymbol], actions=[SetGroup(group=3), NoAction()]
+	// override: symbols=[Greek_alpha, NoSymbol], actions=[SetGroup(group=3), NoAction()]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AD03> { symbols=[NoSymbol, Greek_ALPHA], actions=[NoAction(), SetGroup(group=3)] };
+	// augment:  symbols=[NoSymbol, Greek_ALPHA], actions=[NoAction(), SetGroup(group=3)]
+	// override: symbols=[NoSymbol, Greek_ALPHA], actions=[NoAction(), SetGroup(group=3)]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AD04> { symbols=[Greek_alpha, Greek_ALPHA], actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  symbols=[Greek_alpha, Greek_ALPHA], actions=[SetGroup(group=3), SetGroup(group=3)]
+	// override: symbols=[Greek_alpha, Greek_ALPHA], actions=[SetGroup(group=3), SetGroup(group=3)]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
 	key <AD05> { symbols=[NoSymbol, NoSymbol] };
-	key <AD06> { symbols=[c, NoSymbol], actions=[SetGroup(group=3), NoAction()] };
-	key <AD07> { symbols=[NoSymbol, C], actions=[NoAction(), SetGroup(group=3)] };
-	key <AD08> { symbols=[c, C], actions=[SetGroup(group=3), SetGroup(group=3)] };
-	key <AC01> { symbols=[{c, NoSymbol}, NoSymbol], actions=[{SetGroup(group=3), NoAction()}, NoAction()] };
-	key <AC02> { symbols=[{c, NoSymbol}, {NoSymbol, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), NoAction()}] };
-	key <AC03> { symbols=[NoSymbol, {C, NoSymbol}], actions=[NoAction(), {SetGroup(group=3), NoAction()}] };
-	key <AC04> { symbols=[{NoSymbol, NoSymbol}, {C, NoSymbol}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), NoAction()}] };
-	key <AC05> { symbols=[{c, NoSymbol}, {C, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}] };
-	key <AC06> { symbols=[{c, h}, {C, H}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
-	key <AC07> { symbols=[{c, NoSymbol}, NoSymbol], actions=[{SetGroup(group=3), NoAction()}, NoAction()] };
-	key <AC08> { symbols=[{c, NoSymbol}, {NoSymbol, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), NoAction()}] };
-	key <AC09> { symbols=[NoSymbol, {C, NoSymbol}], actions=[NoAction(), {SetGroup(group=3), NoAction()}] };
-	key <AC10> { symbols=[{NoSymbol, NoSymbol}, {C, NoSymbol}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), NoAction()}] };
-	key <AC11> { symbols=[{c, NoSymbol}, {C, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}] };
-	key <AC12> { symbols=[{c, h}, {C, H}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
-	key <AB01> { symbols=[{NoSymbol, NoSymbol}, {C, H}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
-	key <AB02> { symbols=[{c, NoSymbol}, {NoSymbol, D}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
-	key <AB03> { symbols=[{c, h}, {C, H}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
-	key <AB04> { symbols=[{c, NoSymbol}, {NoSymbol, D}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
-	key <AB05> { symbols=[{c, h}, {G, D}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetMods(mods=Mod5), SetGroup(group=3)}] };
-	key <AB06> { symbols=[{NoSymbol, NoSymbol}, {C, H}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
-	key <AB07> { symbols=[{c, NoSymbol}, {NoSymbol, D}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	key <AD06> { symbols=[Greek_alpha, NoSymbol], actions=[SetGroup(group=3), NoAction()] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[Greek_alpha, A], actions=[SetGroup(group=3), SetGroup(group=2)]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	key <AD07> { symbols=[NoSymbol, Greek_ALPHA], actions=[NoAction(), SetGroup(group=3)] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[a, Greek_ALPHA], actions=[SetGroup(group=2), SetGroup(group=3)]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	key <AD08> { symbols=[Greek_alpha, Greek_ALPHA], actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[Greek_alpha, Greek_ALPHA], actions=[SetGroup(group=3), SetGroup(group=3)]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC01> { symbols=[{Greek_alpha, NoSymbol}, NoSymbol], actions=[{SetGroup(group=3), NoAction()}, NoAction()] };
+	// augment:  symbols=[{Greek_alpha, NoSymbol}, NoSymbol], actions=[{SetGroup(group=3), NoAction()}, NoAction()]
+	// override: symbols=[{Greek_alpha, NoSymbol}, NoSymbol], actions=[{SetGroup(group=3), NoAction()}, NoAction()]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC02> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), NoAction()}] };
+	// augment:  symbols=[{Greek_alpha, NoSymbol}, NoSymbol], actions=[{SetGroup(group=3), NoAction()}, NoAction()]
+	// override: symbols=[{Greek_alpha, NoSymbol}, NoSymbol], actions=[{SetGroup(group=3), NoAction()}, NoAction()]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC03> { symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}], actions=[NoAction(), {SetGroup(group=3), NoAction()}] };
+	// augment:  symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}], actions=[NoAction(), {SetGroup(group=3), NoAction()}]
+	// override: symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}], actions=[NoAction(), {SetGroup(group=3), NoAction()}]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC04> { symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, NoSymbol}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	// augment:  symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}], actions=[NoAction(), {SetGroup(group=3), NoAction()}]
+	// override: symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}], actions=[NoAction(), {SetGroup(group=3), NoAction()}]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC05> { symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	// augment:  symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}]
+	// override: symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}]
+
+	// base:     symbols=[NoSymbol, NoSymbol]
+	key <AC06> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	key <AC07> { symbols=[{Greek_alpha, NoSymbol}, NoSymbol], actions=[{SetGroup(group=3), NoAction()}, NoAction()] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[{Greek_alpha, NoSymbol}, A], actions=[{SetGroup(group=3), NoAction()}, SetGroup(group=2)]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	key <AC08> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), NoAction()}] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[{Greek_alpha, NoSymbol}, A], actions=[{SetGroup(group=3), NoAction()}, SetGroup(group=2)]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	key <AC09> { symbols=[NoSymbol, {Greek_ALPHA, NoSymbol}], actions=[NoAction(), {SetGroup(group=3), NoAction()}] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[a, {Greek_ALPHA, NoSymbol}], actions=[SetGroup(group=2), {SetGroup(group=3), NoAction()}]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	key <AC10> { symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, NoSymbol}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[a, {Greek_ALPHA, NoSymbol}], actions=[SetGroup(group=2), {SetGroup(group=3), NoAction()}]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	key <AC11> { symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[{Greek_alpha, NoSymbol}, {Greek_ALPHA, NoSymbol}], actions=[{SetGroup(group=3), NoAction()}, {SetGroup(group=3), NoAction()}]
+
+	// base:     symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	key <AC12> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  symbols=[a, A], actions=[SetGroup(group=2), SetGroup(group=2)]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}]
+	key <AB01> { symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, Greek_UPSILON}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, Greek_UPSILON}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+	// override: symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, Greek_UPSILON}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {NoSymbol, NoSymbol}]
+	key <AB02> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
+	// augment:  symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}]
+	// override: symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {A, Y}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
+	key <AB03> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  symbols=[{Greek_alpha, Greek_upsilon}, {A, Y}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+	key <AB04> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
+	// augment:  symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+	// override: symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}]
+
+	// base:     symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+	key <AB05> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_XI, Greek_BETA}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetMods(mods=Mod5), SetGroup(group=3)}] };
+	// augment:  symbols=[{a, Greek_upsilon}, {Greek_XI, B}], actions=[{SetGroup(group=2), SetMods(mods=Mod5)}, {SetMods(mods=Mod5), SetGroup(group=2)}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_XI, Greek_BETA}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetMods(mods=Mod5), SetGroup(group=3)}]
+
+	// base:     symbols=[{a, y}, {A, Y}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=2), SetMods(mods=Control)}]
+	key <AB06> { symbols=[{NoSymbol, NoSymbol}, {Greek_ALPHA, Greek_UPSILON}], actions=[{NoAction(), NoAction()}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  symbols=[{a, y}, {A, Y}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: symbols=[{a, y}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     symbols=[{a, y}, {X, B}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetMods(mods=Control), SetGroup(group=2)}]
+	key <AB07> { symbols=[{Greek_alpha, NoSymbol}, {NoSymbol, Greek_BETA}], actions=[{SetGroup(group=3), NoAction()}, {NoAction(), SetGroup(group=3)}] };
+	// augment:  symbols=[{a, y}, {X, B}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetMods(mods=Control), SetGroup(group=2)}]
+	// override: symbols=[{Greek_alpha, y}, {X, Greek_BETA}], actions=[{SetGroup(group=3), SetMods(mods=Control)}, {SetMods(mods=Control), SetGroup(group=3)}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {A, Y}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
 	key <TLDE> { symbols=[NoSymbol, NoSymbol] };
-	key <AE01> { symbols=[c, C], actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  symbols=[{NoSymbol, NoSymbol}, {A, Y}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: symbols=[{NoSymbol, NoSymbol}, {A, Y}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
+
+	// base:     symbols=[{NoSymbol, NoSymbol}, {A, Y}], actions=[{NoAction(), NoAction()}, {SetGroup(group=2), SetMods(mods=Control)}]
+	key <AE01> { symbols=[Greek_alpha, Greek_ALPHA], actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  symbols=[Greek_alpha, {A, Y}], actions=[SetGroup(group=3), {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: symbols=[Greek_alpha, Greek_ALPHA], actions=[SetGroup(group=3), SetGroup(group=3)]
+
+	// base:     symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
 	key <AE02> { symbols=[NoSymbol, NoSymbol] };
-	key <AE03> { symbols=[c, C], actions=[SetGroup(group=3), SetGroup(group=3)] };
-	key <AE04> { symbols=[{c, h}, {C, H}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
-	key <AE05> { symbols=[{c, h}, C], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)] };
-	key <AE06> { symbols=[{c, h}, C], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)] };
+	// augment:  symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+	// override: symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+
+	// base:     symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+	key <AE03> { symbols=[Greek_alpha, Greek_ALPHA], actions=[SetGroup(group=3), SetGroup(group=3)] };
+	// augment:  symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetGroup(group=2)}]
+	// override: symbols=[Greek_alpha, Greek_ALPHA], actions=[SetGroup(group=3), SetGroup(group=3)]
+
+	// base:     symbols=[a], actions=[SetGroup(group=2)]
+	key <AE04> { symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	// augment:  symbols=[a, {Greek_ALPHA, Greek_UPSILON}], actions=[SetGroup(group=2), {SetGroup(group=3), SetMods(mods=Mod5)}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, {Greek_ALPHA, Greek_UPSILON}], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Mod5)}]
+
+	// base:     symbols=[{a, y}], actions=[{SetGroup(group=2), SetMods(mods=Control)}]
+	key <AE05> { symbols=[{Greek_alpha, Greek_upsilon}, Greek_ALPHA], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)] };
+	// augment:  symbols=[{a, y}, Greek_ALPHA], actions=[{SetGroup(group=2), SetMods(mods=Control)}, SetGroup(group=3)]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, Greek_ALPHA], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)]
+
+	// base:     symbols=[a, {A, Y}], actions=[SetGroup(group=2), {SetGroup(group=2), SetMods(mods=Control)}]
+	key <AE06> { symbols=[{Greek_alpha, Greek_upsilon}, Greek_ALPHA], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)] };
+	// augment:  symbols=[a, {A, Y}], actions=[SetGroup(group=2), {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: symbols=[{Greek_alpha, Greek_upsilon}, Greek_ALPHA], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)]
 };
 
 xkb_symbols "group2" {
-	key <AB01> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AB02> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AB03> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AB04> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AB05> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AB06> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AB07> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC01> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC02> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC03> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC04> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC05> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC06> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC07> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC08> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC09> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC10> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC11> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AC12> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AD01> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AD02> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AD03> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AD04> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AD05> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AD06> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AD07> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AD08> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AE01> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AE02> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AE03> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AE04> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AE05> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <AE06> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
-	key <TLDE> { [Greek_alpha, Greek_ALPHA, Greek_alphaaccent, Greek_ALPHAaccent] };
+	key <AB01> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AB02> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AB03> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AB04> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AB05> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AB06> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AB07> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC01> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC02> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC03> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC04> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC05> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC06> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC07> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC08> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC09> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC10> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC11> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AC12> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AD01> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AD02> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AD03> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AD04> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AD05> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AD06> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AD07> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AD08> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AE01> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AE02> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AE03> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AE04> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AE05> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <AE06> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <TLDE> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
 };
 
 xkb_symbols "group3" {

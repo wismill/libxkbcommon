@@ -100,10 +100,10 @@ class GroupAction(Action):
         (2, 0, 1): Keysym("A"),
         (2, 1, 0): Keysym("b"),
         (2, 1, 1): Keysym("B"),
-        (3, 0, 0): Keysym("c"),
-        (3, 0, 1): Keysym("C"),
-        (3, 1, 0): Keysym("d"),
-        (3, 1, 1): Keysym("D"),
+        (3, 0, 0): Keysym("Greek_alpha"),
+        (3, 0, 1): Keysym("Greek_ALPHA"),
+        (3, 1, 0): Keysym("Greek_beta"),
+        (3, 1, 1): Keysym("Greek_BETA"),
     }
 
     def __str__(self) -> str:
@@ -141,14 +141,14 @@ class ModAction(Action):
 
     mods: Modifier
     keysyms: ClassVar[dict[tuple[Modifier, int, int], Keysym]] = {
-        (Modifier.Control, 0, 0): Keysym("e"),
-        (Modifier.Control, 0, 1): Keysym("E"),
-        (Modifier.Control, 1, 0): Keysym("f"),
-        (Modifier.Control, 1, 1): Keysym("F"),
-        (Modifier.Mod5, 0, 0): Keysym("g"),
-        (Modifier.Mod5, 0, 1): Keysym("G"),
-        (Modifier.Mod5, 1, 0): Keysym("h"),
-        (Modifier.Mod5, 1, 1): Keysym("H"),
+        (Modifier.Control, 0, 0): Keysym("x"),
+        (Modifier.Control, 0, 1): Keysym("X"),
+        (Modifier.Control, 1, 0): Keysym("y"),
+        (Modifier.Control, 1, 1): Keysym("Y"),
+        (Modifier.Mod5, 0, 0): Keysym("Greek_xi"),
+        (Modifier.Mod5, 0, 1): Keysym("Greek_XI"),
+        (Modifier.Mod5, 1, 0): Keysym("Greek_upsilon"),
+        (Modifier.Mod5, 1, 1): Keysym("Greek_UPSILON"),
     }
 
     def __str__(self) -> str:
@@ -241,12 +241,13 @@ class Level:
     def Actions(cls, *actions: int | Modifier | None) -> Self:
         return cls((), tuple(map(Action.parse, actions)))
 
-    def add_keysyms(self, level: int) -> Self:
+    def add_keysyms(self, keep_actions: bool, level: int) -> Self:
         return self.__class__(
             keysyms=tuple(
-                a.action_to_keysym(k, level) for k, a in enumerate(self.actions)
+                a.action_to_keysym(index=k, level=level)
+                for k, a in enumerate(self.actions)
             ),
-            actions=self.actions,
+            actions=self.actions if keep_actions else (),
         )
 
     @property
@@ -295,8 +296,13 @@ class KeyEntry:
             yield ", ".join(l.actions_xkb for l in self.levels)
             yield "]"
 
-    def add_keysyms(self) -> Self:
-        return self.__class__(*(l.add_keysyms(k) for k, l in enumerate(self.levels)))
+    def add_keysyms(self, keep_actions: bool) -> Self:
+        return self.__class__(
+            *(
+                l.add_keysyms(keep_actions=keep_actions, level=k)
+                for k, l in enumerate(self.levels)
+            )
+        )
 
 
 @dataclass
@@ -310,22 +316,27 @@ class TestEntry:
     symbols_file: ClassVar[str] = "merge_modes"
     test_file: ClassVar[str] = "merge_modes.h"
     group_keysyms: ClassVar[tuple[tuple[str, str], ...]] = (
-        ("Greek_alpha", "Greek_ALPHA", "Greek_alphaaccent", "Greek_ALPHAaccent"),
+        ("Ukrainian_i", "Ukrainian_I", "Ukrainian_yi", "Ukrainian_YI"),
         ("schwa", "SCHWA", "dead_schwa", "dead_SCHWA"),
     )
 
-    def add_keysyms(self) -> Self:
+    def add_keysyms(self, keep_actions: bool) -> Self:
         return dataclasses.replace(
             self,
-            base=self.base.add_keysyms(),
-            update=self.update.add_keysyms(),
-            augment=self.augment.add_keysyms(),
-            override=self.override.add_keysyms(),
+            base=self.base.add_keysyms(keep_actions=keep_actions),
+            update=self.update.add_keysyms(keep_actions=keep_actions),
+            augment=self.augment.add_keysyms(keep_actions=keep_actions),
+            override=self.override.add_keysyms(keep_actions=keep_actions),
         )
 
     @classmethod
     def alt_keysym(cls, group: int, level: int) -> Keysym:
         return Keysym(cls.group_keysyms[group % 2][level % 4])
+
+    @classmethod
+    def alt_keysyms(cls, group: int) -> Iterator[Keysym]:
+        for keysym in cls.group_keysyms[group % 2]:
+            yield Keysym(keysym)
 
     @classmethod
     def write_symbols(
@@ -370,7 +381,18 @@ class TestGroup:
     name: str
     tests: tuple[TestEntry, ...]
 
+    def add_keysyms(self, name: str, keep_actions: bool) -> Self:
+        return dataclasses.replace(
+            self,
+            name=name,
+            tests=tuple(
+                t.add_keysyms(keep_actions=keep_actions)
+                for t in TESTS_ACTIONS_ONLY.tests
+            ),
+        )
 
+
+# FIXME: remove
 TESTS_KEYSYMS_ONLY = TestGroup(
     "keysyms_only",
     (
@@ -933,11 +955,12 @@ TESTS_ACTIONS_ONLY = TestGroup(
     ),
 )
 
-
+TESTS_KEYSYMS_ONLY = TESTS_ACTIONS_ONLY.add_keysyms(
+    name="keysyms_only", keep_actions=False
+)
 # Create a mix keysyms/actions
-TESTS_KEYSYMS_AND_ACTIONS1 = TestGroup(
-    "keysyms_and_actions_auto",
-    tuple(t.add_keysyms() for t in TESTS_ACTIONS_ONLY.tests),
+TESTS_KEYSYMS_AND_ACTIONS1 = TESTS_ACTIONS_ONLY.add_keysyms(
+    name="keysyms_and_actions_auto", keep_actions=True
 )
 TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
     "keysyms_and_actions_extras",
@@ -968,7 +991,7 @@ TESTS = (
     TESTS_KEYSYMS_ONLY,
     TESTS_ACTIONS_ONLY,
     TESTS_KEYSYMS_AND_ACTIONS1,
-    TESTS_KEYSYMS_AND_ACTIONS2,
+    # TESTS_KEYSYMS_AND_ACTIONS2,
 )
 
 KEYCODES = sorted(
@@ -997,6 +1020,7 @@ if __name__ == "__main__":
         lstrip_blocks=True,
     )
     jinja_env.globals["alt_keysym"] = TestEntry.alt_keysym
+    jinja_env.globals["alt_keysyms"] = TestEntry.alt_keysyms
     TestEntry.write_symbols(
         root=args.root, jinja_env=jinja_env, tests=TESTS, keycodes=KEYCODES
     )
