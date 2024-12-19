@@ -936,7 +936,64 @@ TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
                 Level.Mix(("X", "B"), (3, Modifier.Control)),
             ),
         ),
-        # TODO: mismatch count with *mix*
+        # Mismatch count with mix
+        TestEntry(
+            KeyCode("Q", "AD01"),
+            KeyEntry(
+                Level.Keysyms("a"),
+                Level.Keysyms("A", "B"),
+            ),
+            update=KeyEntry(
+                Level.Actions(3, Modifier.LevelThree),
+                Level.Actions(3),
+            ),
+            augment=KeyEntry(
+                Level.Keysyms("a"),
+                Level.Keysyms("A", "B"),
+            ),
+            override=KeyEntry(
+                Level.Actions(3, Modifier.LevelThree),
+                Level.Actions(3),
+            ),
+        ),
+        TestEntry(
+            KeyCode("W", "AD02"),
+            KeyEntry(
+                Level.Actions(3),
+                Level.Actions(3, Modifier.LevelThree),
+            ),
+            update=KeyEntry(
+                Level.Keysyms("A", "B"),
+                Level.Keysyms("a"),
+            ),
+            augment=KeyEntry(
+                Level.Actions(3),
+                Level.Actions(3, Modifier.LevelThree),
+            ),
+            override=KeyEntry(
+                Level.Keysyms("A", "B"),
+                Level.Keysyms("a"),
+            ),
+        ),
+        TestEntry(
+            KeyCode("E", "AD03"),
+            KeyEntry(
+                Level.Mix(("a",), (2,)),
+                Level.Mix(("A", "B"), (2, Modifier.Control)),
+            ),
+            update=KeyEntry(
+                Level.Mix(("x", "y"), (3, Modifier.LevelThree)),
+                Level.Mix(("X",), (3,)),
+            ),
+            augment=KeyEntry(
+                Level.Mix(("a",), (2,)),
+                Level.Mix(("A", "B"), (2, Modifier.Control)),
+            ),
+            override=KeyEntry(
+                Level.Mix(("x", "y"), (3, Modifier.LevelThree)),
+                Level.Mix(("X",), (3,)),
+            ),
+        ),
     ),
 )
 

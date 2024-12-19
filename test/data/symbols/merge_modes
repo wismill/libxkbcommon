@@ -717,6 +717,9 @@ xkb_symbols "keysyms_and_actions_extras_base" {
 	key <AE07> { symbols=[{a, NoSymbol}, {A, B}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=2), NoAction()}] };
 	key <AE08> { symbols=[{a, b}, {NoSymbol, B}], actions=[{SetGroup(group=2), SetMods(mods=Control)}, {SetGroup(group=2), NoAction()}] };
 	key <AE09> { symbols=[{a, NoSymbol}, {NoSymbol, B}], actions=[{SetGroup(group=2), NoAction()}, {NoAction(), SetMods(mods=Control)}] };
+	key <AD01> { symbols=[a, {A, B}] };
+	key <AD02> { actions=[SetGroup(group=3), {SetGroup(group=3), SetMods(mods=Mod5)}] };
+	key <AD03> { symbols=[a, {A, B}], actions=[SetGroup(group=2), {SetGroup(group=2), SetMods(mods=Control)}] };
 };
 
 xkb_symbols "keysyms_and_actions_extras_new" {
@@ -770,6 +773,21 @@ xkb_symbols "keysyms_and_actions_extras_new" {
 	key <AE09> { symbols=[{NoSymbol, y}, {X, NoSymbol}], actions=[{NoAction(), SetMods(mods=Mod5)}, {SetGroup(group=3), NoAction()}] };
 	// augment:  symbols=[{a, y}, {X, B}], actions=[{SetGroup(group=2), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Control)}]
 	// override: symbols=[{a, y}, {X, B}], actions=[{SetGroup(group=2), SetMods(mods=Mod5)}, {SetGroup(group=3), SetMods(mods=Control)}]
+
+	// base:     symbols=[a, {A, B}]
+	key <AD01> { actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)] };
+	// augment:  symbols=[a, {A, B}]
+	// override: actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)]
+
+	// base:     actions=[SetGroup(group=3), {SetGroup(group=3), SetMods(mods=Mod5)}]
+	key <AD02> { symbols=[{A, B}, a] };
+	// augment:  actions=[SetGroup(group=3), {SetGroup(group=3), SetMods(mods=Mod5)}]
+	// override: symbols=[{A, B}, a]
+
+	// base:     symbols=[a, {A, B}], actions=[SetGroup(group=2), {SetGroup(group=2), SetMods(mods=Control)}]
+	key <AD03> { symbols=[{x, y}, X], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)] };
+	// augment:  symbols=[a, {A, B}], actions=[SetGroup(group=2), {SetGroup(group=2), SetMods(mods=Control)}]
+	// override: symbols=[{x, y}, X], actions=[{SetGroup(group=3), SetMods(mods=Mod5)}, SetGroup(group=3)]
 };
 
 xkb_symbols "group2" {
