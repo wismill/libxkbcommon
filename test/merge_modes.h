@@ -34,6 +34,8 @@ test_merge_modes(struct xkb_context *ctx)
     keymap = test_compile_buffer(ctx, keymap_keysyms_only_augment,
                                  ARRAY_SIZE(keymap_keysyms_only_augment));
     assert(test_key_seq(keymap,
+        KEY_COFFEE, BOTH, XKB_KEY_Greek_alpha,  NEXT,
+        KEY_UNKNOWN, BOTH, XKB_KEY_a,  NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
@@ -209,6 +211,8 @@ test_merge_modes(struct xkb_context *ctx)
     keymap = test_compile_buffer(ctx, keymap_keysyms_only_override,
                                  ARRAY_SIZE(keymap_keysyms_only_override));
     assert(test_key_seq(keymap,
+        KEY_COFFEE, BOTH, XKB_KEY_Greek_alpha,  NEXT,
+        KEY_UNKNOWN, BOTH, XKB_KEY_a,  NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
@@ -388,6 +392,10 @@ test_merge_modes(struct xkb_context *ctx)
     keymap = test_compile_buffer(ctx, keymap_actions_only_augment,
                                  ARRAY_SIZE(keymap_actions_only_augment));
     assert(test_key_seq(keymap,
+        KEY_COFFEE, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_COFFEE, UP, XKB_KEY_schwa,  NEXT,
+        KEY_UNKNOWN, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_UNKNOWN, UP, XKB_KEY_Ukrainian_i,  NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
@@ -627,6 +635,10 @@ test_merge_modes(struct xkb_context *ctx)
     keymap = test_compile_buffer(ctx, keymap_actions_only_override,
                                  ARRAY_SIZE(keymap_actions_only_override));
     assert(test_key_seq(keymap,
+        KEY_COFFEE, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_COFFEE, UP, XKB_KEY_schwa,  NEXT,
+        KEY_UNKNOWN, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_UNKNOWN, UP, XKB_KEY_Ukrainian_i,  NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
@@ -870,6 +882,10 @@ test_merge_modes(struct xkb_context *ctx)
     keymap = test_compile_buffer(ctx, keymap_keysyms_and_actions_auto_augment,
                                  ARRAY_SIZE(keymap_keysyms_and_actions_auto_augment));
     assert(test_key_seq(keymap,
+        KEY_COFFEE, DOWN, XKB_KEY_Greek_alpha, NEXT,
+        KEY_COFFEE, UP, XKB_KEY_schwa,  NEXT,
+        KEY_UNKNOWN, DOWN, XKB_KEY_a, NEXT,
+        KEY_UNKNOWN, UP, XKB_KEY_Ukrainian_i,  NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
@@ -1109,6 +1125,10 @@ test_merge_modes(struct xkb_context *ctx)
     keymap = test_compile_buffer(ctx, keymap_keysyms_and_actions_auto_override,
                                  ARRAY_SIZE(keymap_keysyms_and_actions_auto_override));
     assert(test_key_seq(keymap,
+        KEY_COFFEE, DOWN, XKB_KEY_Greek_alpha, NEXT,
+        KEY_COFFEE, UP, XKB_KEY_schwa,  NEXT,
+        KEY_UNKNOWN, DOWN, XKB_KEY_a, NEXT,
+        KEY_UNKNOWN, UP, XKB_KEY_Ukrainian_i,  NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_Q, BOTH, XKB_KEY_NoSymbol, NEXT,

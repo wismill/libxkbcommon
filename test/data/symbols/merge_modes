@@ -2,6 +2,8 @@
 
 xkb_symbols "keysyms_only_base" {
 	replace key <AC12> { [NoSymbol, NoSymbol] };
+	key <I160> {  };
+	key <I248> { symbols=[a] };
 	key <AD01> { symbols=[NoSymbol, NoSymbol] };
 	key <AD02> { symbols=[NoSymbol, NoSymbol] };
 	key <AD03> { symbols=[NoSymbol, NoSymbol] };
@@ -43,6 +45,16 @@ xkb_symbols "keysyms_only_base" {
 };
 
 xkb_symbols "keysyms_only_new" {
+
+	// base:
+	key <I160> { symbols=[Greek_alpha] };
+	// augment:  symbols=[Greek_alpha]
+	// override: symbols=[Greek_alpha]
+
+	// base:     symbols=[a]
+	key <I248> {  };
+	// augment:  symbols=[a]
+	// override: symbols=[a]
 
 	// base:     symbols=[NoSymbol, NoSymbol]
 	key <AD01> { symbols=[NoSymbol, NoSymbol] };
@@ -237,6 +249,8 @@ xkb_symbols "keysyms_only_new" {
 
 xkb_symbols "actions_only_base" {
 	replace key <AC12> { [NoSymbol, NoSymbol] };
+	key <I160> {  };
+	key <I248> { actions=[SetGroup(group=2)] };
 	key <AD01> { actions=[NoAction(), NoAction()] };
 	key <AD02> { actions=[NoAction(), NoAction()] };
 	key <AD03> { actions=[NoAction(), NoAction()] };
@@ -278,6 +292,16 @@ xkb_symbols "actions_only_base" {
 };
 
 xkb_symbols "actions_only_new" {
+
+	// base:
+	key <I160> { actions=[SetGroup(group=3)] };
+	// augment:  actions=[SetGroup(group=3)]
+	// override: actions=[SetGroup(group=3)]
+
+	// base:     actions=[SetGroup(group=2)]
+	key <I248> {  };
+	// augment:  actions=[SetGroup(group=2)]
+	// override: actions=[SetGroup(group=2)]
 
 	// base:     actions=[NoAction(), NoAction()]
 	key <AD01> { actions=[NoAction(), NoAction()] };
@@ -472,6 +496,8 @@ xkb_symbols "actions_only_new" {
 
 xkb_symbols "keysyms_and_actions_auto_base" {
 	replace key <AC12> { [NoSymbol, NoSymbol] };
+	key <I160> {  };
+	key <I248> { symbols=[a], actions=[SetGroup(group=2)] };
 	key <AD01> { symbols=[NoSymbol, NoSymbol] };
 	key <AD02> { symbols=[NoSymbol, NoSymbol] };
 	key <AD03> { symbols=[NoSymbol, NoSymbol] };
@@ -513,6 +539,16 @@ xkb_symbols "keysyms_and_actions_auto_base" {
 };
 
 xkb_symbols "keysyms_and_actions_auto_new" {
+
+	// base:
+	key <I160> { symbols=[Greek_alpha], actions=[SetGroup(group=3)] };
+	// augment:  symbols=[Greek_alpha], actions=[SetGroup(group=3)]
+	// override: symbols=[Greek_alpha], actions=[SetGroup(group=3)]
+
+	// base:     symbols=[a], actions=[SetGroup(group=2)]
+	key <I248> {  };
+	// augment:  symbols=[a], actions=[SetGroup(group=2)]
+	// override: symbols=[a], actions=[SetGroup(group=2)]
 
 	// base:     symbols=[NoSymbol, NoSymbol]
 	key <AD01> { symbols=[NoSymbol, NoSymbol] };
@@ -831,6 +867,8 @@ xkb_symbols "group2" {
 	key <AE07> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
 	key <AE08> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
 	key <AE09> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <I160> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
+	key <I248> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
 	key <TLDE> { [Ukrainian_i, Ukrainian_I, Ukrainian_yi, Ukrainian_YI] };
 };
 
@@ -875,5 +913,7 @@ xkb_symbols "group3" {
 	key <AE07> { [schwa, SCHWA, dead_schwa, dead_SCHWA] };
 	key <AE08> { [schwa, SCHWA, dead_schwa, dead_SCHWA] };
 	key <AE09> { [schwa, SCHWA, dead_schwa, dead_SCHWA] };
+	key <I160> { [schwa, SCHWA, dead_schwa, dead_SCHWA] };
+	key <I248> { [schwa, SCHWA, dead_schwa, dead_SCHWA] };
 	key <TLDE> { [schwa, SCHWA, dead_schwa, dead_SCHWA] };
 };

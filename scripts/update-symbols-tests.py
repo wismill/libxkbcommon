@@ -286,6 +286,9 @@ class KeyEntry:
 
     @property
     def xkb(self) -> Iterator[str]:
+        if not self.levels:
+            yield ""
+            return
         keysyms = tuple(l.keysyms for l in self.levels)
         has_keysyms = any(not Level.has_empty_symbols(s) for s in keysyms)
         no_keysyms = all(not s for s in keysyms)
@@ -401,6 +404,21 @@ class TestGroup:
 TESTS_ACTIONS_ONLY = TestGroup(
     "actions_only",
     (
+        # Trivial cases
+        TestEntry(
+            KeyCode("COFFEE", "I160"),
+            KeyEntry(),
+            update=KeyEntry(Level.Actions(3)),
+            augment=KeyEntry(Level.Actions(3)),
+            override=KeyEntry(Level.Actions(3)),
+        ),
+        TestEntry(
+            KeyCode("UNKNOWN", "I248"),
+            KeyEntry(Level.Actions(2)),
+            update=KeyEntry(),
+            augment=KeyEntry(Level.Actions(2)),
+            override=KeyEntry(Level.Actions(2)),
+        ),
         # Single keysyms -> single keysyms
         TestEntry(
             KeyCode("Q", "AD01"),
