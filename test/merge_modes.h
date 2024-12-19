@@ -1397,6 +1397,18 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_7, DOWN, XKB_KEY_A, XKB_KEY_B, NEXT,
         KEY_7, UP, XKB_KEY_Ukrainian_YI, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_8, DOWN, XKB_KEY_a, XKB_KEY_b, NEXT,
+        KEY_8, UP, XKB_KEY_Ukrainian_i, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_8, DOWN, XKB_KEY_X, XKB_KEY_B, NEXT,
+        KEY_8, UP, XKB_KEY_Ukrainian_YI, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_9, DOWN, XKB_KEY_a, XKB_KEY_y, NEXT,
+        KEY_9, UP, XKB_KEY_Ukrainian_yi, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_9, DOWN, XKB_KEY_X, XKB_KEY_B, NEXT,
+        KEY_9, UP, XKB_KEY_SCHWA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, FINISH
     ));
     xkb_keymap_unref(keymap);
@@ -1466,6 +1478,18 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         KEY_7, DOWN, XKB_KEY_A, XKB_KEY_B, NEXT,
         KEY_7, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_8, DOWN, XKB_KEY_a, XKB_KEY_y, NEXT,
+        KEY_8, UP, XKB_KEY_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_8, DOWN, XKB_KEY_X, XKB_KEY_Y, NEXT,
+        KEY_8, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_9, DOWN, XKB_KEY_a, XKB_KEY_y, NEXT,
+        KEY_9, UP, XKB_KEY_Ukrainian_yi, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_9, DOWN, XKB_KEY_X, XKB_KEY_B, NEXT,
+        KEY_9, UP, XKB_KEY_SCHWA, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, FINISH
     ));
     xkb_keymap_unref(keymap);

@@ -897,6 +897,45 @@ TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
                 Level.Mix(("A", "B"), (3, Modifier.LevelThree)),
             ),
         ),
+        # Multiple (mix) –> multiple (mix)
+        TestEntry(
+            KeyCode("8", "AE08"),
+            KeyEntry(
+                Level.Mix(("a", "b"), (2, Modifier.Control)),
+                Level.Mix((None, "B"), (2, None)),
+            ),
+            update=KeyEntry(
+                Level.Mix((None, "y"), (3, None)),
+                Level.Mix(("X", "Y"), (3, Modifier.LevelThree)),
+            ),
+            augment=KeyEntry(
+                Level.Mix(("a", "b"), (2, Modifier.Control)),
+                Level.Mix(("X", "B"), (2, Modifier.LevelThree)),
+            ),
+            override=KeyEntry(
+                Level.Mix(("a", "y"), (3, Modifier.Control)),
+                Level.Mix(("X", "Y"), (3, Modifier.LevelThree)),
+            ),
+        ),
+        TestEntry(
+            KeyCode("9", "AE09"),
+            KeyEntry(
+                Level.Mix(("a", None), (2, None)),
+                Level.Mix((None, "B"), (None, Modifier.Control)),
+            ),
+            update=KeyEntry(
+                Level.Mix((None, "y"), (None, Modifier.LevelThree)),
+                Level.Mix(("X", None), (3, None)),
+            ),
+            augment=KeyEntry(
+                Level.Mix(("a", "y"), (2, Modifier.LevelThree)),
+                Level.Mix(("X", "B"), (3, Modifier.Control)),
+            ),
+            override=KeyEntry(
+                Level.Mix(("a", "y"), (2, Modifier.LevelThree)),
+                Level.Mix(("X", "B"), (3, Modifier.Control)),
+            ),
+        ),
         # TODO: mismatch count with *mix*
     ),
 )
