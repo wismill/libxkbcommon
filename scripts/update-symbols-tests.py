@@ -406,6 +406,13 @@ TESTS_ACTIONS_ONLY = TestGroup(
     (
         # Trivial cases
         TestEntry(
+            KeyCode("NEW", "I189"),
+            KeyEntry(),
+            update=KeyEntry(),
+            augment=KeyEntry(),
+            override=KeyEntry(),
+        ),
+        TestEntry(
             KeyCode("COFFEE", "I160"),
             KeyEntry(),
             update=KeyEntry(Level.Actions(3)),
