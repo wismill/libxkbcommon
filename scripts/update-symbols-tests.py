@@ -11,11 +11,18 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 from enum import IntFlag
 from pathlib import Path
-from typing import Any, ClassVar, Iterable, Iterator, Self
+from typing import Any, ClassVar, Iterable, Iterator, NewType, Self
 
 import jinja2
 
 SCRIPT = Path(__file__)
+
+
+Comment = NewType("Comment", str)
+
+
+def is_not_comment(x: Any) -> bool:
+    return not isinstance(x, str)
 
 
 @dataclass(frozen=True)
@@ -388,7 +395,7 @@ class TestEntry:
 @dataclass
 class TestGroup:
     name: str
-    tests: tuple[TestEntry, ...]
+    tests: tuple[TestEntry | Comment, ...]
 
     def add_keysyms(self, name: str, keep_actions: bool) -> Self:
         return dataclasses.replace(
@@ -396,6 +403,8 @@ class TestGroup:
             name=name,
             tests=tuple(
                 t.add_keysyms(keep_actions=keep_actions)
+                if isinstance(t, TestEntry)
+                else t
                 for t in TESTS_ACTIONS_ONLY.tests
             ),
         )
@@ -404,7 +413,7 @@ class TestGroup:
 TESTS_ACTIONS_ONLY = TestGroup(
     "actions_only",
     (
-        # Trivial cases
+        Comment("Trivial cases"),
         TestEntry(
             KeyCode("NEW", "I189"),
             KeyEntry(),
@@ -426,64 +435,101 @@ TESTS_ACTIONS_ONLY = TestGroup(
             augment=KeyEntry(Level.Actions(2)),
             override=KeyEntry(Level.Actions(2)),
         ),
-        # Single keysyms -> single keysyms
+        Comment("Same key"),
+        TestEntry(
+            KeyCode("REDO", "I190"),
+            KeyEntry(Level.Actions(2), Level.Actions(2, Modifier.Control)),
+            update=KeyEntry(Level.Actions(2), Level.Actions(2, Modifier.Control)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2, Modifier.Control)),
+            override=KeyEntry(Level.Actions(2), Level.Actions(2, Modifier.Control)),
+        ),
+        Comment("Mismatch levels count"),
         TestEntry(
             KeyCode("Q", "AD01"),
+            KeyEntry(Level.Actions(None), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(3), Level.Actions(None), Level.Actions(None)),
+            augment=KeyEntry(Level.Actions(3), Level.Actions(2), Level.Actions(None)),
+            override=KeyEntry(Level.Actions(3), Level.Actions(2), Level.Actions(None)),
+        ),
+        TestEntry(
+            KeyCode("W", "AD02"),
+            KeyEntry(Level.Actions(None), Level.Actions(2), Level.Actions(None)),
+            update=KeyEntry(Level.Actions(3), Level.Actions(None)),
+            augment=KeyEntry(Level.Actions(3), Level.Actions(2), Level.Actions(None)),
+            override=KeyEntry(Level.Actions(3), Level.Actions(2), Level.Actions(None)),
+        ),
+        TestEntry(
+            KeyCode("E", "AD03"),
+            KeyEntry(Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(3), Level.Actions(3), Level.Actions(3)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2), Level.Actions(3)),
+            override=KeyEntry(Level.Actions(3), Level.Actions(3), Level.Actions(3)),
+        ),
+        TestEntry(
+            KeyCode("R", "AD04"),
+            KeyEntry(Level.Actions(2), Level.Actions(2), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(3), Level.Actions(3)),
+            augment=KeyEntry(Level.Actions(2), Level.Actions(2), Level.Actions(2)),
+            override=KeyEntry(Level.Actions(3), Level.Actions(3), Level.Actions(2)),
+        ),
+        Comment("Single keysyms -> single keysyms"),
+        TestEntry(
+            KeyCode("T", "AD05"),
             KeyEntry(Level.Actions(None), Level.Actions(None)),
             update=KeyEntry(Level.Actions(None), Level.Actions(None)),
             augment=KeyEntry(Level.Actions(None), Level.Actions(None)),
             override=KeyEntry(Level.Actions(None), Level.Actions(None)),
         ),
         TestEntry(
-            KeyCode("W", "AD02"),
+            KeyCode("Y", "AD06"),
             KeyEntry(Level.Actions(None), Level.Actions(None)),
             update=KeyEntry(Level.Actions(3), Level.Actions(None)),
             augment=KeyEntry(Level.Actions(3), Level.Actions(None)),
             override=KeyEntry(Level.Actions(3), Level.Actions(None)),
         ),
         TestEntry(
-            KeyCode("E", "AD03"),
+            KeyCode("U", "AD07"),
             KeyEntry(Level.Actions(None), Level.Actions(None)),
             update=KeyEntry(Level.Actions(None), Level.Actions(3)),
             augment=KeyEntry(Level.Actions(None), Level.Actions(3)),
             override=KeyEntry(Level.Actions(None), Level.Actions(3)),
         ),
         TestEntry(
-            KeyCode("R", "AD04"),
+            KeyCode("I", "AD08"),
             KeyEntry(Level.Actions(None), Level.Actions(None)),
             update=KeyEntry(Level.Actions(3), Level.Actions(3)),
             augment=KeyEntry(Level.Actions(3), Level.Actions(3)),
             override=KeyEntry(Level.Actions(3), Level.Actions(3)),
         ),
         TestEntry(
-            KeyCode("T", "AD05"),
+            KeyCode("O", "AD09"),
             KeyEntry(Level.Actions(2), Level.Actions(2)),
             update=KeyEntry(Level.Actions(None), Level.Actions(None)),
             augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
             override=KeyEntry(Level.Actions(2), Level.Actions(2)),
         ),
         TestEntry(
-            KeyCode("Y", "AD06"),
+            KeyCode("P", "AD10"),
             KeyEntry(Level.Actions(2), Level.Actions(2)),
             update=KeyEntry(Level.Actions(3), Level.Actions(None)),
             augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
             override=KeyEntry(Level.Actions(3), Level.Actions(2)),
         ),
         TestEntry(
-            KeyCode("U", "AD07"),
+            KeyCode("LEFTBRACE", "AD11"),
             KeyEntry(Level.Actions(2), Level.Actions(2)),
             update=KeyEntry(Level.Actions(None), Level.Actions(3)),
             augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
             override=KeyEntry(Level.Actions(2), Level.Actions(3)),
         ),
         TestEntry(
-            KeyCode("I", "AD08"),
+            KeyCode("RIGHTBRACE", "AD12"),
             KeyEntry(Level.Actions(2), Level.Actions(2)),
             update=KeyEntry(Level.Actions(3), Level.Actions(3)),
             augment=KeyEntry(Level.Actions(2), Level.Actions(2)),
             override=KeyEntry(Level.Actions(3), Level.Actions(3)),
         ),
-        # Single keysyms -> multiple keysyms
+        Comment("Single keysyms -> multiple keysyms"),
         TestEntry(
             KeyCode("A", "AC01"),
             KeyEntry(Level.Actions(None), Level.Actions(None)),
@@ -583,7 +629,7 @@ TESTS_ACTIONS_ONLY = TestGroup(
                 Level.Actions(3, Modifier.LevelThree),
             ),
         ),
-        # Multiple keysyms -> multiple keysyms
+        Comment("Multiple keysyms -> multiple keysyms"),
         TestEntry(
             KeyCode("Z", "AB01"),
             KeyEntry(Level.Actions(None, None), Level.Actions(None, None)),
@@ -734,7 +780,7 @@ TESTS_ACTIONS_ONLY = TestGroup(
                 Level.Actions(Modifier.LevelThree, 3),
             ),
         ),
-        # Multiple keysyms -> single keysyms
+        Comment("Multiple keysyms -> single keysyms"),
         TestEntry(
             KeyCode("GRAVE", "TLDE"),
             KeyEntry(Level.Actions(None, None), Level.Actions(2, Modifier.Control)),
@@ -767,7 +813,7 @@ TESTS_ACTIONS_ONLY = TestGroup(
             augment=KeyEntry(Level.Actions(2, None), Level.Actions(None, 2)),
             override=KeyEntry(Level.Actions(3), Level.Actions(3)),
         ),
-        # Mix
+        Comment("Mix"),
         TestEntry(
             KeyCode("4", "AE04"),
             KeyEntry(Level.Actions(2)),
@@ -828,7 +874,7 @@ TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
                 Level.Actions(3, Modifier.LevelThree), Level.Keysyms("X", "Y")
             ),
         ),
-        # Multiple keysyms/actions –> single
+        Comment("Multiple keysyms/actions –> single"),
         TestEntry(
             KeyCode("2", "AE02"),
             KeyEntry(Level.Keysyms("a", "b"), Level.Actions(2, Modifier.Control)),
@@ -838,7 +884,7 @@ TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
             ),
             override=KeyEntry(Level.Actions(3), Level.Keysyms("X")),
         ),
-        # Multiple keysyms/actions –> multiple (xor)
+        Comment("Multiple keysyms/actions –> multiple (xor)"),
         TestEntry(
             KeyCode("3", "AE03"),
             KeyEntry(Level.Keysyms("a", "b"), Level.Actions(2, Modifier.Control)),
@@ -854,7 +900,7 @@ TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
                 Level.Mix(("X", "Y"), (2, Modifier.Control)),
             ),
         ),
-        # Multiple keysyms/actions –> multiple (mix)
+        Comment("Multiple keysyms/actions –> multiple (mix)"),
         TestEntry(
             KeyCode("4", "AE04"),
             KeyEntry(Level.Keysyms("a", None), Level.Actions(2, None)),
@@ -887,7 +933,7 @@ TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
                 Level.Mix(("X", "Y"), (3, Modifier.Control)),
             ),
         ),
-        # Multiple (mix) –> multiple keysyms/actions
+        Comment("Multiple (mix) –> multiple keysyms/actions"),
         TestEntry(
             KeyCode("6", "AE06"),
             KeyEntry(
@@ -922,7 +968,7 @@ TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
                 Level.Mix(("A", "B"), (3, Modifier.LevelThree)),
             ),
         ),
-        # Multiple (mix) –> multiple (mix)
+        Comment("Multiple (mix) –> multiple (mix)"),
         TestEntry(
             KeyCode("8", "AE08"),
             KeyEntry(
@@ -961,7 +1007,7 @@ TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
                 Level.Mix(("X", "B"), (3, Modifier.Control)),
             ),
         ),
-        # Mismatch count with mix
+        Comment("Mismatch count with mix"),
         TestEntry(
             KeyCode("Q", "AD01"),
             KeyEntry(
@@ -1030,7 +1076,8 @@ TESTS = (
 )
 
 KEYCODES = sorted(
-    frozenset(t.key for g in TESTS for t in g.tests), key=lambda x: x._xkb
+    frozenset(t.key for g in TESTS for t in filter(is_not_comment, g.tests)),
+    key=lambda x: x._xkb,
 )
 
 if __name__ == "__main__":
@@ -1056,6 +1103,8 @@ if __name__ == "__main__":
     )
     jinja_env.globals["alt_keysym"] = TestEntry.alt_keysym
     jinja_env.globals["alt_keysyms"] = TestEntry.alt_keysyms
+    jinja_env.globals["is_not_comment"] = is_not_comment
+    jinja_env.tests["is_not_comment"] = is_not_comment
     TestEntry.write_symbols(
         root=args.root, jinja_env=jinja_env, tests=TESTS, keycodes=KEYCODES
     )

@@ -42,11 +42,19 @@
                                  ARRAY_SIZE(keymap_{{ tests_group.name }}_{{type}}));
     assert(test_key_seq(keymap,
         {%- for entry in tests_group.tests +%}
+        {% if is_not_comment(entry) %}
         {{ key_seq(entry, type, 0) }}, {%- if entry[type].levels|length > 1 %} NEXT,
         KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
         {{ key_seq(entry, type, 1) }}, NEXT,
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L,
+        {%- endif %}{%- if entry[type].levels|length > 2 %} NEXT,
+        KEY_RIGHTALT, DOWN, XKB_KEY_ISO_Level3_Shift, NEXT,
+        {{ key_seq(entry, type, 2) }}, NEXT,
+        KEY_RIGHTALT, UP, XKB_KEY_ISO_Level3_Shift,
         {%- endif %}{% if not loop.last %} NEXT,{% endif %}
+        {% else %}
+        // {{ entry -}}
+        {% endif %}
         {% endfor %} FINISH
     ));
     xkb_keymap_unref(keymap);
