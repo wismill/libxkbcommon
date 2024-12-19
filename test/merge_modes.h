@@ -1327,4 +1327,146 @@ test_merge_modes(struct xkb_context *ctx)
         KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, FINISH
     ));
     xkb_keymap_unref(keymap);
+
+    /****************************************************************
+     * Test group: keysyms_and_actions_extras
+     ****************************************************************/
+
+    /* Mode: Augment */
+    const char keymap_keysyms_and_actions_extras_augment[] =
+        "xkb_keymap {\n"
+        "  xkb_keycodes { include \"evdev\" };\n"
+        "  xkb_types { include \"complete\" };\n"
+        "  xkb_compat { include \"complete\" };\n"
+        "  xkb_symbols {\n"
+        // NOTE: Separate statements so that *all* the merge modes *really* work.
+        //       Using + and | separators downgrades `replace key` to `override/
+        //       augment key`.
+        "    include \"pc\"\n"
+        "    include \"merge_modes(keysyms_and_actions_extras_base)\"\n"
+        "    augment \"merge_modes(keysyms_and_actions_extras_new)\"\n"
+        "    include \"merge_modes(group2):2+merge_modes(group3):3\"\n"
+        "  };\n"
+        "};";
+    fprintf(stderr, "*** test_merge_modes: keysyms_and_actions_extras, augment ***\n");
+    keymap = test_compile_buffer(ctx, keymap_keysyms_and_actions_extras_augment,
+                                 ARRAY_SIZE(keymap_keysyms_and_actions_extras_augment));
+    assert(test_key_seq(keymap,
+        KEY_GRAVE, DOWN, XKB_KEY_a, NEXT,
+        KEY_GRAVE, UP, XKB_KEY_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_GRAVE, DOWN, XKB_KEY_X, NEXT,
+        KEY_GRAVE, UP, XKB_KEY_Ukrainian_I, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_1, BOTH, XKB_KEY_a, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_1, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_1, UP, XKB_KEY_Ukrainian_I, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_2, BOTH, XKB_KEY_a, XKB_KEY_b, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_2, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_2, UP, XKB_KEY_Ukrainian_I, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_3, DOWN, XKB_KEY_a, XKB_KEY_b, NEXT,
+        KEY_3, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_3, DOWN, XKB_KEY_X, XKB_KEY_Y, NEXT,
+        KEY_3, UP, XKB_KEY_Ukrainian_I, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_4, DOWN, XKB_KEY_a, XKB_KEY_y, NEXT,
+        KEY_4, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_4, DOWN, XKB_KEY_X, XKB_KEY_Y, NEXT,
+        KEY_4, UP, XKB_KEY_Ukrainian_YI, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_5, DOWN, XKB_KEY_a, XKB_KEY_b, NEXT,
+        KEY_5, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_5, DOWN, XKB_KEY_X, XKB_KEY_Y, NEXT,
+        KEY_5, UP, XKB_KEY_Ukrainian_I, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_6, DOWN, XKB_KEY_a, XKB_KEY_b, NEXT,
+        KEY_6, UP, XKB_KEY_Ukrainian_i, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_6, DOWN, XKB_KEY_A, XKB_KEY_B, NEXT,
+        KEY_6, UP, XKB_KEY_Ukrainian_I, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_7, DOWN, XKB_KEY_a, XKB_KEY_y, NEXT,
+        KEY_7, UP, XKB_KEY_Ukrainian_i, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_7, DOWN, XKB_KEY_A, XKB_KEY_B, NEXT,
+        KEY_7, UP, XKB_KEY_Ukrainian_YI, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, FINISH
+    ));
+    xkb_keymap_unref(keymap);
+
+    /* Mode: Override */
+    const char keymap_keysyms_and_actions_extras_override[] =
+        "xkb_keymap {\n"
+        "  xkb_keycodes { include \"evdev\" };\n"
+        "  xkb_types { include \"complete\" };\n"
+        "  xkb_compat { include \"complete\" };\n"
+        "  xkb_symbols {\n"
+        // NOTE: Separate statements so that *all* the merge modes *really* work.
+        //       Using + and | separators downgrades `replace key` to `override/
+        //       augment key`.
+        "    include \"pc\"\n"
+        "    include \"merge_modes(keysyms_and_actions_extras_base)\"\n"
+        "    override \"merge_modes(keysyms_and_actions_extras_new)\"\n"
+        "    include \"merge_modes(group2):2+merge_modes(group3):3\"\n"
+        "  };\n"
+        "};";
+    fprintf(stderr, "*** test_merge_modes: keysyms_and_actions_extras, override ***\n");
+    keymap = test_compile_buffer(ctx, keymap_keysyms_and_actions_extras_override,
+                                 ARRAY_SIZE(keymap_keysyms_and_actions_extras_override));
+    assert(test_key_seq(keymap,
+        KEY_GRAVE, DOWN, XKB_KEY_a, NEXT,
+        KEY_GRAVE, UP, XKB_KEY_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_GRAVE, DOWN, XKB_KEY_X, NEXT,
+        KEY_GRAVE, UP, XKB_KEY_Ukrainian_I, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_1, DOWN, XKB_KEY_NoSymbol, XKB_KEY_NoSymbol, NEXT,
+        KEY_1, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_1, BOTH, XKB_KEY_X, XKB_KEY_Y, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_2, DOWN, XKB_KEY_NoSymbol, NEXT,
+        KEY_2, UP, XKB_KEY_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_2, BOTH, XKB_KEY_X, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_3, DOWN, XKB_KEY_a, XKB_KEY_b, NEXT,
+        KEY_3, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_3, DOWN, XKB_KEY_X, XKB_KEY_Y, NEXT,
+        KEY_3, UP, XKB_KEY_Ukrainian_I, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_4, DOWN, XKB_KEY_x, XKB_KEY_y, NEXT,
+        KEY_4, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_4, DOWN, XKB_KEY_X, XKB_KEY_Y, NEXT,
+        KEY_4, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_5, DOWN, XKB_KEY_x, XKB_KEY_b, NEXT,
+        KEY_5, UP, XKB_KEY_dead_schwa, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_5, DOWN, XKB_KEY_X, XKB_KEY_Y, NEXT,
+        KEY_5, UP, XKB_KEY_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_6, DOWN, XKB_KEY_x, XKB_KEY_b, NEXT,
+        KEY_6, UP, XKB_KEY_Ukrainian_i, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_6, DOWN, XKB_KEY_A, XKB_KEY_B, NEXT,
+        KEY_6, UP, XKB_KEY_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, NEXT,
+        KEY_7, DOWN, XKB_KEY_x, XKB_KEY_y, NEXT,
+        KEY_7, UP, XKB_KEY_Ukrainian_i, NEXT,
+        KEY_LEFTSHIFT, DOWN, XKB_KEY_Shift_L, NEXT,
+        KEY_7, DOWN, XKB_KEY_A, XKB_KEY_B, NEXT,
+        KEY_7, UP, XKB_KEY_dead_SCHWA, NEXT,
+        KEY_LEFTSHIFT, UP, XKB_KEY_Shift_L, FINISH
+    ));
+    xkb_keymap_unref(keymap);
 }

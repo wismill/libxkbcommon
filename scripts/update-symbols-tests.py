@@ -235,11 +235,17 @@ class Level:
 
     @classmethod
     def Keysyms(cls, *keysyms: str | None) -> Self:
-        return cls(tuple(map(Keysym.parse, keysyms)), ())
+        return cls.Mix(keysyms, ())
 
     @classmethod
     def Actions(cls, *actions: int | Modifier | None) -> Self:
-        return cls((), tuple(map(Action.parse, actions)))
+        return cls.Mix((), actions)
+
+    @classmethod
+    def Mix(
+        cls, keysyms: tuple[str | None, ...], actions: tuple[int | Modifier | None,]
+    ) -> Self:
+        return cls(tuple(map(Keysym.parse, keysyms)), tuple(map(Action.parse, actions)))
 
     def add_keysyms(self, keep_actions: bool, level: int) -> Self:
         return self.__class__(
@@ -774,28 +780,124 @@ TESTS_KEYSYMS_ONLY = TESTS_ACTIONS_ONLY.add_keysyms(
 TESTS_KEYSYMS_AND_ACTIONS1 = TESTS_ACTIONS_ONLY.add_keysyms(
     name="keysyms_and_actions_auto", keep_actions=True
 )
+
+# Further mixes between actions and keysyms
 TESTS_KEYSYMS_AND_ACTIONS2 = TestGroup(
     "keysyms_and_actions_extras",
     (
-        # TODO: further mixes between actions and keysyms
-        # TestEntry(
-        #     KeyCode("GRAVE", "TLDE"),
-        #     KeyEntry(Level.Actions(None, None), Level.Actions(2, Modifier.Control)),
-        #     update=KeyEntry(Level.Actions(None), Level.Actions(None)),
-        #     augment=KeyEntry(
-        #         Level.Actions(None, None), Level.Actions(2, Modifier.Control)
-        #     ),
-        #     override=KeyEntry(
-        #         Level.Actions(None, None), Level.Actions(2, Modifier.Control)
-        #     ),
-        # ),
-        # TestEntry(
-        #     KeyCode("1", "AE01"),
-        #     KeyEntry(Level.Actions(None, None), Level.Actions(2, Modifier.Control)),
-        #     update=KeyEntry(Level.Actions(3), Level.Actions(3)),
-        #     augment=KeyEntry(Level.Actions(3), Level.Actions(2, Modifier.Control)),
-        #     override=KeyEntry(Level.Actions(3), Level.Actions(3)),
-        # ),
+        TestEntry(
+            KeyCode("GRAVE", "TLDE"),
+            KeyEntry(Level.Keysyms("a"), Level.Actions(2)),
+            update=KeyEntry(Level.Actions(3), Level.Keysyms("X")),
+            augment=KeyEntry(Level.Mix(("a"), (3,)), Level.Mix(("X",), (2,))),
+            override=KeyEntry(Level.Mix(("a"), (3,)), Level.Mix(("X",), (2,))),
+        ),
+        TestEntry(
+            KeyCode("1", "AE01"),
+            KeyEntry(Level.Keysyms("a"), Level.Actions(2)),
+            update=KeyEntry(
+                Level.Actions(3, Modifier.LevelThree), Level.Keysyms("X", "Y")
+            ),
+            augment=KeyEntry(Level.Keysyms("a"), Level.Actions(2)),
+            override=KeyEntry(
+                Level.Actions(3, Modifier.LevelThree), Level.Keysyms("X", "Y")
+            ),
+        ),
+        # Multiple keysyms/actions –> single
+        TestEntry(
+            KeyCode("2", "AE02"),
+            KeyEntry(Level.Keysyms("a", "b"), Level.Actions(2, Modifier.Control)),
+            update=KeyEntry(Level.Actions(3), Level.Keysyms("X")),
+            augment=KeyEntry(
+                Level.Keysyms("a", "b"), Level.Actions(2, Modifier.Control)
+            ),
+            override=KeyEntry(Level.Actions(3), Level.Keysyms("X")),
+        ),
+        # Multiple keysyms/actions –> multiple (xor)
+        TestEntry(
+            KeyCode("3", "AE03"),
+            KeyEntry(Level.Keysyms("a", "b"), Level.Actions(2, Modifier.Control)),
+            update=KeyEntry(
+                Level.Actions(3, Modifier.LevelThree), Level.Keysyms("X", "Y")
+            ),
+            augment=KeyEntry(
+                Level.Mix(("a", "b"), (3, Modifier.LevelThree)),
+                Level.Mix(("X", "Y"), (2, Modifier.Control)),
+            ),
+            override=KeyEntry(
+                Level.Mix(("a", "b"), (3, Modifier.LevelThree)),
+                Level.Mix(("X", "Y"), (2, Modifier.Control)),
+            ),
+        ),
+        # Multiple keysyms/actions –> multiple (mix)
+        TestEntry(
+            KeyCode("4", "AE04"),
+            KeyEntry(Level.Keysyms("a", None), Level.Actions(2, None)),
+            update=KeyEntry(
+                Level.Mix(("x", "y"), (3, Modifier.LevelThree)),
+                Level.Mix(("X", "Y"), (3, Modifier.LevelThree)),
+            ),
+            augment=KeyEntry(
+                Level.Mix(("a", "y"), (3, Modifier.LevelThree)),
+                Level.Mix(("X", "Y"), (2, Modifier.LevelThree)),
+            ),
+            override=KeyEntry(
+                Level.Mix(("x", "y"), (3, Modifier.LevelThree)),
+                Level.Mix(("X", "Y"), (3, Modifier.LevelThree)),
+            ),
+        ),
+        TestEntry(
+            KeyCode("5", "AE05"),
+            KeyEntry(Level.Keysyms("a", "b"), Level.Actions(2, Modifier.Control)),
+            update=KeyEntry(
+                Level.Mix(("x", None), (3, Modifier.LevelThree)),
+                Level.Mix(("X", "Y"), (3, None)),
+            ),
+            augment=KeyEntry(
+                Level.Mix(("a", "b"), (3, Modifier.LevelThree)),
+                Level.Mix(("X", "Y"), (2, Modifier.Control)),
+            ),
+            override=KeyEntry(
+                Level.Mix(("x", "b"), (3, Modifier.LevelThree)),
+                Level.Mix(("X", "Y"), (3, Modifier.Control)),
+            ),
+        ),
+        # Multiple (mix) –> multiple keysyms/actions
+        TestEntry(
+            KeyCode("6", "AE06"),
+            KeyEntry(
+                Level.Mix(("a", "b"), (2, Modifier.Control)),
+                Level.Mix(("A", "B"), (2, Modifier.Control)),
+            ),
+            update=KeyEntry(Level.Keysyms("x", None), Level.Actions(3, None)),
+            augment=KeyEntry(
+                Level.Mix(("a", "b"), (2, Modifier.Control)),
+                Level.Mix(("A", "B"), (2, Modifier.Control)),
+            ),
+            override=KeyEntry(
+                Level.Mix(("x", "b"), (2, Modifier.Control)),
+                Level.Mix(("A", "B"), (3, Modifier.Control)),
+            ),
+        ),
+        TestEntry(
+            KeyCode("7", "AE07"),
+            KeyEntry(
+                Level.Mix(("a", None), (2, Modifier.Control)),
+                Level.Mix(("A", "B"), (2, None)),
+            ),
+            update=KeyEntry(
+                Level.Keysyms("x", "y"), Level.Actions(3, Modifier.LevelThree)
+            ),
+            augment=KeyEntry(
+                Level.Mix(("a", "y"), (2, Modifier.Control)),
+                Level.Mix(("A", "B"), (2, Modifier.LevelThree)),
+            ),
+            override=KeyEntry(
+                Level.Mix(("x", "y"), (2, Modifier.Control)),
+                Level.Mix(("A", "B"), (3, Modifier.LevelThree)),
+            ),
+        ),
+        # TODO: mismatch count with *mix*
     ),
 )
 
@@ -803,7 +905,7 @@ TESTS = (
     TESTS_KEYSYMS_ONLY,
     TESTS_ACTIONS_ONLY,
     TESTS_KEYSYMS_AND_ACTIONS1,
-    # TESTS_KEYSYMS_AND_ACTIONS2,
+    TESTS_KEYSYMS_AND_ACTIONS2,
 )
 
 KEYCODES = sorted(
