@@ -891,6 +891,68 @@ TESTS_ACTIONS_ONLY = TestGroup(
                 Level.Actions(3, Modifier.Control), Level.Actions(Modifier.Control, 3)
             ),
         ),
+        TestEntry(
+            KeyCode("COMMA", "AB08"),
+            KeyEntry(Level.Actions(None, None), Level.Actions(None, None, None)),
+            update=KeyEntry(Level.Actions(None, None, None), Level.Actions(None, None)),
+            augment=KeyEntry(
+                Level.Actions(None, None), Level.Actions(None, None, None)
+            ),
+            override=KeyEntry(
+                Level.Actions(None, None), Level.Actions(None, None, None)
+            ),
+        ),
+        TestEntry(
+            KeyCode("DOT", "AB09"),
+            KeyEntry(Level.Actions(None, None), Level.Actions(None, None, None)),
+            update=KeyEntry(
+                Level.Actions(3, None, Modifier.LevelThree),
+                Level.Actions(Modifier.LevelThree, 3),
+            ),
+            augment=KeyEntry(
+                Level.Actions(3, None, Modifier.LevelThree),
+                Level.Actions(Modifier.LevelThree, 3),
+            ),
+            override=KeyEntry(
+                Level.Actions(3, None, Modifier.LevelThree),
+                Level.Actions(Modifier.LevelThree, 3),
+            ),
+        ),
+        TestEntry(
+            KeyCode("SLASH", "AB10"),
+            KeyEntry(
+                Level.Actions(2, Modifier.Control),
+                Level.Actions(Modifier.Control, None, 2),
+            ),
+            update=KeyEntry(Level.Actions(None, None, None), Level.Actions(None, None)),
+            augment=KeyEntry(
+                Level.Actions(2, Modifier.Control),
+                Level.Actions(Modifier.Control, None, 2),
+            ),
+            override=KeyEntry(
+                Level.Actions(2, Modifier.Control),
+                Level.Actions(Modifier.Control, None, 2),
+            ),
+        ),
+        TestEntry(
+            KeyCode("RO", "AB11"),
+            KeyEntry(
+                Level.Actions(2, Modifier.Control),
+                Level.Actions(Modifier.Control, None, 2),
+            ),
+            update=KeyEntry(
+                Level.Actions(3, None, Modifier.LevelThree),
+                Level.Actions(Modifier.LevelThree, 3),
+            ),
+            augment=KeyEntry(
+                Level.Actions(2, Modifier.Control),
+                Level.Actions(Modifier.Control, None, 2),
+            ),
+            override=KeyEntry(
+                Level.Actions(3, None, Modifier.LevelThree),
+                Level.Actions(Modifier.LevelThree, 3),
+            ),
+        ),
         # Multiple keysyms -> single keysyms
         TestEntry(
             KeyCode("GRAVE", "TLDE"),
