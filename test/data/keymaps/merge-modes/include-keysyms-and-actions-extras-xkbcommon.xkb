@@ -1,0 +1,197 @@
+xkb_keymap {
+xkb_keycodes "(unnamed)" {
+	minimum = 8;
+	maximum = 255;
+	<AE01>               = 10;
+	<AE02>               = 11;
+	<AE03>               = 12;
+	<AE04>               = 13;
+	<AE05>               = 14;
+	<AE06>               = 15;
+	<AE07>               = 16;
+	<AE08>               = 17;
+	<AE09>               = 18;
+	<AE10>               = 19;
+	<AE11>               = 20;
+	<AE12>               = 21;
+	<AD01>               = 24;
+	<AD02>               = 25;
+	<AD03>               = 26;
+	<AD04>               = 27;
+	<AD05>               = 28;
+	<AD06>               = 29;
+	<AD07>               = 30;
+	<AD08>               = 31;
+	<AD09>               = 32;
+	<AD10>               = 33;
+	<AD11>               = 34;
+	<AD12>               = 35;
+	<AC01>               = 38;
+	<AC02>               = 39;
+	<AC03>               = 40;
+	<AC04>               = 41;
+	<AC05>               = 42;
+	<AC06>               = 43;
+	<AC07>               = 44;
+	<AC08>               = 45;
+	<AC09>               = 46;
+	<AC10>               = 47;
+	<AC11>               = 48;
+	<TLDE>               = 49;
+	<LFSH>               = 50;
+	<AC12>               = 51;
+	<AB01>               = 52;
+	<AB02>               = 53;
+	<AB03>               = 54;
+	<AB04>               = 55;
+	<AB05>               = 56;
+	<AB06>               = 57;
+	<AB07>               = 58;
+	<AB08>               = 59;
+	<AB09>               = 60;
+	<AB10>               = 61;
+	<AB11>               = 97;
+	<RALT>               = 108;
+	<AE13>               = 132;
+	<I160>               = 160;
+	<I189>               = 189;
+	<I190>               = 190;
+	<I222>               = 222;
+};
+
+xkb_types "(unnamed)" {
+	virtual_modifiers NumLock,LevelThree;
+
+	type "ONE_LEVEL" {
+		modifiers= none;
+		level_name[1]= "Any";
+	};
+	type "TWO_LEVEL" {
+		modifiers= Shift;
+		map[Shift]= 2;
+		level_name[1]= "Base";
+		level_name[2]= "Shift";
+	};
+	type "ALPHABETIC" {
+		modifiers= Shift+Lock;
+		map[Shift]= 2;
+		map[Lock]= 2;
+		level_name[1]= "Base";
+		level_name[2]= "Caps";
+	};
+	type "FOUR_LEVEL" {
+		modifiers= Shift+LevelThree;
+		map[Shift]= 2;
+		map[LevelThree]= 3;
+		map[Shift+LevelThree]= 4;
+		level_name[1]= "Base";
+		level_name[2]= "Shift";
+		level_name[3]= "Alt Base";
+		level_name[4]= "Shift Alt";
+	};
+	type "FOUR_LEVEL_ALPHABETIC" {
+		modifiers= Shift+Lock+LevelThree;
+		map[Shift]= 2;
+		map[Lock]= 2;
+		map[LevelThree]= 3;
+		map[Shift+LevelThree]= 4;
+		map[Lock+LevelThree]= 4;
+		map[Shift+Lock+LevelThree]= 3;
+		level_name[1]= "Base";
+		level_name[2]= "Shift";
+		level_name[3]= "Alt Base";
+		level_name[4]= "Shift Alt";
+	};
+	type "FOUR_LEVEL_SEMIALPHABETIC" {
+		modifiers= Shift+Lock+LevelThree;
+		map[Shift]= 2;
+		map[Lock]= 2;
+		map[LevelThree]= 3;
+		map[Shift+LevelThree]= 4;
+		map[Lock+LevelThree]= 3;
+		preserve[Lock+LevelThree]= Lock;
+		map[Shift+Lock+LevelThree]= 4;
+		preserve[Shift+Lock+LevelThree]= Lock;
+		level_name[1]= "Base";
+		level_name[2]= "Shift";
+		level_name[3]= "Alt Base";
+		level_name[4]= "Shift Alt";
+	};
+};
+
+xkb_compatibility "(unnamed)" {
+	virtual_modifiers NumLock,LevelThree;
+
+	interpret.useModMapMods= AnyLevel;
+	interpret.repeat= False;
+};
+
+xkb_symbols "(unnamed)" {
+	key <AE01>               {
+		repeat= No,
+		symbols[Group1]= [ {                       NoSymbol,                       NoSymbol }, {                              X,                              Y } ],
+		actions[Group1]= [ {              SetGroup(group=3),        SetMods(modifiers=Mod5) }, {                     NoAction(),                     NoAction() } ]
+	};
+	key <AE02>               {
+		repeat= No,
+		symbols[Group1]= [                       NoSymbol,                              X ],
+		actions[Group1]= [              SetGroup(group=3),                     NoAction() ]
+	};
+	key <AE03>               {
+		repeat= No,
+		symbols[Group1]= [ {                              a,                              b }, {                              X,                              Y } ],
+		actions[Group1]= [ {              SetGroup(group=3),        SetMods(modifiers=Mod5) }, {              SetGroup(group=2),     SetMods(modifiers=Control) } ]
+	};
+	key <AE04>               {
+		repeat= No,
+		symbols[Group1]= [ {                              x,                              y }, {                              X,                              Y } ],
+		actions[Group1]= [ {              SetGroup(group=3),        SetMods(modifiers=Mod5) }, {              SetGroup(group=3),        SetMods(modifiers=Mod5) } ]
+	};
+	key <AE05>               {
+		repeat= No,
+		symbols[Group1]= [ {                              x,                              b }, {                              X,                              Y } ],
+		actions[Group1]= [ {              SetGroup(group=3),        SetMods(modifiers=Mod5) }, {              SetGroup(group=3),     SetMods(modifiers=Control) } ]
+	};
+	key <AE06>               {
+		repeat= No,
+		symbols[Group1]= [ {                              x,                              b }, {                              A,                              B } ],
+		actions[Group1]= [ {              SetGroup(group=2),     SetMods(modifiers=Control) }, {              SetGroup(group=3),     SetMods(modifiers=Control) } ]
+	};
+	key <AE07>               {
+		repeat= No,
+		symbols[Group1]= [ {                              x,                              y }, {                              A,                              B } ],
+		actions[Group1]= [ {              SetGroup(group=2),     SetMods(modifiers=Control) }, {              SetGroup(group=3),        SetMods(modifiers=Mod5) } ]
+	};
+	key <AE08>               {
+		repeat= No,
+		symbols[Group1]= [ {                              a,                              y }, {                              X,                              Y } ],
+		actions[Group1]= [ {              SetGroup(group=3),     SetMods(modifiers=Control) }, {              SetGroup(group=3),        SetMods(modifiers=Mod5) } ]
+	};
+	key <AE09>               {
+		repeat= No,
+		symbols[Group1]= [ {                              a,                              y }, {                              X,                              B } ],
+		actions[Group1]= [ {              SetGroup(group=2),        SetMods(modifiers=Mod5) }, {              SetGroup(group=3),     SetMods(modifiers=Control) } ]
+	};
+	key <AD01>               {
+		repeat= No,
+		symbols[Group1]= [ {                       NoSymbol,                       NoSymbol },                       NoSymbol ],
+		actions[Group1]= [ {              SetGroup(group=3),        SetMods(modifiers=Mod5) },              SetGroup(group=3) ]
+	};
+	key <AD02>               {
+		repeat= No,
+		symbols[Group1]= [ {                              A,                              B },                              a ],
+		actions[Group1]= [ {                     NoAction(),                     NoAction() },                     NoAction() ]
+	};
+	key <AD03>               {
+		repeat= No,
+		symbols[Group1]= [ {                              x,                              y },                              X ],
+		actions[Group1]= [ {              SetGroup(group=3),        SetMods(modifiers=Mod5) },              SetGroup(group=3) ]
+	};
+	key <AC01>               {
+		repeat= No,
+		symbols[Group1]= [ {                              A,                              A } ],
+		actions[Group1]= [ {              SetGroup(group=3),        SetMods(modifiers=Mod5) } ]
+	};
+};
+
+};
