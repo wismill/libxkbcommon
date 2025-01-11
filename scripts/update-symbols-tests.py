@@ -1302,3 +1302,4 @@ if __name__ == "__main__":
     TestFile.write_symbols(
         root=args.root, jinja_env=jinja_env, tests=TESTS, debug=args.debug
     )
+    TestFile.write_c_tests(root=args.root, jinja_env=jinja_env, tests=TESTS)

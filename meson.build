@@ -792,6 +792,8 @@ test(
         'test-merge-modes',
         'test/merge_modes.c',
         'test/merge_modes.h',
+        'test/merge_modes_symbols.h',
+        'test/merge_modes_symbols_xkbcommon.h',
         dependencies: test_dep
     ),
     env: test_env,

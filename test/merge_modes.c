@@ -29,6 +29,8 @@
 
 #include "test.h"
 #include "merge_modes.h"
+#include "merge_modes_symbols.h"
+#include "merge_modes_symbols_xkbcommon.h"
 
 /* Our keymap compiler is the xkbcommon buffer compiler */
 static struct xkb_keymap *
@@ -44,6 +46,9 @@ test_symbols(struct xkb_context *ctx, enum update_files update_output_files)
     /**************************************************************************
      * Tests common to both xkbcommon and X11 xkbcomp
      **************************************************************************/
+
+    if (update_output_files == NO_UPDATE)
+        test_symbols_merge_modes(ctx, compile_buffer, NULL);
 
     /* Test group: keysyms only */
     make_symbols_tests("merge_modes", "keysyms-only", "",
@@ -61,6 +66,9 @@ test_symbols(struct xkb_context *ctx, enum update_files update_output_files)
     /**************************************************************************
      * Tests xkbcommon-only
      **************************************************************************/
+
+    if (update_output_files == NO_UPDATE)
+        test_symbols_merge_modes_xkbcommon(ctx, compile_buffer, NULL);
 
     /* Test group: keysyms only */
     make_symbols_tests("merge_modes_xkbcommon", "keysyms-only",
