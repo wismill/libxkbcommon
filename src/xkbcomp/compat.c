@@ -764,8 +764,6 @@ HandleCompatMapFile(CompatInfo *info, XkbFile *file, enum merge_mode merge)
 {
     bool ok;
 
-    merge = (merge == MERGE_DEFAULT ? MERGE_AUGMENT : merge);
-
     free(info->name);
     info->name = strdup_safe(file->name);
 
