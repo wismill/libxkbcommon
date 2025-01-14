@@ -1806,7 +1806,6 @@ CompileSymbols(XkbFile *file, struct xkb_keymap *keymap,
         return false;
 
     InitSymbolsInfo(&info, keymap, 0, actions, &keymap->mods);
-    info.default_key.merge = merge;
 
     HandleSymbolsFile(&info, file, merge);
 
