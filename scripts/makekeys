@@ -141,7 +141,7 @@ print(
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverlength-strings"
 #endif
-static const char *keysym_names =
+static const char keysym_names[] =
 """.strip()
 )
 offs = 0
@@ -149,8 +149,10 @@ for keysym in entries_isorted:
     if offs >= MAX_OFFSET:
         raise ValueError(f"Offset must be kept under {MAX_OFFSET}, got: {offs}.")
     entry_offsets[keysym.name] = offs
-    print(f'    "{keysym.name}\\0"')
-    offs += len(keysym.name) + 1
+    assert 0 < len(keysym.name) <= 0xFF, keysym.name
+    # Name length is store as a prefix
+    print(f'    "\\x{len(keysym.name):x}{keysym.name}\\0"')
+    offs += 1 + len(keysym.name) + 1
 print(
     """
 ;

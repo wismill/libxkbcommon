@@ -15,2586 +15,2586 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverlength-strings"
 #endif
-static const char *keysym_names =
-    "0\0"
-    "1\0"
-    "2\0"
-    "3\0"
-    "3270_AltCursor\0"
-    "3270_Attn\0"
-    "3270_BackTab\0"
-    "3270_ChangeScreen\0"
-    "3270_Copy\0"
-    "3270_CursorBlink\0"
-    "3270_CursorSelect\0"
-    "3270_DeleteWord\0"
-    "3270_Duplicate\0"
-    "3270_Enter\0"
-    "3270_EraseEOF\0"
-    "3270_EraseInput\0"
-    "3270_ExSelect\0"
-    "3270_FieldMark\0"
-    "3270_Ident\0"
-    "3270_Jump\0"
-    "3270_KeyClick\0"
-    "3270_Left2\0"
-    "3270_PA1\0"
-    "3270_PA2\0"
-    "3270_PA3\0"
-    "3270_Play\0"
-    "3270_PrintScreen\0"
-    "3270_Quit\0"
-    "3270_Record\0"
-    "3270_Reset\0"
-    "3270_Right2\0"
-    "3270_Rule\0"
-    "3270_Setup\0"
-    "3270_Test\0"
-    "4\0"
-    "5\0"
-    "6\0"
-    "7\0"
-    "8\0"
-    "9\0"
-    "A\0"
-    "a\0"
-    "Aacute\0"
-    "aacute\0"
-    "Abelowdot\0"
-    "abelowdot\0"
-    "abovedot\0"
-    "Abreve\0"
-    "abreve\0"
-    "Abreveacute\0"
-    "abreveacute\0"
-    "Abrevebelowdot\0"
-    "abrevebelowdot\0"
-    "Abrevegrave\0"
-    "abrevegrave\0"
-    "Abrevehook\0"
-    "abrevehook\0"
-    "Abrevetilde\0"
-    "abrevetilde\0"
-    "AccessX_Enable\0"
-    "AccessX_Feedback_Enable\0"
-    "Acircumflex\0"
-    "acircumflex\0"
-    "Acircumflexacute\0"
-    "acircumflexacute\0"
-    "Acircumflexbelowdot\0"
-    "acircumflexbelowdot\0"
-    "Acircumflexgrave\0"
-    "acircumflexgrave\0"
-    "Acircumflexhook\0"
-    "acircumflexhook\0"
-    "Acircumflextilde\0"
-    "acircumflextilde\0"
-    "acute\0"
-    "Adiaeresis\0"
-    "adiaeresis\0"
-    "AE\0"
-    "ae\0"
-    "Agrave\0"
-    "agrave\0"
-    "Ahook\0"
-    "ahook\0"
-    "Alt_L\0"
-    "Alt_R\0"
-    "Amacron\0"
-    "amacron\0"
-    "ampersand\0"
-    "Aogonek\0"
-    "aogonek\0"
-    "apostrophe\0"
-    "approxeq\0"
-    "approximate\0"
-    "Arabic_0\0"
-    "Arabic_1\0"
-    "Arabic_2\0"
-    "Arabic_3\0"
-    "Arabic_4\0"
-    "Arabic_5\0"
-    "Arabic_6\0"
-    "Arabic_7\0"
-    "Arabic_8\0"
-    "Arabic_9\0"
-    "Arabic_ain\0"
-    "Arabic_alef\0"
-    "Arabic_alefmaksura\0"
-    "Arabic_beh\0"
-    "Arabic_comma\0"
-    "Arabic_dad\0"
-    "Arabic_dal\0"
-    "Arabic_damma\0"
-    "Arabic_dammatan\0"
-    "Arabic_ddal\0"
-    "Arabic_farsi_yeh\0"
-    "Arabic_fatha\0"
-    "Arabic_fathatan\0"
-    "Arabic_feh\0"
-    "Arabic_fullstop\0"
-    "Arabic_gaf\0"
-    "Arabic_ghain\0"
-    "Arabic_ha\0"
-    "Arabic_hah\0"
-    "Arabic_hamza\0"
-    "Arabic_hamza_above\0"
-    "Arabic_hamza_below\0"
-    "Arabic_hamzaonalef\0"
-    "Arabic_hamzaonwaw\0"
-    "Arabic_hamzaonyeh\0"
-    "Arabic_hamzaunderalef\0"
-    "Arabic_heh\0"
-    "Arabic_heh_doachashmee\0"
-    "Arabic_heh_goal\0"
-    "Arabic_jeem\0"
-    "Arabic_jeh\0"
-    "Arabic_kaf\0"
-    "Arabic_kasra\0"
-    "Arabic_kasratan\0"
-    "Arabic_keheh\0"
-    "Arabic_khah\0"
-    "Arabic_lam\0"
-    "Arabic_madda_above\0"
-    "Arabic_maddaonalef\0"
-    "Arabic_meem\0"
-    "Arabic_noon\0"
-    "Arabic_noon_ghunna\0"
-    "Arabic_peh\0"
-    "Arabic_percent\0"
-    "Arabic_qaf\0"
-    "Arabic_question_mark\0"
-    "Arabic_ra\0"
-    "Arabic_rreh\0"
-    "Arabic_sad\0"
-    "Arabic_seen\0"
-    "Arabic_semicolon\0"
-    "Arabic_shadda\0"
-    "Arabic_sheen\0"
-    "Arabic_sukun\0"
-    "Arabic_superscript_alef\0"
-    "Arabic_switch\0"
-    "Arabic_tah\0"
-    "Arabic_tatweel\0"
-    "Arabic_tcheh\0"
-    "Arabic_teh\0"
-    "Arabic_tehmarbuta\0"
-    "Arabic_thal\0"
-    "Arabic_theh\0"
-    "Arabic_tteh\0"
-    "Arabic_veh\0"
-    "Arabic_waw\0"
-    "Arabic_yeh\0"
-    "Arabic_yeh_baree\0"
-    "Arabic_zah\0"
-    "Arabic_zain\0"
-    "Aring\0"
-    "aring\0"
-    "Armenian_accent\0"
-    "Armenian_amanak\0"
-    "Armenian_apostrophe\0"
-    "Armenian_AT\0"
-    "Armenian_at\0"
-    "Armenian_AYB\0"
-    "Armenian_ayb\0"
-    "Armenian_BEN\0"
-    "Armenian_ben\0"
-    "Armenian_but\0"
-    "Armenian_CHA\0"
-    "Armenian_cha\0"
-    "Armenian_DA\0"
-    "Armenian_da\0"
-    "Armenian_DZA\0"
-    "Armenian_dza\0"
-    "Armenian_E\0"
-    "Armenian_e\0"
-    "Armenian_exclam\0"
-    "Armenian_FE\0"
-    "Armenian_fe\0"
-    "Armenian_full_stop\0"
-    "Armenian_GHAT\0"
-    "Armenian_ghat\0"
-    "Armenian_GIM\0"
-    "Armenian_gim\0"
-    "Armenian_HI\0"
-    "Armenian_hi\0"
-    "Armenian_HO\0"
-    "Armenian_ho\0"
-    "Armenian_hyphen\0"
-    "Armenian_INI\0"
-    "Armenian_ini\0"
-    "Armenian_JE\0"
-    "Armenian_je\0"
-    "Armenian_KE\0"
-    "Armenian_ke\0"
-    "Armenian_KEN\0"
-    "Armenian_ken\0"
-    "Armenian_KHE\0"
-    "Armenian_khe\0"
-    "Armenian_ligature_ew\0"
-    "Armenian_LYUN\0"
-    "Armenian_lyun\0"
-    "Armenian_MEN\0"
-    "Armenian_men\0"
-    "Armenian_NU\0"
-    "Armenian_nu\0"
-    "Armenian_O\0"
-    "Armenian_o\0"
-    "Armenian_paruyk\0"
-    "Armenian_PE\0"
-    "Armenian_pe\0"
-    "Armenian_PYUR\0"
-    "Armenian_pyur\0"
-    "Armenian_question\0"
-    "Armenian_RA\0"
-    "Armenian_ra\0"
-    "Armenian_RE\0"
-    "Armenian_re\0"
-    "Armenian_SE\0"
-    "Armenian_se\0"
-    "Armenian_separation_mark\0"
-    "Armenian_SHA\0"
-    "Armenian_sha\0"
-    "Armenian_shesht\0"
-    "Armenian_TCHE\0"
-    "Armenian_tche\0"
-    "Armenian_TO\0"
-    "Armenian_to\0"
-    "Armenian_TSA\0"
-    "Armenian_tsa\0"
-    "Armenian_TSO\0"
-    "Armenian_tso\0"
-    "Armenian_TYUN\0"
-    "Armenian_tyun\0"
-    "Armenian_verjaket\0"
-    "Armenian_VEV\0"
-    "Armenian_vev\0"
-    "Armenian_VO\0"
-    "Armenian_vo\0"
-    "Armenian_VYUN\0"
-    "Armenian_vyun\0"
-    "Armenian_YECH\0"
-    "Armenian_yech\0"
-    "Armenian_yentamna\0"
-    "Armenian_ZA\0"
-    "Armenian_za\0"
-    "Armenian_ZHE\0"
-    "Armenian_zhe\0"
-    "asciicircum\0"
-    "asciitilde\0"
-    "asterisk\0"
-    "at\0"
-    "Atilde\0"
-    "atilde\0"
-    "AudibleBell_Enable\0"
-    "B\0"
-    "b\0"
-    "Babovedot\0"
-    "babovedot\0"
-    "backslash\0"
-    "BackSpace\0"
-    "BackTab\0"
-    "ballotcross\0"
-    "bar\0"
-    "because\0"
-    "Begin\0"
-    "blank\0"
-    "block\0"
-    "botintegral\0"
-    "botleftparens\0"
-    "botleftsqbracket\0"
-    "botleftsummation\0"
-    "botrightparens\0"
-    "botrightsqbracket\0"
-    "botrightsummation\0"
-    "bott\0"
-    "botvertsummationconnector\0"
-    "BounceKeys_Enable\0"
-    "braceleft\0"
-    "braceright\0"
-    "bracketleft\0"
-    "bracketright\0"
-    "braille_blank\0"
-    "braille_dot_1\0"
-    "braille_dot_10\0"
-    "braille_dot_2\0"
-    "braille_dot_3\0"
-    "braille_dot_4\0"
-    "braille_dot_5\0"
-    "braille_dot_6\0"
-    "braille_dot_7\0"
-    "braille_dot_8\0"
-    "braille_dot_9\0"
-    "braille_dots_1\0"
-    "braille_dots_12\0"
-    "braille_dots_123\0"
-    "braille_dots_1234\0"
-    "braille_dots_12345\0"
-    "braille_dots_123456\0"
-    "braille_dots_1234567\0"
-    "braille_dots_12345678\0"
-    "braille_dots_1234568\0"
-    "braille_dots_123457\0"
-    "braille_dots_1234578\0"
-    "braille_dots_123458\0"
-    "braille_dots_12346\0"
-    "braille_dots_123467\0"
-    "braille_dots_1234678\0"
-    "braille_dots_123468\0"
-    "braille_dots_12347\0"
-    "braille_dots_123478\0"
-    "braille_dots_12348\0"
-    "braille_dots_1235\0"
-    "braille_dots_12356\0"
-    "braille_dots_123567\0"
-    "braille_dots_1235678\0"
-    "braille_dots_123568\0"
-    "braille_dots_12357\0"
-    "braille_dots_123578\0"
-    "braille_dots_12358\0"
-    "braille_dots_1236\0"
-    "braille_dots_12367\0"
-    "braille_dots_123678\0"
-    "braille_dots_12368\0"
-    "braille_dots_1237\0"
-    "braille_dots_12378\0"
-    "braille_dots_1238\0"
-    "braille_dots_124\0"
-    "braille_dots_1245\0"
-    "braille_dots_12456\0"
-    "braille_dots_124567\0"
-    "braille_dots_1245678\0"
-    "braille_dots_124568\0"
-    "braille_dots_12457\0"
-    "braille_dots_124578\0"
-    "braille_dots_12458\0"
-    "braille_dots_1246\0"
-    "braille_dots_12467\0"
-    "braille_dots_124678\0"
-    "braille_dots_12468\0"
-    "braille_dots_1247\0"
-    "braille_dots_12478\0"
-    "braille_dots_1248\0"
-    "braille_dots_125\0"
-    "braille_dots_1256\0"
-    "braille_dots_12567\0"
-    "braille_dots_125678\0"
-    "braille_dots_12568\0"
-    "braille_dots_1257\0"
-    "braille_dots_12578\0"
-    "braille_dots_1258\0"
-    "braille_dots_126\0"
-    "braille_dots_1267\0"
-    "braille_dots_12678\0"
-    "braille_dots_1268\0"
-    "braille_dots_127\0"
-    "braille_dots_1278\0"
-    "braille_dots_128\0"
-    "braille_dots_13\0"
-    "braille_dots_134\0"
-    "braille_dots_1345\0"
-    "braille_dots_13456\0"
-    "braille_dots_134567\0"
-    "braille_dots_1345678\0"
-    "braille_dots_134568\0"
-    "braille_dots_13457\0"
-    "braille_dots_134578\0"
-    "braille_dots_13458\0"
-    "braille_dots_1346\0"
-    "braille_dots_13467\0"
-    "braille_dots_134678\0"
-    "braille_dots_13468\0"
-    "braille_dots_1347\0"
-    "braille_dots_13478\0"
-    "braille_dots_1348\0"
-    "braille_dots_135\0"
-    "braille_dots_1356\0"
-    "braille_dots_13567\0"
-    "braille_dots_135678\0"
-    "braille_dots_13568\0"
-    "braille_dots_1357\0"
-    "braille_dots_13578\0"
-    "braille_dots_1358\0"
-    "braille_dots_136\0"
-    "braille_dots_1367\0"
-    "braille_dots_13678\0"
-    "braille_dots_1368\0"
-    "braille_dots_137\0"
-    "braille_dots_1378\0"
-    "braille_dots_138\0"
-    "braille_dots_14\0"
-    "braille_dots_145\0"
-    "braille_dots_1456\0"
-    "braille_dots_14567\0"
-    "braille_dots_145678\0"
-    "braille_dots_14568\0"
-    "braille_dots_1457\0"
-    "braille_dots_14578\0"
-    "braille_dots_1458\0"
-    "braille_dots_146\0"
-    "braille_dots_1467\0"
-    "braille_dots_14678\0"
-    "braille_dots_1468\0"
-    "braille_dots_147\0"
-    "braille_dots_1478\0"
-    "braille_dots_148\0"
-    "braille_dots_15\0"
-    "braille_dots_156\0"
-    "braille_dots_1567\0"
-    "braille_dots_15678\0"
-    "braille_dots_1568\0"
-    "braille_dots_157\0"
-    "braille_dots_1578\0"
-    "braille_dots_158\0"
-    "braille_dots_16\0"
-    "braille_dots_167\0"
-    "braille_dots_1678\0"
-    "braille_dots_168\0"
-    "braille_dots_17\0"
-    "braille_dots_178\0"
-    "braille_dots_18\0"
-    "braille_dots_2\0"
-    "braille_dots_23\0"
-    "braille_dots_234\0"
-    "braille_dots_2345\0"
-    "braille_dots_23456\0"
-    "braille_dots_234567\0"
-    "braille_dots_2345678\0"
-    "braille_dots_234568\0"
-    "braille_dots_23457\0"
-    "braille_dots_234578\0"
-    "braille_dots_23458\0"
-    "braille_dots_2346\0"
-    "braille_dots_23467\0"
-    "braille_dots_234678\0"
-    "braille_dots_23468\0"
-    "braille_dots_2347\0"
-    "braille_dots_23478\0"
-    "braille_dots_2348\0"
-    "braille_dots_235\0"
-    "braille_dots_2356\0"
-    "braille_dots_23567\0"
-    "braille_dots_235678\0"
-    "braille_dots_23568\0"
-    "braille_dots_2357\0"
-    "braille_dots_23578\0"
-    "braille_dots_2358\0"
-    "braille_dots_236\0"
-    "braille_dots_2367\0"
-    "braille_dots_23678\0"
-    "braille_dots_2368\0"
-    "braille_dots_237\0"
-    "braille_dots_2378\0"
-    "braille_dots_238\0"
-    "braille_dots_24\0"
-    "braille_dots_245\0"
-    "braille_dots_2456\0"
-    "braille_dots_24567\0"
-    "braille_dots_245678\0"
-    "braille_dots_24568\0"
-    "braille_dots_2457\0"
-    "braille_dots_24578\0"
-    "braille_dots_2458\0"
-    "braille_dots_246\0"
-    "braille_dots_2467\0"
-    "braille_dots_24678\0"
-    "braille_dots_2468\0"
-    "braille_dots_247\0"
-    "braille_dots_2478\0"
-    "braille_dots_248\0"
-    "braille_dots_25\0"
-    "braille_dots_256\0"
-    "braille_dots_2567\0"
-    "braille_dots_25678\0"
-    "braille_dots_2568\0"
-    "braille_dots_257\0"
-    "braille_dots_2578\0"
-    "braille_dots_258\0"
-    "braille_dots_26\0"
-    "braille_dots_267\0"
-    "braille_dots_2678\0"
-    "braille_dots_268\0"
-    "braille_dots_27\0"
-    "braille_dots_278\0"
-    "braille_dots_28\0"
-    "braille_dots_3\0"
-    "braille_dots_34\0"
-    "braille_dots_345\0"
-    "braille_dots_3456\0"
-    "braille_dots_34567\0"
-    "braille_dots_345678\0"
-    "braille_dots_34568\0"
-    "braille_dots_3457\0"
-    "braille_dots_34578\0"
-    "braille_dots_3458\0"
-    "braille_dots_346\0"
-    "braille_dots_3467\0"
-    "braille_dots_34678\0"
-    "braille_dots_3468\0"
-    "braille_dots_347\0"
-    "braille_dots_3478\0"
-    "braille_dots_348\0"
-    "braille_dots_35\0"
-    "braille_dots_356\0"
-    "braille_dots_3567\0"
-    "braille_dots_35678\0"
-    "braille_dots_3568\0"
-    "braille_dots_357\0"
-    "braille_dots_3578\0"
-    "braille_dots_358\0"
-    "braille_dots_36\0"
-    "braille_dots_367\0"
-    "braille_dots_3678\0"
-    "braille_dots_368\0"
-    "braille_dots_37\0"
-    "braille_dots_378\0"
-    "braille_dots_38\0"
-    "braille_dots_4\0"
-    "braille_dots_45\0"
-    "braille_dots_456\0"
-    "braille_dots_4567\0"
-    "braille_dots_45678\0"
-    "braille_dots_4568\0"
-    "braille_dots_457\0"
-    "braille_dots_4578\0"
-    "braille_dots_458\0"
-    "braille_dots_46\0"
-    "braille_dots_467\0"
-    "braille_dots_4678\0"
-    "braille_dots_468\0"
-    "braille_dots_47\0"
-    "braille_dots_478\0"
-    "braille_dots_48\0"
-    "braille_dots_5\0"
-    "braille_dots_56\0"
-    "braille_dots_567\0"
-    "braille_dots_5678\0"
-    "braille_dots_568\0"
-    "braille_dots_57\0"
-    "braille_dots_578\0"
-    "braille_dots_58\0"
-    "braille_dots_6\0"
-    "braille_dots_67\0"
-    "braille_dots_678\0"
-    "braille_dots_68\0"
-    "braille_dots_7\0"
-    "braille_dots_78\0"
-    "braille_dots_8\0"
-    "Break\0"
-    "breve\0"
-    "brokenbar\0"
-    "Byelorussian_SHORTU\0"
-    "Byelorussian_shortu\0"
-    "C\0"
-    "c\0"
-    "C_H\0"
-    "C_h\0"
-    "c_h\0"
-    "Cabovedot\0"
-    "cabovedot\0"
-    "Cacute\0"
-    "cacute\0"
-    "Cancel\0"
-    "Caps_Lock\0"
-    "careof\0"
-    "caret\0"
-    "caron\0"
-    "Ccaron\0"
-    "ccaron\0"
-    "Ccedilla\0"
-    "ccedilla\0"
-    "Ccircumflex\0"
-    "ccircumflex\0"
-    "cedilla\0"
-    "cent\0"
-    "CH\0"
-    "Ch\0"
-    "ch\0"
-    "checkerboard\0"
-    "checkmark\0"
-    "circle\0"
-    "Clear\0"
-    "ClearLine\0"
-    "club\0"
-    "Codeinput\0"
-    "colon\0"
-    "ColonSign\0"
-    "combining_acute\0"
-    "combining_belowdot\0"
-    "combining_grave\0"
-    "combining_hook\0"
-    "combining_tilde\0"
-    "comma\0"
-    "containsas\0"
-    "Control_L\0"
-    "Control_R\0"
-    "copyright\0"
-    "cr\0"
-    "crossinglines\0"
-    "CruzeiroSign\0"
-    "cuberoot\0"
-    "currency\0"
-    "cursor\0"
-    "Cyrillic_A\0"
-    "Cyrillic_a\0"
-    "Cyrillic_BE\0"
-    "Cyrillic_be\0"
-    "Cyrillic_CHE\0"
-    "Cyrillic_che\0"
-    "Cyrillic_CHE_descender\0"
-    "Cyrillic_che_descender\0"
-    "Cyrillic_CHE_vertstroke\0"
-    "Cyrillic_che_vertstroke\0"
-    "Cyrillic_DE\0"
-    "Cyrillic_de\0"
-    "Cyrillic_DZHE\0"
-    "Cyrillic_dzhe\0"
-    "Cyrillic_E\0"
-    "Cyrillic_e\0"
-    "Cyrillic_EF\0"
-    "Cyrillic_ef\0"
-    "Cyrillic_EL\0"
-    "Cyrillic_el\0"
-    "Cyrillic_EM\0"
-    "Cyrillic_em\0"
-    "Cyrillic_EN\0"
-    "Cyrillic_en\0"
-    "Cyrillic_EN_descender\0"
-    "Cyrillic_en_descender\0"
-    "Cyrillic_ER\0"
-    "Cyrillic_er\0"
-    "Cyrillic_ES\0"
-    "Cyrillic_es\0"
-    "Cyrillic_GHE\0"
-    "Cyrillic_ghe\0"
-    "Cyrillic_GHE_bar\0"
-    "Cyrillic_ghe_bar\0"
-    "Cyrillic_HA\0"
-    "Cyrillic_ha\0"
-    "Cyrillic_HA_descender\0"
-    "Cyrillic_ha_descender\0"
-    "Cyrillic_HARDSIGN\0"
-    "Cyrillic_hardsign\0"
-    "Cyrillic_I\0"
-    "Cyrillic_i\0"
-    "Cyrillic_I_macron\0"
-    "Cyrillic_i_macron\0"
-    "Cyrillic_IE\0"
-    "Cyrillic_ie\0"
-    "Cyrillic_IO\0"
-    "Cyrillic_io\0"
-    "Cyrillic_JE\0"
-    "Cyrillic_je\0"
-    "Cyrillic_KA\0"
-    "Cyrillic_ka\0"
-    "Cyrillic_KA_descender\0"
-    "Cyrillic_ka_descender\0"
-    "Cyrillic_KA_vertstroke\0"
-    "Cyrillic_ka_vertstroke\0"
-    "Cyrillic_LJE\0"
-    "Cyrillic_lje\0"
-    "Cyrillic_NJE\0"
-    "Cyrillic_nje\0"
-    "Cyrillic_O\0"
-    "Cyrillic_o\0"
-    "Cyrillic_O_bar\0"
-    "Cyrillic_o_bar\0"
-    "Cyrillic_PE\0"
-    "Cyrillic_pe\0"
-    "Cyrillic_SCHWA\0"
-    "Cyrillic_schwa\0"
-    "Cyrillic_SHA\0"
-    "Cyrillic_sha\0"
-    "Cyrillic_SHCHA\0"
-    "Cyrillic_shcha\0"
-    "Cyrillic_SHHA\0"
-    "Cyrillic_shha\0"
-    "Cyrillic_SHORTI\0"
-    "Cyrillic_shorti\0"
-    "Cyrillic_SOFTSIGN\0"
-    "Cyrillic_softsign\0"
-    "Cyrillic_TE\0"
-    "Cyrillic_te\0"
-    "Cyrillic_TSE\0"
-    "Cyrillic_tse\0"
-    "Cyrillic_U\0"
-    "Cyrillic_u\0"
-    "Cyrillic_U_macron\0"
-    "Cyrillic_u_macron\0"
-    "Cyrillic_U_straight\0"
-    "Cyrillic_u_straight\0"
-    "Cyrillic_U_straight_bar\0"
-    "Cyrillic_u_straight_bar\0"
-    "Cyrillic_VE\0"
-    "Cyrillic_ve\0"
-    "Cyrillic_YA\0"
-    "Cyrillic_ya\0"
-    "Cyrillic_YERU\0"
-    "Cyrillic_yeru\0"
-    "Cyrillic_YU\0"
-    "Cyrillic_yu\0"
-    "Cyrillic_ZE\0"
-    "Cyrillic_ze\0"
-    "Cyrillic_ZHE\0"
-    "Cyrillic_zhe\0"
-    "Cyrillic_ZHE_descender\0"
-    "Cyrillic_zhe_descender\0"
-    "D\0"
-    "d\0"
-    "Dabovedot\0"
-    "dabovedot\0"
-    "Dacute_accent\0"
-    "dagger\0"
-    "Dcaron\0"
-    "dcaron\0"
-    "Dcedilla_accent\0"
-    "Dcircumflex_accent\0"
-    "Ddiaeresis\0"
-    "dead_A\0"
-    "dead_a\0"
-    "dead_abovecomma\0"
-    "dead_abovedot\0"
-    "dead_abovereversedcomma\0"
-    "dead_abovering\0"
-    "dead_aboveverticalline\0"
-    "dead_acute\0"
-    "dead_belowbreve\0"
-    "dead_belowcircumflex\0"
-    "dead_belowcomma\0"
-    "dead_belowdiaeresis\0"
-    "dead_belowdot\0"
-    "dead_belowmacron\0"
-    "dead_belowring\0"
-    "dead_belowtilde\0"
-    "dead_belowverticalline\0"
-    "dead_breve\0"
-    "dead_capital_schwa\0"
-    "dead_caron\0"
-    "dead_cedilla\0"
-    "dead_circumflex\0"
-    "dead_currency\0"
-    "dead_dasia\0"
-    "dead_diaeresis\0"
-    "dead_doubleacute\0"
-    "dead_doublegrave\0"
-    "dead_E\0"
-    "dead_e\0"
-    "dead_grave\0"
-    "dead_greek\0"
-    "dead_hamza\0"
-    "dead_hook\0"
-    "dead_horn\0"
-    "dead_I\0"
-    "dead_i\0"
-    "dead_invertedbreve\0"
-    "dead_iota\0"
-    "dead_longsolidusoverlay\0"
-    "dead_lowline\0"
-    "dead_macron\0"
-    "dead_O\0"
-    "dead_o\0"
-    "dead_ogonek\0"
-    "dead_perispomeni\0"
-    "dead_psili\0"
-    "dead_SCHWA\0"
-    "dead_schwa\0"
-    "dead_semivoiced_sound\0"
-    "dead_small_schwa\0"
-    "dead_stroke\0"
-    "dead_tilde\0"
-    "dead_U\0"
-    "dead_u\0"
-    "dead_voiced_sound\0"
-    "decimalpoint\0"
-    "degree\0"
-    "Delete\0"
-    "DeleteChar\0"
-    "DeleteLine\0"
-    "Dgrave_accent\0"
-    "diaeresis\0"
-    "diamond\0"
-    "digitspace\0"
-    "dintegral\0"
-    "division\0"
-    "dollar\0"
-    "DongSign\0"
-    "doubbaselinedot\0"
-    "doubleacute\0"
-    "doubledagger\0"
-    "doublelowquotemark\0"
-    "Down\0"
-    "downarrow\0"
-    "downcaret\0"
-    "downshoe\0"
-    "downstile\0"
-    "downtack\0"
-    "DRemove\0"
-    "Dring_accent\0"
-    "Dstroke\0"
-    "dstroke\0"
-    "Dtilde\0"
-    "E\0"
-    "e\0"
-    "Eabovedot\0"
-    "eabovedot\0"
-    "Eacute\0"
-    "eacute\0"
-    "Ebelowdot\0"
-    "ebelowdot\0"
-    "Ecaron\0"
-    "ecaron\0"
-    "Ecircumflex\0"
-    "ecircumflex\0"
-    "Ecircumflexacute\0"
-    "ecircumflexacute\0"
-    "Ecircumflexbelowdot\0"
-    "ecircumflexbelowdot\0"
-    "Ecircumflexgrave\0"
-    "ecircumflexgrave\0"
-    "Ecircumflexhook\0"
-    "ecircumflexhook\0"
-    "Ecircumflextilde\0"
-    "ecircumflextilde\0"
-    "EcuSign\0"
-    "Ediaeresis\0"
-    "ediaeresis\0"
-    "Egrave\0"
-    "egrave\0"
-    "Ehook\0"
-    "ehook\0"
-    "eightsubscript\0"
-    "eightsuperior\0"
-    "Eisu_Shift\0"
-    "Eisu_toggle\0"
-    "elementof\0"
-    "ellipsis\0"
-    "em3space\0"
-    "em4space\0"
-    "Emacron\0"
-    "emacron\0"
-    "emdash\0"
-    "emfilledcircle\0"
-    "emfilledrect\0"
-    "emopencircle\0"
-    "emopenrectangle\0"
-    "emptyset\0"
-    "emspace\0"
-    "End\0"
-    "endash\0"
-    "enfilledcircbullet\0"
-    "enfilledsqbullet\0"
-    "ENG\0"
-    "eng\0"
-    "enopencircbullet\0"
-    "enopensquarebullet\0"
-    "enspace\0"
-    "Eogonek\0"
-    "eogonek\0"
-    "equal\0"
-    "Escape\0"
-    "ETH\0"
-    "Eth\0"
-    "eth\0"
-    "Etilde\0"
-    "etilde\0"
-    "EuroSign\0"
-    "exclam\0"
-    "exclamdown\0"
-    "Execute\0"
-    "Ext16bit_L\0"
-    "Ext16bit_R\0"
-    "EZH\0"
-    "ezh\0"
-    "F\0"
-    "f\0"
-    "F1\0"
-    "F10\0"
-    "F11\0"
-    "F12\0"
-    "F13\0"
-    "F14\0"
-    "F15\0"
-    "F16\0"
-    "F17\0"
-    "F18\0"
-    "F19\0"
-    "F2\0"
-    "F20\0"
-    "F21\0"
-    "F22\0"
-    "F23\0"
-    "F24\0"
-    "F25\0"
-    "F26\0"
-    "F27\0"
-    "F28\0"
-    "F29\0"
-    "F3\0"
-    "F30\0"
-    "F31\0"
-    "F32\0"
-    "F33\0"
-    "F34\0"
-    "F35\0"
-    "F4\0"
-    "F5\0"
-    "F6\0"
-    "F7\0"
-    "F8\0"
-    "F9\0"
-    "Fabovedot\0"
-    "fabovedot\0"
-    "Farsi_0\0"
-    "Farsi_1\0"
-    "Farsi_2\0"
-    "Farsi_3\0"
-    "Farsi_4\0"
-    "Farsi_5\0"
-    "Farsi_6\0"
-    "Farsi_7\0"
-    "Farsi_8\0"
-    "Farsi_9\0"
-    "Farsi_yeh\0"
-    "femalesymbol\0"
-    "ff\0"
-    "FFrancSign\0"
-    "figdash\0"
-    "filledlefttribullet\0"
-    "filledrectbullet\0"
-    "filledrighttribullet\0"
-    "filledtribulletdown\0"
-    "filledtribulletup\0"
-    "Find\0"
-    "First_Virtual_Screen\0"
-    "fiveeighths\0"
-    "fivesixths\0"
-    "fivesubscript\0"
-    "fivesuperior\0"
-    "fourfifths\0"
-    "foursubscript\0"
-    "foursuperior\0"
-    "fourthroot\0"
-    "function\0"
-    "G\0"
-    "g\0"
-    "Gabovedot\0"
-    "gabovedot\0"
-    "Gbreve\0"
-    "gbreve\0"
-    "Gcaron\0"
-    "gcaron\0"
-    "Gcedilla\0"
-    "gcedilla\0"
-    "Gcircumflex\0"
-    "gcircumflex\0"
-    "Georgian_an\0"
-    "Georgian_ban\0"
-    "Georgian_can\0"
-    "Georgian_char\0"
-    "Georgian_chin\0"
-    "Georgian_cil\0"
-    "Georgian_don\0"
-    "Georgian_en\0"
-    "Georgian_fi\0"
-    "Georgian_gan\0"
-    "Georgian_ghan\0"
-    "Georgian_hae\0"
-    "Georgian_har\0"
-    "Georgian_he\0"
-    "Georgian_hie\0"
-    "Georgian_hoe\0"
-    "Georgian_in\0"
-    "Georgian_jhan\0"
-    "Georgian_jil\0"
-    "Georgian_kan\0"
-    "Georgian_khar\0"
-    "Georgian_las\0"
-    "Georgian_man\0"
-    "Georgian_nar\0"
-    "Georgian_on\0"
-    "Georgian_par\0"
-    "Georgian_phar\0"
-    "Georgian_qar\0"
-    "Georgian_rae\0"
-    "Georgian_san\0"
-    "Georgian_shin\0"
-    "Georgian_tan\0"
-    "Georgian_tar\0"
-    "Georgian_un\0"
-    "Georgian_vin\0"
-    "Georgian_we\0"
-    "Georgian_xan\0"
-    "Georgian_zen\0"
-    "Georgian_zhar\0"
-    "grave\0"
-    "greater\0"
-    "greaterthanequal\0"
-    "Greek_accentdieresis\0"
-    "Greek_ALPHA\0"
-    "Greek_alpha\0"
-    "Greek_ALPHAaccent\0"
-    "Greek_alphaaccent\0"
-    "Greek_BETA\0"
-    "Greek_beta\0"
-    "Greek_CHI\0"
-    "Greek_chi\0"
-    "Greek_DELTA\0"
-    "Greek_delta\0"
-    "Greek_EPSILON\0"
-    "Greek_epsilon\0"
-    "Greek_EPSILONaccent\0"
-    "Greek_epsilonaccent\0"
-    "Greek_ETA\0"
-    "Greek_eta\0"
-    "Greek_ETAaccent\0"
-    "Greek_etaaccent\0"
-    "Greek_finalsmallsigma\0"
-    "Greek_GAMMA\0"
-    "Greek_gamma\0"
-    "Greek_horizbar\0"
-    "Greek_IOTA\0"
-    "Greek_iota\0"
-    "Greek_IOTAaccent\0"
-    "Greek_iotaaccent\0"
-    "Greek_iotaaccentdieresis\0"
-    "Greek_IOTAdiaeresis\0"
-    "Greek_IOTAdieresis\0"
-    "Greek_iotadieresis\0"
-    "Greek_KAPPA\0"
-    "Greek_kappa\0"
-    "Greek_LAMBDA\0"
-    "Greek_lambda\0"
-    "Greek_LAMDA\0"
-    "Greek_lamda\0"
-    "Greek_MU\0"
-    "Greek_mu\0"
-    "Greek_NU\0"
-    "Greek_nu\0"
-    "Greek_OMEGA\0"
-    "Greek_omega\0"
-    "Greek_OMEGAaccent\0"
-    "Greek_omegaaccent\0"
-    "Greek_OMICRON\0"
-    "Greek_omicron\0"
-    "Greek_OMICRONaccent\0"
-    "Greek_omicronaccent\0"
-    "Greek_PHI\0"
-    "Greek_phi\0"
-    "Greek_PI\0"
-    "Greek_pi\0"
-    "Greek_PSI\0"
-    "Greek_psi\0"
-    "Greek_RHO\0"
-    "Greek_rho\0"
-    "Greek_SIGMA\0"
-    "Greek_sigma\0"
-    "Greek_switch\0"
-    "Greek_TAU\0"
-    "Greek_tau\0"
-    "Greek_THETA\0"
-    "Greek_theta\0"
-    "Greek_UPSILON\0"
-    "Greek_upsilon\0"
-    "Greek_UPSILONaccent\0"
-    "Greek_upsilonaccent\0"
-    "Greek_upsilonaccentdieresis\0"
-    "Greek_UPSILONdieresis\0"
-    "Greek_upsilondieresis\0"
-    "Greek_XI\0"
-    "Greek_xi\0"
-    "Greek_ZETA\0"
-    "Greek_zeta\0"
-    "guilder\0"
-    "guillemetleft\0"
-    "guillemetright\0"
-    "guillemotleft\0"
-    "guillemotright\0"
-    "H\0"
-    "h\0"
-    "hairspace\0"
-    "Hangul\0"
-    "Hangul_A\0"
-    "Hangul_AE\0"
-    "Hangul_AraeA\0"
-    "Hangul_AraeAE\0"
-    "Hangul_Banja\0"
-    "Hangul_Cieuc\0"
-    "Hangul_Codeinput\0"
-    "Hangul_Dikeud\0"
-    "Hangul_E\0"
-    "Hangul_End\0"
-    "Hangul_EO\0"
-    "Hangul_EU\0"
-    "Hangul_Hanja\0"
-    "Hangul_Hieuh\0"
-    "Hangul_I\0"
-    "Hangul_Ieung\0"
-    "Hangul_J_Cieuc\0"
-    "Hangul_J_Dikeud\0"
-    "Hangul_J_Hieuh\0"
-    "Hangul_J_Ieung\0"
-    "Hangul_J_Jieuj\0"
-    "Hangul_J_Khieuq\0"
-    "Hangul_J_Kiyeog\0"
-    "Hangul_J_KiyeogSios\0"
-    "Hangul_J_KkogjiDalrinIeung\0"
-    "Hangul_J_Mieum\0"
-    "Hangul_J_Nieun\0"
-    "Hangul_J_NieunHieuh\0"
-    "Hangul_J_NieunJieuj\0"
-    "Hangul_J_PanSios\0"
-    "Hangul_J_Phieuf\0"
-    "Hangul_J_Pieub\0"
-    "Hangul_J_PieubSios\0"
-    "Hangul_J_Rieul\0"
-    "Hangul_J_RieulHieuh\0"
-    "Hangul_J_RieulKiyeog\0"
-    "Hangul_J_RieulMieum\0"
-    "Hangul_J_RieulPhieuf\0"
-    "Hangul_J_RieulPieub\0"
-    "Hangul_J_RieulSios\0"
-    "Hangul_J_RieulTieut\0"
-    "Hangul_J_Sios\0"
-    "Hangul_J_SsangKiyeog\0"
-    "Hangul_J_SsangSios\0"
-    "Hangul_J_Tieut\0"
-    "Hangul_J_YeorinHieuh\0"
-    "Hangul_Jamo\0"
-    "Hangul_Jeonja\0"
-    "Hangul_Jieuj\0"
-    "Hangul_Khieuq\0"
-    "Hangul_Kiyeog\0"
-    "Hangul_KiyeogSios\0"
-    "Hangul_KkogjiDalrinIeung\0"
-    "Hangul_Mieum\0"
-    "Hangul_MultipleCandidate\0"
-    "Hangul_Nieun\0"
-    "Hangul_NieunHieuh\0"
-    "Hangul_NieunJieuj\0"
-    "Hangul_O\0"
-    "Hangul_OE\0"
-    "Hangul_PanSios\0"
-    "Hangul_Phieuf\0"
-    "Hangul_Pieub\0"
-    "Hangul_PieubSios\0"
-    "Hangul_PostHanja\0"
-    "Hangul_PreHanja\0"
-    "Hangul_PreviousCandidate\0"
-    "Hangul_Rieul\0"
-    "Hangul_RieulHieuh\0"
-    "Hangul_RieulKiyeog\0"
-    "Hangul_RieulMieum\0"
-    "Hangul_RieulPhieuf\0"
-    "Hangul_RieulPieub\0"
-    "Hangul_RieulSios\0"
-    "Hangul_RieulTieut\0"
-    "Hangul_RieulYeorinHieuh\0"
-    "Hangul_Romaja\0"
-    "Hangul_SingleCandidate\0"
-    "Hangul_Sios\0"
-    "Hangul_Special\0"
-    "Hangul_SsangDikeud\0"
-    "Hangul_SsangJieuj\0"
-    "Hangul_SsangKiyeog\0"
-    "Hangul_SsangPieub\0"
-    "Hangul_SsangSios\0"
-    "Hangul_Start\0"
-    "Hangul_SunkyeongeumMieum\0"
-    "Hangul_SunkyeongeumPhieuf\0"
-    "Hangul_SunkyeongeumPieub\0"
-    "Hangul_switch\0"
-    "Hangul_Tieut\0"
-    "Hangul_U\0"
-    "Hangul_WA\0"
-    "Hangul_WAE\0"
-    "Hangul_WE\0"
-    "Hangul_WEO\0"
-    "Hangul_WI\0"
-    "Hangul_YA\0"
-    "Hangul_YAE\0"
-    "Hangul_YE\0"
-    "Hangul_YEO\0"
-    "Hangul_YeorinHieuh\0"
-    "Hangul_YI\0"
-    "Hangul_YO\0"
-    "Hangul_YU\0"
-    "Hankaku\0"
-    "Hcircumflex\0"
-    "hcircumflex\0"
-    "heart\0"
-    "hebrew_aleph\0"
-    "hebrew_ayin\0"
-    "hebrew_bet\0"
-    "hebrew_beth\0"
-    "hebrew_chet\0"
-    "hebrew_dalet\0"
-    "hebrew_daleth\0"
-    "hebrew_doublelowline\0"
-    "hebrew_finalkaph\0"
-    "hebrew_finalmem\0"
-    "hebrew_finalnun\0"
-    "hebrew_finalpe\0"
-    "hebrew_finalzade\0"
-    "hebrew_finalzadi\0"
-    "hebrew_gimel\0"
-    "hebrew_gimmel\0"
-    "hebrew_he\0"
-    "hebrew_het\0"
-    "hebrew_kaph\0"
-    "hebrew_kuf\0"
-    "hebrew_lamed\0"
-    "hebrew_mem\0"
-    "hebrew_nun\0"
-    "hebrew_pe\0"
-    "hebrew_qoph\0"
-    "hebrew_resh\0"
-    "hebrew_samech\0"
-    "hebrew_samekh\0"
-    "hebrew_shin\0"
-    "Hebrew_switch\0"
-    "hebrew_taf\0"
-    "hebrew_taw\0"
-    "hebrew_tet\0"
-    "hebrew_teth\0"
-    "hebrew_waw\0"
-    "hebrew_yod\0"
-    "hebrew_zade\0"
-    "hebrew_zadi\0"
-    "hebrew_zain\0"
-    "hebrew_zayin\0"
-    "Help\0"
-    "Henkan\0"
-    "Henkan_Mode\0"
-    "hexagram\0"
-    "Hiragana\0"
-    "Hiragana_Katakana\0"
-    "Home\0"
-    "horizconnector\0"
-    "horizlinescan1\0"
-    "horizlinescan3\0"
-    "horizlinescan5\0"
-    "horizlinescan7\0"
-    "horizlinescan9\0"
-    "hpBackTab\0"
-    "hpblock\0"
-    "hpClearLine\0"
-    "hpDeleteChar\0"
-    "hpDeleteLine\0"
-    "hpguilder\0"
-    "hpInsertChar\0"
-    "hpInsertLine\0"
-    "hpIO\0"
-    "hpKP_BackTab\0"
-    "hplira\0"
-    "hplongminus\0"
-    "hpModelock1\0"
-    "hpModelock2\0"
-    "hpmute_acute\0"
-    "hpmute_asciicircum\0"
-    "hpmute_asciitilde\0"
-    "hpmute_diaeresis\0"
-    "hpmute_grave\0"
-    "hpReset\0"
-    "hpSystem\0"
-    "hpUser\0"
-    "hpYdiaeresis\0"
-    "Hstroke\0"
-    "hstroke\0"
-    "ht\0"
-    "Hyper_L\0"
-    "Hyper_R\0"
-    "hyphen\0"
-    "I\0"
-    "i\0"
-    "Iabovedot\0"
-    "Iacute\0"
-    "iacute\0"
-    "Ibelowdot\0"
-    "ibelowdot\0"
-    "Ibreve\0"
-    "ibreve\0"
-    "Icircumflex\0"
-    "icircumflex\0"
-    "identical\0"
-    "Idiaeresis\0"
-    "idiaeresis\0"
-    "idotless\0"
-    "ifonlyif\0"
-    "Igrave\0"
-    "igrave\0"
-    "Ihook\0"
-    "ihook\0"
-    "Imacron\0"
-    "imacron\0"
-    "implies\0"
-    "includedin\0"
-    "includes\0"
-    "infinity\0"
-    "Insert\0"
-    "InsertChar\0"
-    "InsertLine\0"
-    "integral\0"
-    "intersection\0"
-    "IO\0"
-    "Iogonek\0"
-    "iogonek\0"
-    "ISO_Center_Object\0"
-    "ISO_Continuous_Underline\0"
-    "ISO_Discontinuous_Underline\0"
-    "ISO_Emphasize\0"
-    "ISO_Enter\0"
-    "ISO_Fast_Cursor_Down\0"
-    "ISO_Fast_Cursor_Left\0"
-    "ISO_Fast_Cursor_Right\0"
-    "ISO_Fast_Cursor_Up\0"
-    "ISO_First_Group\0"
-    "ISO_First_Group_Lock\0"
-    "ISO_Group_Latch\0"
-    "ISO_Group_Lock\0"
-    "ISO_Group_Shift\0"
-    "ISO_Last_Group\0"
-    "ISO_Last_Group_Lock\0"
-    "ISO_Left_Tab\0"
-    "ISO_Level2_Latch\0"
-    "ISO_Level3_Latch\0"
-    "ISO_Level3_Lock\0"
-    "ISO_Level3_Shift\0"
-    "ISO_Level5_Latch\0"
-    "ISO_Level5_Lock\0"
-    "ISO_Level5_Shift\0"
-    "ISO_Lock\0"
-    "ISO_Move_Line_Down\0"
-    "ISO_Move_Line_Up\0"
-    "ISO_Next_Group\0"
-    "ISO_Next_Group_Lock\0"
-    "ISO_Partial_Line_Down\0"
-    "ISO_Partial_Line_Up\0"
-    "ISO_Partial_Space_Left\0"
-    "ISO_Partial_Space_Right\0"
-    "ISO_Prev_Group\0"
-    "ISO_Prev_Group_Lock\0"
-    "ISO_Release_Both_Margins\0"
-    "ISO_Release_Margin_Left\0"
-    "ISO_Release_Margin_Right\0"
-    "ISO_Set_Margin_Left\0"
-    "ISO_Set_Margin_Right\0"
-    "Itilde\0"
-    "itilde\0"
-    "J\0"
-    "j\0"
-    "Jcircumflex\0"
-    "jcircumflex\0"
-    "jot\0"
-    "K\0"
-    "k\0"
-    "kana_A\0"
-    "kana_a\0"
-    "kana_CHI\0"
-    "kana_closingbracket\0"
-    "kana_comma\0"
-    "kana_conjunctive\0"
-    "kana_E\0"
-    "kana_e\0"
-    "kana_FU\0"
-    "kana_fullstop\0"
-    "kana_HA\0"
-    "kana_HE\0"
-    "kana_HI\0"
-    "kana_HO\0"
-    "kana_HU\0"
-    "kana_I\0"
-    "kana_i\0"
-    "kana_KA\0"
-    "kana_KE\0"
-    "kana_KI\0"
-    "kana_KO\0"
-    "kana_KU\0"
-    "Kana_Lock\0"
-    "kana_MA\0"
-    "kana_ME\0"
-    "kana_MI\0"
-    "kana_middledot\0"
-    "kana_MO\0"
-    "kana_MU\0"
-    "kana_N\0"
-    "kana_NA\0"
-    "kana_NE\0"
-    "kana_NI\0"
-    "kana_NO\0"
-    "kana_NU\0"
-    "kana_O\0"
-    "kana_o\0"
-    "kana_openingbracket\0"
-    "kana_RA\0"
-    "kana_RE\0"
-    "kana_RI\0"
-    "kana_RO\0"
-    "kana_RU\0"
-    "kana_SA\0"
-    "kana_SE\0"
-    "kana_SHI\0"
-    "Kana_Shift\0"
-    "kana_SO\0"
-    "kana_SU\0"
-    "kana_switch\0"
-    "kana_TA\0"
-    "kana_TE\0"
-    "kana_TI\0"
-    "kana_TO\0"
-    "kana_TSU\0"
-    "kana_tsu\0"
-    "kana_TU\0"
-    "kana_tu\0"
-    "kana_U\0"
-    "kana_u\0"
-    "kana_WA\0"
-    "kana_WO\0"
-    "kana_YA\0"
-    "kana_ya\0"
-    "kana_YO\0"
-    "kana_yo\0"
-    "kana_YU\0"
-    "kana_yu\0"
-    "Kanji\0"
-    "Kanji_Bangou\0"
-    "kappa\0"
-    "Katakana\0"
-    "Kcedilla\0"
-    "kcedilla\0"
-    "Korean_Won\0"
-    "KP_0\0"
-    "KP_1\0"
-    "KP_2\0"
-    "KP_3\0"
-    "KP_4\0"
-    "KP_5\0"
-    "KP_6\0"
-    "KP_7\0"
-    "KP_8\0"
-    "KP_9\0"
-    "KP_Add\0"
-    "KP_BackTab\0"
-    "KP_Begin\0"
-    "KP_Decimal\0"
-    "KP_Delete\0"
-    "KP_Divide\0"
-    "KP_Down\0"
-    "KP_End\0"
-    "KP_Enter\0"
-    "KP_Equal\0"
-    "KP_F1\0"
-    "KP_F2\0"
-    "KP_F3\0"
-    "KP_F4\0"
-    "KP_Home\0"
-    "KP_Insert\0"
-    "KP_Left\0"
-    "KP_Multiply\0"
-    "KP_Next\0"
-    "KP_Page_Down\0"
-    "KP_Page_Up\0"
-    "KP_Prior\0"
-    "KP_Right\0"
-    "KP_Separator\0"
-    "KP_Space\0"
-    "KP_Subtract\0"
-    "KP_Tab\0"
-    "KP_Up\0"
-    "kra\0"
-    "L\0"
-    "l\0"
-    "L1\0"
-    "L10\0"
-    "L2\0"
-    "L3\0"
-    "L4\0"
-    "L5\0"
-    "L6\0"
-    "L7\0"
-    "L8\0"
-    "L9\0"
-    "Lacute\0"
-    "lacute\0"
-    "Last_Virtual_Screen\0"
-    "latincross\0"
-    "Lbelowdot\0"
-    "lbelowdot\0"
-    "Lcaron\0"
-    "lcaron\0"
-    "Lcedilla\0"
-    "lcedilla\0"
-    "Left\0"
-    "leftanglebracket\0"
-    "leftarrow\0"
-    "leftcaret\0"
-    "leftdoublequotemark\0"
-    "leftmiddlecurlybrace\0"
-    "leftopentriangle\0"
-    "leftpointer\0"
-    "leftradical\0"
-    "leftshoe\0"
-    "leftsinglequotemark\0"
-    "leftt\0"
-    "lefttack\0"
-    "less\0"
-    "lessthanequal\0"
-    "lf\0"
-    "Linefeed\0"
-    "lira\0"
-    "LiraSign\0"
-    "logicaland\0"
-    "logicalor\0"
-    "longminus\0"
-    "lowleftcorner\0"
-    "lowrightcorner\0"
-    "Lstroke\0"
-    "lstroke\0"
-    "M\0"
-    "m\0"
-    "Mabovedot\0"
-    "mabovedot\0"
-    "Macedonia_DSE\0"
-    "Macedonia_dse\0"
-    "Macedonia_GJE\0"
-    "Macedonia_gje\0"
-    "Macedonia_KJE\0"
-    "Macedonia_kje\0"
-    "macron\0"
-    "Mae_Koho\0"
-    "malesymbol\0"
-    "maltesecross\0"
-    "marker\0"
-    "masculine\0"
-    "Massyo\0"
-    "Menu\0"
-    "Meta_L\0"
-    "Meta_R\0"
-    "MillSign\0"
-    "minus\0"
-    "minutes\0"
-    "Mode_switch\0"
-    "MouseKeys_Accel_Enable\0"
-    "MouseKeys_Enable\0"
-    "mu\0"
-    "Muhenkan\0"
-    "Multi_key\0"
-    "MultipleCandidate\0"
-    "multiply\0"
-    "musicalflat\0"
-    "musicalsharp\0"
-    "mute_acute\0"
-    "mute_asciicircum\0"
-    "mute_asciitilde\0"
-    "mute_diaeresis\0"
-    "mute_grave\0"
-    "N\0"
-    "n\0"
-    "nabla\0"
-    "Nacute\0"
-    "nacute\0"
-    "NairaSign\0"
-    "Ncaron\0"
-    "ncaron\0"
-    "Ncedilla\0"
-    "ncedilla\0"
-    "NewSheqelSign\0"
-    "Next\0"
-    "Next_Virtual_Screen\0"
-    "ninesubscript\0"
-    "ninesuperior\0"
-    "nl\0"
-    "nobreakspace\0"
-    "NoSymbol\0"
-    "notapproxeq\0"
-    "notelementof\0"
-    "notequal\0"
-    "notidentical\0"
-    "notsign\0"
-    "Ntilde\0"
-    "ntilde\0"
-    "Num_Lock\0"
-    "numbersign\0"
-    "numerosign\0"
-    "O\0"
-    "o\0"
-    "Oacute\0"
-    "oacute\0"
-    "Obarred\0"
-    "obarred\0"
-    "Obelowdot\0"
-    "obelowdot\0"
-    "Ocaron\0"
-    "ocaron\0"
-    "Ocircumflex\0"
-    "ocircumflex\0"
-    "Ocircumflexacute\0"
-    "ocircumflexacute\0"
-    "Ocircumflexbelowdot\0"
-    "ocircumflexbelowdot\0"
-    "Ocircumflexgrave\0"
-    "ocircumflexgrave\0"
-    "Ocircumflexhook\0"
-    "ocircumflexhook\0"
-    "Ocircumflextilde\0"
-    "ocircumflextilde\0"
-    "Odiaeresis\0"
-    "odiaeresis\0"
-    "Odoubleacute\0"
-    "odoubleacute\0"
-    "OE\0"
-    "oe\0"
-    "ogonek\0"
-    "Ograve\0"
-    "ograve\0"
-    "Ohook\0"
-    "ohook\0"
-    "Ohorn\0"
-    "ohorn\0"
-    "Ohornacute\0"
-    "ohornacute\0"
-    "Ohornbelowdot\0"
-    "ohornbelowdot\0"
-    "Ohorngrave\0"
-    "ohorngrave\0"
-    "Ohornhook\0"
-    "ohornhook\0"
-    "Ohorntilde\0"
-    "ohorntilde\0"
-    "Omacron\0"
-    "omacron\0"
-    "oneeighth\0"
-    "onefifth\0"
-    "onehalf\0"
-    "onequarter\0"
-    "onesixth\0"
-    "onesubscript\0"
-    "onesuperior\0"
-    "onethird\0"
-    "Ooblique\0"
-    "ooblique\0"
-    "openrectbullet\0"
-    "openstar\0"
-    "opentribulletdown\0"
-    "opentribulletup\0"
-    "ordfeminine\0"
-    "ordmasculine\0"
-    "osfActivate\0"
-    "osfAddMode\0"
-    "osfBackSpace\0"
-    "osfBackTab\0"
-    "osfBeginData\0"
-    "osfBeginLine\0"
-    "osfCancel\0"
-    "osfClear\0"
-    "osfCopy\0"
-    "osfCut\0"
-    "osfDelete\0"
-    "osfDeselectAll\0"
-    "osfDown\0"
-    "osfEndData\0"
-    "osfEndLine\0"
-    "osfEscape\0"
-    "osfExtend\0"
-    "osfHelp\0"
-    "osfInsert\0"
-    "osfLeft\0"
-    "osfMenu\0"
-    "osfMenuBar\0"
-    "osfNextField\0"
-    "osfNextMenu\0"
-    "osfPageDown\0"
-    "osfPageLeft\0"
-    "osfPageRight\0"
-    "osfPageUp\0"
-    "osfPaste\0"
-    "osfPrevField\0"
-    "osfPrevMenu\0"
-    "osfPrimaryPaste\0"
-    "osfQuickPaste\0"
-    "osfReselect\0"
-    "osfRestore\0"
-    "osfRight\0"
-    "osfSelect\0"
-    "osfSelectAll\0"
-    "osfUndo\0"
-    "osfUp\0"
-    "Oslash\0"
-    "oslash\0"
-    "Otilde\0"
-    "otilde\0"
-    "overbar\0"
-    "Overlay1_Enable\0"
-    "Overlay2_Enable\0"
-    "overline\0"
-    "P\0"
-    "p\0"
-    "Pabovedot\0"
-    "pabovedot\0"
-    "Page_Down\0"
-    "Page_Up\0"
-    "paragraph\0"
-    "parenleft\0"
-    "parenright\0"
-    "partdifferential\0"
-    "partialderivative\0"
-    "Pause\0"
-    "percent\0"
-    "period\0"
-    "periodcentered\0"
-    "permille\0"
-    "PesetaSign\0"
-    "phonographcopyright\0"
-    "plus\0"
-    "plusminus\0"
-    "Pointer_Accelerate\0"
-    "Pointer_Button1\0"
-    "Pointer_Button2\0"
-    "Pointer_Button3\0"
-    "Pointer_Button4\0"
-    "Pointer_Button5\0"
-    "Pointer_Button_Dflt\0"
-    "Pointer_DblClick1\0"
-    "Pointer_DblClick2\0"
-    "Pointer_DblClick3\0"
-    "Pointer_DblClick4\0"
-    "Pointer_DblClick5\0"
-    "Pointer_DblClick_Dflt\0"
-    "Pointer_DfltBtnNext\0"
-    "Pointer_DfltBtnPrev\0"
-    "Pointer_Down\0"
-    "Pointer_DownLeft\0"
-    "Pointer_DownRight\0"
-    "Pointer_Drag1\0"
-    "Pointer_Drag2\0"
-    "Pointer_Drag3\0"
-    "Pointer_Drag4\0"
-    "Pointer_Drag5\0"
-    "Pointer_Drag_Dflt\0"
-    "Pointer_EnableKeys\0"
-    "Pointer_Left\0"
-    "Pointer_Right\0"
-    "Pointer_Up\0"
-    "Pointer_UpLeft\0"
-    "Pointer_UpRight\0"
-    "prescription\0"
-    "Prev_Virtual_Screen\0"
-    "PreviousCandidate\0"
-    "Print\0"
-    "Prior\0"
-    "prolongedsound\0"
-    "punctspace\0"
-    "Q\0"
-    "q\0"
-    "quad\0"
-    "question\0"
-    "questiondown\0"
-    "quotedbl\0"
-    "quoteleft\0"
-    "quoteright\0"
-    "R\0"
-    "r\0"
-    "R1\0"
-    "R10\0"
-    "R11\0"
-    "R12\0"
-    "R13\0"
-    "R14\0"
-    "R15\0"
-    "R2\0"
-    "R3\0"
-    "R4\0"
-    "R5\0"
-    "R6\0"
-    "R7\0"
-    "R8\0"
-    "R9\0"
-    "Racute\0"
-    "racute\0"
-    "radical\0"
-    "Rcaron\0"
-    "rcaron\0"
-    "Rcedilla\0"
-    "rcedilla\0"
-    "Redo\0"
-    "registered\0"
-    "RepeatKeys_Enable\0"
-    "Reset\0"
-    "Return\0"
-    "Right\0"
-    "rightanglebracket\0"
-    "rightarrow\0"
-    "rightcaret\0"
-    "rightdoublequotemark\0"
-    "rightmiddlecurlybrace\0"
-    "rightmiddlesummation\0"
-    "rightopentriangle\0"
-    "rightpointer\0"
-    "rightshoe\0"
-    "rightsinglequotemark\0"
-    "rightt\0"
-    "righttack\0"
-    "Romaji\0"
-    "RupeeSign\0"
-    "S\0"
-    "s\0"
-    "Sabovedot\0"
-    "sabovedot\0"
-    "Sacute\0"
-    "sacute\0"
-    "Scaron\0"
-    "scaron\0"
-    "Scedilla\0"
-    "scedilla\0"
-    "SCHWA\0"
-    "schwa\0"
-    "Scircumflex\0"
-    "scircumflex\0"
-    "script_switch\0"
-    "Scroll_Lock\0"
-    "seconds\0"
-    "section\0"
-    "Select\0"
-    "semicolon\0"
-    "semivoicedsound\0"
-    "Serbian_DJE\0"
-    "Serbian_dje\0"
-    "Serbian_DZE\0"
-    "Serbian_dze\0"
-    "Serbian_JE\0"
-    "Serbian_je\0"
-    "Serbian_LJE\0"
-    "Serbian_lje\0"
-    "Serbian_NJE\0"
-    "Serbian_nje\0"
-    "Serbian_TSHE\0"
-    "Serbian_tshe\0"
-    "seveneighths\0"
-    "sevensubscript\0"
-    "sevensuperior\0"
-    "Shift_L\0"
-    "Shift_Lock\0"
-    "Shift_R\0"
-    "signaturemark\0"
-    "signifblank\0"
-    "similarequal\0"
-    "SingleCandidate\0"
-    "singlelowquotemark\0"
-    "Sinh_a\0"
-    "Sinh_aa\0"
-    "Sinh_aa2\0"
-    "Sinh_ae\0"
-    "Sinh_ae2\0"
-    "Sinh_aee\0"
-    "Sinh_aee2\0"
-    "Sinh_ai\0"
-    "Sinh_ai2\0"
-    "Sinh_al\0"
-    "Sinh_au\0"
-    "Sinh_au2\0"
-    "Sinh_ba\0"
-    "Sinh_bha\0"
-    "Sinh_ca\0"
-    "Sinh_cha\0"
-    "Sinh_dda\0"
-    "Sinh_ddha\0"
-    "Sinh_dha\0"
-    "Sinh_dhha\0"
-    "Sinh_e\0"
-    "Sinh_e2\0"
-    "Sinh_ee\0"
-    "Sinh_ee2\0"
-    "Sinh_fa\0"
-    "Sinh_ga\0"
-    "Sinh_gha\0"
-    "Sinh_h2\0"
-    "Sinh_ha\0"
-    "Sinh_i\0"
-    "Sinh_i2\0"
-    "Sinh_ii\0"
-    "Sinh_ii2\0"
-    "Sinh_ja\0"
-    "Sinh_jha\0"
-    "Sinh_jnya\0"
-    "Sinh_ka\0"
-    "Sinh_kha\0"
-    "Sinh_kunddaliya\0"
-    "Sinh_la\0"
-    "Sinh_lla\0"
-    "Sinh_lu\0"
-    "Sinh_lu2\0"
-    "Sinh_luu\0"
-    "Sinh_luu2\0"
-    "Sinh_ma\0"
-    "Sinh_mba\0"
-    "Sinh_na\0"
-    "Sinh_ndda\0"
-    "Sinh_ndha\0"
-    "Sinh_ng\0"
-    "Sinh_ng2\0"
-    "Sinh_nga\0"
-    "Sinh_nja\0"
-    "Sinh_nna\0"
-    "Sinh_nya\0"
-    "Sinh_o\0"
-    "Sinh_o2\0"
-    "Sinh_oo\0"
-    "Sinh_oo2\0"
-    "Sinh_pa\0"
-    "Sinh_pha\0"
-    "Sinh_ra\0"
-    "Sinh_ri\0"
-    "Sinh_rii\0"
-    "Sinh_ru2\0"
-    "Sinh_ruu2\0"
-    "Sinh_sa\0"
-    "Sinh_sha\0"
-    "Sinh_ssha\0"
-    "Sinh_tha\0"
-    "Sinh_thha\0"
-    "Sinh_tta\0"
-    "Sinh_ttha\0"
-    "Sinh_u\0"
-    "Sinh_u2\0"
-    "Sinh_uu\0"
-    "Sinh_uu2\0"
-    "Sinh_va\0"
-    "Sinh_ya\0"
-    "sixsubscript\0"
-    "sixsuperior\0"
-    "slash\0"
-    "SlowKeys_Enable\0"
-    "soliddiamond\0"
-    "space\0"
-    "squareroot\0"
-    "ssharp\0"
-    "sterling\0"
-    "StickyKeys_Enable\0"
-    "stricteq\0"
-    "SunAgain\0"
-    "SunAltGraph\0"
-    "SunAudioLowerVolume\0"
-    "SunAudioMute\0"
-    "SunAudioRaiseVolume\0"
-    "SunCompose\0"
-    "SunCopy\0"
-    "SunCut\0"
-    "SunF36\0"
-    "SunF37\0"
-    "SunFA_Acute\0"
-    "SunFA_Cedilla\0"
-    "SunFA_Circum\0"
-    "SunFA_Diaeresis\0"
-    "SunFA_Grave\0"
-    "SunFA_Tilde\0"
-    "SunFind\0"
-    "SunFront\0"
-    "SunOpen\0"
-    "SunPageDown\0"
-    "SunPageUp\0"
-    "SunPaste\0"
-    "SunPowerSwitch\0"
-    "SunPowerSwitchShift\0"
-    "SunPrint_Screen\0"
-    "SunProps\0"
-    "SunStop\0"
-    "SunSys_Req\0"
-    "SunUndo\0"
-    "SunVideoDegauss\0"
-    "SunVideoLowerBrightness\0"
-    "SunVideoRaiseBrightness\0"
-    "Super_L\0"
-    "Super_R\0"
-    "Sys_Req\0"
-    "System\0"
-    "T\0"
-    "t\0"
-    "Tab\0"
-    "Tabovedot\0"
-    "tabovedot\0"
-    "Tcaron\0"
-    "tcaron\0"
-    "Tcedilla\0"
-    "tcedilla\0"
-    "telephone\0"
-    "telephonerecorder\0"
-    "Terminate_Server\0"
-    "Thai_baht\0"
-    "Thai_bobaimai\0"
-    "Thai_chochan\0"
-    "Thai_chochang\0"
-    "Thai_choching\0"
-    "Thai_chochoe\0"
-    "Thai_dochada\0"
-    "Thai_dodek\0"
-    "Thai_fofa\0"
-    "Thai_fofan\0"
-    "Thai_hohip\0"
-    "Thai_honokhuk\0"
-    "Thai_khokhai\0"
-    "Thai_khokhon\0"
-    "Thai_khokhuat\0"
-    "Thai_khokhwai\0"
-    "Thai_khorakhang\0"
-    "Thai_kokai\0"
-    "Thai_lakkhangyao\0"
-    "Thai_lekchet\0"
-    "Thai_lekha\0"
-    "Thai_lekhok\0"
-    "Thai_lekkao\0"
-    "Thai_leknung\0"
-    "Thai_lekpaet\0"
-    "Thai_leksam\0"
-    "Thai_leksi\0"
-    "Thai_leksong\0"
-    "Thai_leksun\0"
-    "Thai_lochula\0"
-    "Thai_loling\0"
-    "Thai_lu\0"
-    "Thai_maichattawa\0"
-    "Thai_maiek\0"
-    "Thai_maihanakat\0"
-    "Thai_maihanakat_maitho\0"
-    "Thai_maitaikhu\0"
-    "Thai_maitho\0"
-    "Thai_maitri\0"
-    "Thai_maiyamok\0"
-    "Thai_moma\0"
-    "Thai_ngongu\0"
-    "Thai_nikhahit\0"
-    "Thai_nonen\0"
-    "Thai_nonu\0"
-    "Thai_oang\0"
-    "Thai_paiyannoi\0"
-    "Thai_phinthu\0"
-    "Thai_phophan\0"
-    "Thai_phophung\0"
-    "Thai_phosamphao\0"
-    "Thai_popla\0"
-    "Thai_rorua\0"
-    "Thai_ru\0"
-    "Thai_saraa\0"
-    "Thai_saraaa\0"
-    "Thai_saraae\0"
-    "Thai_saraaimaimalai\0"
-    "Thai_saraaimaimuan\0"
-    "Thai_saraam\0"
-    "Thai_sarae\0"
-    "Thai_sarai\0"
-    "Thai_saraii\0"
-    "Thai_sarao\0"
-    "Thai_sarau\0"
-    "Thai_saraue\0"
-    "Thai_sarauee\0"
-    "Thai_sarauu\0"
-    "Thai_sorusi\0"
-    "Thai_sosala\0"
-    "Thai_soso\0"
-    "Thai_sosua\0"
-    "Thai_thanthakhat\0"
-    "Thai_thonangmontho\0"
-    "Thai_thophuthao\0"
-    "Thai_thothahan\0"
-    "Thai_thothan\0"
-    "Thai_thothong\0"
-    "Thai_thothung\0"
-    "Thai_topatak\0"
-    "Thai_totao\0"
-    "Thai_wowaen\0"
-    "Thai_yoyak\0"
-    "Thai_yoying\0"
-    "therefore\0"
-    "thinspace\0"
-    "THORN\0"
-    "Thorn\0"
-    "thorn\0"
-    "threeeighths\0"
-    "threefifths\0"
-    "threequarters\0"
-    "threesubscript\0"
-    "threesuperior\0"
-    "tintegral\0"
-    "topintegral\0"
-    "topleftparens\0"
-    "topleftradical\0"
-    "topleftsqbracket\0"
-    "topleftsummation\0"
-    "toprightparens\0"
-    "toprightsqbracket\0"
-    "toprightsummation\0"
-    "topt\0"
-    "topvertsummationconnector\0"
-    "Touroku\0"
-    "trademark\0"
-    "trademarkincircle\0"
-    "Tslash\0"
-    "tslash\0"
-    "twofifths\0"
-    "twosubscript\0"
-    "twosuperior\0"
-    "twothirds\0"
-    "U\0"
-    "u\0"
-    "Uacute\0"
-    "uacute\0"
-    "Ubelowdot\0"
-    "ubelowdot\0"
-    "Ubreve\0"
-    "ubreve\0"
-    "Ucircumflex\0"
-    "ucircumflex\0"
-    "Udiaeresis\0"
-    "udiaeresis\0"
-    "Udoubleacute\0"
-    "udoubleacute\0"
-    "Ugrave\0"
-    "ugrave\0"
-    "Uhook\0"
-    "uhook\0"
-    "Uhorn\0"
-    "uhorn\0"
-    "Uhornacute\0"
-    "uhornacute\0"
-    "Uhornbelowdot\0"
-    "uhornbelowdot\0"
-    "Uhorngrave\0"
-    "uhorngrave\0"
-    "Uhornhook\0"
-    "uhornhook\0"
-    "Uhorntilde\0"
-    "uhorntilde\0"
-    "Ukrainian_GHE_WITH_UPTURN\0"
-    "Ukrainian_ghe_with_upturn\0"
-    "Ukrainian_I\0"
-    "Ukrainian_i\0"
-    "Ukrainian_IE\0"
-    "Ukrainian_ie\0"
-    "Ukrainian_YI\0"
-    "Ukrainian_yi\0"
-    "Ukranian_I\0"
-    "Ukranian_i\0"
-    "Ukranian_JE\0"
-    "Ukranian_je\0"
-    "Ukranian_YI\0"
-    "Ukranian_yi\0"
-    "Umacron\0"
-    "umacron\0"
-    "underbar\0"
-    "underscore\0"
-    "Undo\0"
-    "union\0"
-    "Uogonek\0"
-    "uogonek\0"
-    "Up\0"
-    "uparrow\0"
-    "upcaret\0"
-    "upleftcorner\0"
-    "uprightcorner\0"
-    "upshoe\0"
-    "upstile\0"
-    "uptack\0"
-    "Uring\0"
-    "uring\0"
-    "User\0"
-    "Utilde\0"
-    "utilde\0"
-    "V\0"
-    "v\0"
-    "variation\0"
-    "vertbar\0"
-    "vertconnector\0"
-    "voicedsound\0"
-    "VoidSymbol\0"
-    "vt\0"
-    "W\0"
-    "w\0"
-    "Wacute\0"
-    "wacute\0"
-    "Wcircumflex\0"
-    "wcircumflex\0"
-    "Wdiaeresis\0"
-    "wdiaeresis\0"
-    "Wgrave\0"
-    "wgrave\0"
-    "WonSign\0"
-    "X\0"
-    "x\0"
-    "Xabovedot\0"
-    "xabovedot\0"
-    "XF8610ChannelsDown\0"
-    "XF8610ChannelsUp\0"
-    "XF863DMode\0"
-    "XF86Accessibility\0"
-    "XF86AddFavorite\0"
-    "XF86Addressbook\0"
-    "XF86ALSToggle\0"
-    "XF86ApplicationLeft\0"
-    "XF86ApplicationRight\0"
-    "XF86AppSelect\0"
-    "XF86AspectRatio\0"
-    "XF86Assistant\0"
-    "XF86AttendantOff\0"
-    "XF86AttendantOn\0"
-    "XF86AttendantToggle\0"
-    "XF86Audio\0"
-    "XF86AudioCycleTrack\0"
-    "XF86AudioDesc\0"
-    "XF86AudioForward\0"
-    "XF86AudioLowerVolume\0"
-    "XF86AudioMedia\0"
-    "XF86AudioMicMute\0"
-    "XF86AudioMute\0"
-    "XF86AudioNext\0"
-    "XF86AudioPause\0"
-    "XF86AudioPlay\0"
-    "XF86AudioPreset\0"
-    "XF86AudioPrev\0"
-    "XF86AudioRaiseVolume\0"
-    "XF86AudioRandomPlay\0"
-    "XF86AudioRecord\0"
-    "XF86AudioRepeat\0"
-    "XF86AudioRewind\0"
-    "XF86AudioStop\0"
-    "XF86AutopilotEngageToggle\0"
-    "XF86Away\0"
-    "XF86Back\0"
-    "XF86BackForward\0"
-    "XF86Battery\0"
-    "XF86Blue\0"
-    "XF86Bluetooth\0"
-    "XF86Book\0"
-    "XF86Break\0"
-    "XF86BrightnessAdjust\0"
-    "XF86BrightnessAuto\0"
-    "XF86BrightnessMax\0"
-    "XF86BrightnessMin\0"
-    "XF86Buttonconfig\0"
-    "XF86Calculater\0"
-    "XF86Calculator\0"
-    "XF86Calendar\0"
-    "XF86CameraAccessDisable\0"
-    "XF86CameraAccessEnable\0"
-    "XF86CameraAccessToggle\0"
-    "XF86CameraDown\0"
-    "XF86CameraFocus\0"
-    "XF86CameraLeft\0"
-    "XF86CameraRight\0"
-    "XF86CameraUp\0"
-    "XF86CameraZoomIn\0"
-    "XF86CameraZoomOut\0"
-    "XF86CD\0"
-    "XF86ChannelDown\0"
-    "XF86ChannelUp\0"
-    "XF86Clear\0"
-    "XF86ClearGrab\0"
-    "XF86ClearvuSonar\0"
-    "XF86Close\0"
-    "XF86Community\0"
-    "XF86ContextMenu\0"
-    "XF86ContrastAdjust\0"
-    "XF86ControlPanel\0"
-    "XF86Copy\0"
-    "XF86Cut\0"
-    "XF86CycleAngle\0"
-    "XF86Data\0"
-    "XF86Database\0"
-    "XF86Dictate\0"
-    "XF86Display\0"
-    "XF86DisplayOff\0"
-    "XF86DisplayToggle\0"
-    "XF86Documents\0"
-    "XF86DoNotDisturb\0"
-    "XF86DOS\0"
-    "XF86DualRangeRadar\0"
-    "XF86DVD\0"
-    "XF86Editor\0"
-    "XF86Eject\0"
-    "XF86EmojiPicker\0"
-    "XF86Excel\0"
-    "XF86Explorer\0"
-    "XF86FastReverse\0"
-    "XF86Favorites\0"
-    "XF86Finance\0"
-    "XF86FishingChart\0"
-    "XF86Fn\0"
-    "XF86Fn_Esc\0"
-    "XF86FnRightShift\0"
-    "XF86Forward\0"
-    "XF86FrameBack\0"
-    "XF86FrameForward\0"
-    "XF86FullScreen\0"
-    "XF86Game\0"
-    "XF86Go\0"
-    "XF86GraphicsEditor\0"
-    "XF86Green\0"
-    "XF86HangupPhone\0"
-    "XF86Hibernate\0"
-    "XF86History\0"
-    "XF86HomePage\0"
-    "XF86HotLinks\0"
-    "XF86Images\0"
-    "XF86Info\0"
-    "XF86iTouch\0"
-    "XF86Journal\0"
-    "XF86KbdBrightnessDown\0"
-    "XF86KbdBrightnessUp\0"
-    "XF86KbdInputAssistAccept\0"
-    "XF86KbdInputAssistCancel\0"
-    "XF86KbdInputAssistNext\0"
-    "XF86KbdInputAssistNextgroup\0"
-    "XF86KbdInputAssistPrev\0"
-    "XF86KbdInputAssistPrevgroup\0"
-    "XF86KbdLcdMenu1\0"
-    "XF86KbdLcdMenu2\0"
-    "XF86KbdLcdMenu3\0"
-    "XF86KbdLcdMenu4\0"
-    "XF86KbdLcdMenu5\0"
-    "XF86KbdLightOnOff\0"
-    "XF86Keyboard\0"
-    "XF86Launch0\0"
-    "XF86Launch1\0"
-    "XF86Launch2\0"
-    "XF86Launch3\0"
-    "XF86Launch4\0"
-    "XF86Launch5\0"
-    "XF86Launch6\0"
-    "XF86Launch7\0"
-    "XF86Launch8\0"
-    "XF86Launch9\0"
-    "XF86LaunchA\0"
-    "XF86LaunchB\0"
-    "XF86LaunchC\0"
-    "XF86LaunchD\0"
-    "XF86LaunchE\0"
-    "XF86LaunchF\0"
-    "XF86LeftDown\0"
-    "XF86LeftUp\0"
-    "XF86LightBulb\0"
-    "XF86LightsToggle\0"
-    "XF86LogGrabInfo\0"
-    "XF86LogOff\0"
-    "XF86LogWindowTree\0"
-    "XF86Macro1\0"
-    "XF86Macro10\0"
-    "XF86Macro11\0"
-    "XF86Macro12\0"
-    "XF86Macro13\0"
-    "XF86Macro14\0"
-    "XF86Macro15\0"
-    "XF86Macro16\0"
-    "XF86Macro17\0"
-    "XF86Macro18\0"
-    "XF86Macro19\0"
-    "XF86Macro2\0"
-    "XF86Macro20\0"
-    "XF86Macro21\0"
-    "XF86Macro22\0"
-    "XF86Macro23\0"
-    "XF86Macro24\0"
-    "XF86Macro25\0"
-    "XF86Macro26\0"
-    "XF86Macro27\0"
-    "XF86Macro28\0"
-    "XF86Macro29\0"
-    "XF86Macro3\0"
-    "XF86Macro30\0"
-    "XF86Macro4\0"
-    "XF86Macro5\0"
-    "XF86Macro6\0"
-    "XF86Macro7\0"
-    "XF86Macro8\0"
-    "XF86Macro9\0"
-    "XF86MacroPreset1\0"
-    "XF86MacroPreset2\0"
-    "XF86MacroPreset3\0"
-    "XF86MacroPresetCycle\0"
-    "XF86MacroRecordStart\0"
-    "XF86MacroRecordStop\0"
-    "XF86Mail\0"
-    "XF86MailForward\0"
-    "XF86Market\0"
-    "XF86MarkWaypoint\0"
-    "XF86MediaRepeat\0"
-    "XF86MediaTopMenu\0"
-    "XF86Meeting\0"
-    "XF86Memo\0"
-    "XF86MenuKB\0"
-    "XF86MenuPB\0"
-    "XF86Messenger\0"
-    "XF86ModeLock\0"
-    "XF86MonBrightnessCycle\0"
-    "XF86MonBrightnessDown\0"
-    "XF86MonBrightnessUp\0"
-    "XF86Music\0"
-    "XF86MyComputer\0"
-    "XF86MySites\0"
-    "XF86NavChart\0"
-    "XF86NavInfo\0"
-    "XF86New\0"
-    "XF86News\0"
-    "XF86Next_VMode\0"
-    "XF86NextElement\0"
-    "XF86NextFavorite\0"
-    "XF86NotificationCenter\0"
-    "XF86Numeric0\0"
-    "XF86Numeric1\0"
-    "XF86Numeric11\0"
-    "XF86Numeric12\0"
-    "XF86Numeric2\0"
-    "XF86Numeric3\0"
-    "XF86Numeric4\0"
-    "XF86Numeric5\0"
-    "XF86Numeric6\0"
-    "XF86Numeric7\0"
-    "XF86Numeric8\0"
-    "XF86Numeric9\0"
-    "XF86NumericA\0"
-    "XF86NumericB\0"
-    "XF86NumericC\0"
-    "XF86NumericD\0"
-    "XF86NumericPound\0"
-    "XF86NumericStar\0"
-    "XF86OfficeHome\0"
-    "XF86OnScreenKeyboard\0"
-    "XF86Open\0"
-    "XF86OpenURL\0"
-    "XF86Option\0"
-    "XF86Paste\0"
-    "XF86PauseRecord\0"
-    "XF86Phone\0"
-    "XF86PickupPhone\0"
-    "XF86Pictures\0"
-    "XF86PowerDown\0"
-    "XF86PowerOff\0"
-    "XF86Presentation\0"
-    "XF86Prev_VMode\0"
-    "XF86PreviousElement\0"
-    "XF86PrivacyScreenToggle\0"
-    "XF86Q\0"
-    "XF86RadarOverlay\0"
-    "XF86Red\0"
-    "XF86Refresh\0"
-    "XF86RefreshRateToggle\0"
-    "XF86Reload\0"
-    "XF86Reply\0"
-    "XF86RFKill\0"
-    "XF86RightDown\0"
-    "XF86RightUp\0"
-    "XF86RockerDown\0"
-    "XF86RockerEnter\0"
-    "XF86RockerUp\0"
-    "XF86RootMenu\0"
-    "XF86RotateWindows\0"
-    "XF86RotationKB\0"
-    "XF86RotationLockToggle\0"
-    "XF86RotationPB\0"
-    "XF86Save\0"
-    "XF86ScreenSaver\0"
-    "XF86Screensaver\0"
-    "XF86ScrollClick\0"
-    "XF86ScrollDown\0"
-    "XF86ScrollUp\0"
-    "XF86Search\0"
-    "XF86Select\0"
-    "XF86SelectiveScreenshot\0"
-    "XF86Send\0"
-    "XF86Shop\0"
-    "XF86SidevuSonar\0"
-    "XF86SingleRangeRadar\0"
-    "XF86Sleep\0"
-    "XF86SlowReverse\0"
-    "XF86Sos\0"
-    "XF86Spell\0"
-    "XF86SpellCheck\0"
-    "XF86SplitScreen\0"
-    "XF86Standby\0"
-    "XF86Start\0"
-    "XF86Stop\0"
-    "XF86StopRecord\0"
-    "XF86Subtitle\0"
-    "XF86Support\0"
-    "XF86Suspend\0"
-    "XF86Switch_VT_1\0"
-    "XF86Switch_VT_10\0"
-    "XF86Switch_VT_11\0"
-    "XF86Switch_VT_12\0"
-    "XF86Switch_VT_2\0"
-    "XF86Switch_VT_3\0"
-    "XF86Switch_VT_4\0"
-    "XF86Switch_VT_5\0"
-    "XF86Switch_VT_6\0"
-    "XF86Switch_VT_7\0"
-    "XF86Switch_VT_8\0"
-    "XF86Switch_VT_9\0"
-    "XF86Taskmanager\0"
-    "XF86TaskPane\0"
-    "XF86Terminal\0"
-    "XF86Time\0"
-    "XF86ToDoList\0"
-    "XF86Tools\0"
-    "XF86TopMenu\0"
-    "XF86TouchpadOff\0"
-    "XF86TouchpadOn\0"
-    "XF86TouchpadToggle\0"
-    "XF86TraditionalSonar\0"
-    "XF86Travel\0"
-    "XF86Ungrab\0"
-    "XF86Unmute\0"
-    "XF86User1KB\0"
-    "XF86User2KB\0"
-    "XF86UserPB\0"
-    "XF86UWB\0"
-    "XF86VendorHome\0"
-    "XF86Video\0"
-    "XF86VideoPhone\0"
-    "XF86View\0"
-    "XF86VOD\0"
-    "XF86VoiceCommand\0"
-    "XF86Voicemail\0"
-    "XF86WakeUp\0"
-    "XF86WebCam\0"
-    "XF86WheelButton\0"
-    "XF86WLAN\0"
-    "XF86Word\0"
-    "XF86WPSButton\0"
-    "XF86WWAN\0"
-    "XF86WWW\0"
-    "XF86Xfer\0"
-    "XF86Yellow\0"
-    "XF86ZoomIn\0"
-    "XF86ZoomOut\0"
-    "XF86ZoomReset\0"
-    "Y\0"
-    "y\0"
-    "Yacute\0"
-    "yacute\0"
-    "Ybelowdot\0"
-    "ybelowdot\0"
-    "Ycircumflex\0"
-    "ycircumflex\0"
-    "Ydiaeresis\0"
-    "ydiaeresis\0"
-    "yen\0"
-    "Ygrave\0"
-    "ygrave\0"
-    "Yhook\0"
-    "yhook\0"
-    "Ytilde\0"
-    "ytilde\0"
-    "Z\0"
-    "z\0"
-    "Zabovedot\0"
-    "zabovedot\0"
-    "Zacute\0"
-    "zacute\0"
-    "Zcaron\0"
-    "zcaron\0"
-    "Zen_Koho\0"
-    "Zenkaku\0"
-    "Zenkaku_Hankaku\0"
-    "zerosubscript\0"
-    "zerosuperior\0"
-    "Zstroke\0"
-    "zstroke\0"
+static const char keysym_names[] =
+    "\x10\0"
+    "\x11\0"
+    "\x12\0"
+    "\x13\0"
+    "\xe3270_AltCursor\0"
+    "\x93270_Attn\0"
+    "\xc3270_BackTab\0"
+    "\x113270_ChangeScreen\0"
+    "\x93270_Copy\0"
+    "\x103270_CursorBlink\0"
+    "\x113270_CursorSelect\0"
+    "\xf3270_DeleteWord\0"
+    "\xe3270_Duplicate\0"
+    "\xa3270_Enter\0"
+    "\xd3270_EraseEOF\0"
+    "\xf3270_EraseInput\0"
+    "\xd3270_ExSelect\0"
+    "\xe3270_FieldMark\0"
+    "\xa3270_Ident\0"
+    "\x93270_Jump\0"
+    "\xd3270_KeyClick\0"
+    "\xa3270_Left2\0"
+    "\x83270_PA1\0"
+    "\x83270_PA2\0"
+    "\x83270_PA3\0"
+    "\x93270_Play\0"
+    "\x103270_PrintScreen\0"
+    "\x93270_Quit\0"
+    "\xb3270_Record\0"
+    "\xa3270_Reset\0"
+    "\xb3270_Right2\0"
+    "\x93270_Rule\0"
+    "\xa3270_Setup\0"
+    "\x93270_Test\0"
+    "\x14\0"
+    "\x15\0"
+    "\x16\0"
+    "\x17\0"
+    "\x18\0"
+    "\x19\0"
+    "\x1A\0"
+    "\x1a\0"
+    "\x6Aacute\0"
+    "\x6aacute\0"
+    "\x9Abelowdot\0"
+    "\x9abelowdot\0"
+    "\x8abovedot\0"
+    "\x6Abreve\0"
+    "\x6abreve\0"
+    "\xbAbreveacute\0"
+    "\xbabreveacute\0"
+    "\xeAbrevebelowdot\0"
+    "\xeabrevebelowdot\0"
+    "\xbAbrevegrave\0"
+    "\xbabrevegrave\0"
+    "\xaAbrevehook\0"
+    "\xaabrevehook\0"
+    "\xbAbrevetilde\0"
+    "\xbabrevetilde\0"
+    "\xeAccessX_Enable\0"
+    "\x17AccessX_Feedback_Enable\0"
+    "\xbAcircumflex\0"
+    "\xbacircumflex\0"
+    "\x10Acircumflexacute\0"
+    "\x10acircumflexacute\0"
+    "\x13Acircumflexbelowdot\0"
+    "\x13acircumflexbelowdot\0"
+    "\x10Acircumflexgrave\0"
+    "\x10acircumflexgrave\0"
+    "\xfAcircumflexhook\0"
+    "\xfacircumflexhook\0"
+    "\x10Acircumflextilde\0"
+    "\x10acircumflextilde\0"
+    "\x5acute\0"
+    "\xaAdiaeresis\0"
+    "\xaadiaeresis\0"
+    "\x2AE\0"
+    "\x2ae\0"
+    "\x6Agrave\0"
+    "\x6agrave\0"
+    "\x5Ahook\0"
+    "\x5ahook\0"
+    "\x5Alt_L\0"
+    "\x5Alt_R\0"
+    "\x7Amacron\0"
+    "\x7amacron\0"
+    "\x9ampersand\0"
+    "\x7Aogonek\0"
+    "\x7aogonek\0"
+    "\xaapostrophe\0"
+    "\x8approxeq\0"
+    "\xbapproximate\0"
+    "\x8Arabic_0\0"
+    "\x8Arabic_1\0"
+    "\x8Arabic_2\0"
+    "\x8Arabic_3\0"
+    "\x8Arabic_4\0"
+    "\x8Arabic_5\0"
+    "\x8Arabic_6\0"
+    "\x8Arabic_7\0"
+    "\x8Arabic_8\0"
+    "\x8Arabic_9\0"
+    "\xaArabic_ain\0"
+    "\xbArabic_alef\0"
+    "\x12Arabic_alefmaksura\0"
+    "\xaArabic_beh\0"
+    "\xcArabic_comma\0"
+    "\xaArabic_dad\0"
+    "\xaArabic_dal\0"
+    "\xcArabic_damma\0"
+    "\xfArabic_dammatan\0"
+    "\xbArabic_ddal\0"
+    "\x10Arabic_farsi_yeh\0"
+    "\xcArabic_fatha\0"
+    "\xfArabic_fathatan\0"
+    "\xaArabic_feh\0"
+    "\xfArabic_fullstop\0"
+    "\xaArabic_gaf\0"
+    "\xcArabic_ghain\0"
+    "\x9Arabic_ha\0"
+    "\xaArabic_hah\0"
+    "\xcArabic_hamza\0"
+    "\x12Arabic_hamza_above\0"
+    "\x12Arabic_hamza_below\0"
+    "\x12Arabic_hamzaonalef\0"
+    "\x11Arabic_hamzaonwaw\0"
+    "\x11Arabic_hamzaonyeh\0"
+    "\x15Arabic_hamzaunderalef\0"
+    "\xaArabic_heh\0"
+    "\x16Arabic_heh_doachashmee\0"
+    "\xfArabic_heh_goal\0"
+    "\xbArabic_jeem\0"
+    "\xaArabic_jeh\0"
+    "\xaArabic_kaf\0"
+    "\xcArabic_kasra\0"
+    "\xfArabic_kasratan\0"
+    "\xcArabic_keheh\0"
+    "\xbArabic_khah\0"
+    "\xaArabic_lam\0"
+    "\x12Arabic_madda_above\0"
+    "\x12Arabic_maddaonalef\0"
+    "\xbArabic_meem\0"
+    "\xbArabic_noon\0"
+    "\x12Arabic_noon_ghunna\0"
+    "\xaArabic_peh\0"
+    "\xeArabic_percent\0"
+    "\xaArabic_qaf\0"
+    "\x14Arabic_question_mark\0"
+    "\x9Arabic_ra\0"
+    "\xbArabic_rreh\0"
+    "\xaArabic_sad\0"
+    "\xbArabic_seen\0"
+    "\x10Arabic_semicolon\0"
+    "\xdArabic_shadda\0"
+    "\xcArabic_sheen\0"
+    "\xcArabic_sukun\0"
+    "\x17Arabic_superscript_alef\0"
+    "\xdArabic_switch\0"
+    "\xaArabic_tah\0"
+    "\xeArabic_tatweel\0"
+    "\xcArabic_tcheh\0"
+    "\xaArabic_teh\0"
+    "\x11Arabic_tehmarbuta\0"
+    "\xbArabic_thal\0"
+    "\xbArabic_theh\0"
+    "\xbArabic_tteh\0"
+    "\xaArabic_veh\0"
+    "\xaArabic_waw\0"
+    "\xaArabic_yeh\0"
+    "\x10Arabic_yeh_baree\0"
+    "\xaArabic_zah\0"
+    "\xbArabic_zain\0"
+    "\x5Aring\0"
+    "\x5aring\0"
+    "\xfArmenian_accent\0"
+    "\xfArmenian_amanak\0"
+    "\x13Armenian_apostrophe\0"
+    "\xbArmenian_AT\0"
+    "\xbArmenian_at\0"
+    "\xcArmenian_AYB\0"
+    "\xcArmenian_ayb\0"
+    "\xcArmenian_BEN\0"
+    "\xcArmenian_ben\0"
+    "\xcArmenian_but\0"
+    "\xcArmenian_CHA\0"
+    "\xcArmenian_cha\0"
+    "\xbArmenian_DA\0"
+    "\xbArmenian_da\0"
+    "\xcArmenian_DZA\0"
+    "\xcArmenian_dza\0"
+    "\xaArmenian_E\0"
+    "\xaArmenian_e\0"
+    "\xfArmenian_exclam\0"
+    "\xbArmenian_FE\0"
+    "\xbArmenian_fe\0"
+    "\x12Armenian_full_stop\0"
+    "\xdArmenian_GHAT\0"
+    "\xdArmenian_ghat\0"
+    "\xcArmenian_GIM\0"
+    "\xcArmenian_gim\0"
+    "\xbArmenian_HI\0"
+    "\xbArmenian_hi\0"
+    "\xbArmenian_HO\0"
+    "\xbArmenian_ho\0"
+    "\xfArmenian_hyphen\0"
+    "\xcArmenian_INI\0"
+    "\xcArmenian_ini\0"
+    "\xbArmenian_JE\0"
+    "\xbArmenian_je\0"
+    "\xbArmenian_KE\0"
+    "\xbArmenian_ke\0"
+    "\xcArmenian_KEN\0"
+    "\xcArmenian_ken\0"
+    "\xcArmenian_KHE\0"
+    "\xcArmenian_khe\0"
+    "\x14Armenian_ligature_ew\0"
+    "\xdArmenian_LYUN\0"
+    "\xdArmenian_lyun\0"
+    "\xcArmenian_MEN\0"
+    "\xcArmenian_men\0"
+    "\xbArmenian_NU\0"
+    "\xbArmenian_nu\0"
+    "\xaArmenian_O\0"
+    "\xaArmenian_o\0"
+    "\xfArmenian_paruyk\0"
+    "\xbArmenian_PE\0"
+    "\xbArmenian_pe\0"
+    "\xdArmenian_PYUR\0"
+    "\xdArmenian_pyur\0"
+    "\x11Armenian_question\0"
+    "\xbArmenian_RA\0"
+    "\xbArmenian_ra\0"
+    "\xbArmenian_RE\0"
+    "\xbArmenian_re\0"
+    "\xbArmenian_SE\0"
+    "\xbArmenian_se\0"
+    "\x18Armenian_separation_mark\0"
+    "\xcArmenian_SHA\0"
+    "\xcArmenian_sha\0"
+    "\xfArmenian_shesht\0"
+    "\xdArmenian_TCHE\0"
+    "\xdArmenian_tche\0"
+    "\xbArmenian_TO\0"
+    "\xbArmenian_to\0"
+    "\xcArmenian_TSA\0"
+    "\xcArmenian_tsa\0"
+    "\xcArmenian_TSO\0"
+    "\xcArmenian_tso\0"
+    "\xdArmenian_TYUN\0"
+    "\xdArmenian_tyun\0"
+    "\x11Armenian_verjaket\0"
+    "\xcArmenian_VEV\0"
+    "\xcArmenian_vev\0"
+    "\xbArmenian_VO\0"
+    "\xbArmenian_vo\0"
+    "\xdArmenian_VYUN\0"
+    "\xdArmenian_vyun\0"
+    "\xdArmenian_YECH\0"
+    "\xdArmenian_yech\0"
+    "\x11Armenian_yentamna\0"
+    "\xbArmenian_ZA\0"
+    "\xbArmenian_za\0"
+    "\xcArmenian_ZHE\0"
+    "\xcArmenian_zhe\0"
+    "\xbasciicircum\0"
+    "\xaasciitilde\0"
+    "\x8asterisk\0"
+    "\x2at\0"
+    "\x6Atilde\0"
+    "\x6atilde\0"
+    "\x12AudibleBell_Enable\0"
+    "\x1B\0"
+    "\x1b\0"
+    "\x9Babovedot\0"
+    "\x9babovedot\0"
+    "\x9backslash\0"
+    "\x9BackSpace\0"
+    "\x7BackTab\0"
+    "\xbballotcross\0"
+    "\x3bar\0"
+    "\x7because\0"
+    "\x5Begin\0"
+    "\x5blank\0"
+    "\x5block\0"
+    "\xbbotintegral\0"
+    "\xdbotleftparens\0"
+    "\x10botleftsqbracket\0"
+    "\x10botleftsummation\0"
+    "\xebotrightparens\0"
+    "\x11botrightsqbracket\0"
+    "\x11botrightsummation\0"
+    "\x4bott\0"
+    "\x19botvertsummationconnector\0"
+    "\x11BounceKeys_Enable\0"
+    "\x9braceleft\0"
+    "\xabraceright\0"
+    "\xbbracketleft\0"
+    "\xcbracketright\0"
+    "\xdbraille_blank\0"
+    "\xdbraille_dot_1\0"
+    "\xebraille_dot_10\0"
+    "\xdbraille_dot_2\0"
+    "\xdbraille_dot_3\0"
+    "\xdbraille_dot_4\0"
+    "\xdbraille_dot_5\0"
+    "\xdbraille_dot_6\0"
+    "\xdbraille_dot_7\0"
+    "\xdbraille_dot_8\0"
+    "\xdbraille_dot_9\0"
+    "\xebraille_dots_1\0"
+    "\xfbraille_dots_12\0"
+    "\x10braille_dots_123\0"
+    "\x11braille_dots_1234\0"
+    "\x12braille_dots_12345\0"
+    "\x13braille_dots_123456\0"
+    "\x14braille_dots_1234567\0"
+    "\x15braille_dots_12345678\0"
+    "\x14braille_dots_1234568\0"
+    "\x13braille_dots_123457\0"
+    "\x14braille_dots_1234578\0"
+    "\x13braille_dots_123458\0"
+    "\x12braille_dots_12346\0"
+    "\x13braille_dots_123467\0"
+    "\x14braille_dots_1234678\0"
+    "\x13braille_dots_123468\0"
+    "\x12braille_dots_12347\0"
+    "\x13braille_dots_123478\0"
+    "\x12braille_dots_12348\0"
+    "\x11braille_dots_1235\0"
+    "\x12braille_dots_12356\0"
+    "\x13braille_dots_123567\0"
+    "\x14braille_dots_1235678\0"
+    "\x13braille_dots_123568\0"
+    "\x12braille_dots_12357\0"
+    "\x13braille_dots_123578\0"
+    "\x12braille_dots_12358\0"
+    "\x11braille_dots_1236\0"
+    "\x12braille_dots_12367\0"
+    "\x13braille_dots_123678\0"
+    "\x12braille_dots_12368\0"
+    "\x11braille_dots_1237\0"
+    "\x12braille_dots_12378\0"
+    "\x11braille_dots_1238\0"
+    "\x10braille_dots_124\0"
+    "\x11braille_dots_1245\0"
+    "\x12braille_dots_12456\0"
+    "\x13braille_dots_124567\0"
+    "\x14braille_dots_1245678\0"
+    "\x13braille_dots_124568\0"
+    "\x12braille_dots_12457\0"
+    "\x13braille_dots_124578\0"
+    "\x12braille_dots_12458\0"
+    "\x11braille_dots_1246\0"
+    "\x12braille_dots_12467\0"
+    "\x13braille_dots_124678\0"
+    "\x12braille_dots_12468\0"
+    "\x11braille_dots_1247\0"
+    "\x12braille_dots_12478\0"
+    "\x11braille_dots_1248\0"
+    "\x10braille_dots_125\0"
+    "\x11braille_dots_1256\0"
+    "\x12braille_dots_12567\0"
+    "\x13braille_dots_125678\0"
+    "\x12braille_dots_12568\0"
+    "\x11braille_dots_1257\0"
+    "\x12braille_dots_12578\0"
+    "\x11braille_dots_1258\0"
+    "\x10braille_dots_126\0"
+    "\x11braille_dots_1267\0"
+    "\x12braille_dots_12678\0"
+    "\x11braille_dots_1268\0"
+    "\x10braille_dots_127\0"
+    "\x11braille_dots_1278\0"
+    "\x10braille_dots_128\0"
+    "\xfbraille_dots_13\0"
+    "\x10braille_dots_134\0"
+    "\x11braille_dots_1345\0"
+    "\x12braille_dots_13456\0"
+    "\x13braille_dots_134567\0"
+    "\x14braille_dots_1345678\0"
+    "\x13braille_dots_134568\0"
+    "\x12braille_dots_13457\0"
+    "\x13braille_dots_134578\0"
+    "\x12braille_dots_13458\0"
+    "\x11braille_dots_1346\0"
+    "\x12braille_dots_13467\0"
+    "\x13braille_dots_134678\0"
+    "\x12braille_dots_13468\0"
+    "\x11braille_dots_1347\0"
+    "\x12braille_dots_13478\0"
+    "\x11braille_dots_1348\0"
+    "\x10braille_dots_135\0"
+    "\x11braille_dots_1356\0"
+    "\x12braille_dots_13567\0"
+    "\x13braille_dots_135678\0"
+    "\x12braille_dots_13568\0"
+    "\x11braille_dots_1357\0"
+    "\x12braille_dots_13578\0"
+    "\x11braille_dots_1358\0"
+    "\x10braille_dots_136\0"
+    "\x11braille_dots_1367\0"
+    "\x12braille_dots_13678\0"
+    "\x11braille_dots_1368\0"
+    "\x10braille_dots_137\0"
+    "\x11braille_dots_1378\0"
+    "\x10braille_dots_138\0"
+    "\xfbraille_dots_14\0"
+    "\x10braille_dots_145\0"
+    "\x11braille_dots_1456\0"
+    "\x12braille_dots_14567\0"
+    "\x13braille_dots_145678\0"
+    "\x12braille_dots_14568\0"
+    "\x11braille_dots_1457\0"
+    "\x12braille_dots_14578\0"
+    "\x11braille_dots_1458\0"
+    "\x10braille_dots_146\0"
+    "\x11braille_dots_1467\0"
+    "\x12braille_dots_14678\0"
+    "\x11braille_dots_1468\0"
+    "\x10braille_dots_147\0"
+    "\x11braille_dots_1478\0"
+    "\x10braille_dots_148\0"
+    "\xfbraille_dots_15\0"
+    "\x10braille_dots_156\0"
+    "\x11braille_dots_1567\0"
+    "\x12braille_dots_15678\0"
+    "\x11braille_dots_1568\0"
+    "\x10braille_dots_157\0"
+    "\x11braille_dots_1578\0"
+    "\x10braille_dots_158\0"
+    "\xfbraille_dots_16\0"
+    "\x10braille_dots_167\0"
+    "\x11braille_dots_1678\0"
+    "\x10braille_dots_168\0"
+    "\xfbraille_dots_17\0"
+    "\x10braille_dots_178\0"
+    "\xfbraille_dots_18\0"
+    "\xebraille_dots_2\0"
+    "\xfbraille_dots_23\0"
+    "\x10braille_dots_234\0"
+    "\x11braille_dots_2345\0"
+    "\x12braille_dots_23456\0"
+    "\x13braille_dots_234567\0"
+    "\x14braille_dots_2345678\0"
+    "\x13braille_dots_234568\0"
+    "\x12braille_dots_23457\0"
+    "\x13braille_dots_234578\0"
+    "\x12braille_dots_23458\0"
+    "\x11braille_dots_2346\0"
+    "\x12braille_dots_23467\0"
+    "\x13braille_dots_234678\0"
+    "\x12braille_dots_23468\0"
+    "\x11braille_dots_2347\0"
+    "\x12braille_dots_23478\0"
+    "\x11braille_dots_2348\0"
+    "\x10braille_dots_235\0"
+    "\x11braille_dots_2356\0"
+    "\x12braille_dots_23567\0"
+    "\x13braille_dots_235678\0"
+    "\x12braille_dots_23568\0"
+    "\x11braille_dots_2357\0"
+    "\x12braille_dots_23578\0"
+    "\x11braille_dots_2358\0"
+    "\x10braille_dots_236\0"
+    "\x11braille_dots_2367\0"
+    "\x12braille_dots_23678\0"
+    "\x11braille_dots_2368\0"
+    "\x10braille_dots_237\0"
+    "\x11braille_dots_2378\0"
+    "\x10braille_dots_238\0"
+    "\xfbraille_dots_24\0"
+    "\x10braille_dots_245\0"
+    "\x11braille_dots_2456\0"
+    "\x12braille_dots_24567\0"
+    "\x13braille_dots_245678\0"
+    "\x12braille_dots_24568\0"
+    "\x11braille_dots_2457\0"
+    "\x12braille_dots_24578\0"
+    "\x11braille_dots_2458\0"
+    "\x10braille_dots_246\0"
+    "\x11braille_dots_2467\0"
+    "\x12braille_dots_24678\0"
+    "\x11braille_dots_2468\0"
+    "\x10braille_dots_247\0"
+    "\x11braille_dots_2478\0"
+    "\x10braille_dots_248\0"
+    "\xfbraille_dots_25\0"
+    "\x10braille_dots_256\0"
+    "\x11braille_dots_2567\0"
+    "\x12braille_dots_25678\0"
+    "\x11braille_dots_2568\0"
+    "\x10braille_dots_257\0"
+    "\x11braille_dots_2578\0"
+    "\x10braille_dots_258\0"
+    "\xfbraille_dots_26\0"
+    "\x10braille_dots_267\0"
+    "\x11braille_dots_2678\0"
+    "\x10braille_dots_268\0"
+    "\xfbraille_dots_27\0"
+    "\x10braille_dots_278\0"
+    "\xfbraille_dots_28\0"
+    "\xebraille_dots_3\0"
+    "\xfbraille_dots_34\0"
+    "\x10braille_dots_345\0"
+    "\x11braille_dots_3456\0"
+    "\x12braille_dots_34567\0"
+    "\x13braille_dots_345678\0"
+    "\x12braille_dots_34568\0"
+    "\x11braille_dots_3457\0"
+    "\x12braille_dots_34578\0"
+    "\x11braille_dots_3458\0"
+    "\x10braille_dots_346\0"
+    "\x11braille_dots_3467\0"
+    "\x12braille_dots_34678\0"
+    "\x11braille_dots_3468\0"
+    "\x10braille_dots_347\0"
+    "\x11braille_dots_3478\0"
+    "\x10braille_dots_348\0"
+    "\xfbraille_dots_35\0"
+    "\x10braille_dots_356\0"
+    "\x11braille_dots_3567\0"
+    "\x12braille_dots_35678\0"
+    "\x11braille_dots_3568\0"
+    "\x10braille_dots_357\0"
+    "\x11braille_dots_3578\0"
+    "\x10braille_dots_358\0"
+    "\xfbraille_dots_36\0"
+    "\x10braille_dots_367\0"
+    "\x11braille_dots_3678\0"
+    "\x10braille_dots_368\0"
+    "\xfbraille_dots_37\0"
+    "\x10braille_dots_378\0"
+    "\xfbraille_dots_38\0"
+    "\xebraille_dots_4\0"
+    "\xfbraille_dots_45\0"
+    "\x10braille_dots_456\0"
+    "\x11braille_dots_4567\0"
+    "\x12braille_dots_45678\0"
+    "\x11braille_dots_4568\0"
+    "\x10braille_dots_457\0"
+    "\x11braille_dots_4578\0"
+    "\x10braille_dots_458\0"
+    "\xfbraille_dots_46\0"
+    "\x10braille_dots_467\0"
+    "\x11braille_dots_4678\0"
+    "\x10braille_dots_468\0"
+    "\xfbraille_dots_47\0"
+    "\x10braille_dots_478\0"
+    "\xfbraille_dots_48\0"
+    "\xebraille_dots_5\0"
+    "\xfbraille_dots_56\0"
+    "\x10braille_dots_567\0"
+    "\x11braille_dots_5678\0"
+    "\x10braille_dots_568\0"
+    "\xfbraille_dots_57\0"
+    "\x10braille_dots_578\0"
+    "\xfbraille_dots_58\0"
+    "\xebraille_dots_6\0"
+    "\xfbraille_dots_67\0"
+    "\x10braille_dots_678\0"
+    "\xfbraille_dots_68\0"
+    "\xebraille_dots_7\0"
+    "\xfbraille_dots_78\0"
+    "\xebraille_dots_8\0"
+    "\x5Break\0"
+    "\x5breve\0"
+    "\x9brokenbar\0"
+    "\x13Byelorussian_SHORTU\0"
+    "\x13Byelorussian_shortu\0"
+    "\x1C\0"
+    "\x1c\0"
+    "\x3C_H\0"
+    "\x3C_h\0"
+    "\x3c_h\0"
+    "\x9Cabovedot\0"
+    "\x9cabovedot\0"
+    "\x6Cacute\0"
+    "\x6cacute\0"
+    "\x6Cancel\0"
+    "\x9Caps_Lock\0"
+    "\x6careof\0"
+    "\x5caret\0"
+    "\x5caron\0"
+    "\x6Ccaron\0"
+    "\x6ccaron\0"
+    "\x8Ccedilla\0"
+    "\x8ccedilla\0"
+    "\xbCcircumflex\0"
+    "\xbccircumflex\0"
+    "\x7cedilla\0"
+    "\x4cent\0"
+    "\x2CH\0"
+    "\x2Ch\0"
+    "\x2ch\0"
+    "\xccheckerboard\0"
+    "\x9checkmark\0"
+    "\x6circle\0"
+    "\x5Clear\0"
+    "\x9ClearLine\0"
+    "\x4club\0"
+    "\x9Codeinput\0"
+    "\x5colon\0"
+    "\x9ColonSign\0"
+    "\xfcombining_acute\0"
+    "\x12combining_belowdot\0"
+    "\xfcombining_grave\0"
+    "\xecombining_hook\0"
+    "\xfcombining_tilde\0"
+    "\x5comma\0"
+    "\xacontainsas\0"
+    "\x9Control_L\0"
+    "\x9Control_R\0"
+    "\x9copyright\0"
+    "\x2cr\0"
+    "\xdcrossinglines\0"
+    "\xcCruzeiroSign\0"
+    "\x8cuberoot\0"
+    "\x8currency\0"
+    "\x6cursor\0"
+    "\xaCyrillic_A\0"
+    "\xaCyrillic_a\0"
+    "\xbCyrillic_BE\0"
+    "\xbCyrillic_be\0"
+    "\xcCyrillic_CHE\0"
+    "\xcCyrillic_che\0"
+    "\x16Cyrillic_CHE_descender\0"
+    "\x16Cyrillic_che_descender\0"
+    "\x17Cyrillic_CHE_vertstroke\0"
+    "\x17Cyrillic_che_vertstroke\0"
+    "\xbCyrillic_DE\0"
+    "\xbCyrillic_de\0"
+    "\xdCyrillic_DZHE\0"
+    "\xdCyrillic_dzhe\0"
+    "\xaCyrillic_E\0"
+    "\xaCyrillic_e\0"
+    "\xbCyrillic_EF\0"
+    "\xbCyrillic_ef\0"
+    "\xbCyrillic_EL\0"
+    "\xbCyrillic_el\0"
+    "\xbCyrillic_EM\0"
+    "\xbCyrillic_em\0"
+    "\xbCyrillic_EN\0"
+    "\xbCyrillic_en\0"
+    "\x15Cyrillic_EN_descender\0"
+    "\x15Cyrillic_en_descender\0"
+    "\xbCyrillic_ER\0"
+    "\xbCyrillic_er\0"
+    "\xbCyrillic_ES\0"
+    "\xbCyrillic_es\0"
+    "\xcCyrillic_GHE\0"
+    "\xcCyrillic_ghe\0"
+    "\x10Cyrillic_GHE_bar\0"
+    "\x10Cyrillic_ghe_bar\0"
+    "\xbCyrillic_HA\0"
+    "\xbCyrillic_ha\0"
+    "\x15Cyrillic_HA_descender\0"
+    "\x15Cyrillic_ha_descender\0"
+    "\x11Cyrillic_HARDSIGN\0"
+    "\x11Cyrillic_hardsign\0"
+    "\xaCyrillic_I\0"
+    "\xaCyrillic_i\0"
+    "\x11Cyrillic_I_macron\0"
+    "\x11Cyrillic_i_macron\0"
+    "\xbCyrillic_IE\0"
+    "\xbCyrillic_ie\0"
+    "\xbCyrillic_IO\0"
+    "\xbCyrillic_io\0"
+    "\xbCyrillic_JE\0"
+    "\xbCyrillic_je\0"
+    "\xbCyrillic_KA\0"
+    "\xbCyrillic_ka\0"
+    "\x15Cyrillic_KA_descender\0"
+    "\x15Cyrillic_ka_descender\0"
+    "\x16Cyrillic_KA_vertstroke\0"
+    "\x16Cyrillic_ka_vertstroke\0"
+    "\xcCyrillic_LJE\0"
+    "\xcCyrillic_lje\0"
+    "\xcCyrillic_NJE\0"
+    "\xcCyrillic_nje\0"
+    "\xaCyrillic_O\0"
+    "\xaCyrillic_o\0"
+    "\xeCyrillic_O_bar\0"
+    "\xeCyrillic_o_bar\0"
+    "\xbCyrillic_PE\0"
+    "\xbCyrillic_pe\0"
+    "\xeCyrillic_SCHWA\0"
+    "\xeCyrillic_schwa\0"
+    "\xcCyrillic_SHA\0"
+    "\xcCyrillic_sha\0"
+    "\xeCyrillic_SHCHA\0"
+    "\xeCyrillic_shcha\0"
+    "\xdCyrillic_SHHA\0"
+    "\xdCyrillic_shha\0"
+    "\xfCyrillic_SHORTI\0"
+    "\xfCyrillic_shorti\0"
+    "\x11Cyrillic_SOFTSIGN\0"
+    "\x11Cyrillic_softsign\0"
+    "\xbCyrillic_TE\0"
+    "\xbCyrillic_te\0"
+    "\xcCyrillic_TSE\0"
+    "\xcCyrillic_tse\0"
+    "\xaCyrillic_U\0"
+    "\xaCyrillic_u\0"
+    "\x11Cyrillic_U_macron\0"
+    "\x11Cyrillic_u_macron\0"
+    "\x13Cyrillic_U_straight\0"
+    "\x13Cyrillic_u_straight\0"
+    "\x17Cyrillic_U_straight_bar\0"
+    "\x17Cyrillic_u_straight_bar\0"
+    "\xbCyrillic_VE\0"
+    "\xbCyrillic_ve\0"
+    "\xbCyrillic_YA\0"
+    "\xbCyrillic_ya\0"
+    "\xdCyrillic_YERU\0"
+    "\xdCyrillic_yeru\0"
+    "\xbCyrillic_YU\0"
+    "\xbCyrillic_yu\0"
+    "\xbCyrillic_ZE\0"
+    "\xbCyrillic_ze\0"
+    "\xcCyrillic_ZHE\0"
+    "\xcCyrillic_zhe\0"
+    "\x16Cyrillic_ZHE_descender\0"
+    "\x16Cyrillic_zhe_descender\0"
+    "\x1D\0"
+    "\x1d\0"
+    "\x9Dabovedot\0"
+    "\x9dabovedot\0"
+    "\xdDacute_accent\0"
+    "\x6dagger\0"
+    "\x6Dcaron\0"
+    "\x6dcaron\0"
+    "\xfDcedilla_accent\0"
+    "\x12Dcircumflex_accent\0"
+    "\xaDdiaeresis\0"
+    "\x6dead_A\0"
+    "\x6dead_a\0"
+    "\xfdead_abovecomma\0"
+    "\xddead_abovedot\0"
+    "\x17dead_abovereversedcomma\0"
+    "\xedead_abovering\0"
+    "\x16dead_aboveverticalline\0"
+    "\xadead_acute\0"
+    "\xfdead_belowbreve\0"
+    "\x14dead_belowcircumflex\0"
+    "\xfdead_belowcomma\0"
+    "\x13dead_belowdiaeresis\0"
+    "\xddead_belowdot\0"
+    "\x10dead_belowmacron\0"
+    "\xedead_belowring\0"
+    "\xfdead_belowtilde\0"
+    "\x16dead_belowverticalline\0"
+    "\xadead_breve\0"
+    "\x12dead_capital_schwa\0"
+    "\xadead_caron\0"
+    "\xcdead_cedilla\0"
+    "\xfdead_circumflex\0"
+    "\xddead_currency\0"
+    "\xadead_dasia\0"
+    "\xedead_diaeresis\0"
+    "\x10dead_doubleacute\0"
+    "\x10dead_doublegrave\0"
+    "\x6dead_E\0"
+    "\x6dead_e\0"
+    "\xadead_grave\0"
+    "\xadead_greek\0"
+    "\xadead_hamza\0"
+    "\x9dead_hook\0"
+    "\x9dead_horn\0"
+    "\x6dead_I\0"
+    "\x6dead_i\0"
+    "\x12dead_invertedbreve\0"
+    "\x9dead_iota\0"
+    "\x17dead_longsolidusoverlay\0"
+    "\xcdead_lowline\0"
+    "\xbdead_macron\0"
+    "\x6dead_O\0"
+    "\x6dead_o\0"
+    "\xbdead_ogonek\0"
+    "\x10dead_perispomeni\0"
+    "\xadead_psili\0"
+    "\xadead_SCHWA\0"
+    "\xadead_schwa\0"
+    "\x15dead_semivoiced_sound\0"
+    "\x10dead_small_schwa\0"
+    "\xbdead_stroke\0"
+    "\xadead_tilde\0"
+    "\x6dead_U\0"
+    "\x6dead_u\0"
+    "\x11dead_voiced_sound\0"
+    "\xcdecimalpoint\0"
+    "\x6degree\0"
+    "\x6Delete\0"
+    "\xaDeleteChar\0"
+    "\xaDeleteLine\0"
+    "\xdDgrave_accent\0"
+    "\x9diaeresis\0"
+    "\x7diamond\0"
+    "\xadigitspace\0"
+    "\x9dintegral\0"
+    "\x8division\0"
+    "\x6dollar\0"
+    "\x8DongSign\0"
+    "\xfdoubbaselinedot\0"
+    "\xbdoubleacute\0"
+    "\xcdoubledagger\0"
+    "\x12doublelowquotemark\0"
+    "\x4Down\0"
+    "\x9downarrow\0"
+    "\x9downcaret\0"
+    "\x8downshoe\0"
+    "\x9downstile\0"
+    "\x8downtack\0"
+    "\x7DRemove\0"
+    "\xcDring_accent\0"
+    "\x7Dstroke\0"
+    "\x7dstroke\0"
+    "\x6Dtilde\0"
+    "\x1E\0"
+    "\x1e\0"
+    "\x9Eabovedot\0"
+    "\x9eabovedot\0"
+    "\x6Eacute\0"
+    "\x6eacute\0"
+    "\x9Ebelowdot\0"
+    "\x9ebelowdot\0"
+    "\x6Ecaron\0"
+    "\x6ecaron\0"
+    "\xbEcircumflex\0"
+    "\xbecircumflex\0"
+    "\x10Ecircumflexacute\0"
+    "\x10ecircumflexacute\0"
+    "\x13Ecircumflexbelowdot\0"
+    "\x13ecircumflexbelowdot\0"
+    "\x10Ecircumflexgrave\0"
+    "\x10ecircumflexgrave\0"
+    "\xfEcircumflexhook\0"
+    "\xfecircumflexhook\0"
+    "\x10Ecircumflextilde\0"
+    "\x10ecircumflextilde\0"
+    "\x7EcuSign\0"
+    "\xaEdiaeresis\0"
+    "\xaediaeresis\0"
+    "\x6Egrave\0"
+    "\x6egrave\0"
+    "\x5Ehook\0"
+    "\x5ehook\0"
+    "\xeeightsubscript\0"
+    "\xdeightsuperior\0"
+    "\xaEisu_Shift\0"
+    "\xbEisu_toggle\0"
+    "\x9elementof\0"
+    "\x8ellipsis\0"
+    "\x8em3space\0"
+    "\x8em4space\0"
+    "\x7Emacron\0"
+    "\x7emacron\0"
+    "\x6emdash\0"
+    "\xeemfilledcircle\0"
+    "\xcemfilledrect\0"
+    "\xcemopencircle\0"
+    "\xfemopenrectangle\0"
+    "\x8emptyset\0"
+    "\x7emspace\0"
+    "\x3End\0"
+    "\x6endash\0"
+    "\x12enfilledcircbullet\0"
+    "\x10enfilledsqbullet\0"
+    "\x3ENG\0"
+    "\x3eng\0"
+    "\x10enopencircbullet\0"
+    "\x12enopensquarebullet\0"
+    "\x7enspace\0"
+    "\x7Eogonek\0"
+    "\x7eogonek\0"
+    "\x5equal\0"
+    "\x6Escape\0"
+    "\x3ETH\0"
+    "\x3Eth\0"
+    "\x3eth\0"
+    "\x6Etilde\0"
+    "\x6etilde\0"
+    "\x8EuroSign\0"
+    "\x6exclam\0"
+    "\xaexclamdown\0"
+    "\x7Execute\0"
+    "\xaExt16bit_L\0"
+    "\xaExt16bit_R\0"
+    "\x3EZH\0"
+    "\x3ezh\0"
+    "\x1F\0"
+    "\x1f\0"
+    "\x2F1\0"
+    "\x3F10\0"
+    "\x3F11\0"
+    "\x3F12\0"
+    "\x3F13\0"
+    "\x3F14\0"
+    "\x3F15\0"
+    "\x3F16\0"
+    "\x3F17\0"
+    "\x3F18\0"
+    "\x3F19\0"
+    "\x2F2\0"
+    "\x3F20\0"
+    "\x3F21\0"
+    "\x3F22\0"
+    "\x3F23\0"
+    "\x3F24\0"
+    "\x3F25\0"
+    "\x3F26\0"
+    "\x3F27\0"
+    "\x3F28\0"
+    "\x3F29\0"
+    "\x2F3\0"
+    "\x3F30\0"
+    "\x3F31\0"
+    "\x3F32\0"
+    "\x3F33\0"
+    "\x3F34\0"
+    "\x3F35\0"
+    "\x2F4\0"
+    "\x2F5\0"
+    "\x2F6\0"
+    "\x2F7\0"
+    "\x2F8\0"
+    "\x2F9\0"
+    "\x9Fabovedot\0"
+    "\x9fabovedot\0"
+    "\x7Farsi_0\0"
+    "\x7Farsi_1\0"
+    "\x7Farsi_2\0"
+    "\x7Farsi_3\0"
+    "\x7Farsi_4\0"
+    "\x7Farsi_5\0"
+    "\x7Farsi_6\0"
+    "\x7Farsi_7\0"
+    "\x7Farsi_8\0"
+    "\x7Farsi_9\0"
+    "\x9Farsi_yeh\0"
+    "\xcfemalesymbol\0"
+    "\x2ff\0"
+    "\xaFFrancSign\0"
+    "\x7figdash\0"
+    "\x13filledlefttribullet\0"
+    "\x10filledrectbullet\0"
+    "\x14filledrighttribullet\0"
+    "\x13filledtribulletdown\0"
+    "\x11filledtribulletup\0"
+    "\x4Find\0"
+    "\x14First_Virtual_Screen\0"
+    "\xbfiveeighths\0"
+    "\xafivesixths\0"
+    "\xdfivesubscript\0"
+    "\xcfivesuperior\0"
+    "\xafourfifths\0"
+    "\xdfoursubscript\0"
+    "\xcfoursuperior\0"
+    "\xafourthroot\0"
+    "\x8function\0"
+    "\x1G\0"
+    "\x1g\0"
+    "\x9Gabovedot\0"
+    "\x9gabovedot\0"
+    "\x6Gbreve\0"
+    "\x6gbreve\0"
+    "\x6Gcaron\0"
+    "\x6gcaron\0"
+    "\x8Gcedilla\0"
+    "\x8gcedilla\0"
+    "\xbGcircumflex\0"
+    "\xbgcircumflex\0"
+    "\xbGeorgian_an\0"
+    "\xcGeorgian_ban\0"
+    "\xcGeorgian_can\0"
+    "\xdGeorgian_char\0"
+    "\xdGeorgian_chin\0"
+    "\xcGeorgian_cil\0"
+    "\xcGeorgian_don\0"
+    "\xbGeorgian_en\0"
+    "\xbGeorgian_fi\0"
+    "\xcGeorgian_gan\0"
+    "\xdGeorgian_ghan\0"
+    "\xcGeorgian_hae\0"
+    "\xcGeorgian_har\0"
+    "\xbGeorgian_he\0"
+    "\xcGeorgian_hie\0"
+    "\xcGeorgian_hoe\0"
+    "\xbGeorgian_in\0"
+    "\xdGeorgian_jhan\0"
+    "\xcGeorgian_jil\0"
+    "\xcGeorgian_kan\0"
+    "\xdGeorgian_khar\0"
+    "\xcGeorgian_las\0"
+    "\xcGeorgian_man\0"
+    "\xcGeorgian_nar\0"
+    "\xbGeorgian_on\0"
+    "\xcGeorgian_par\0"
+    "\xdGeorgian_phar\0"
+    "\xcGeorgian_qar\0"
+    "\xcGeorgian_rae\0"
+    "\xcGeorgian_san\0"
+    "\xdGeorgian_shin\0"
+    "\xcGeorgian_tan\0"
+    "\xcGeorgian_tar\0"
+    "\xbGeorgian_un\0"
+    "\xcGeorgian_vin\0"
+    "\xbGeorgian_we\0"
+    "\xcGeorgian_xan\0"
+    "\xcGeorgian_zen\0"
+    "\xdGeorgian_zhar\0"
+    "\x5grave\0"
+    "\x7greater\0"
+    "\x10greaterthanequal\0"
+    "\x14Greek_accentdieresis\0"
+    "\xbGreek_ALPHA\0"
+    "\xbGreek_alpha\0"
+    "\x11Greek_ALPHAaccent\0"
+    "\x11Greek_alphaaccent\0"
+    "\xaGreek_BETA\0"
+    "\xaGreek_beta\0"
+    "\x9Greek_CHI\0"
+    "\x9Greek_chi\0"
+    "\xbGreek_DELTA\0"
+    "\xbGreek_delta\0"
+    "\xdGreek_EPSILON\0"
+    "\xdGreek_epsilon\0"
+    "\x13Greek_EPSILONaccent\0"
+    "\x13Greek_epsilonaccent\0"
+    "\x9Greek_ETA\0"
+    "\x9Greek_eta\0"
+    "\xfGreek_ETAaccent\0"
+    "\xfGreek_etaaccent\0"
+    "\x15Greek_finalsmallsigma\0"
+    "\xbGreek_GAMMA\0"
+    "\xbGreek_gamma\0"
+    "\xeGreek_horizbar\0"
+    "\xaGreek_IOTA\0"
+    "\xaGreek_iota\0"
+    "\x10Greek_IOTAaccent\0"
+    "\x10Greek_iotaaccent\0"
+    "\x18Greek_iotaaccentdieresis\0"
+    "\x13Greek_IOTAdiaeresis\0"
+    "\x12Greek_IOTAdieresis\0"
+    "\x12Greek_iotadieresis\0"
+    "\xbGreek_KAPPA\0"
+    "\xbGreek_kappa\0"
+    "\xcGreek_LAMBDA\0"
+    "\xcGreek_lambda\0"
+    "\xbGreek_LAMDA\0"
+    "\xbGreek_lamda\0"
+    "\x8Greek_MU\0"
+    "\x8Greek_mu\0"
+    "\x8Greek_NU\0"
+    "\x8Greek_nu\0"
+    "\xbGreek_OMEGA\0"
+    "\xbGreek_omega\0"
+    "\x11Greek_OMEGAaccent\0"
+    "\x11Greek_omegaaccent\0"
+    "\xdGreek_OMICRON\0"
+    "\xdGreek_omicron\0"
+    "\x13Greek_OMICRONaccent\0"
+    "\x13Greek_omicronaccent\0"
+    "\x9Greek_PHI\0"
+    "\x9Greek_phi\0"
+    "\x8Greek_PI\0"
+    "\x8Greek_pi\0"
+    "\x9Greek_PSI\0"
+    "\x9Greek_psi\0"
+    "\x9Greek_RHO\0"
+    "\x9Greek_rho\0"
+    "\xbGreek_SIGMA\0"
+    "\xbGreek_sigma\0"
+    "\xcGreek_switch\0"
+    "\x9Greek_TAU\0"
+    "\x9Greek_tau\0"
+    "\xbGreek_THETA\0"
+    "\xbGreek_theta\0"
+    "\xdGreek_UPSILON\0"
+    "\xdGreek_upsilon\0"
+    "\x13Greek_UPSILONaccent\0"
+    "\x13Greek_upsilonaccent\0"
+    "\x1bGreek_upsilonaccentdieresis\0"
+    "\x15Greek_UPSILONdieresis\0"
+    "\x15Greek_upsilondieresis\0"
+    "\x8Greek_XI\0"
+    "\x8Greek_xi\0"
+    "\xaGreek_ZETA\0"
+    "\xaGreek_zeta\0"
+    "\x7guilder\0"
+    "\xdguillemetleft\0"
+    "\xeguillemetright\0"
+    "\xdguillemotleft\0"
+    "\xeguillemotright\0"
+    "\x1H\0"
+    "\x1h\0"
+    "\x9hairspace\0"
+    "\x6Hangul\0"
+    "\x8Hangul_A\0"
+    "\x9Hangul_AE\0"
+    "\xcHangul_AraeA\0"
+    "\xdHangul_AraeAE\0"
+    "\xcHangul_Banja\0"
+    "\xcHangul_Cieuc\0"
+    "\x10Hangul_Codeinput\0"
+    "\xdHangul_Dikeud\0"
+    "\x8Hangul_E\0"
+    "\xaHangul_End\0"
+    "\x9Hangul_EO\0"
+    "\x9Hangul_EU\0"
+    "\xcHangul_Hanja\0"
+    "\xcHangul_Hieuh\0"
+    "\x8Hangul_I\0"
+    "\xcHangul_Ieung\0"
+    "\xeHangul_J_Cieuc\0"
+    "\xfHangul_J_Dikeud\0"
+    "\xeHangul_J_Hieuh\0"
+    "\xeHangul_J_Ieung\0"
+    "\xeHangul_J_Jieuj\0"
+    "\xfHangul_J_Khieuq\0"
+    "\xfHangul_J_Kiyeog\0"
+    "\x13Hangul_J_KiyeogSios\0"
+    "\x1aHangul_J_KkogjiDalrinIeung\0"
+    "\xeHangul_J_Mieum\0"
+    "\xeHangul_J_Nieun\0"
+    "\x13Hangul_J_NieunHieuh\0"
+    "\x13Hangul_J_NieunJieuj\0"
+    "\x10Hangul_J_PanSios\0"
+    "\xfHangul_J_Phieuf\0"
+    "\xeHangul_J_Pieub\0"
+    "\x12Hangul_J_PieubSios\0"
+    "\xeHangul_J_Rieul\0"
+    "\x13Hangul_J_RieulHieuh\0"
+    "\x14Hangul_J_RieulKiyeog\0"
+    "\x13Hangul_J_RieulMieum\0"
+    "\x14Hangul_J_RieulPhieuf\0"
+    "\x13Hangul_J_RieulPieub\0"
+    "\x12Hangul_J_RieulSios\0"
+    "\x13Hangul_J_RieulTieut\0"
+    "\xdHangul_J_Sios\0"
+    "\x14Hangul_J_SsangKiyeog\0"
+    "\x12Hangul_J_SsangSios\0"
+    "\xeHangul_J_Tieut\0"
+    "\x14Hangul_J_YeorinHieuh\0"
+    "\xbHangul_Jamo\0"
+    "\xdHangul_Jeonja\0"
+    "\xcHangul_Jieuj\0"
+    "\xdHangul_Khieuq\0"
+    "\xdHangul_Kiyeog\0"
+    "\x11Hangul_KiyeogSios\0"
+    "\x18Hangul_KkogjiDalrinIeung\0"
+    "\xcHangul_Mieum\0"
+    "\x18Hangul_MultipleCandidate\0"
+    "\xcHangul_Nieun\0"
+    "\x11Hangul_NieunHieuh\0"
+    "\x11Hangul_NieunJieuj\0"
+    "\x8Hangul_O\0"
+    "\x9Hangul_OE\0"
+    "\xeHangul_PanSios\0"
+    "\xdHangul_Phieuf\0"
+    "\xcHangul_Pieub\0"
+    "\x10Hangul_PieubSios\0"
+    "\x10Hangul_PostHanja\0"
+    "\xfHangul_PreHanja\0"
+    "\x18Hangul_PreviousCandidate\0"
+    "\xcHangul_Rieul\0"
+    "\x11Hangul_RieulHieuh\0"
+    "\x12Hangul_RieulKiyeog\0"
+    "\x11Hangul_RieulMieum\0"
+    "\x12Hangul_RieulPhieuf\0"
+    "\x11Hangul_RieulPieub\0"
+    "\x10Hangul_RieulSios\0"
+    "\x11Hangul_RieulTieut\0"
+    "\x17Hangul_RieulYeorinHieuh\0"
+    "\xdHangul_Romaja\0"
+    "\x16Hangul_SingleCandidate\0"
+    "\xbHangul_Sios\0"
+    "\xeHangul_Special\0"
+    "\x12Hangul_SsangDikeud\0"
+    "\x11Hangul_SsangJieuj\0"
+    "\x12Hangul_SsangKiyeog\0"
+    "\x11Hangul_SsangPieub\0"
+    "\x10Hangul_SsangSios\0"
+    "\xcHangul_Start\0"
+    "\x18Hangul_SunkyeongeumMieum\0"
+    "\x19Hangul_SunkyeongeumPhieuf\0"
+    "\x18Hangul_SunkyeongeumPieub\0"
+    "\xdHangul_switch\0"
+    "\xcHangul_Tieut\0"
+    "\x8Hangul_U\0"
+    "\x9Hangul_WA\0"
+    "\xaHangul_WAE\0"
+    "\x9Hangul_WE\0"
+    "\xaHangul_WEO\0"
+    "\x9Hangul_WI\0"
+    "\x9Hangul_YA\0"
+    "\xaHangul_YAE\0"
+    "\x9Hangul_YE\0"
+    "\xaHangul_YEO\0"
+    "\x12Hangul_YeorinHieuh\0"
+    "\x9Hangul_YI\0"
+    "\x9Hangul_YO\0"
+    "\x9Hangul_YU\0"
+    "\x7Hankaku\0"
+    "\xbHcircumflex\0"
+    "\xbhcircumflex\0"
+    "\x5heart\0"
+    "\xchebrew_aleph\0"
+    "\xbhebrew_ayin\0"
+    "\xahebrew_bet\0"
+    "\xbhebrew_beth\0"
+    "\xbhebrew_chet\0"
+    "\xchebrew_dalet\0"
+    "\xdhebrew_daleth\0"
+    "\x14hebrew_doublelowline\0"
+    "\x10hebrew_finalkaph\0"
+    "\xfhebrew_finalmem\0"
+    "\xfhebrew_finalnun\0"
+    "\xehebrew_finalpe\0"
+    "\x10hebrew_finalzade\0"
+    "\x10hebrew_finalzadi\0"
+    "\xchebrew_gimel\0"
+    "\xdhebrew_gimmel\0"
+    "\x9hebrew_he\0"
+    "\xahebrew_het\0"
+    "\xbhebrew_kaph\0"
+    "\xahebrew_kuf\0"
+    "\xchebrew_lamed\0"
+    "\xahebrew_mem\0"
+    "\xahebrew_nun\0"
+    "\x9hebrew_pe\0"
+    "\xbhebrew_qoph\0"
+    "\xbhebrew_resh\0"
+    "\xdhebrew_samech\0"
+    "\xdhebrew_samekh\0"
+    "\xbhebrew_shin\0"
+    "\xdHebrew_switch\0"
+    "\xahebrew_taf\0"
+    "\xahebrew_taw\0"
+    "\xahebrew_tet\0"
+    "\xbhebrew_teth\0"
+    "\xahebrew_waw\0"
+    "\xahebrew_yod\0"
+    "\xbhebrew_zade\0"
+    "\xbhebrew_zadi\0"
+    "\xbhebrew_zain\0"
+    "\xchebrew_zayin\0"
+    "\x4Help\0"
+    "\x6Henkan\0"
+    "\xbHenkan_Mode\0"
+    "\x8hexagram\0"
+    "\x8Hiragana\0"
+    "\x11Hiragana_Katakana\0"
+    "\x4Home\0"
+    "\xehorizconnector\0"
+    "\xehorizlinescan1\0"
+    "\xehorizlinescan3\0"
+    "\xehorizlinescan5\0"
+    "\xehorizlinescan7\0"
+    "\xehorizlinescan9\0"
+    "\x9hpBackTab\0"
+    "\x7hpblock\0"
+    "\xbhpClearLine\0"
+    "\xchpDeleteChar\0"
+    "\xchpDeleteLine\0"
+    "\x9hpguilder\0"
+    "\xchpInsertChar\0"
+    "\xchpInsertLine\0"
+    "\x4hpIO\0"
+    "\xchpKP_BackTab\0"
+    "\x6hplira\0"
+    "\xbhplongminus\0"
+    "\xbhpModelock1\0"
+    "\xbhpModelock2\0"
+    "\xchpmute_acute\0"
+    "\x12hpmute_asciicircum\0"
+    "\x11hpmute_asciitilde\0"
+    "\x10hpmute_diaeresis\0"
+    "\xchpmute_grave\0"
+    "\x7hpReset\0"
+    "\x8hpSystem\0"
+    "\x6hpUser\0"
+    "\xchpYdiaeresis\0"
+    "\x7Hstroke\0"
+    "\x7hstroke\0"
+    "\x2ht\0"
+    "\x7Hyper_L\0"
+    "\x7Hyper_R\0"
+    "\x6hyphen\0"
+    "\x1I\0"
+    "\x1i\0"
+    "\x9Iabovedot\0"
+    "\x6Iacute\0"
+    "\x6iacute\0"
+    "\x9Ibelowdot\0"
+    "\x9ibelowdot\0"
+    "\x6Ibreve\0"
+    "\x6ibreve\0"
+    "\xbIcircumflex\0"
+    "\xbicircumflex\0"
+    "\x9identical\0"
+    "\xaIdiaeresis\0"
+    "\xaidiaeresis\0"
+    "\x8idotless\0"
+    "\x8ifonlyif\0"
+    "\x6Igrave\0"
+    "\x6igrave\0"
+    "\x5Ihook\0"
+    "\x5ihook\0"
+    "\x7Imacron\0"
+    "\x7imacron\0"
+    "\x7implies\0"
+    "\xaincludedin\0"
+    "\x8includes\0"
+    "\x8infinity\0"
+    "\x6Insert\0"
+    "\xaInsertChar\0"
+    "\xaInsertLine\0"
+    "\x8integral\0"
+    "\xcintersection\0"
+    "\x2IO\0"
+    "\x7Iogonek\0"
+    "\x7iogonek\0"
+    "\x11ISO_Center_Object\0"
+    "\x18ISO_Continuous_Underline\0"
+    "\x1bISO_Discontinuous_Underline\0"
+    "\xdISO_Emphasize\0"
+    "\x9ISO_Enter\0"
+    "\x14ISO_Fast_Cursor_Down\0"
+    "\x14ISO_Fast_Cursor_Left\0"
+    "\x15ISO_Fast_Cursor_Right\0"
+    "\x12ISO_Fast_Cursor_Up\0"
+    "\xfISO_First_Group\0"
+    "\x14ISO_First_Group_Lock\0"
+    "\xfISO_Group_Latch\0"
+    "\xeISO_Group_Lock\0"
+    "\xfISO_Group_Shift\0"
+    "\xeISO_Last_Group\0"
+    "\x13ISO_Last_Group_Lock\0"
+    "\xcISO_Left_Tab\0"
+    "\x10ISO_Level2_Latch\0"
+    "\x10ISO_Level3_Latch\0"
+    "\xfISO_Level3_Lock\0"
+    "\x10ISO_Level3_Shift\0"
+    "\x10ISO_Level5_Latch\0"
+    "\xfISO_Level5_Lock\0"
+    "\x10ISO_Level5_Shift\0"
+    "\x8ISO_Lock\0"
+    "\x12ISO_Move_Line_Down\0"
+    "\x10ISO_Move_Line_Up\0"
+    "\xeISO_Next_Group\0"
+    "\x13ISO_Next_Group_Lock\0"
+    "\x15ISO_Partial_Line_Down\0"
+    "\x13ISO_Partial_Line_Up\0"
+    "\x16ISO_Partial_Space_Left\0"
+    "\x17ISO_Partial_Space_Right\0"
+    "\xeISO_Prev_Group\0"
+    "\x13ISO_Prev_Group_Lock\0"
+    "\x18ISO_Release_Both_Margins\0"
+    "\x17ISO_Release_Margin_Left\0"
+    "\x18ISO_Release_Margin_Right\0"
+    "\x13ISO_Set_Margin_Left\0"
+    "\x14ISO_Set_Margin_Right\0"
+    "\x6Itilde\0"
+    "\x6itilde\0"
+    "\x1J\0"
+    "\x1j\0"
+    "\xbJcircumflex\0"
+    "\xbjcircumflex\0"
+    "\x3jot\0"
+    "\x1K\0"
+    "\x1k\0"
+    "\x6kana_A\0"
+    "\x6kana_a\0"
+    "\x8kana_CHI\0"
+    "\x13kana_closingbracket\0"
+    "\xakana_comma\0"
+    "\x10kana_conjunctive\0"
+    "\x6kana_E\0"
+    "\x6kana_e\0"
+    "\x7kana_FU\0"
+    "\xdkana_fullstop\0"
+    "\x7kana_HA\0"
+    "\x7kana_HE\0"
+    "\x7kana_HI\0"
+    "\x7kana_HO\0"
+    "\x7kana_HU\0"
+    "\x6kana_I\0"
+    "\x6kana_i\0"
+    "\x7kana_KA\0"
+    "\x7kana_KE\0"
+    "\x7kana_KI\0"
+    "\x7kana_KO\0"
+    "\x7kana_KU\0"
+    "\x9Kana_Lock\0"
+    "\x7kana_MA\0"
+    "\x7kana_ME\0"
+    "\x7kana_MI\0"
+    "\xekana_middledot\0"
+    "\x7kana_MO\0"
+    "\x7kana_MU\0"
+    "\x6kana_N\0"
+    "\x7kana_NA\0"
+    "\x7kana_NE\0"
+    "\x7kana_NI\0"
+    "\x7kana_NO\0"
+    "\x7kana_NU\0"
+    "\x6kana_O\0"
+    "\x6kana_o\0"
+    "\x13kana_openingbracket\0"
+    "\x7kana_RA\0"
+    "\x7kana_RE\0"
+    "\x7kana_RI\0"
+    "\x7kana_RO\0"
+    "\x7kana_RU\0"
+    "\x7kana_SA\0"
+    "\x7kana_SE\0"
+    "\x8kana_SHI\0"
+    "\xaKana_Shift\0"
+    "\x7kana_SO\0"
+    "\x7kana_SU\0"
+    "\xbkana_switch\0"
+    "\x7kana_TA\0"
+    "\x7kana_TE\0"
+    "\x7kana_TI\0"
+    "\x7kana_TO\0"
+    "\x8kana_TSU\0"
+    "\x8kana_tsu\0"
+    "\x7kana_TU\0"
+    "\x7kana_tu\0"
+    "\x6kana_U\0"
+    "\x6kana_u\0"
+    "\x7kana_WA\0"
+    "\x7kana_WO\0"
+    "\x7kana_YA\0"
+    "\x7kana_ya\0"
+    "\x7kana_YO\0"
+    "\x7kana_yo\0"
+    "\x7kana_YU\0"
+    "\x7kana_yu\0"
+    "\x5Kanji\0"
+    "\xcKanji_Bangou\0"
+    "\x5kappa\0"
+    "\x8Katakana\0"
+    "\x8Kcedilla\0"
+    "\x8kcedilla\0"
+    "\xaKorean_Won\0"
+    "\x4KP_0\0"
+    "\x4KP_1\0"
+    "\x4KP_2\0"
+    "\x4KP_3\0"
+    "\x4KP_4\0"
+    "\x4KP_5\0"
+    "\x4KP_6\0"
+    "\x4KP_7\0"
+    "\x4KP_8\0"
+    "\x4KP_9\0"
+    "\x6KP_Add\0"
+    "\xaKP_BackTab\0"
+    "\x8KP_Begin\0"
+    "\xaKP_Decimal\0"
+    "\x9KP_Delete\0"
+    "\x9KP_Divide\0"
+    "\x7KP_Down\0"
+    "\x6KP_End\0"
+    "\x8KP_Enter\0"
+    "\x8KP_Equal\0"
+    "\x5KP_F1\0"
+    "\x5KP_F2\0"
+    "\x5KP_F3\0"
+    "\x5KP_F4\0"
+    "\x7KP_Home\0"
+    "\x9KP_Insert\0"
+    "\x7KP_Left\0"
+    "\xbKP_Multiply\0"
+    "\x7KP_Next\0"
+    "\xcKP_Page_Down\0"
+    "\xaKP_Page_Up\0"
+    "\x8KP_Prior\0"
+    "\x8KP_Right\0"
+    "\xcKP_Separator\0"
+    "\x8KP_Space\0"
+    "\xbKP_Subtract\0"
+    "\x6KP_Tab\0"
+    "\x5KP_Up\0"
+    "\x3kra\0"
+    "\x1L\0"
+    "\x1l\0"
+    "\x2L1\0"
+    "\x3L10\0"
+    "\x2L2\0"
+    "\x2L3\0"
+    "\x2L4\0"
+    "\x2L5\0"
+    "\x2L6\0"
+    "\x2L7\0"
+    "\x2L8\0"
+    "\x2L9\0"
+    "\x6Lacute\0"
+    "\x6lacute\0"
+    "\x13Last_Virtual_Screen\0"
+    "\xalatincross\0"
+    "\x9Lbelowdot\0"
+    "\x9lbelowdot\0"
+    "\x6Lcaron\0"
+    "\x6lcaron\0"
+    "\x8Lcedilla\0"
+    "\x8lcedilla\0"
+    "\x4Left\0"
+    "\x10leftanglebracket\0"
+    "\x9leftarrow\0"
+    "\x9leftcaret\0"
+    "\x13leftdoublequotemark\0"
+    "\x14leftmiddlecurlybrace\0"
+    "\x10leftopentriangle\0"
+    "\xbleftpointer\0"
+    "\xbleftradical\0"
+    "\x8leftshoe\0"
+    "\x13leftsinglequotemark\0"
+    "\x5leftt\0"
+    "\x8lefttack\0"
+    "\x4less\0"
+    "\xdlessthanequal\0"
+    "\x2lf\0"
+    "\x8Linefeed\0"
+    "\x4lira\0"
+    "\x8LiraSign\0"
+    "\xalogicaland\0"
+    "\x9logicalor\0"
+    "\x9longminus\0"
+    "\xdlowleftcorner\0"
+    "\xelowrightcorner\0"
+    "\x7Lstroke\0"
+    "\x7lstroke\0"
+    "\x1M\0"
+    "\x1m\0"
+    "\x9Mabovedot\0"
+    "\x9mabovedot\0"
+    "\xdMacedonia_DSE\0"
+    "\xdMacedonia_dse\0"
+    "\xdMacedonia_GJE\0"
+    "\xdMacedonia_gje\0"
+    "\xdMacedonia_KJE\0"
+    "\xdMacedonia_kje\0"
+    "\x6macron\0"
+    "\x8Mae_Koho\0"
+    "\xamalesymbol\0"
+    "\xcmaltesecross\0"
+    "\x6marker\0"
+    "\x9masculine\0"
+    "\x6Massyo\0"
+    "\x4Menu\0"
+    "\x6Meta_L\0"
+    "\x6Meta_R\0"
+    "\x8MillSign\0"
+    "\x5minus\0"
+    "\x7minutes\0"
+    "\xbMode_switch\0"
+    "\x16MouseKeys_Accel_Enable\0"
+    "\x10MouseKeys_Enable\0"
+    "\x2mu\0"
+    "\x8Muhenkan\0"
+    "\x9Multi_key\0"
+    "\x11MultipleCandidate\0"
+    "\x8multiply\0"
+    "\xbmusicalflat\0"
+    "\xcmusicalsharp\0"
+    "\xamute_acute\0"
+    "\x10mute_asciicircum\0"
+    "\xfmute_asciitilde\0"
+    "\xemute_diaeresis\0"
+    "\xamute_grave\0"
+    "\x1N\0"
+    "\x1n\0"
+    "\x5nabla\0"
+    "\x6Nacute\0"
+    "\x6nacute\0"
+    "\x9NairaSign\0"
+    "\x6Ncaron\0"
+    "\x6ncaron\0"
+    "\x8Ncedilla\0"
+    "\x8ncedilla\0"
+    "\xdNewSheqelSign\0"
+    "\x4Next\0"
+    "\x13Next_Virtual_Screen\0"
+    "\xdninesubscript\0"
+    "\xcninesuperior\0"
+    "\x2nl\0"
+    "\xcnobreakspace\0"
+    "\x8NoSymbol\0"
+    "\xbnotapproxeq\0"
+    "\xcnotelementof\0"
+    "\x8notequal\0"
+    "\xcnotidentical\0"
+    "\x7notsign\0"
+    "\x6Ntilde\0"
+    "\x6ntilde\0"
+    "\x8Num_Lock\0"
+    "\xanumbersign\0"
+    "\xanumerosign\0"
+    "\x1O\0"
+    "\x1o\0"
+    "\x6Oacute\0"
+    "\x6oacute\0"
+    "\x7Obarred\0"
+    "\x7obarred\0"
+    "\x9Obelowdot\0"
+    "\x9obelowdot\0"
+    "\x6Ocaron\0"
+    "\x6ocaron\0"
+    "\xbOcircumflex\0"
+    "\xbocircumflex\0"
+    "\x10Ocircumflexacute\0"
+    "\x10ocircumflexacute\0"
+    "\x13Ocircumflexbelowdot\0"
+    "\x13ocircumflexbelowdot\0"
+    "\x10Ocircumflexgrave\0"
+    "\x10ocircumflexgrave\0"
+    "\xfOcircumflexhook\0"
+    "\xfocircumflexhook\0"
+    "\x10Ocircumflextilde\0"
+    "\x10ocircumflextilde\0"
+    "\xaOdiaeresis\0"
+    "\xaodiaeresis\0"
+    "\xcOdoubleacute\0"
+    "\xcodoubleacute\0"
+    "\x2OE\0"
+    "\x2oe\0"
+    "\x6ogonek\0"
+    "\x6Ograve\0"
+    "\x6ograve\0"
+    "\x5Ohook\0"
+    "\x5ohook\0"
+    "\x5Ohorn\0"
+    "\x5ohorn\0"
+    "\xaOhornacute\0"
+    "\xaohornacute\0"
+    "\xdOhornbelowdot\0"
+    "\xdohornbelowdot\0"
+    "\xaOhorngrave\0"
+    "\xaohorngrave\0"
+    "\x9Ohornhook\0"
+    "\x9ohornhook\0"
+    "\xaOhorntilde\0"
+    "\xaohorntilde\0"
+    "\x7Omacron\0"
+    "\x7omacron\0"
+    "\x9oneeighth\0"
+    "\x8onefifth\0"
+    "\x7onehalf\0"
+    "\xaonequarter\0"
+    "\x8onesixth\0"
+    "\xconesubscript\0"
+    "\xbonesuperior\0"
+    "\x8onethird\0"
+    "\x8Ooblique\0"
+    "\x8ooblique\0"
+    "\xeopenrectbullet\0"
+    "\x8openstar\0"
+    "\x11opentribulletdown\0"
+    "\xfopentribulletup\0"
+    "\xbordfeminine\0"
+    "\xcordmasculine\0"
+    "\xbosfActivate\0"
+    "\xaosfAddMode\0"
+    "\xcosfBackSpace\0"
+    "\xaosfBackTab\0"
+    "\xcosfBeginData\0"
+    "\xcosfBeginLine\0"
+    "\x9osfCancel\0"
+    "\x8osfClear\0"
+    "\x7osfCopy\0"
+    "\x6osfCut\0"
+    "\x9osfDelete\0"
+    "\xeosfDeselectAll\0"
+    "\x7osfDown\0"
+    "\xaosfEndData\0"
+    "\xaosfEndLine\0"
+    "\x9osfEscape\0"
+    "\x9osfExtend\0"
+    "\x7osfHelp\0"
+    "\x9osfInsert\0"
+    "\x7osfLeft\0"
+    "\x7osfMenu\0"
+    "\xaosfMenuBar\0"
+    "\xcosfNextField\0"
+    "\xbosfNextMenu\0"
+    "\xbosfPageDown\0"
+    "\xbosfPageLeft\0"
+    "\xcosfPageRight\0"
+    "\x9osfPageUp\0"
+    "\x8osfPaste\0"
+    "\xcosfPrevField\0"
+    "\xbosfPrevMenu\0"
+    "\xfosfPrimaryPaste\0"
+    "\xdosfQuickPaste\0"
+    "\xbosfReselect\0"
+    "\xaosfRestore\0"
+    "\x8osfRight\0"
+    "\x9osfSelect\0"
+    "\xcosfSelectAll\0"
+    "\x7osfUndo\0"
+    "\x5osfUp\0"
+    "\x6Oslash\0"
+    "\x6oslash\0"
+    "\x6Otilde\0"
+    "\x6otilde\0"
+    "\x7overbar\0"
+    "\xfOverlay1_Enable\0"
+    "\xfOverlay2_Enable\0"
+    "\x8overline\0"
+    "\x1P\0"
+    "\x1p\0"
+    "\x9Pabovedot\0"
+    "\x9pabovedot\0"
+    "\x9Page_Down\0"
+    "\x7Page_Up\0"
+    "\x9paragraph\0"
+    "\x9parenleft\0"
+    "\xaparenright\0"
+    "\x10partdifferential\0"
+    "\x11partialderivative\0"
+    "\x5Pause\0"
+    "\x7percent\0"
+    "\x6period\0"
+    "\xeperiodcentered\0"
+    "\x8permille\0"
+    "\xaPesetaSign\0"
+    "\x13phonographcopyright\0"
+    "\x4plus\0"
+    "\x9plusminus\0"
+    "\x12Pointer_Accelerate\0"
+    "\xfPointer_Button1\0"
+    "\xfPointer_Button2\0"
+    "\xfPointer_Button3\0"
+    "\xfPointer_Button4\0"
+    "\xfPointer_Button5\0"
+    "\x13Pointer_Button_Dflt\0"
+    "\x11Pointer_DblClick1\0"
+    "\x11Pointer_DblClick2\0"
+    "\x11Pointer_DblClick3\0"
+    "\x11Pointer_DblClick4\0"
+    "\x11Pointer_DblClick5\0"
+    "\x15Pointer_DblClick_Dflt\0"
+    "\x13Pointer_DfltBtnNext\0"
+    "\x13Pointer_DfltBtnPrev\0"
+    "\xcPointer_Down\0"
+    "\x10Pointer_DownLeft\0"
+    "\x11Pointer_DownRight\0"
+    "\xdPointer_Drag1\0"
+    "\xdPointer_Drag2\0"
+    "\xdPointer_Drag3\0"
+    "\xdPointer_Drag4\0"
+    "\xdPointer_Drag5\0"
+    "\x11Pointer_Drag_Dflt\0"
+    "\x12Pointer_EnableKeys\0"
+    "\xcPointer_Left\0"
+    "\xdPointer_Right\0"
+    "\xaPointer_Up\0"
+    "\xePointer_UpLeft\0"
+    "\xfPointer_UpRight\0"
+    "\xcprescription\0"
+    "\x13Prev_Virtual_Screen\0"
+    "\x11PreviousCandidate\0"
+    "\x5Print\0"
+    "\x5Prior\0"
+    "\xeprolongedsound\0"
+    "\xapunctspace\0"
+    "\x1Q\0"
+    "\x1q\0"
+    "\x4quad\0"
+    "\x8question\0"
+    "\xcquestiondown\0"
+    "\x8quotedbl\0"
+    "\x9quoteleft\0"
+    "\xaquoteright\0"
+    "\x1R\0"
+    "\x1r\0"
+    "\x2R1\0"
+    "\x3R10\0"
+    "\x3R11\0"
+    "\x3R12\0"
+    "\x3R13\0"
+    "\x3R14\0"
+    "\x3R15\0"
+    "\x2R2\0"
+    "\x2R3\0"
+    "\x2R4\0"
+    "\x2R5\0"
+    "\x2R6\0"
+    "\x2R7\0"
+    "\x2R8\0"
+    "\x2R9\0"
+    "\x6Racute\0"
+    "\x6racute\0"
+    "\x7radical\0"
+    "\x6Rcaron\0"
+    "\x6rcaron\0"
+    "\x8Rcedilla\0"
+    "\x8rcedilla\0"
+    "\x4Redo\0"
+    "\xaregistered\0"
+    "\x11RepeatKeys_Enable\0"
+    "\x5Reset\0"
+    "\x6Return\0"
+    "\x5Right\0"
+    "\x11rightanglebracket\0"
+    "\xarightarrow\0"
+    "\xarightcaret\0"
+    "\x14rightdoublequotemark\0"
+    "\x15rightmiddlecurlybrace\0"
+    "\x14rightmiddlesummation\0"
+    "\x11rightopentriangle\0"
+    "\xcrightpointer\0"
+    "\x9rightshoe\0"
+    "\x14rightsinglequotemark\0"
+    "\x6rightt\0"
+    "\x9righttack\0"
+    "\x6Romaji\0"
+    "\x9RupeeSign\0"
+    "\x1S\0"
+    "\x1s\0"
+    "\x9Sabovedot\0"
+    "\x9sabovedot\0"
+    "\x6Sacute\0"
+    "\x6sacute\0"
+    "\x6Scaron\0"
+    "\x6scaron\0"
+    "\x8Scedilla\0"
+    "\x8scedilla\0"
+    "\x5SCHWA\0"
+    "\x5schwa\0"
+    "\xbScircumflex\0"
+    "\xbscircumflex\0"
+    "\xdscript_switch\0"
+    "\xbScroll_Lock\0"
+    "\x7seconds\0"
+    "\x7section\0"
+    "\x6Select\0"
+    "\x9semicolon\0"
+    "\xfsemivoicedsound\0"
+    "\xbSerbian_DJE\0"
+    "\xbSerbian_dje\0"
+    "\xbSerbian_DZE\0"
+    "\xbSerbian_dze\0"
+    "\xaSerbian_JE\0"
+    "\xaSerbian_je\0"
+    "\xbSerbian_LJE\0"
+    "\xbSerbian_lje\0"
+    "\xbSerbian_NJE\0"
+    "\xbSerbian_nje\0"
+    "\xcSerbian_TSHE\0"
+    "\xcSerbian_tshe\0"
+    "\xcseveneighths\0"
+    "\xesevensubscript\0"
+    "\xdsevensuperior\0"
+    "\x7Shift_L\0"
+    "\xaShift_Lock\0"
+    "\x7Shift_R\0"
+    "\xdsignaturemark\0"
+    "\xbsignifblank\0"
+    "\xcsimilarequal\0"
+    "\xfSingleCandidate\0"
+    "\x12singlelowquotemark\0"
+    "\x6Sinh_a\0"
+    "\x7Sinh_aa\0"
+    "\x8Sinh_aa2\0"
+    "\x7Sinh_ae\0"
+    "\x8Sinh_ae2\0"
+    "\x8Sinh_aee\0"
+    "\x9Sinh_aee2\0"
+    "\x7Sinh_ai\0"
+    "\x8Sinh_ai2\0"
+    "\x7Sinh_al\0"
+    "\x7Sinh_au\0"
+    "\x8Sinh_au2\0"
+    "\x7Sinh_ba\0"
+    "\x8Sinh_bha\0"
+    "\x7Sinh_ca\0"
+    "\x8Sinh_cha\0"
+    "\x8Sinh_dda\0"
+    "\x9Sinh_ddha\0"
+    "\x8Sinh_dha\0"
+    "\x9Sinh_dhha\0"
+    "\x6Sinh_e\0"
+    "\x7Sinh_e2\0"
+    "\x7Sinh_ee\0"
+    "\x8Sinh_ee2\0"
+    "\x7Sinh_fa\0"
+    "\x7Sinh_ga\0"
+    "\x8Sinh_gha\0"
+    "\x7Sinh_h2\0"
+    "\x7Sinh_ha\0"
+    "\x6Sinh_i\0"
+    "\x7Sinh_i2\0"
+    "\x7Sinh_ii\0"
+    "\x8Sinh_ii2\0"
+    "\x7Sinh_ja\0"
+    "\x8Sinh_jha\0"
+    "\x9Sinh_jnya\0"
+    "\x7Sinh_ka\0"
+    "\x8Sinh_kha\0"
+    "\xfSinh_kunddaliya\0"
+    "\x7Sinh_la\0"
+    "\x8Sinh_lla\0"
+    "\x7Sinh_lu\0"
+    "\x8Sinh_lu2\0"
+    "\x8Sinh_luu\0"
+    "\x9Sinh_luu2\0"
+    "\x7Sinh_ma\0"
+    "\x8Sinh_mba\0"
+    "\x7Sinh_na\0"
+    "\x9Sinh_ndda\0"
+    "\x9Sinh_ndha\0"
+    "\x7Sinh_ng\0"
+    "\x8Sinh_ng2\0"
+    "\x8Sinh_nga\0"
+    "\x8Sinh_nja\0"
+    "\x8Sinh_nna\0"
+    "\x8Sinh_nya\0"
+    "\x6Sinh_o\0"
+    "\x7Sinh_o2\0"
+    "\x7Sinh_oo\0"
+    "\x8Sinh_oo2\0"
+    "\x7Sinh_pa\0"
+    "\x8Sinh_pha\0"
+    "\x7Sinh_ra\0"
+    "\x7Sinh_ri\0"
+    "\x8Sinh_rii\0"
+    "\x8Sinh_ru2\0"
+    "\x9Sinh_ruu2\0"
+    "\x7Sinh_sa\0"
+    "\x8Sinh_sha\0"
+    "\x9Sinh_ssha\0"
+    "\x8Sinh_tha\0"
+    "\x9Sinh_thha\0"
+    "\x8Sinh_tta\0"
+    "\x9Sinh_ttha\0"
+    "\x6Sinh_u\0"
+    "\x7Sinh_u2\0"
+    "\x7Sinh_uu\0"
+    "\x8Sinh_uu2\0"
+    "\x7Sinh_va\0"
+    "\x7Sinh_ya\0"
+    "\xcsixsubscript\0"
+    "\xbsixsuperior\0"
+    "\x5slash\0"
+    "\xfSlowKeys_Enable\0"
+    "\xcsoliddiamond\0"
+    "\x5space\0"
+    "\xasquareroot\0"
+    "\x6ssharp\0"
+    "\x8sterling\0"
+    "\x11StickyKeys_Enable\0"
+    "\x8stricteq\0"
+    "\x8SunAgain\0"
+    "\xbSunAltGraph\0"
+    "\x13SunAudioLowerVolume\0"
+    "\xcSunAudioMute\0"
+    "\x13SunAudioRaiseVolume\0"
+    "\xaSunCompose\0"
+    "\x7SunCopy\0"
+    "\x6SunCut\0"
+    "\x6SunF36\0"
+    "\x6SunF37\0"
+    "\xbSunFA_Acute\0"
+    "\xdSunFA_Cedilla\0"
+    "\xcSunFA_Circum\0"
+    "\xfSunFA_Diaeresis\0"
+    "\xbSunFA_Grave\0"
+    "\xbSunFA_Tilde\0"
+    "\x7SunFind\0"
+    "\x8SunFront\0"
+    "\x7SunOpen\0"
+    "\xbSunPageDown\0"
+    "\x9SunPageUp\0"
+    "\x8SunPaste\0"
+    "\xeSunPowerSwitch\0"
+    "\x13SunPowerSwitchShift\0"
+    "\xfSunPrint_Screen\0"
+    "\x8SunProps\0"
+    "\x7SunStop\0"
+    "\xaSunSys_Req\0"
+    "\x7SunUndo\0"
+    "\xfSunVideoDegauss\0"
+    "\x17SunVideoLowerBrightness\0"
+    "\x17SunVideoRaiseBrightness\0"
+    "\x7Super_L\0"
+    "\x7Super_R\0"
+    "\x7Sys_Req\0"
+    "\x6System\0"
+    "\x1T\0"
+    "\x1t\0"
+    "\x3Tab\0"
+    "\x9Tabovedot\0"
+    "\x9tabovedot\0"
+    "\x6Tcaron\0"
+    "\x6tcaron\0"
+    "\x8Tcedilla\0"
+    "\x8tcedilla\0"
+    "\x9telephone\0"
+    "\x11telephonerecorder\0"
+    "\x10Terminate_Server\0"
+    "\x9Thai_baht\0"
+    "\xdThai_bobaimai\0"
+    "\xcThai_chochan\0"
+    "\xdThai_chochang\0"
+    "\xdThai_choching\0"
+    "\xcThai_chochoe\0"
+    "\xcThai_dochada\0"
+    "\xaThai_dodek\0"
+    "\x9Thai_fofa\0"
+    "\xaThai_fofan\0"
+    "\xaThai_hohip\0"
+    "\xdThai_honokhuk\0"
+    "\xcThai_khokhai\0"
+    "\xcThai_khokhon\0"
+    "\xdThai_khokhuat\0"
+    "\xdThai_khokhwai\0"
+    "\xfThai_khorakhang\0"
+    "\xaThai_kokai\0"
+    "\x10Thai_lakkhangyao\0"
+    "\xcThai_lekchet\0"
+    "\xaThai_lekha\0"
+    "\xbThai_lekhok\0"
+    "\xbThai_lekkao\0"
+    "\xcThai_leknung\0"
+    "\xcThai_lekpaet\0"
+    "\xbThai_leksam\0"
+    "\xaThai_leksi\0"
+    "\xcThai_leksong\0"
+    "\xbThai_leksun\0"
+    "\xcThai_lochula\0"
+    "\xbThai_loling\0"
+    "\x7Thai_lu\0"
+    "\x10Thai_maichattawa\0"
+    "\xaThai_maiek\0"
+    "\xfThai_maihanakat\0"
+    "\x16Thai_maihanakat_maitho\0"
+    "\xeThai_maitaikhu\0"
+    "\xbThai_maitho\0"
+    "\xbThai_maitri\0"
+    "\xdThai_maiyamok\0"
+    "\x9Thai_moma\0"
+    "\xbThai_ngongu\0"
+    "\xdThai_nikhahit\0"
+    "\xaThai_nonen\0"
+    "\x9Thai_nonu\0"
+    "\x9Thai_oang\0"
+    "\xeThai_paiyannoi\0"
+    "\xcThai_phinthu\0"
+    "\xcThai_phophan\0"
+    "\xdThai_phophung\0"
+    "\xfThai_phosamphao\0"
+    "\xaThai_popla\0"
+    "\xaThai_rorua\0"
+    "\x7Thai_ru\0"
+    "\xaThai_saraa\0"
+    "\xbThai_saraaa\0"
+    "\xbThai_saraae\0"
+    "\x13Thai_saraaimaimalai\0"
+    "\x12Thai_saraaimaimuan\0"
+    "\xbThai_saraam\0"
+    "\xaThai_sarae\0"
+    "\xaThai_sarai\0"
+    "\xbThai_saraii\0"
+    "\xaThai_sarao\0"
+    "\xaThai_sarau\0"
+    "\xbThai_saraue\0"
+    "\xcThai_sarauee\0"
+    "\xbThai_sarauu\0"
+    "\xbThai_sorusi\0"
+    "\xbThai_sosala\0"
+    "\x9Thai_soso\0"
+    "\xaThai_sosua\0"
+    "\x10Thai_thanthakhat\0"
+    "\x12Thai_thonangmontho\0"
+    "\xfThai_thophuthao\0"
+    "\xeThai_thothahan\0"
+    "\xcThai_thothan\0"
+    "\xdThai_thothong\0"
+    "\xdThai_thothung\0"
+    "\xcThai_topatak\0"
+    "\xaThai_totao\0"
+    "\xbThai_wowaen\0"
+    "\xaThai_yoyak\0"
+    "\xbThai_yoying\0"
+    "\x9therefore\0"
+    "\x9thinspace\0"
+    "\x5THORN\0"
+    "\x5Thorn\0"
+    "\x5thorn\0"
+    "\xcthreeeighths\0"
+    "\xbthreefifths\0"
+    "\xdthreequarters\0"
+    "\xethreesubscript\0"
+    "\xdthreesuperior\0"
+    "\x9tintegral\0"
+    "\xbtopintegral\0"
+    "\xdtopleftparens\0"
+    "\xetopleftradical\0"
+    "\x10topleftsqbracket\0"
+    "\x10topleftsummation\0"
+    "\xetoprightparens\0"
+    "\x11toprightsqbracket\0"
+    "\x11toprightsummation\0"
+    "\x4topt\0"
+    "\x19topvertsummationconnector\0"
+    "\x7Touroku\0"
+    "\x9trademark\0"
+    "\x11trademarkincircle\0"
+    "\x6Tslash\0"
+    "\x6tslash\0"
+    "\x9twofifths\0"
+    "\xctwosubscript\0"
+    "\xbtwosuperior\0"
+    "\x9twothirds\0"
+    "\x1U\0"
+    "\x1u\0"
+    "\x6Uacute\0"
+    "\x6uacute\0"
+    "\x9Ubelowdot\0"
+    "\x9ubelowdot\0"
+    "\x6Ubreve\0"
+    "\x6ubreve\0"
+    "\xbUcircumflex\0"
+    "\xbucircumflex\0"
+    "\xaUdiaeresis\0"
+    "\xaudiaeresis\0"
+    "\xcUdoubleacute\0"
+    "\xcudoubleacute\0"
+    "\x6Ugrave\0"
+    "\x6ugrave\0"
+    "\x5Uhook\0"
+    "\x5uhook\0"
+    "\x5Uhorn\0"
+    "\x5uhorn\0"
+    "\xaUhornacute\0"
+    "\xauhornacute\0"
+    "\xdUhornbelowdot\0"
+    "\xduhornbelowdot\0"
+    "\xaUhorngrave\0"
+    "\xauhorngrave\0"
+    "\x9Uhornhook\0"
+    "\x9uhornhook\0"
+    "\xaUhorntilde\0"
+    "\xauhorntilde\0"
+    "\x19Ukrainian_GHE_WITH_UPTURN\0"
+    "\x19Ukrainian_ghe_with_upturn\0"
+    "\xbUkrainian_I\0"
+    "\xbUkrainian_i\0"
+    "\xcUkrainian_IE\0"
+    "\xcUkrainian_ie\0"
+    "\xcUkrainian_YI\0"
+    "\xcUkrainian_yi\0"
+    "\xaUkranian_I\0"
+    "\xaUkranian_i\0"
+    "\xbUkranian_JE\0"
+    "\xbUkranian_je\0"
+    "\xbUkranian_YI\0"
+    "\xbUkranian_yi\0"
+    "\x7Umacron\0"
+    "\x7umacron\0"
+    "\x8underbar\0"
+    "\xaunderscore\0"
+    "\x4Undo\0"
+    "\x5union\0"
+    "\x7Uogonek\0"
+    "\x7uogonek\0"
+    "\x2Up\0"
+    "\x7uparrow\0"
+    "\x7upcaret\0"
+    "\xcupleftcorner\0"
+    "\xduprightcorner\0"
+    "\x6upshoe\0"
+    "\x7upstile\0"
+    "\x6uptack\0"
+    "\x5Uring\0"
+    "\x5uring\0"
+    "\x4User\0"
+    "\x6Utilde\0"
+    "\x6utilde\0"
+    "\x1V\0"
+    "\x1v\0"
+    "\x9variation\0"
+    "\x7vertbar\0"
+    "\xdvertconnector\0"
+    "\xbvoicedsound\0"
+    "\xaVoidSymbol\0"
+    "\x2vt\0"
+    "\x1W\0"
+    "\x1w\0"
+    "\x6Wacute\0"
+    "\x6wacute\0"
+    "\xbWcircumflex\0"
+    "\xbwcircumflex\0"
+    "\xaWdiaeresis\0"
+    "\xawdiaeresis\0"
+    "\x6Wgrave\0"
+    "\x6wgrave\0"
+    "\x7WonSign\0"
+    "\x1X\0"
+    "\x1x\0"
+    "\x9Xabovedot\0"
+    "\x9xabovedot\0"
+    "\x12XF8610ChannelsDown\0"
+    "\x10XF8610ChannelsUp\0"
+    "\xaXF863DMode\0"
+    "\x11XF86Accessibility\0"
+    "\xfXF86AddFavorite\0"
+    "\xfXF86Addressbook\0"
+    "\xdXF86ALSToggle\0"
+    "\x13XF86ApplicationLeft\0"
+    "\x14XF86ApplicationRight\0"
+    "\xdXF86AppSelect\0"
+    "\xfXF86AspectRatio\0"
+    "\xdXF86Assistant\0"
+    "\x10XF86AttendantOff\0"
+    "\xfXF86AttendantOn\0"
+    "\x13XF86AttendantToggle\0"
+    "\x9XF86Audio\0"
+    "\x13XF86AudioCycleTrack\0"
+    "\xdXF86AudioDesc\0"
+    "\x10XF86AudioForward\0"
+    "\x14XF86AudioLowerVolume\0"
+    "\xeXF86AudioMedia\0"
+    "\x10XF86AudioMicMute\0"
+    "\xdXF86AudioMute\0"
+    "\xdXF86AudioNext\0"
+    "\xeXF86AudioPause\0"
+    "\xdXF86AudioPlay\0"
+    "\xfXF86AudioPreset\0"
+    "\xdXF86AudioPrev\0"
+    "\x14XF86AudioRaiseVolume\0"
+    "\x13XF86AudioRandomPlay\0"
+    "\xfXF86AudioRecord\0"
+    "\xfXF86AudioRepeat\0"
+    "\xfXF86AudioRewind\0"
+    "\xdXF86AudioStop\0"
+    "\x19XF86AutopilotEngageToggle\0"
+    "\x8XF86Away\0"
+    "\x8XF86Back\0"
+    "\xfXF86BackForward\0"
+    "\xbXF86Battery\0"
+    "\x8XF86Blue\0"
+    "\xdXF86Bluetooth\0"
+    "\x8XF86Book\0"
+    "\x9XF86Break\0"
+    "\x14XF86BrightnessAdjust\0"
+    "\x12XF86BrightnessAuto\0"
+    "\x11XF86BrightnessMax\0"
+    "\x11XF86BrightnessMin\0"
+    "\x10XF86Buttonconfig\0"
+    "\xeXF86Calculater\0"
+    "\xeXF86Calculator\0"
+    "\xcXF86Calendar\0"
+    "\x17XF86CameraAccessDisable\0"
+    "\x16XF86CameraAccessEnable\0"
+    "\x16XF86CameraAccessToggle\0"
+    "\xeXF86CameraDown\0"
+    "\xfXF86CameraFocus\0"
+    "\xeXF86CameraLeft\0"
+    "\xfXF86CameraRight\0"
+    "\xcXF86CameraUp\0"
+    "\x10XF86CameraZoomIn\0"
+    "\x11XF86CameraZoomOut\0"
+    "\x6XF86CD\0"
+    "\xfXF86ChannelDown\0"
+    "\xdXF86ChannelUp\0"
+    "\x9XF86Clear\0"
+    "\xdXF86ClearGrab\0"
+    "\x10XF86ClearvuSonar\0"
+    "\x9XF86Close\0"
+    "\xdXF86Community\0"
+    "\xfXF86ContextMenu\0"
+    "\x12XF86ContrastAdjust\0"
+    "\x10XF86ControlPanel\0"
+    "\x8XF86Copy\0"
+    "\x7XF86Cut\0"
+    "\xeXF86CycleAngle\0"
+    "\x8XF86Data\0"
+    "\xcXF86Database\0"
+    "\xbXF86Dictate\0"
+    "\xbXF86Display\0"
+    "\xeXF86DisplayOff\0"
+    "\x11XF86DisplayToggle\0"
+    "\xdXF86Documents\0"
+    "\x10XF86DoNotDisturb\0"
+    "\x7XF86DOS\0"
+    "\x12XF86DualRangeRadar\0"
+    "\x7XF86DVD\0"
+    "\xaXF86Editor\0"
+    "\x9XF86Eject\0"
+    "\xfXF86EmojiPicker\0"
+    "\x9XF86Excel\0"
+    "\xcXF86Explorer\0"
+    "\xfXF86FastReverse\0"
+    "\xdXF86Favorites\0"
+    "\xbXF86Finance\0"
+    "\x10XF86FishingChart\0"
+    "\x6XF86Fn\0"
+    "\xaXF86Fn_Esc\0"
+    "\x10XF86FnRightShift\0"
+    "\xbXF86Forward\0"
+    "\xdXF86FrameBack\0"
+    "\x10XF86FrameForward\0"
+    "\xeXF86FullScreen\0"
+    "\x8XF86Game\0"
+    "\x6XF86Go\0"
+    "\x12XF86GraphicsEditor\0"
+    "\x9XF86Green\0"
+    "\xfXF86HangupPhone\0"
+    "\xdXF86Hibernate\0"
+    "\xbXF86History\0"
+    "\xcXF86HomePage\0"
+    "\xcXF86HotLinks\0"
+    "\xaXF86Images\0"
+    "\x8XF86Info\0"
+    "\xaXF86iTouch\0"
+    "\xbXF86Journal\0"
+    "\x15XF86KbdBrightnessDown\0"
+    "\x13XF86KbdBrightnessUp\0"
+    "\x18XF86KbdInputAssistAccept\0"
+    "\x18XF86KbdInputAssistCancel\0"
+    "\x16XF86KbdInputAssistNext\0"
+    "\x1bXF86KbdInputAssistNextgroup\0"
+    "\x16XF86KbdInputAssistPrev\0"
+    "\x1bXF86KbdInputAssistPrevgroup\0"
+    "\xfXF86KbdLcdMenu1\0"
+    "\xfXF86KbdLcdMenu2\0"
+    "\xfXF86KbdLcdMenu3\0"
+    "\xfXF86KbdLcdMenu4\0"
+    "\xfXF86KbdLcdMenu5\0"
+    "\x11XF86KbdLightOnOff\0"
+    "\xcXF86Keyboard\0"
+    "\xbXF86Launch0\0"
+    "\xbXF86Launch1\0"
+    "\xbXF86Launch2\0"
+    "\xbXF86Launch3\0"
+    "\xbXF86Launch4\0"
+    "\xbXF86Launch5\0"
+    "\xbXF86Launch6\0"
+    "\xbXF86Launch7\0"
+    "\xbXF86Launch8\0"
+    "\xbXF86Launch9\0"
+    "\xbXF86LaunchA\0"
+    "\xbXF86LaunchB\0"
+    "\xbXF86LaunchC\0"
+    "\xbXF86LaunchD\0"
+    "\xbXF86LaunchE\0"
+    "\xbXF86LaunchF\0"
+    "\xcXF86LeftDown\0"
+    "\xaXF86LeftUp\0"
+    "\xdXF86LightBulb\0"
+    "\x10XF86LightsToggle\0"
+    "\xfXF86LogGrabInfo\0"
+    "\xaXF86LogOff\0"
+    "\x11XF86LogWindowTree\0"
+    "\xaXF86Macro1\0"
+    "\xbXF86Macro10\0"
+    "\xbXF86Macro11\0"
+    "\xbXF86Macro12\0"
+    "\xbXF86Macro13\0"
+    "\xbXF86Macro14\0"
+    "\xbXF86Macro15\0"
+    "\xbXF86Macro16\0"
+    "\xbXF86Macro17\0"
+    "\xbXF86Macro18\0"
+    "\xbXF86Macro19\0"
+    "\xaXF86Macro2\0"
+    "\xbXF86Macro20\0"
+    "\xbXF86Macro21\0"
+    "\xbXF86Macro22\0"
+    "\xbXF86Macro23\0"
+    "\xbXF86Macro24\0"
+    "\xbXF86Macro25\0"
+    "\xbXF86Macro26\0"
+    "\xbXF86Macro27\0"
+    "\xbXF86Macro28\0"
+    "\xbXF86Macro29\0"
+    "\xaXF86Macro3\0"
+    "\xbXF86Macro30\0"
+    "\xaXF86Macro4\0"
+    "\xaXF86Macro5\0"
+    "\xaXF86Macro6\0"
+    "\xaXF86Macro7\0"
+    "\xaXF86Macro8\0"
+    "\xaXF86Macro9\0"
+    "\x10XF86MacroPreset1\0"
+    "\x10XF86MacroPreset2\0"
+    "\x10XF86MacroPreset3\0"
+    "\x14XF86MacroPresetCycle\0"
+    "\x14XF86MacroRecordStart\0"
+    "\x13XF86MacroRecordStop\0"
+    "\x8XF86Mail\0"
+    "\xfXF86MailForward\0"
+    "\xaXF86Market\0"
+    "\x10XF86MarkWaypoint\0"
+    "\xfXF86MediaRepeat\0"
+    "\x10XF86MediaTopMenu\0"
+    "\xbXF86Meeting\0"
+    "\x8XF86Memo\0"
+    "\xaXF86MenuKB\0"
+    "\xaXF86MenuPB\0"
+    "\xdXF86Messenger\0"
+    "\xcXF86ModeLock\0"
+    "\x16XF86MonBrightnessCycle\0"
+    "\x15XF86MonBrightnessDown\0"
+    "\x13XF86MonBrightnessUp\0"
+    "\x9XF86Music\0"
+    "\xeXF86MyComputer\0"
+    "\xbXF86MySites\0"
+    "\xcXF86NavChart\0"
+    "\xbXF86NavInfo\0"
+    "\x7XF86New\0"
+    "\x8XF86News\0"
+    "\xeXF86Next_VMode\0"
+    "\xfXF86NextElement\0"
+    "\x10XF86NextFavorite\0"
+    "\x16XF86NotificationCenter\0"
+    "\xcXF86Numeric0\0"
+    "\xcXF86Numeric1\0"
+    "\xdXF86Numeric11\0"
+    "\xdXF86Numeric12\0"
+    "\xcXF86Numeric2\0"
+    "\xcXF86Numeric3\0"
+    "\xcXF86Numeric4\0"
+    "\xcXF86Numeric5\0"
+    "\xcXF86Numeric6\0"
+    "\xcXF86Numeric7\0"
+    "\xcXF86Numeric8\0"
+    "\xcXF86Numeric9\0"
+    "\xcXF86NumericA\0"
+    "\xcXF86NumericB\0"
+    "\xcXF86NumericC\0"
+    "\xcXF86NumericD\0"
+    "\x10XF86NumericPound\0"
+    "\xfXF86NumericStar\0"
+    "\xeXF86OfficeHome\0"
+    "\x14XF86OnScreenKeyboard\0"
+    "\x8XF86Open\0"
+    "\xbXF86OpenURL\0"
+    "\xaXF86Option\0"
+    "\x9XF86Paste\0"
+    "\xfXF86PauseRecord\0"
+    "\x9XF86Phone\0"
+    "\xfXF86PickupPhone\0"
+    "\xcXF86Pictures\0"
+    "\xdXF86PowerDown\0"
+    "\xcXF86PowerOff\0"
+    "\x10XF86Presentation\0"
+    "\xeXF86Prev_VMode\0"
+    "\x13XF86PreviousElement\0"
+    "\x17XF86PrivacyScreenToggle\0"
+    "\x5XF86Q\0"
+    "\x10XF86RadarOverlay\0"
+    "\x7XF86Red\0"
+    "\xbXF86Refresh\0"
+    "\x15XF86RefreshRateToggle\0"
+    "\xaXF86Reload\0"
+    "\x9XF86Reply\0"
+    "\xaXF86RFKill\0"
+    "\xdXF86RightDown\0"
+    "\xbXF86RightUp\0"
+    "\xeXF86RockerDown\0"
+    "\xfXF86RockerEnter\0"
+    "\xcXF86RockerUp\0"
+    "\xcXF86RootMenu\0"
+    "\x11XF86RotateWindows\0"
+    "\xeXF86RotationKB\0"
+    "\x16XF86RotationLockToggle\0"
+    "\xeXF86RotationPB\0"
+    "\x8XF86Save\0"
+    "\xfXF86ScreenSaver\0"
+    "\xfXF86Screensaver\0"
+    "\xfXF86ScrollClick\0"
+    "\xeXF86ScrollDown\0"
+    "\xcXF86ScrollUp\0"
+    "\xaXF86Search\0"
+    "\xaXF86Select\0"
+    "\x17XF86SelectiveScreenshot\0"
+    "\x8XF86Send\0"
+    "\x8XF86Shop\0"
+    "\xfXF86SidevuSonar\0"
+    "\x14XF86SingleRangeRadar\0"
+    "\x9XF86Sleep\0"
+    "\xfXF86SlowReverse\0"
+    "\x7XF86Sos\0"
+    "\x9XF86Spell\0"
+    "\xeXF86SpellCheck\0"
+    "\xfXF86SplitScreen\0"
+    "\xbXF86Standby\0"
+    "\x9XF86Start\0"
+    "\x8XF86Stop\0"
+    "\xeXF86StopRecord\0"
+    "\xcXF86Subtitle\0"
+    "\xbXF86Support\0"
+    "\xbXF86Suspend\0"
+    "\xfXF86Switch_VT_1\0"
+    "\x10XF86Switch_VT_10\0"
+    "\x10XF86Switch_VT_11\0"
+    "\x10XF86Switch_VT_12\0"
+    "\xfXF86Switch_VT_2\0"
+    "\xfXF86Switch_VT_3\0"
+    "\xfXF86Switch_VT_4\0"
+    "\xfXF86Switch_VT_5\0"
+    "\xfXF86Switch_VT_6\0"
+    "\xfXF86Switch_VT_7\0"
+    "\xfXF86Switch_VT_8\0"
+    "\xfXF86Switch_VT_9\0"
+    "\xfXF86Taskmanager\0"
+    "\xcXF86TaskPane\0"
+    "\xcXF86Terminal\0"
+    "\x8XF86Time\0"
+    "\xcXF86ToDoList\0"
+    "\x9XF86Tools\0"
+    "\xbXF86TopMenu\0"
+    "\xfXF86TouchpadOff\0"
+    "\xeXF86TouchpadOn\0"
+    "\x12XF86TouchpadToggle\0"
+    "\x14XF86TraditionalSonar\0"
+    "\xaXF86Travel\0"
+    "\xaXF86Ungrab\0"
+    "\xaXF86Unmute\0"
+    "\xbXF86User1KB\0"
+    "\xbXF86User2KB\0"
+    "\xaXF86UserPB\0"
+    "\x7XF86UWB\0"
+    "\xeXF86VendorHome\0"
+    "\x9XF86Video\0"
+    "\xeXF86VideoPhone\0"
+    "\x8XF86View\0"
+    "\x7XF86VOD\0"
+    "\x10XF86VoiceCommand\0"
+    "\xdXF86Voicemail\0"
+    "\xaXF86WakeUp\0"
+    "\xaXF86WebCam\0"
+    "\xfXF86WheelButton\0"
+    "\x8XF86WLAN\0"
+    "\x8XF86Word\0"
+    "\xdXF86WPSButton\0"
+    "\x8XF86WWAN\0"
+    "\x7XF86WWW\0"
+    "\x8XF86Xfer\0"
+    "\xaXF86Yellow\0"
+    "\xaXF86ZoomIn\0"
+    "\xbXF86ZoomOut\0"
+    "\xdXF86ZoomReset\0"
+    "\x1Y\0"
+    "\x1y\0"
+    "\x6Yacute\0"
+    "\x6yacute\0"
+    "\x9Ybelowdot\0"
+    "\x9ybelowdot\0"
+    "\xbYcircumflex\0"
+    "\xbycircumflex\0"
+    "\xaYdiaeresis\0"
+    "\xaydiaeresis\0"
+    "\x3yen\0"
+    "\x6Ygrave\0"
+    "\x6ygrave\0"
+    "\x5Yhook\0"
+    "\x5yhook\0"
+    "\x6Ytilde\0"
+    "\x6ytilde\0"
+    "\x1Z\0"
+    "\x1z\0"
+    "\x9Zabovedot\0"
+    "\x9zabovedot\0"
+    "\x6Zacute\0"
+    "\x6zacute\0"
+    "\x6Zcaron\0"
+    "\x6zcaron\0"
+    "\x8Zen_Koho\0"
+    "\x7Zenkaku\0"
+    "\xfZenkaku_Hankaku\0"
+    "\xdzerosubscript\0"
+    "\xczerosuperior\0"
+    "\x7Zstroke\0"
+    "\x7zstroke\0"
 ;
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -2937,5036 +2937,5036 @@ struct name_keysym {
 
 static const struct name_keysym name_to_keysym[] = {
     { 0x00000030, 0 }, /* 0 */
-    { 0x00000031, 2 }, /* 1 */
-    { 0x00000032, 4 }, /* 2 */
-    { 0x00000033, 6 }, /* 3 */
-    { 0x0000fd10, 8 }, /* 3270_AltCursor */
-    { 0x0000fd0e, 23 }, /* 3270_Attn */
-    { 0x0000fd05, 33 }, /* 3270_BackTab */
-    { 0x0000fd19, 46 }, /* 3270_ChangeScreen */
-    { 0x0000fd15, 64 }, /* 3270_Copy */
-    { 0x0000fd0f, 74 }, /* 3270_CursorBlink */
-    { 0x0000fd1c, 91 }, /* 3270_CursorSelect */
-    { 0x0000fd1a, 109 }, /* 3270_DeleteWord */
-    { 0x0000fd01, 125 }, /* 3270_Duplicate */
-    { 0x0000fd1e, 140 }, /* 3270_Enter */
-    { 0x0000fd06, 151 }, /* 3270_EraseEOF */
-    { 0x0000fd07, 165 }, /* 3270_EraseInput */
-    { 0x0000fd1b, 181 }, /* 3270_ExSelect */
-    { 0x0000fd02, 195 }, /* 3270_FieldMark */
-    { 0x0000fd13, 210 }, /* 3270_Ident */
-    { 0x0000fd12, 221 }, /* 3270_Jump */
-    { 0x0000fd11, 231 }, /* 3270_KeyClick */
-    { 0x0000fd04, 245 }, /* 3270_Left2 */
-    { 0x0000fd0a, 256 }, /* 3270_PA1 */
-    { 0x0000fd0b, 265 }, /* 3270_PA2 */
-    { 0x0000fd0c, 274 }, /* 3270_PA3 */
-    { 0x0000fd16, 283 }, /* 3270_Play */
-    { 0x0000fd1d, 293 }, /* 3270_PrintScreen */
-    { 0x0000fd09, 310 }, /* 3270_Quit */
-    { 0x0000fd18, 320 }, /* 3270_Record */
-    { 0x0000fd08, 332 }, /* 3270_Reset */
-    { 0x0000fd03, 343 }, /* 3270_Right2 */
-    { 0x0000fd14, 355 }, /* 3270_Rule */
-    { 0x0000fd17, 365 }, /* 3270_Setup */
-    { 0x0000fd0d, 376 }, /* 3270_Test */
-    { 0x00000034, 386 }, /* 4 */
-    { 0x00000035, 388 }, /* 5 */
-    { 0x00000036, 390 }, /* 6 */
-    { 0x00000037, 392 }, /* 7 */
-    { 0x00000038, 394 }, /* 8 */
-    { 0x00000039, 396 }, /* 9 */
-    { 0x00000041, 398 }, /* A */
-    { 0x00000061, 400 }, /* a */
-    { 0x000000c1, 402 }, /* Aacute */
-    { 0x000000e1, 409 }, /* aacute */
-    { 0x01001ea0, 416 }, /* Abelowdot */
-    { 0x01001ea1, 426 }, /* abelowdot */
-    { 0x000001ff, 436 }, /* abovedot */
-    { 0x000001c3, 445 }, /* Abreve */
-    { 0x000001e3, 452 }, /* abreve */
-    { 0x01001eae, 459 }, /* Abreveacute */
-    { 0x01001eaf, 471 }, /* abreveacute */
-    { 0x01001eb6, 483 }, /* Abrevebelowdot */
-    { 0x01001eb7, 498 }, /* abrevebelowdot */
-    { 0x01001eb0, 513 }, /* Abrevegrave */
-    { 0x01001eb1, 525 }, /* abrevegrave */
-    { 0x01001eb2, 537 }, /* Abrevehook */
-    { 0x01001eb3, 548 }, /* abrevehook */
-    { 0x01001eb4, 559 }, /* Abrevetilde */
-    { 0x01001eb5, 571 }, /* abrevetilde */
-    { 0x0000fe70, 583 }, /* AccessX_Enable */
-    { 0x0000fe71, 598 }, /* AccessX_Feedback_Enable */
-    { 0x000000c2, 622 }, /* Acircumflex */
-    { 0x000000e2, 634 }, /* acircumflex */
-    { 0x01001ea4, 646 }, /* Acircumflexacute */
-    { 0x01001ea5, 663 }, /* acircumflexacute */
-    { 0x01001eac, 680 }, /* Acircumflexbelowdot */
-    { 0x01001ead, 700 }, /* acircumflexbelowdot */
-    { 0x01001ea6, 720 }, /* Acircumflexgrave */
-    { 0x01001ea7, 737 }, /* acircumflexgrave */
-    { 0x01001ea8, 754 }, /* Acircumflexhook */
-    { 0x01001ea9, 770 }, /* acircumflexhook */
-    { 0x01001eaa, 786 }, /* Acircumflextilde */
-    { 0x01001eab, 803 }, /* acircumflextilde */
-    { 0x000000b4, 820 }, /* acute */
-    { 0x000000c4, 826 }, /* Adiaeresis */
-    { 0x000000e4, 837 }, /* adiaeresis */
-    { 0x000000c6, 848 }, /* AE */
-    { 0x000000e6, 851 }, /* ae */
-    { 0x000000c0, 854 }, /* Agrave */
-    { 0x000000e0, 861 }, /* agrave */
-    { 0x01001ea2, 868 }, /* Ahook */
-    { 0x01001ea3, 874 }, /* ahook */
-    { 0x0000ffe9, 880 }, /* Alt_L */
-    { 0x0000ffea, 886 }, /* Alt_R */
-    { 0x000003c0, 892 }, /* Amacron */
-    { 0x000003e0, 900 }, /* amacron */
-    { 0x00000026, 908 }, /* ampersand */
-    { 0x000001a1, 918 }, /* Aogonek */
-    { 0x000001b1, 926 }, /* aogonek */
-    { 0x00000027, 934 }, /* apostrophe */
-    { 0x01002248, 945 }, /* approxeq */
-    { 0x000008c8, 954 }, /* approximate */
-    { 0x01000660, 966 }, /* Arabic_0 */
-    { 0x01000661, 975 }, /* Arabic_1 */
-    { 0x01000662, 984 }, /* Arabic_2 */
-    { 0x01000663, 993 }, /* Arabic_3 */
-    { 0x01000664, 1002 }, /* Arabic_4 */
-    { 0x01000665, 1011 }, /* Arabic_5 */
-    { 0x01000666, 1020 }, /* Arabic_6 */
-    { 0x01000667, 1029 }, /* Arabic_7 */
-    { 0x01000668, 1038 }, /* Arabic_8 */
-    { 0x01000669, 1047 }, /* Arabic_9 */
-    { 0x000005d9, 1056 }, /* Arabic_ain */
-    { 0x000005c7, 1067 }, /* Arabic_alef */
-    { 0x000005e9, 1079 }, /* Arabic_alefmaksura */
-    { 0x000005c8, 1098 }, /* Arabic_beh */
-    { 0x000005ac, 1109 }, /* Arabic_comma */
-    { 0x000005d6, 1122 }, /* Arabic_dad */
-    { 0x000005cf, 1133 }, /* Arabic_dal */
-    { 0x000005ef, 1144 }, /* Arabic_damma */
-    { 0x000005ec, 1157 }, /* Arabic_dammatan */
-    { 0x01000688, 1173 }, /* Arabic_ddal */
-    { 0x010006cc, 1185 }, /* Arabic_farsi_yeh */
-    { 0x000005ee, 1202 }, /* Arabic_fatha */
-    { 0x000005eb, 1215 }, /* Arabic_fathatan */
-    { 0x000005e1, 1231 }, /* Arabic_feh */
-    { 0x010006d4, 1242 }, /* Arabic_fullstop */
-    { 0x010006af, 1258 }, /* Arabic_gaf */
-    { 0x000005da, 1269 }, /* Arabic_ghain */
-    { 0x000005e7, 1282 }, /* Arabic_ha */
-    { 0x000005cd, 1292 }, /* Arabic_hah */
-    { 0x000005c1, 1303 }, /* Arabic_hamza */
-    { 0x01000654, 1316 }, /* Arabic_hamza_above */
-    { 0x01000655, 1335 }, /* Arabic_hamza_below */
-    { 0x000005c3, 1354 }, /* Arabic_hamzaonalef */
-    { 0x000005c4, 1373 }, /* Arabic_hamzaonwaw */
-    { 0x000005c6, 1391 }, /* Arabic_hamzaonyeh */
-    { 0x000005c5, 1409 }, /* Arabic_hamzaunderalef */
-    { 0x000005e7, 1431 }, /* Arabic_heh */
-    { 0x010006be, 1442 }, /* Arabic_heh_doachashmee */
-    { 0x010006c1, 1465 }, /* Arabic_heh_goal */
-    { 0x000005cc, 1481 }, /* Arabic_jeem */
-    { 0x01000698, 1493 }, /* Arabic_jeh */
-    { 0x000005e3, 1504 }, /* Arabic_kaf */
-    { 0x000005f0, 1515 }, /* Arabic_kasra */
-    { 0x000005ed, 1528 }, /* Arabic_kasratan */
-    { 0x010006a9, 1544 }, /* Arabic_keheh */
-    { 0x000005ce, 1557 }, /* Arabic_khah */
-    { 0x000005e4, 1569 }, /* Arabic_lam */
-    { 0x01000653, 1580 }, /* Arabic_madda_above */
-    { 0x000005c2, 1599 }, /* Arabic_maddaonalef */
-    { 0x000005e5, 1618 }, /* Arabic_meem */
-    { 0x000005e6, 1630 }, /* Arabic_noon */
-    { 0x010006ba, 1642 }, /* Arabic_noon_ghunna */
-    { 0x0100067e, 1661 }, /* Arabic_peh */
-    { 0x0100066a, 1672 }, /* Arabic_percent */
-    { 0x000005e2, 1687 }, /* Arabic_qaf */
-    { 0x000005bf, 1698 }, /* Arabic_question_mark */
-    { 0x000005d1, 1719 }, /* Arabic_ra */
-    { 0x01000691, 1729 }, /* Arabic_rreh */
-    { 0x000005d5, 1741 }, /* Arabic_sad */
-    { 0x000005d3, 1752 }, /* Arabic_seen */
-    { 0x000005bb, 1764 }, /* Arabic_semicolon */
-    { 0x000005f1, 1781 }, /* Arabic_shadda */
-    { 0x000005d4, 1795 }, /* Arabic_sheen */
-    { 0x000005f2, 1808 }, /* Arabic_sukun */
-    { 0x01000670, 1821 }, /* Arabic_superscript_alef */
-    { 0x0000ff7e, 1845 }, /* Arabic_switch */
-    { 0x000005d7, 1859 }, /* Arabic_tah */
-    { 0x000005e0, 1870 }, /* Arabic_tatweel */
-    { 0x01000686, 1885 }, /* Arabic_tcheh */
-    { 0x000005ca, 1898 }, /* Arabic_teh */
-    { 0x000005c9, 1909 }, /* Arabic_tehmarbuta */
-    { 0x000005d0, 1927 }, /* Arabic_thal */
-    { 0x000005cb, 1939 }, /* Arabic_theh */
-    { 0x01000679, 1951 }, /* Arabic_tteh */
-    { 0x010006a4, 1963 }, /* Arabic_veh */
-    { 0x000005e8, 1974 }, /* Arabic_waw */
-    { 0x000005ea, 1985 }, /* Arabic_yeh */
-    { 0x010006d2, 1996 }, /* Arabic_yeh_baree */
-    { 0x000005d8, 2013 }, /* Arabic_zah */
-    { 0x000005d2, 2024 }, /* Arabic_zain */
-    { 0x000000c5, 2036 }, /* Aring */
-    { 0x000000e5, 2042 }, /* aring */
-    { 0x0100055b, 2048 }, /* Armenian_accent */
-    { 0x0100055c, 2064 }, /* Armenian_amanak */
-    { 0x0100055a, 2080 }, /* Armenian_apostrophe */
-    { 0x01000538, 2100 }, /* Armenian_AT */
-    { 0x01000568, 2112 }, /* Armenian_at */
-    { 0x01000531, 2124 }, /* Armenian_AYB */
-    { 0x01000561, 2137 }, /* Armenian_ayb */
-    { 0x01000532, 2150 }, /* Armenian_BEN */
-    { 0x01000562, 2163 }, /* Armenian_ben */
-    { 0x0100055d, 2176 }, /* Armenian_but */
-    { 0x01000549, 2189 }, /* Armenian_CHA */
-    { 0x01000579, 2202 }, /* Armenian_cha */
-    { 0x01000534, 2215 }, /* Armenian_DA */
-    { 0x01000564, 2227 }, /* Armenian_da */
-    { 0x01000541, 2239 }, /* Armenian_DZA */
-    { 0x01000571, 2252 }, /* Armenian_dza */
-    { 0x01000537, 2265 }, /* Armenian_E */
-    { 0x01000567, 2276 }, /* Armenian_e */
-    { 0x0100055c, 2287 }, /* Armenian_exclam */
-    { 0x01000556, 2303 }, /* Armenian_FE */
-    { 0x01000586, 2315 }, /* Armenian_fe */
-    { 0x01000589, 2327 }, /* Armenian_full_stop */
-    { 0x01000542, 2346 }, /* Armenian_GHAT */
-    { 0x01000572, 2360 }, /* Armenian_ghat */
-    { 0x01000533, 2374 }, /* Armenian_GIM */
-    { 0x01000563, 2387 }, /* Armenian_gim */
-    { 0x01000545, 2400 }, /* Armenian_HI */
-    { 0x01000575, 2412 }, /* Armenian_hi */
-    { 0x01000540, 2424 }, /* Armenian_HO */
-    { 0x01000570, 2436 }, /* Armenian_ho */
-    { 0x0100058a, 2448 }, /* Armenian_hyphen */
-    { 0x0100053b, 2464 }, /* Armenian_INI */
-    { 0x0100056b, 2477 }, /* Armenian_ini */
-    { 0x0100054b, 2490 }, /* Armenian_JE */
-    { 0x0100057b, 2502 }, /* Armenian_je */
-    { 0x01000554, 2514 }, /* Armenian_KE */
-    { 0x01000584, 2526 }, /* Armenian_ke */
-    { 0x0100053f, 2538 }, /* Armenian_KEN */
-    { 0x0100056f, 2551 }, /* Armenian_ken */
-    { 0x0100053d, 2564 }, /* Armenian_KHE */
-    { 0x0100056d, 2577 }, /* Armenian_khe */
-    { 0x01000587, 2590 }, /* Armenian_ligature_ew */
-    { 0x0100053c, 2611 }, /* Armenian_LYUN */
-    { 0x0100056c, 2625 }, /* Armenian_lyun */
-    { 0x01000544, 2639 }, /* Armenian_MEN */
-    { 0x01000574, 2652 }, /* Armenian_men */
-    { 0x01000546, 2665 }, /* Armenian_NU */
-    { 0x01000576, 2677 }, /* Armenian_nu */
-    { 0x01000555, 2689 }, /* Armenian_O */
-    { 0x01000585, 2700 }, /* Armenian_o */
-    { 0x0100055e, 2711 }, /* Armenian_paruyk */
-    { 0x0100054a, 2727 }, /* Armenian_PE */
-    { 0x0100057a, 2739 }, /* Armenian_pe */
-    { 0x01000553, 2751 }, /* Armenian_PYUR */
-    { 0x01000583, 2765 }, /* Armenian_pyur */
-    { 0x0100055e, 2779 }, /* Armenian_question */
-    { 0x0100054c, 2797 }, /* Armenian_RA */
-    { 0x0100057c, 2809 }, /* Armenian_ra */
-    { 0x01000550, 2821 }, /* Armenian_RE */
-    { 0x01000580, 2833 }, /* Armenian_re */
-    { 0x0100054d, 2845 }, /* Armenian_SE */
-    { 0x0100057d, 2857 }, /* Armenian_se */
-    { 0x0100055d, 2869 }, /* Armenian_separation_mark */
-    { 0x01000547, 2894 }, /* Armenian_SHA */
-    { 0x01000577, 2907 }, /* Armenian_sha */
-    { 0x0100055b, 2920 }, /* Armenian_shesht */
-    { 0x01000543, 2936 }, /* Armenian_TCHE */
-    { 0x01000573, 2950 }, /* Armenian_tche */
-    { 0x01000539, 2964 }, /* Armenian_TO */
-    { 0x01000569, 2976 }, /* Armenian_to */
-    { 0x0100053e, 2988 }, /* Armenian_TSA */
-    { 0x0100056e, 3001 }, /* Armenian_tsa */
-    { 0x01000551, 3014 }, /* Armenian_TSO */
-    { 0x01000581, 3027 }, /* Armenian_tso */
-    { 0x0100054f, 3040 }, /* Armenian_TYUN */
-    { 0x0100057f, 3054 }, /* Armenian_tyun */
-    { 0x01000589, 3068 }, /* Armenian_verjaket */
-    { 0x0100054e, 3086 }, /* Armenian_VEV */
-    { 0x0100057e, 3099 }, /* Armenian_vev */
-    { 0x01000548, 3112 }, /* Armenian_VO */
-    { 0x01000578, 3124 }, /* Armenian_vo */
-    { 0x01000552, 3136 }, /* Armenian_VYUN */
-    { 0x01000582, 3150 }, /* Armenian_vyun */
-    { 0x01000535, 3164 }, /* Armenian_YECH */
-    { 0x01000565, 3178 }, /* Armenian_yech */
-    { 0x0100058a, 3192 }, /* Armenian_yentamna */
-    { 0x01000536, 3210 }, /* Armenian_ZA */
-    { 0x01000566, 3222 }, /* Armenian_za */
-    { 0x0100053a, 3234 }, /* Armenian_ZHE */
-    { 0x0100056a, 3247 }, /* Armenian_zhe */
-    { 0x0000005e, 3260 }, /* asciicircum */
-    { 0x0000007e, 3272 }, /* asciitilde */
-    { 0x0000002a, 3283 }, /* asterisk */
-    { 0x00000040, 3292 }, /* at */
-    { 0x000000c3, 3295 }, /* Atilde */
-    { 0x000000e3, 3302 }, /* atilde */
-    { 0x0000fe7a, 3309 }, /* AudibleBell_Enable */
-    { 0x00000042, 3328 }, /* B */
-    { 0x00000062, 3330 }, /* b */
-    { 0x01001e02, 3332 }, /* Babovedot */
-    { 0x01001e03, 3342 }, /* babovedot */
-    { 0x0000005c, 3352 }, /* backslash */
-    { 0x0000ff08, 3362 }, /* BackSpace */
-    { 0x1000ff74, 3372 }, /* BackTab */
-    { 0x00000af4, 3380 }, /* ballotcross */
-    { 0x0000007c, 3392 }, /* bar */
-    { 0x01002235, 3396 }, /* because */
-    { 0x0000ff58, 3404 }, /* Begin */
-    { 0x000009df, 3410 }, /* blank */
-    { 0x100000fc, 3416 }, /* block */
-    { 0x000008a5, 3422 }, /* botintegral */
-    { 0x000008ac, 3434 }, /* botleftparens */
-    { 0x000008a8, 3448 }, /* botleftsqbracket */
-    { 0x000008b2, 3465 }, /* botleftsummation */
-    { 0x000008ae, 3482 }, /* botrightparens */
-    { 0x000008aa, 3497 }, /* botrightsqbracket */
-    { 0x000008b6, 3515 }, /* botrightsummation */
-    { 0x000009f6, 3533 }, /* bott */
-    { 0x000008b4, 3538 }, /* botvertsummationconnector */
-    { 0x0000fe74, 3564 }, /* BounceKeys_Enable */
-    { 0x0000007b, 3582 }, /* braceleft */
-    { 0x0000007d, 3592 }, /* braceright */
-    { 0x0000005b, 3603 }, /* bracketleft */
-    { 0x0000005d, 3615 }, /* bracketright */
-    { 0x01002800, 3628 }, /* braille_blank */
-    { 0x0000fff1, 3642 }, /* braille_dot_1 */
-    { 0x0000fffa, 3656 }, /* braille_dot_10 */
-    { 0x0000fff2, 3671 }, /* braille_dot_2 */
-    { 0x0000fff3, 3685 }, /* braille_dot_3 */
-    { 0x0000fff4, 3699 }, /* braille_dot_4 */
-    { 0x0000fff5, 3713 }, /* braille_dot_5 */
-    { 0x0000fff6, 3727 }, /* braille_dot_6 */
-    { 0x0000fff7, 3741 }, /* braille_dot_7 */
-    { 0x0000fff8, 3755 }, /* braille_dot_8 */
-    { 0x0000fff9, 3769 }, /* braille_dot_9 */
-    { 0x01002801, 3783 }, /* braille_dots_1 */
-    { 0x01002803, 3798 }, /* braille_dots_12 */
-    { 0x01002807, 3814 }, /* braille_dots_123 */
-    { 0x0100280f, 3831 }, /* braille_dots_1234 */
-    { 0x0100281f, 3849 }, /* braille_dots_12345 */
-    { 0x0100283f, 3868 }, /* braille_dots_123456 */
-    { 0x0100287f, 3888 }, /* braille_dots_1234567 */
-    { 0x010028ff, 3909 }, /* braille_dots_12345678 */
-    { 0x010028bf, 3931 }, /* braille_dots_1234568 */
-    { 0x0100285f, 3952 }, /* braille_dots_123457 */
-    { 0x010028df, 3972 }, /* braille_dots_1234578 */
-    { 0x0100289f, 3993 }, /* braille_dots_123458 */
-    { 0x0100282f, 4013 }, /* braille_dots_12346 */
-    { 0x0100286f, 4032 }, /* braille_dots_123467 */
-    { 0x010028ef, 4052 }, /* braille_dots_1234678 */
-    { 0x010028af, 4073 }, /* braille_dots_123468 */
-    { 0x0100284f, 4093 }, /* braille_dots_12347 */
-    { 0x010028cf, 4112 }, /* braille_dots_123478 */
-    { 0x0100288f, 4132 }, /* braille_dots_12348 */
-    { 0x01002817, 4151 }, /* braille_dots_1235 */
-    { 0x01002837, 4169 }, /* braille_dots_12356 */
-    { 0x01002877, 4188 }, /* braille_dots_123567 */
-    { 0x010028f7, 4208 }, /* braille_dots_1235678 */
-    { 0x010028b7, 4229 }, /* braille_dots_123568 */
-    { 0x01002857, 4249 }, /* braille_dots_12357 */
-    { 0x010028d7, 4268 }, /* braille_dots_123578 */
-    { 0x01002897, 4288 }, /* braille_dots_12358 */
-    { 0x01002827, 4307 }, /* braille_dots_1236 */
-    { 0x01002867, 4325 }, /* braille_dots_12367 */
-    { 0x010028e7, 4344 }, /* braille_dots_123678 */
-    { 0x010028a7, 4364 }, /* braille_dots_12368 */
-    { 0x01002847, 4383 }, /* braille_dots_1237 */
-    { 0x010028c7, 4401 }, /* braille_dots_12378 */
-    { 0x01002887, 4420 }, /* braille_dots_1238 */
-    { 0x0100280b, 4438 }, /* braille_dots_124 */
-    { 0x0100281b, 4455 }, /* braille_dots_1245 */
-    { 0x0100283b, 4473 }, /* braille_dots_12456 */
-    { 0x0100287b, 4492 }, /* braille_dots_124567 */
-    { 0x010028fb, 4512 }, /* braille_dots_1245678 */
-    { 0x010028bb, 4533 }, /* braille_dots_124568 */
-    { 0x0100285b, 4553 }, /* braille_dots_12457 */
-    { 0x010028db, 4572 }, /* braille_dots_124578 */
-    { 0x0100289b, 4592 }, /* braille_dots_12458 */
-    { 0x0100282b, 4611 }, /* braille_dots_1246 */
-    { 0x0100286b, 4629 }, /* braille_dots_12467 */
-    { 0x010028eb, 4648 }, /* braille_dots_124678 */
-    { 0x010028ab, 4668 }, /* braille_dots_12468 */
-    { 0x0100284b, 4687 }, /* braille_dots_1247 */
-    { 0x010028cb, 4705 }, /* braille_dots_12478 */
-    { 0x0100288b, 4724 }, /* braille_dots_1248 */
-    { 0x01002813, 4742 }, /* braille_dots_125 */
-    { 0x01002833, 4759 }, /* braille_dots_1256 */
-    { 0x01002873, 4777 }, /* braille_dots_12567 */
-    { 0x010028f3, 4796 }, /* braille_dots_125678 */
-    { 0x010028b3, 4816 }, /* braille_dots_12568 */
-    { 0x01002853, 4835 }, /* braille_dots_1257 */
-    { 0x010028d3, 4853 }, /* braille_dots_12578 */
-    { 0x01002893, 4872 }, /* braille_dots_1258 */
-    { 0x01002823, 4890 }, /* braille_dots_126 */
-    { 0x01002863, 4907 }, /* braille_dots_1267 */
-    { 0x010028e3, 4925 }, /* braille_dots_12678 */
-    { 0x010028a3, 4944 }, /* braille_dots_1268 */
-    { 0x01002843, 4962 }, /* braille_dots_127 */
-    { 0x010028c3, 4979 }, /* braille_dots_1278 */
-    { 0x01002883, 4997 }, /* braille_dots_128 */
-    { 0x01002805, 5014 }, /* braille_dots_13 */
-    { 0x0100280d, 5030 }, /* braille_dots_134 */
-    { 0x0100281d, 5047 }, /* braille_dots_1345 */
-    { 0x0100283d, 5065 }, /* braille_dots_13456 */
-    { 0x0100287d, 5084 }, /* braille_dots_134567 */
-    { 0x010028fd, 5104 }, /* braille_dots_1345678 */
-    { 0x010028bd, 5125 }, /* braille_dots_134568 */
-    { 0x0100285d, 5145 }, /* braille_dots_13457 */
-    { 0x010028dd, 5164 }, /* braille_dots_134578 */
-    { 0x0100289d, 5184 }, /* braille_dots_13458 */
-    { 0x0100282d, 5203 }, /* braille_dots_1346 */
-    { 0x0100286d, 5221 }, /* braille_dots_13467 */
-    { 0x010028ed, 5240 }, /* braille_dots_134678 */
-    { 0x010028ad, 5260 }, /* braille_dots_13468 */
-    { 0x0100284d, 5279 }, /* braille_dots_1347 */
-    { 0x010028cd, 5297 }, /* braille_dots_13478 */
-    { 0x0100288d, 5316 }, /* braille_dots_1348 */
-    { 0x01002815, 5334 }, /* braille_dots_135 */
-    { 0x01002835, 5351 }, /* braille_dots_1356 */
-    { 0x01002875, 5369 }, /* braille_dots_13567 */
-    { 0x010028f5, 5388 }, /* braille_dots_135678 */
-    { 0x010028b5, 5408 }, /* braille_dots_13568 */
-    { 0x01002855, 5427 }, /* braille_dots_1357 */
-    { 0x010028d5, 5445 }, /* braille_dots_13578 */
-    { 0x01002895, 5464 }, /* braille_dots_1358 */
-    { 0x01002825, 5482 }, /* braille_dots_136 */
-    { 0x01002865, 5499 }, /* braille_dots_1367 */
-    { 0x010028e5, 5517 }, /* braille_dots_13678 */
-    { 0x010028a5, 5536 }, /* braille_dots_1368 */
-    { 0x01002845, 5554 }, /* braille_dots_137 */
-    { 0x010028c5, 5571 }, /* braille_dots_1378 */
-    { 0x01002885, 5589 }, /* braille_dots_138 */
-    { 0x01002809, 5606 }, /* braille_dots_14 */
-    { 0x01002819, 5622 }, /* braille_dots_145 */
-    { 0x01002839, 5639 }, /* braille_dots_1456 */
-    { 0x01002879, 5657 }, /* braille_dots_14567 */
-    { 0x010028f9, 5676 }, /* braille_dots_145678 */
-    { 0x010028b9, 5696 }, /* braille_dots_14568 */
-    { 0x01002859, 5715 }, /* braille_dots_1457 */
-    { 0x010028d9, 5733 }, /* braille_dots_14578 */
-    { 0x01002899, 5752 }, /* braille_dots_1458 */
-    { 0x01002829, 5770 }, /* braille_dots_146 */
-    { 0x01002869, 5787 }, /* braille_dots_1467 */
-    { 0x010028e9, 5805 }, /* braille_dots_14678 */
-    { 0x010028a9, 5824 }, /* braille_dots_1468 */
-    { 0x01002849, 5842 }, /* braille_dots_147 */
-    { 0x010028c9, 5859 }, /* braille_dots_1478 */
-    { 0x01002889, 5877 }, /* braille_dots_148 */
-    { 0x01002811, 5894 }, /* braille_dots_15 */
-    { 0x01002831, 5910 }, /* braille_dots_156 */
-    { 0x01002871, 5927 }, /* braille_dots_1567 */
-    { 0x010028f1, 5945 }, /* braille_dots_15678 */
-    { 0x010028b1, 5964 }, /* braille_dots_1568 */
-    { 0x01002851, 5982 }, /* braille_dots_157 */
-    { 0x010028d1, 5999 }, /* braille_dots_1578 */
-    { 0x01002891, 6017 }, /* braille_dots_158 */
-    { 0x01002821, 6034 }, /* braille_dots_16 */
-    { 0x01002861, 6050 }, /* braille_dots_167 */
-    { 0x010028e1, 6067 }, /* braille_dots_1678 */
-    { 0x010028a1, 6085 }, /* braille_dots_168 */
-    { 0x01002841, 6102 }, /* braille_dots_17 */
-    { 0x010028c1, 6118 }, /* braille_dots_178 */
-    { 0x01002881, 6135 }, /* braille_dots_18 */
-    { 0x01002802, 6151 }, /* braille_dots_2 */
-    { 0x01002806, 6166 }, /* braille_dots_23 */
-    { 0x0100280e, 6182 }, /* braille_dots_234 */
-    { 0x0100281e, 6199 }, /* braille_dots_2345 */
-    { 0x0100283e, 6217 }, /* braille_dots_23456 */
-    { 0x0100287e, 6236 }, /* braille_dots_234567 */
-    { 0x010028fe, 6256 }, /* braille_dots_2345678 */
-    { 0x010028be, 6277 }, /* braille_dots_234568 */
-    { 0x0100285e, 6297 }, /* braille_dots_23457 */
-    { 0x010028de, 6316 }, /* braille_dots_234578 */
-    { 0x0100289e, 6336 }, /* braille_dots_23458 */
-    { 0x0100282e, 6355 }, /* braille_dots_2346 */
-    { 0x0100286e, 6373 }, /* braille_dots_23467 */
-    { 0x010028ee, 6392 }, /* braille_dots_234678 */
-    { 0x010028ae, 6412 }, /* braille_dots_23468 */
-    { 0x0100284e, 6431 }, /* braille_dots_2347 */
-    { 0x010028ce, 6449 }, /* braille_dots_23478 */
-    { 0x0100288e, 6468 }, /* braille_dots_2348 */
-    { 0x01002816, 6486 }, /* braille_dots_235 */
-    { 0x01002836, 6503 }, /* braille_dots_2356 */
-    { 0x01002876, 6521 }, /* braille_dots_23567 */
-    { 0x010028f6, 6540 }, /* braille_dots_235678 */
-    { 0x010028b6, 6560 }, /* braille_dots_23568 */
-    { 0x01002856, 6579 }, /* braille_dots_2357 */
-    { 0x010028d6, 6597 }, /* braille_dots_23578 */
-    { 0x01002896, 6616 }, /* braille_dots_2358 */
-    { 0x01002826, 6634 }, /* braille_dots_236 */
-    { 0x01002866, 6651 }, /* braille_dots_2367 */
-    { 0x010028e6, 6669 }, /* braille_dots_23678 */
-    { 0x010028a6, 6688 }, /* braille_dots_2368 */
-    { 0x01002846, 6706 }, /* braille_dots_237 */
-    { 0x010028c6, 6723 }, /* braille_dots_2378 */
-    { 0x01002886, 6741 }, /* braille_dots_238 */
-    { 0x0100280a, 6758 }, /* braille_dots_24 */
-    { 0x0100281a, 6774 }, /* braille_dots_245 */
-    { 0x0100283a, 6791 }, /* braille_dots_2456 */
-    { 0x0100287a, 6809 }, /* braille_dots_24567 */
-    { 0x010028fa, 6828 }, /* braille_dots_245678 */
-    { 0x010028ba, 6848 }, /* braille_dots_24568 */
-    { 0x0100285a, 6867 }, /* braille_dots_2457 */
-    { 0x010028da, 6885 }, /* braille_dots_24578 */
-    { 0x0100289a, 6904 }, /* braille_dots_2458 */
-    { 0x0100282a, 6922 }, /* braille_dots_246 */
-    { 0x0100286a, 6939 }, /* braille_dots_2467 */
-    { 0x010028ea, 6957 }, /* braille_dots_24678 */
-    { 0x010028aa, 6976 }, /* braille_dots_2468 */
-    { 0x0100284a, 6994 }, /* braille_dots_247 */
-    { 0x010028ca, 7011 }, /* braille_dots_2478 */
-    { 0x0100288a, 7029 }, /* braille_dots_248 */
-    { 0x01002812, 7046 }, /* braille_dots_25 */
-    { 0x01002832, 7062 }, /* braille_dots_256 */
-    { 0x01002872, 7079 }, /* braille_dots_2567 */
-    { 0x010028f2, 7097 }, /* braille_dots_25678 */
-    { 0x010028b2, 7116 }, /* braille_dots_2568 */
-    { 0x01002852, 7134 }, /* braille_dots_257 */
-    { 0x010028d2, 7151 }, /* braille_dots_2578 */
-    { 0x01002892, 7169 }, /* braille_dots_258 */
-    { 0x01002822, 7186 }, /* braille_dots_26 */
-    { 0x01002862, 7202 }, /* braille_dots_267 */
-    { 0x010028e2, 7219 }, /* braille_dots_2678 */
-    { 0x010028a2, 7237 }, /* braille_dots_268 */
-    { 0x01002842, 7254 }, /* braille_dots_27 */
-    { 0x010028c2, 7270 }, /* braille_dots_278 */
-    { 0x01002882, 7287 }, /* braille_dots_28 */
-    { 0x01002804, 7303 }, /* braille_dots_3 */
-    { 0x0100280c, 7318 }, /* braille_dots_34 */
-    { 0x0100281c, 7334 }, /* braille_dots_345 */
-    { 0x0100283c, 7351 }, /* braille_dots_3456 */
-    { 0x0100287c, 7369 }, /* braille_dots_34567 */
-    { 0x010028fc, 7388 }, /* braille_dots_345678 */
-    { 0x010028bc, 7408 }, /* braille_dots_34568 */
-    { 0x0100285c, 7427 }, /* braille_dots_3457 */
-    { 0x010028dc, 7445 }, /* braille_dots_34578 */
-    { 0x0100289c, 7464 }, /* braille_dots_3458 */
-    { 0x0100282c, 7482 }, /* braille_dots_346 */
-    { 0x0100286c, 7499 }, /* braille_dots_3467 */
-    { 0x010028ec, 7517 }, /* braille_dots_34678 */
-    { 0x010028ac, 7536 }, /* braille_dots_3468 */
-    { 0x0100284c, 7554 }, /* braille_dots_347 */
-    { 0x010028cc, 7571 }, /* braille_dots_3478 */
-    { 0x0100288c, 7589 }, /* braille_dots_348 */
-    { 0x01002814, 7606 }, /* braille_dots_35 */
-    { 0x01002834, 7622 }, /* braille_dots_356 */
-    { 0x01002874, 7639 }, /* braille_dots_3567 */
-    { 0x010028f4, 7657 }, /* braille_dots_35678 */
-    { 0x010028b4, 7676 }, /* braille_dots_3568 */
-    { 0x01002854, 7694 }, /* braille_dots_357 */
-    { 0x010028d4, 7711 }, /* braille_dots_3578 */
-    { 0x01002894, 7729 }, /* braille_dots_358 */
-    { 0x01002824, 7746 }, /* braille_dots_36 */
-    { 0x01002864, 7762 }, /* braille_dots_367 */
-    { 0x010028e4, 7779 }, /* braille_dots_3678 */
-    { 0x010028a4, 7797 }, /* braille_dots_368 */
-    { 0x01002844, 7814 }, /* braille_dots_37 */
-    { 0x010028c4, 7830 }, /* braille_dots_378 */
-    { 0x01002884, 7847 }, /* braille_dots_38 */
-    { 0x01002808, 7863 }, /* braille_dots_4 */
-    { 0x01002818, 7878 }, /* braille_dots_45 */
-    { 0x01002838, 7894 }, /* braille_dots_456 */
-    { 0x01002878, 7911 }, /* braille_dots_4567 */
-    { 0x010028f8, 7929 }, /* braille_dots_45678 */
-    { 0x010028b8, 7948 }, /* braille_dots_4568 */
-    { 0x01002858, 7966 }, /* braille_dots_457 */
-    { 0x010028d8, 7983 }, /* braille_dots_4578 */
-    { 0x01002898, 8001 }, /* braille_dots_458 */
-    { 0x01002828, 8018 }, /* braille_dots_46 */
-    { 0x01002868, 8034 }, /* braille_dots_467 */
-    { 0x010028e8, 8051 }, /* braille_dots_4678 */
-    { 0x010028a8, 8069 }, /* braille_dots_468 */
-    { 0x01002848, 8086 }, /* braille_dots_47 */
-    { 0x010028c8, 8102 }, /* braille_dots_478 */
-    { 0x01002888, 8119 }, /* braille_dots_48 */
-    { 0x01002810, 8135 }, /* braille_dots_5 */
-    { 0x01002830, 8150 }, /* braille_dots_56 */
-    { 0x01002870, 8166 }, /* braille_dots_567 */
-    { 0x010028f0, 8183 }, /* braille_dots_5678 */
-    { 0x010028b0, 8201 }, /* braille_dots_568 */
-    { 0x01002850, 8218 }, /* braille_dots_57 */
-    { 0x010028d0, 8234 }, /* braille_dots_578 */
-    { 0x01002890, 8251 }, /* braille_dots_58 */
-    { 0x01002820, 8267 }, /* braille_dots_6 */
-    { 0x01002860, 8282 }, /* braille_dots_67 */
-    { 0x010028e0, 8298 }, /* braille_dots_678 */
-    { 0x010028a0, 8315 }, /* braille_dots_68 */
-    { 0x01002840, 8331 }, /* braille_dots_7 */
-    { 0x010028c0, 8346 }, /* braille_dots_78 */
-    { 0x01002880, 8362 }, /* braille_dots_8 */
-    { 0x0000ff6b, 8377 }, /* Break */
-    { 0x000001a2, 8383 }, /* breve */
-    { 0x000000a6, 8389 }, /* brokenbar */
-    { 0x000006be, 8399 }, /* Byelorussian_SHORTU */
-    { 0x000006ae, 8419 }, /* Byelorussian_shortu */
-    { 0x00000043, 8439 }, /* C */
-    { 0x00000063, 8441 }, /* c */
-    { 0x0000fea5, 8443 }, /* C_H */
-    { 0x0000fea4, 8447 }, /* C_h */
-    { 0x0000fea3, 8451 }, /* c_h */
-    { 0x000002c5, 8455 }, /* Cabovedot */
-    { 0x000002e5, 8465 }, /* cabovedot */
-    { 0x000001c6, 8475 }, /* Cacute */
-    { 0x000001e6, 8482 }, /* cacute */
-    { 0x0000ff69, 8489 }, /* Cancel */
-    { 0x0000ffe5, 8496 }, /* Caps_Lock */
-    { 0x00000ab8, 8506 }, /* careof */
-    { 0x00000afc, 8513 }, /* caret */
-    { 0x000001b7, 8519 }, /* caron */
-    { 0x000001c8, 8525 }, /* Ccaron */
-    { 0x000001e8, 8532 }, /* ccaron */
-    { 0x000000c7, 8539 }, /* Ccedilla */
-    { 0x000000e7, 8548 }, /* ccedilla */
-    { 0x000002c6, 8557 }, /* Ccircumflex */
-    { 0x000002e6, 8569 }, /* ccircumflex */
-    { 0x000000b8, 8581 }, /* cedilla */
-    { 0x000000a2, 8589 }, /* cent */
-    { 0x0000fea2, 8594 }, /* CH */
-    { 0x0000fea1, 8597 }, /* Ch */
-    { 0x0000fea0, 8600 }, /* ch */
-    { 0x000009e1, 8603 }, /* checkerboard */
-    { 0x00000af3, 8616 }, /* checkmark */
-    { 0x00000bcf, 8626 }, /* circle */
-    { 0x0000ff0b, 8633 }, /* Clear */
-    { 0x1000ff6f, 8639 }, /* ClearLine */
-    { 0x00000aec, 8649 }, /* club */
-    { 0x0000ff37, 8654 }, /* Codeinput */
-    { 0x0000003a, 8664 }, /* colon */
-    { 0x010020a1, 8670 }, /* ColonSign */
-    { 0x01000301, 8680 }, /* combining_acute */
-    { 0x01000323, 8696 }, /* combining_belowdot */
-    { 0x01000300, 8715 }, /* combining_grave */
-    { 0x01000309, 8731 }, /* combining_hook */
-    { 0x01000303, 8746 }, /* combining_tilde */
-    { 0x0000002c, 8762 }, /* comma */
-    { 0x0100220b, 8768 }, /* containsas */
-    { 0x0000ffe3, 8779 }, /* Control_L */
-    { 0x0000ffe4, 8789 }, /* Control_R */
-    { 0x000000a9, 8799 }, /* copyright */
-    { 0x000009e4, 8809 }, /* cr */
-    { 0x000009ee, 8812 }, /* crossinglines */
-    { 0x010020a2, 8826 }, /* CruzeiroSign */
-    { 0x0100221b, 8839 }, /* cuberoot */
-    { 0x000000a4, 8848 }, /* currency */
-    { 0x00000aff, 8857 }, /* cursor */
-    { 0x000006e1, 8864 }, /* Cyrillic_A */
-    { 0x000006c1, 8875 }, /* Cyrillic_a */
-    { 0x000006e2, 8886 }, /* Cyrillic_BE */
-    { 0x000006c2, 8898 }, /* Cyrillic_be */
-    { 0x000006fe, 8910 }, /* Cyrillic_CHE */
-    { 0x000006de, 8923 }, /* Cyrillic_che */
-    { 0x010004b6, 8936 }, /* Cyrillic_CHE_descender */
-    { 0x010004b7, 8959 }, /* Cyrillic_che_descender */
-    { 0x010004b8, 8982 }, /* Cyrillic_CHE_vertstroke */
-    { 0x010004b9, 9006 }, /* Cyrillic_che_vertstroke */
-    { 0x000006e4, 9030 }, /* Cyrillic_DE */
-    { 0x000006c4, 9042 }, /* Cyrillic_de */
-    { 0x000006bf, 9054 }, /* Cyrillic_DZHE */
-    { 0x000006af, 9068 }, /* Cyrillic_dzhe */
-    { 0x000006fc, 9082 }, /* Cyrillic_E */
-    { 0x000006dc, 9093 }, /* Cyrillic_e */
-    { 0x000006e6, 9104 }, /* Cyrillic_EF */
-    { 0x000006c6, 9116 }, /* Cyrillic_ef */
-    { 0x000006ec, 9128 }, /* Cyrillic_EL */
-    { 0x000006cc, 9140 }, /* Cyrillic_el */
-    { 0x000006ed, 9152 }, /* Cyrillic_EM */
-    { 0x000006cd, 9164 }, /* Cyrillic_em */
-    { 0x000006ee, 9176 }, /* Cyrillic_EN */
-    { 0x000006ce, 9188 }, /* Cyrillic_en */
-    { 0x010004a2, 9200 }, /* Cyrillic_EN_descender */
-    { 0x010004a3, 9222 }, /* Cyrillic_en_descender */
-    { 0x000006f2, 9244 }, /* Cyrillic_ER */
-    { 0x000006d2, 9256 }, /* Cyrillic_er */
-    { 0x000006f3, 9268 }, /* Cyrillic_ES */
-    { 0x000006d3, 9280 }, /* Cyrillic_es */
-    { 0x000006e7, 9292 }, /* Cyrillic_GHE */
-    { 0x000006c7, 9305 }, /* Cyrillic_ghe */
-    { 0x01000492, 9318 }, /* Cyrillic_GHE_bar */
-    { 0x01000493, 9335 }, /* Cyrillic_ghe_bar */
-    { 0x000006e8, 9352 }, /* Cyrillic_HA */
-    { 0x000006c8, 9364 }, /* Cyrillic_ha */
-    { 0x010004b2, 9376 }, /* Cyrillic_HA_descender */
-    { 0x010004b3, 9398 }, /* Cyrillic_ha_descender */
-    { 0x000006ff, 9420 }, /* Cyrillic_HARDSIGN */
-    { 0x000006df, 9438 }, /* Cyrillic_hardsign */
-    { 0x000006e9, 9456 }, /* Cyrillic_I */
-    { 0x000006c9, 9467 }, /* Cyrillic_i */
-    { 0x010004e2, 9478 }, /* Cyrillic_I_macron */
-    { 0x010004e3, 9496 }, /* Cyrillic_i_macron */
-    { 0x000006e5, 9514 }, /* Cyrillic_IE */
-    { 0x000006c5, 9526 }, /* Cyrillic_ie */
-    { 0x000006b3, 9538 }, /* Cyrillic_IO */
-    { 0x000006a3, 9550 }, /* Cyrillic_io */
-    { 0x000006b8, 9562 }, /* Cyrillic_JE */
-    { 0x000006a8, 9574 }, /* Cyrillic_je */
-    { 0x000006eb, 9586 }, /* Cyrillic_KA */
-    { 0x000006cb, 9598 }, /* Cyrillic_ka */
-    { 0x0100049a, 9610 }, /* Cyrillic_KA_descender */
-    { 0x0100049b, 9632 }, /* Cyrillic_ka_descender */
-    { 0x0100049c, 9654 }, /* Cyrillic_KA_vertstroke */
-    { 0x0100049d, 9677 }, /* Cyrillic_ka_vertstroke */
-    { 0x000006b9, 9700 }, /* Cyrillic_LJE */
-    { 0x000006a9, 9713 }, /* Cyrillic_lje */
-    { 0x000006ba, 9726 }, /* Cyrillic_NJE */
-    { 0x000006aa, 9739 }, /* Cyrillic_nje */
-    { 0x000006ef, 9752 }, /* Cyrillic_O */
-    { 0x000006cf, 9763 }, /* Cyrillic_o */
-    { 0x010004e8, 9774 }, /* Cyrillic_O_bar */
-    { 0x010004e9, 9789 }, /* Cyrillic_o_bar */
-    { 0x000006f0, 9804 }, /* Cyrillic_PE */
-    { 0x000006d0, 9816 }, /* Cyrillic_pe */
-    { 0x010004d8, 9828 }, /* Cyrillic_SCHWA */
-    { 0x010004d9, 9843 }, /* Cyrillic_schwa */
-    { 0x000006fb, 9858 }, /* Cyrillic_SHA */
-    { 0x000006db, 9871 }, /* Cyrillic_sha */
-    { 0x000006fd, 9884 }, /* Cyrillic_SHCHA */
-    { 0x000006dd, 9899 }, /* Cyrillic_shcha */
-    { 0x010004ba, 9914 }, /* Cyrillic_SHHA */
-    { 0x010004bb, 9928 }, /* Cyrillic_shha */
-    { 0x000006ea, 9942 }, /* Cyrillic_SHORTI */
-    { 0x000006ca, 9958 }, /* Cyrillic_shorti */
-    { 0x000006f8, 9974 }, /* Cyrillic_SOFTSIGN */
-    { 0x000006d8, 9992 }, /* Cyrillic_softsign */
-    { 0x000006f4, 10010 }, /* Cyrillic_TE */
-    { 0x000006d4, 10022 }, /* Cyrillic_te */
-    { 0x000006e3, 10034 }, /* Cyrillic_TSE */
-    { 0x000006c3, 10047 }, /* Cyrillic_tse */
-    { 0x000006f5, 10060 }, /* Cyrillic_U */
-    { 0x000006d5, 10071 }, /* Cyrillic_u */
-    { 0x010004ee, 10082 }, /* Cyrillic_U_macron */
-    { 0x010004ef, 10100 }, /* Cyrillic_u_macron */
-    { 0x010004ae, 10118 }, /* Cyrillic_U_straight */
-    { 0x010004af, 10138 }, /* Cyrillic_u_straight */
-    { 0x010004b0, 10158 }, /* Cyrillic_U_straight_bar */
-    { 0x010004b1, 10182 }, /* Cyrillic_u_straight_bar */
-    { 0x000006f7, 10206 }, /* Cyrillic_VE */
-    { 0x000006d7, 10218 }, /* Cyrillic_ve */
-    { 0x000006f1, 10230 }, /* Cyrillic_YA */
-    { 0x000006d1, 10242 }, /* Cyrillic_ya */
-    { 0x000006f9, 10254 }, /* Cyrillic_YERU */
-    { 0x000006d9, 10268 }, /* Cyrillic_yeru */
-    { 0x000006e0, 10282 }, /* Cyrillic_YU */
-    { 0x000006c0, 10294 }, /* Cyrillic_yu */
-    { 0x000006fa, 10306 }, /* Cyrillic_ZE */
-    { 0x000006da, 10318 }, /* Cyrillic_ze */
-    { 0x000006f6, 10330 }, /* Cyrillic_ZHE */
-    { 0x000006d6, 10343 }, /* Cyrillic_zhe */
-    { 0x01000496, 10356 }, /* Cyrillic_ZHE_descender */
-    { 0x01000497, 10379 }, /* Cyrillic_zhe_descender */
-    { 0x00000044, 10402 }, /* D */
-    { 0x00000064, 10404 }, /* d */
-    { 0x01001e0a, 10406 }, /* Dabovedot */
-    { 0x01001e0b, 10416 }, /* dabovedot */
-    { 0x1000fe27, 10426 }, /* Dacute_accent */
-    { 0x00000af1, 10440 }, /* dagger */
-    { 0x000001cf, 10447 }, /* Dcaron */
-    { 0x000001ef, 10454 }, /* dcaron */
-    { 0x1000fe2c, 10461 }, /* Dcedilla_accent */
-    { 0x1000fe5e, 10477 }, /* Dcircumflex_accent */
-    { 0x1000fe22, 10496 }, /* Ddiaeresis */
-    { 0x0000fe81, 10507 }, /* dead_A */
-    { 0x0000fe80, 10514 }, /* dead_a */
-    { 0x0000fe64, 10521 }, /* dead_abovecomma */
-    { 0x0000fe56, 10537 }, /* dead_abovedot */
-    { 0x0000fe65, 10551 }, /* dead_abovereversedcomma */
-    { 0x0000fe58, 10575 }, /* dead_abovering */
-    { 0x0000fe91, 10590 }, /* dead_aboveverticalline */
-    { 0x0000fe51, 10613 }, /* dead_acute */
-    { 0x0000fe6b, 10624 }, /* dead_belowbreve */
-    { 0x0000fe69, 10640 }, /* dead_belowcircumflex */
-    { 0x0000fe6e, 10661 }, /* dead_belowcomma */
-    { 0x0000fe6c, 10677 }, /* dead_belowdiaeresis */
-    { 0x0000fe60, 10697 }, /* dead_belowdot */
-    { 0x0000fe68, 10711 }, /* dead_belowmacron */
-    { 0x0000fe67, 10728 }, /* dead_belowring */
-    { 0x0000fe6a, 10743 }, /* dead_belowtilde */
-    { 0x0000fe92, 10759 }, /* dead_belowverticalline */
-    { 0x0000fe55, 10782 }, /* dead_breve */
-    { 0x0000fe8b, 10793 }, /* dead_capital_schwa */
-    { 0x0000fe5a, 10812 }, /* dead_caron */
-    { 0x0000fe5b, 10823 }, /* dead_cedilla */
-    { 0x0000fe52, 10836 }, /* dead_circumflex */
-    { 0x0000fe6f, 10852 }, /* dead_currency */
-    { 0x0000fe65, 10866 }, /* dead_dasia */
-    { 0x0000fe57, 10877 }, /* dead_diaeresis */
-    { 0x0000fe59, 10892 }, /* dead_doubleacute */
-    { 0x0000fe66, 10909 }, /* dead_doublegrave */
-    { 0x0000fe83, 10926 }, /* dead_E */
-    { 0x0000fe82, 10933 }, /* dead_e */
-    { 0x0000fe50, 10940 }, /* dead_grave */
-    { 0x0000fe8c, 10951 }, /* dead_greek */
-    { 0x0000fe8d, 10962 }, /* dead_hamza */
-    { 0x0000fe61, 10973 }, /* dead_hook */
-    { 0x0000fe62, 10983 }, /* dead_horn */
-    { 0x0000fe85, 10993 }, /* dead_I */
-    { 0x0000fe84, 11000 }, /* dead_i */
-    { 0x0000fe6d, 11007 }, /* dead_invertedbreve */
-    { 0x0000fe5d, 11026 }, /* dead_iota */
-    { 0x0000fe93, 11036 }, /* dead_longsolidusoverlay */
-    { 0x0000fe90, 11060 }, /* dead_lowline */
-    { 0x0000fe54, 11073 }, /* dead_macron */
-    { 0x0000fe87, 11085 }, /* dead_O */
-    { 0x0000fe86, 11092 }, /* dead_o */
-    { 0x0000fe5c, 11099 }, /* dead_ogonek */
-    { 0x0000fe53, 11111 }, /* dead_perispomeni */
-    { 0x0000fe64, 11128 }, /* dead_psili */
-    { 0x0000fe8b, 11139 }, /* dead_SCHWA */
-    { 0x0000fe8a, 11150 }, /* dead_schwa */
-    { 0x0000fe5f, 11161 }, /* dead_semivoiced_sound */
-    { 0x0000fe8a, 11183 }, /* dead_small_schwa */
-    { 0x0000fe63, 11200 }, /* dead_stroke */
-    { 0x0000fe53, 11212 }, /* dead_tilde */
-    { 0x0000fe89, 11223 }, /* dead_U */
-    { 0x0000fe88, 11230 }, /* dead_u */
-    { 0x0000fe5e, 11237 }, /* dead_voiced_sound */
-    { 0x00000abd, 11255 }, /* decimalpoint */
-    { 0x000000b0, 11268 }, /* degree */
-    { 0x0000ffff, 11275 }, /* Delete */
-    { 0x1000ff73, 11282 }, /* DeleteChar */
-    { 0x1000ff71, 11293 }, /* DeleteLine */
-    { 0x1000fe60, 11304 }, /* Dgrave_accent */
-    { 0x000000a8, 11318 }, /* diaeresis */
-    { 0x00000aed, 11328 }, /* diamond */
-    { 0x00000aa5, 11336 }, /* digitspace */
-    { 0x0100222c, 11347 }, /* dintegral */
-    { 0x000000f7, 11357 }, /* division */
-    { 0x00000024, 11366 }, /* dollar */
-    { 0x010020ab, 11373 }, /* DongSign */
-    { 0x00000aaf, 11382 }, /* doubbaselinedot */
-    { 0x000001bd, 11398 }, /* doubleacute */
-    { 0x00000af2, 11410 }, /* doubledagger */
-    { 0x00000afe, 11423 }, /* doublelowquotemark */
-    { 0x0000ff54, 11442 }, /* Down */
-    { 0x000008fe, 11447 }, /* downarrow */
-    { 0x00000ba8, 11457 }, /* downcaret */
-    { 0x00000bd6, 11467 }, /* downshoe */
-    { 0x00000bc4, 11476 }, /* downstile */
-    { 0x00000bc2, 11486 }, /* downtack */
-    { 0x1000ff00, 11495 }, /* DRemove */
-    { 0x1000feb0, 11503 }, /* Dring_accent */
-    { 0x000001d0, 11516 }, /* Dstroke */
-    { 0x000001f0, 11524 }, /* dstroke */
-    { 0x1000fe7e, 11532 }, /* Dtilde */
-    { 0x00000045, 11539 }, /* E */
-    { 0x00000065, 11541 }, /* e */
-    { 0x000003cc, 11543 }, /* Eabovedot */
-    { 0x000003ec, 11553 }, /* eabovedot */
-    { 0x000000c9, 11563 }, /* Eacute */
-    { 0x000000e9, 11570 }, /* eacute */
-    { 0x01001eb8, 11577 }, /* Ebelowdot */
-    { 0x01001eb9, 11587 }, /* ebelowdot */
-    { 0x000001cc, 11597 }, /* Ecaron */
-    { 0x000001ec, 11604 }, /* ecaron */
-    { 0x000000ca, 11611 }, /* Ecircumflex */
-    { 0x000000ea, 11623 }, /* ecircumflex */
-    { 0x01001ebe, 11635 }, /* Ecircumflexacute */
-    { 0x01001ebf, 11652 }, /* ecircumflexacute */
-    { 0x01001ec6, 11669 }, /* Ecircumflexbelowdot */
-    { 0x01001ec7, 11689 }, /* ecircumflexbelowdot */
-    { 0x01001ec0, 11709 }, /* Ecircumflexgrave */
-    { 0x01001ec1, 11726 }, /* ecircumflexgrave */
-    { 0x01001ec2, 11743 }, /* Ecircumflexhook */
-    { 0x01001ec3, 11759 }, /* ecircumflexhook */
-    { 0x01001ec4, 11775 }, /* Ecircumflextilde */
-    { 0x01001ec5, 11792 }, /* ecircumflextilde */
-    { 0x010020a0, 11809 }, /* EcuSign */
-    { 0x000000cb, 11817 }, /* Ediaeresis */
-    { 0x000000eb, 11828 }, /* ediaeresis */
-    { 0x000000c8, 11839 }, /* Egrave */
-    { 0x000000e8, 11846 }, /* egrave */
-    { 0x01001eba, 11853 }, /* Ehook */
-    { 0x01001ebb, 11859 }, /* ehook */
-    { 0x01002088, 11865 }, /* eightsubscript */
-    { 0x01002078, 11880 }, /* eightsuperior */
-    { 0x0000ff2f, 11894 }, /* Eisu_Shift */
-    { 0x0000ff30, 11905 }, /* Eisu_toggle */
-    { 0x01002208, 11917 }, /* elementof */
-    { 0x00000aae, 11927 }, /* ellipsis */
-    { 0x00000aa3, 11936 }, /* em3space */
-    { 0x00000aa4, 11945 }, /* em4space */
-    { 0x000003aa, 11954 }, /* Emacron */
-    { 0x000003ba, 11962 }, /* emacron */
-    { 0x00000aa9, 11970 }, /* emdash */
-    { 0x00000ade, 11977 }, /* emfilledcircle */
-    { 0x00000adf, 11992 }, /* emfilledrect */
-    { 0x00000ace, 12005 }, /* emopencircle */
-    { 0x00000acf, 12018 }, /* emopenrectangle */
-    { 0x01002205, 12034 }, /* emptyset */
-    { 0x00000aa1, 12043 }, /* emspace */
-    { 0x0000ff57, 12051 }, /* End */
-    { 0x00000aaa, 12055 }, /* endash */
-    { 0x00000ae6, 12062 }, /* enfilledcircbullet */
-    { 0x00000ae7, 12081 }, /* enfilledsqbullet */
-    { 0x000003bd, 12098 }, /* ENG */
-    { 0x000003bf, 12102 }, /* eng */
-    { 0x00000ae0, 12106 }, /* enopencircbullet */
-    { 0x00000ae1, 12123 }, /* enopensquarebullet */
-    { 0x00000aa2, 12142 }, /* enspace */
-    { 0x000001ca, 12150 }, /* Eogonek */
-    { 0x000001ea, 12158 }, /* eogonek */
-    { 0x0000003d, 12166 }, /* equal */
-    { 0x0000ff1b, 12172 }, /* Escape */
-    { 0x000000d0, 12179 }, /* ETH */
-    { 0x000000d0, 12183 }, /* Eth */
-    { 0x000000f0, 12187 }, /* eth */
-    { 0x01001ebc, 12191 }, /* Etilde */
-    { 0x01001ebd, 12198 }, /* etilde */
-    { 0x000020ac, 12205 }, /* EuroSign */
-    { 0x00000021, 12214 }, /* exclam */
-    { 0x000000a1, 12221 }, /* exclamdown */
-    { 0x0000ff62, 12232 }, /* Execute */
-    { 0x1000ff76, 12240 }, /* Ext16bit_L */
-    { 0x1000ff77, 12251 }, /* Ext16bit_R */
-    { 0x010001b7, 12262 }, /* EZH */
-    { 0x01000292, 12266 }, /* ezh */
-    { 0x00000046, 12270 }, /* F */
-    { 0x00000066, 12272 }, /* f */
-    { 0x0000ffbe, 12274 }, /* F1 */
-    { 0x0000ffc7, 12277 }, /* F10 */
-    { 0x0000ffc8, 12281 }, /* F11 */
-    { 0x0000ffc9, 12285 }, /* F12 */
-    { 0x0000ffca, 12289 }, /* F13 */
-    { 0x0000ffcb, 12293 }, /* F14 */
-    { 0x0000ffcc, 12297 }, /* F15 */
-    { 0x0000ffcd, 12301 }, /* F16 */
-    { 0x0000ffce, 12305 }, /* F17 */
-    { 0x0000ffcf, 12309 }, /* F18 */
-    { 0x0000ffd0, 12313 }, /* F19 */
-    { 0x0000ffbf, 12317 }, /* F2 */
-    { 0x0000ffd1, 12320 }, /* F20 */
-    { 0x0000ffd2, 12324 }, /* F21 */
-    { 0x0000ffd3, 12328 }, /* F22 */
-    { 0x0000ffd4, 12332 }, /* F23 */
-    { 0x0000ffd5, 12336 }, /* F24 */
-    { 0x0000ffd6, 12340 }, /* F25 */
-    { 0x0000ffd7, 12344 }, /* F26 */
-    { 0x0000ffd8, 12348 }, /* F27 */
-    { 0x0000ffd9, 12352 }, /* F28 */
-    { 0x0000ffda, 12356 }, /* F29 */
-    { 0x0000ffc0, 12360 }, /* F3 */
-    { 0x0000ffdb, 12363 }, /* F30 */
-    { 0x0000ffdc, 12367 }, /* F31 */
-    { 0x0000ffdd, 12371 }, /* F32 */
-    { 0x0000ffde, 12375 }, /* F33 */
-    { 0x0000ffdf, 12379 }, /* F34 */
-    { 0x0000ffe0, 12383 }, /* F35 */
-    { 0x0000ffc1, 12387 }, /* F4 */
-    { 0x0000ffc2, 12390 }, /* F5 */
-    { 0x0000ffc3, 12393 }, /* F6 */
-    { 0x0000ffc4, 12396 }, /* F7 */
-    { 0x0000ffc5, 12399 }, /* F8 */
-    { 0x0000ffc6, 12402 }, /* F9 */
-    { 0x01001e1e, 12405 }, /* Fabovedot */
-    { 0x01001e1f, 12415 }, /* fabovedot */
-    { 0x010006f0, 12425 }, /* Farsi_0 */
-    { 0x010006f1, 12433 }, /* Farsi_1 */
-    { 0x010006f2, 12441 }, /* Farsi_2 */
-    { 0x010006f3, 12449 }, /* Farsi_3 */
-    { 0x010006f4, 12457 }, /* Farsi_4 */
-    { 0x010006f5, 12465 }, /* Farsi_5 */
-    { 0x010006f6, 12473 }, /* Farsi_6 */
-    { 0x010006f7, 12481 }, /* Farsi_7 */
-    { 0x010006f8, 12489 }, /* Farsi_8 */
-    { 0x010006f9, 12497 }, /* Farsi_9 */
-    { 0x010006cc, 12505 }, /* Farsi_yeh */
-    { 0x00000af8, 12515 }, /* femalesymbol */
-    { 0x000009e3, 12528 }, /* ff */
-    { 0x010020a3, 12531 }, /* FFrancSign */
-    { 0x00000abb, 12542 }, /* figdash */
-    { 0x00000adc, 12550 }, /* filledlefttribullet */
-    { 0x00000adb, 12570 }, /* filledrectbullet */
-    { 0x00000add, 12587 }, /* filledrighttribullet */
-    { 0x00000ae9, 12608 }, /* filledtribulletdown */
-    { 0x00000ae8, 12628 }, /* filledtribulletup */
-    { 0x0000ff68, 12646 }, /* Find */
-    { 0x0000fed0, 12651 }, /* First_Virtual_Screen */
-    { 0x00000ac5, 12672 }, /* fiveeighths */
-    { 0x00000ab7, 12684 }, /* fivesixths */
-    { 0x01002085, 12695 }, /* fivesubscript */
-    { 0x01002075, 12709 }, /* fivesuperior */
-    { 0x00000ab5, 12722 }, /* fourfifths */
-    { 0x01002084, 12733 }, /* foursubscript */
-    { 0x01002074, 12747 }, /* foursuperior */
-    { 0x0100221c, 12760 }, /* fourthroot */
-    { 0x000008f6, 12771 }, /* function */
-    { 0x00000047, 12780 }, /* G */
-    { 0x00000067, 12782 }, /* g */
-    { 0x000002d5, 12784 }, /* Gabovedot */
-    { 0x000002f5, 12794 }, /* gabovedot */
-    { 0x000002ab, 12804 }, /* Gbreve */
-    { 0x000002bb, 12811 }, /* gbreve */
-    { 0x010001e6, 12818 }, /* Gcaron */
-    { 0x010001e7, 12825 }, /* gcaron */
-    { 0x000003ab, 12832 }, /* Gcedilla */
-    { 0x000003bb, 12841 }, /* gcedilla */
-    { 0x000002d8, 12850 }, /* Gcircumflex */
-    { 0x000002f8, 12862 }, /* gcircumflex */
-    { 0x010010d0, 12874 }, /* Georgian_an */
-    { 0x010010d1, 12886 }, /* Georgian_ban */
-    { 0x010010ea, 12899 }, /* Georgian_can */
-    { 0x010010ed, 12912 }, /* Georgian_char */
-    { 0x010010e9, 12926 }, /* Georgian_chin */
-    { 0x010010ec, 12940 }, /* Georgian_cil */
-    { 0x010010d3, 12953 }, /* Georgian_don */
-    { 0x010010d4, 12966 }, /* Georgian_en */
-    { 0x010010f6, 12978 }, /* Georgian_fi */
-    { 0x010010d2, 12990 }, /* Georgian_gan */
-    { 0x010010e6, 13003 }, /* Georgian_ghan */
-    { 0x010010f0, 13017 }, /* Georgian_hae */
-    { 0x010010f4, 13030 }, /* Georgian_har */
-    { 0x010010f1, 13043 }, /* Georgian_he */
-    { 0x010010f2, 13055 }, /* Georgian_hie */
-    { 0x010010f5, 13068 }, /* Georgian_hoe */
-    { 0x010010d8, 13081 }, /* Georgian_in */
-    { 0x010010ef, 13093 }, /* Georgian_jhan */
-    { 0x010010eb, 13107 }, /* Georgian_jil */
-    { 0x010010d9, 13120 }, /* Georgian_kan */
-    { 0x010010e5, 13133 }, /* Georgian_khar */
-    { 0x010010da, 13147 }, /* Georgian_las */
-    { 0x010010db, 13160 }, /* Georgian_man */
-    { 0x010010dc, 13173 }, /* Georgian_nar */
-    { 0x010010dd, 13186 }, /* Georgian_on */
-    { 0x010010de, 13198 }, /* Georgian_par */
-    { 0x010010e4, 13211 }, /* Georgian_phar */
-    { 0x010010e7, 13225 }, /* Georgian_qar */
-    { 0x010010e0, 13238 }, /* Georgian_rae */
-    { 0x010010e1, 13251 }, /* Georgian_san */
-    { 0x010010e8, 13264 }, /* Georgian_shin */
-    { 0x010010d7, 13278 }, /* Georgian_tan */
-    { 0x010010e2, 13291 }, /* Georgian_tar */
-    { 0x010010e3, 13304 }, /* Georgian_un */
-    { 0x010010d5, 13316 }, /* Georgian_vin */
-    { 0x010010f3, 13329 }, /* Georgian_we */
-    { 0x010010ee, 13341 }, /* Georgian_xan */
-    { 0x010010d6, 13354 }, /* Georgian_zen */
-    { 0x010010df, 13367 }, /* Georgian_zhar */
-    { 0x00000060, 13381 }, /* grave */
-    { 0x0000003e, 13387 }, /* greater */
-    { 0x000008be, 13395 }, /* greaterthanequal */
-    { 0x000007ae, 13412 }, /* Greek_accentdieresis */
-    { 0x000007c1, 13433 }, /* Greek_ALPHA */
-    { 0x000007e1, 13445 }, /* Greek_alpha */
-    { 0x000007a1, 13457 }, /* Greek_ALPHAaccent */
-    { 0x000007b1, 13475 }, /* Greek_alphaaccent */
-    { 0x000007c2, 13493 }, /* Greek_BETA */
-    { 0x000007e2, 13504 }, /* Greek_beta */
-    { 0x000007d7, 13515 }, /* Greek_CHI */
-    { 0x000007f7, 13525 }, /* Greek_chi */
-    { 0x000007c4, 13535 }, /* Greek_DELTA */
-    { 0x000007e4, 13547 }, /* Greek_delta */
-    { 0x000007c5, 13559 }, /* Greek_EPSILON */
-    { 0x000007e5, 13573 }, /* Greek_epsilon */
-    { 0x000007a2, 13587 }, /* Greek_EPSILONaccent */
-    { 0x000007b2, 13607 }, /* Greek_epsilonaccent */
-    { 0x000007c7, 13627 }, /* Greek_ETA */
-    { 0x000007e7, 13637 }, /* Greek_eta */
-    { 0x000007a3, 13647 }, /* Greek_ETAaccent */
-    { 0x000007b3, 13663 }, /* Greek_etaaccent */
-    { 0x000007f3, 13679 }, /* Greek_finalsmallsigma */
-    { 0x000007c3, 13701 }, /* Greek_GAMMA */
-    { 0x000007e3, 13713 }, /* Greek_gamma */
-    { 0x000007af, 13725 }, /* Greek_horizbar */
-    { 0x000007c9, 13740 }, /* Greek_IOTA */
-    { 0x000007e9, 13751 }, /* Greek_iota */
-    { 0x000007a4, 13762 }, /* Greek_IOTAaccent */
-    { 0x000007b4, 13779 }, /* Greek_iotaaccent */
-    { 0x000007b6, 13796 }, /* Greek_iotaaccentdieresis */
-    { 0x000007a5, 13821 }, /* Greek_IOTAdiaeresis */
-    { 0x000007a5, 13841 }, /* Greek_IOTAdieresis */
-    { 0x000007b5, 13860 }, /* Greek_iotadieresis */
-    { 0x000007ca, 13879 }, /* Greek_KAPPA */
-    { 0x000007ea, 13891 }, /* Greek_kappa */
-    { 0x000007cb, 13903 }, /* Greek_LAMBDA */
-    { 0x000007eb, 13916 }, /* Greek_lambda */
-    { 0x000007cb, 13929 }, /* Greek_LAMDA */
-    { 0x000007eb, 13941 }, /* Greek_lamda */
-    { 0x000007cc, 13953 }, /* Greek_MU */
-    { 0x000007ec, 13962 }, /* Greek_mu */
-    { 0x000007cd, 13971 }, /* Greek_NU */
-    { 0x000007ed, 13980 }, /* Greek_nu */
-    { 0x000007d9, 13989 }, /* Greek_OMEGA */
-    { 0x000007f9, 14001 }, /* Greek_omega */
-    { 0x000007ab, 14013 }, /* Greek_OMEGAaccent */
-    { 0x000007bb, 14031 }, /* Greek_omegaaccent */
-    { 0x000007cf, 14049 }, /* Greek_OMICRON */
-    { 0x000007ef, 14063 }, /* Greek_omicron */
-    { 0x000007a7, 14077 }, /* Greek_OMICRONaccent */
-    { 0x000007b7, 14097 }, /* Greek_omicronaccent */
-    { 0x000007d6, 14117 }, /* Greek_PHI */
-    { 0x000007f6, 14127 }, /* Greek_phi */
-    { 0x000007d0, 14137 }, /* Greek_PI */
-    { 0x000007f0, 14146 }, /* Greek_pi */
-    { 0x000007d8, 14155 }, /* Greek_PSI */
-    { 0x000007f8, 14165 }, /* Greek_psi */
-    { 0x000007d1, 14175 }, /* Greek_RHO */
-    { 0x000007f1, 14185 }, /* Greek_rho */
-    { 0x000007d2, 14195 }, /* Greek_SIGMA */
-    { 0x000007f2, 14207 }, /* Greek_sigma */
-    { 0x0000ff7e, 14219 }, /* Greek_switch */
-    { 0x000007d4, 14232 }, /* Greek_TAU */
-    { 0x000007f4, 14242 }, /* Greek_tau */
-    { 0x000007c8, 14252 }, /* Greek_THETA */
-    { 0x000007e8, 14264 }, /* Greek_theta */
-    { 0x000007d5, 14276 }, /* Greek_UPSILON */
-    { 0x000007f5, 14290 }, /* Greek_upsilon */
-    { 0x000007a8, 14304 }, /* Greek_UPSILONaccent */
-    { 0x000007b8, 14324 }, /* Greek_upsilonaccent */
-    { 0x000007ba, 14344 }, /* Greek_upsilonaccentdieresis */
-    { 0x000007a9, 14372 }, /* Greek_UPSILONdieresis */
-    { 0x000007b9, 14394 }, /* Greek_upsilondieresis */
-    { 0x000007ce, 14416 }, /* Greek_XI */
-    { 0x000007ee, 14425 }, /* Greek_xi */
-    { 0x000007c6, 14434 }, /* Greek_ZETA */
-    { 0x000007e6, 14445 }, /* Greek_zeta */
-    { 0x100000be, 14456 }, /* guilder */
-    { 0x000000ab, 14464 }, /* guillemetleft */
-    { 0x000000bb, 14478 }, /* guillemetright */
-    { 0x000000ab, 14493 }, /* guillemotleft */
-    { 0x000000bb, 14507 }, /* guillemotright */
-    { 0x00000048, 14522 }, /* H */
-    { 0x00000068, 14524 }, /* h */
-    { 0x00000aa8, 14526 }, /* hairspace */
-    { 0x0000ff31, 14536 }, /* Hangul */
-    { 0x00000ebf, 14543 }, /* Hangul_A */
-    { 0x00000ec0, 14552 }, /* Hangul_AE */
-    { 0x00000ef6, 14562 }, /* Hangul_AraeA */
-    { 0x00000ef7, 14575 }, /* Hangul_AraeAE */
-    { 0x0000ff39, 14589 }, /* Hangul_Banja */
-    { 0x00000eba, 14602 }, /* Hangul_Cieuc */
-    { 0x0000ff37, 14615 }, /* Hangul_Codeinput */
-    { 0x00000ea7, 14632 }, /* Hangul_Dikeud */
-    { 0x00000ec4, 14646 }, /* Hangul_E */
-    { 0x0000ff33, 14655 }, /* Hangul_End */
-    { 0x00000ec3, 14666 }, /* Hangul_EO */
-    { 0x00000ed1, 14676 }, /* Hangul_EU */
-    { 0x0000ff34, 14686 }, /* Hangul_Hanja */
-    { 0x00000ebe, 14699 }, /* Hangul_Hieuh */
-    { 0x00000ed3, 14712 }, /* Hangul_I */
-    { 0x00000eb7, 14721 }, /* Hangul_Ieung */
-    { 0x00000eea, 14734 }, /* Hangul_J_Cieuc */
-    { 0x00000eda, 14749 }, /* Hangul_J_Dikeud */
-    { 0x00000eee, 14765 }, /* Hangul_J_Hieuh */
-    { 0x00000ee8, 14780 }, /* Hangul_J_Ieung */
-    { 0x00000ee9, 14795 }, /* Hangul_J_Jieuj */
-    { 0x00000eeb, 14810 }, /* Hangul_J_Khieuq */
-    { 0x00000ed4, 14826 }, /* Hangul_J_Kiyeog */
-    { 0x00000ed6, 14842 }, /* Hangul_J_KiyeogSios */
-    { 0x00000ef9, 14862 }, /* Hangul_J_KkogjiDalrinIeung */
-    { 0x00000ee3, 14889 }, /* Hangul_J_Mieum */
-    { 0x00000ed7, 14904 }, /* Hangul_J_Nieun */
-    { 0x00000ed9, 14919 }, /* Hangul_J_NieunHieuh */
-    { 0x00000ed8, 14939 }, /* Hangul_J_NieunJieuj */
-    { 0x00000ef8, 14959 }, /* Hangul_J_PanSios */
-    { 0x00000eed, 14976 }, /* Hangul_J_Phieuf */
-    { 0x00000ee4, 14992 }, /* Hangul_J_Pieub */
-    { 0x00000ee5, 15007 }, /* Hangul_J_PieubSios */
-    { 0x00000edb, 15026 }, /* Hangul_J_Rieul */
-    { 0x00000ee2, 15041 }, /* Hangul_J_RieulHieuh */
-    { 0x00000edc, 15061 }, /* Hangul_J_RieulKiyeog */
-    { 0x00000edd, 15082 }, /* Hangul_J_RieulMieum */
-    { 0x00000ee1, 15102 }, /* Hangul_J_RieulPhieuf */
-    { 0x00000ede, 15123 }, /* Hangul_J_RieulPieub */
-    { 0x00000edf, 15143 }, /* Hangul_J_RieulSios */
-    { 0x00000ee0, 15162 }, /* Hangul_J_RieulTieut */
-    { 0x00000ee6, 15182 }, /* Hangul_J_Sios */
-    { 0x00000ed5, 15196 }, /* Hangul_J_SsangKiyeog */
-    { 0x00000ee7, 15217 }, /* Hangul_J_SsangSios */
-    { 0x00000eec, 15236 }, /* Hangul_J_Tieut */
-    { 0x00000efa, 15251 }, /* Hangul_J_YeorinHieuh */
-    { 0x0000ff35, 15272 }, /* Hangul_Jamo */
-    { 0x0000ff38, 15284 }, /* Hangul_Jeonja */
-    { 0x00000eb8, 15298 }, /* Hangul_Jieuj */
-    { 0x00000ebb, 15311 }, /* Hangul_Khieuq */
-    { 0x00000ea1, 15325 }, /* Hangul_Kiyeog */
-    { 0x00000ea3, 15339 }, /* Hangul_KiyeogSios */
-    { 0x00000ef3, 15357 }, /* Hangul_KkogjiDalrinIeung */
-    { 0x00000eb1, 15382 }, /* Hangul_Mieum */
-    { 0x0000ff3d, 15395 }, /* Hangul_MultipleCandidate */
-    { 0x00000ea4, 15420 }, /* Hangul_Nieun */
-    { 0x00000ea6, 15433 }, /* Hangul_NieunHieuh */
-    { 0x00000ea5, 15451 }, /* Hangul_NieunJieuj */
-    { 0x00000ec7, 15469 }, /* Hangul_O */
-    { 0x00000eca, 15478 }, /* Hangul_OE */
-    { 0x00000ef2, 15488 }, /* Hangul_PanSios */
-    { 0x00000ebd, 15503 }, /* Hangul_Phieuf */
-    { 0x00000eb2, 15517 }, /* Hangul_Pieub */
-    { 0x00000eb4, 15530 }, /* Hangul_PieubSios */
-    { 0x0000ff3b, 15547 }, /* Hangul_PostHanja */
-    { 0x0000ff3a, 15564 }, /* Hangul_PreHanja */
-    { 0x0000ff3e, 15580 }, /* Hangul_PreviousCandidate */
-    { 0x00000ea9, 15605 }, /* Hangul_Rieul */
-    { 0x00000eb0, 15618 }, /* Hangul_RieulHieuh */
-    { 0x00000eaa, 15636 }, /* Hangul_RieulKiyeog */
-    { 0x00000eab, 15655 }, /* Hangul_RieulMieum */
-    { 0x00000eaf, 15673 }, /* Hangul_RieulPhieuf */
-    { 0x00000eac, 15692 }, /* Hangul_RieulPieub */
-    { 0x00000ead, 15710 }, /* Hangul_RieulSios */
-    { 0x00000eae, 15727 }, /* Hangul_RieulTieut */
-    { 0x00000eef, 15745 }, /* Hangul_RieulYeorinHieuh */
-    { 0x0000ff36, 15769 }, /* Hangul_Romaja */
-    { 0x0000ff3c, 15783 }, /* Hangul_SingleCandidate */
-    { 0x00000eb5, 15806 }, /* Hangul_Sios */
-    { 0x0000ff3f, 15818 }, /* Hangul_Special */
-    { 0x00000ea8, 15833 }, /* Hangul_SsangDikeud */
-    { 0x00000eb9, 15852 }, /* Hangul_SsangJieuj */
-    { 0x00000ea2, 15870 }, /* Hangul_SsangKiyeog */
-    { 0x00000eb3, 15889 }, /* Hangul_SsangPieub */
-    { 0x00000eb6, 15907 }, /* Hangul_SsangSios */
-    { 0x0000ff32, 15924 }, /* Hangul_Start */
-    { 0x00000ef0, 15937 }, /* Hangul_SunkyeongeumMieum */
-    { 0x00000ef4, 15962 }, /* Hangul_SunkyeongeumPhieuf */
-    { 0x00000ef1, 15988 }, /* Hangul_SunkyeongeumPieub */
-    { 0x0000ff7e, 16013 }, /* Hangul_switch */
-    { 0x00000ebc, 16027 }, /* Hangul_Tieut */
-    { 0x00000ecc, 16040 }, /* Hangul_U */
-    { 0x00000ec8, 16049 }, /* Hangul_WA */
-    { 0x00000ec9, 16059 }, /* Hangul_WAE */
-    { 0x00000ece, 16070 }, /* Hangul_WE */
-    { 0x00000ecd, 16080 }, /* Hangul_WEO */
-    { 0x00000ecf, 16091 }, /* Hangul_WI */
-    { 0x00000ec1, 16101 }, /* Hangul_YA */
-    { 0x00000ec2, 16111 }, /* Hangul_YAE */
-    { 0x00000ec6, 16122 }, /* Hangul_YE */
-    { 0x00000ec5, 16132 }, /* Hangul_YEO */
-    { 0x00000ef5, 16143 }, /* Hangul_YeorinHieuh */
-    { 0x00000ed2, 16162 }, /* Hangul_YI */
-    { 0x00000ecb, 16172 }, /* Hangul_YO */
-    { 0x00000ed0, 16182 }, /* Hangul_YU */
-    { 0x0000ff29, 16192 }, /* Hankaku */
-    { 0x000002a6, 16200 }, /* Hcircumflex */
-    { 0x000002b6, 16212 }, /* hcircumflex */
-    { 0x00000aee, 16224 }, /* heart */
-    { 0x00000ce0, 16230 }, /* hebrew_aleph */
-    { 0x00000cf2, 16243 }, /* hebrew_ayin */
-    { 0x00000ce1, 16255 }, /* hebrew_bet */
-    { 0x00000ce1, 16266 }, /* hebrew_beth */
-    { 0x00000ce7, 16278 }, /* hebrew_chet */
-    { 0x00000ce3, 16290 }, /* hebrew_dalet */
-    { 0x00000ce3, 16303 }, /* hebrew_daleth */
-    { 0x00000cdf, 16317 }, /* hebrew_doublelowline */
-    { 0x00000cea, 16338 }, /* hebrew_finalkaph */
-    { 0x00000ced, 16355 }, /* hebrew_finalmem */
-    { 0x00000cef, 16371 }, /* hebrew_finalnun */
-    { 0x00000cf3, 16387 }, /* hebrew_finalpe */
-    { 0x00000cf5, 16402 }, /* hebrew_finalzade */
-    { 0x00000cf5, 16419 }, /* hebrew_finalzadi */
-    { 0x00000ce2, 16436 }, /* hebrew_gimel */
-    { 0x00000ce2, 16449 }, /* hebrew_gimmel */
-    { 0x00000ce4, 16463 }, /* hebrew_he */
-    { 0x00000ce7, 16473 }, /* hebrew_het */
-    { 0x00000ceb, 16484 }, /* hebrew_kaph */
-    { 0x00000cf7, 16496 }, /* hebrew_kuf */
-    { 0x00000cec, 16507 }, /* hebrew_lamed */
-    { 0x00000cee, 16520 }, /* hebrew_mem */
-    { 0x00000cf0, 16531 }, /* hebrew_nun */
-    { 0x00000cf4, 16542 }, /* hebrew_pe */
-    { 0x00000cf7, 16552 }, /* hebrew_qoph */
-    { 0x00000cf8, 16564 }, /* hebrew_resh */
-    { 0x00000cf1, 16576 }, /* hebrew_samech */
-    { 0x00000cf1, 16590 }, /* hebrew_samekh */
-    { 0x00000cf9, 16604 }, /* hebrew_shin */
-    { 0x0000ff7e, 16616 }, /* Hebrew_switch */
-    { 0x00000cfa, 16630 }, /* hebrew_taf */
-    { 0x00000cfa, 16641 }, /* hebrew_taw */
-    { 0x00000ce8, 16652 }, /* hebrew_tet */
-    { 0x00000ce8, 16663 }, /* hebrew_teth */
-    { 0x00000ce5, 16675 }, /* hebrew_waw */
-    { 0x00000ce9, 16686 }, /* hebrew_yod */
-    { 0x00000cf6, 16697 }, /* hebrew_zade */
-    { 0x00000cf6, 16709 }, /* hebrew_zadi */
-    { 0x00000ce6, 16721 }, /* hebrew_zain */
-    { 0x00000ce6, 16733 }, /* hebrew_zayin */
-    { 0x0000ff6a, 16746 }, /* Help */
-    { 0x0000ff23, 16751 }, /* Henkan */
-    { 0x0000ff23, 16758 }, /* Henkan_Mode */
-    { 0x00000ada, 16770 }, /* hexagram */
-    { 0x0000ff25, 16779 }, /* Hiragana */
-    { 0x0000ff27, 16788 }, /* Hiragana_Katakana */
-    { 0x0000ff50, 16806 }, /* Home */
-    { 0x000008a3, 16811 }, /* horizconnector */
-    { 0x000009ef, 16826 }, /* horizlinescan1 */
-    { 0x000009f0, 16841 }, /* horizlinescan3 */
-    { 0x000009f1, 16856 }, /* horizlinescan5 */
-    { 0x000009f2, 16871 }, /* horizlinescan7 */
-    { 0x000009f3, 16886 }, /* horizlinescan9 */
-    { 0x1000ff74, 16901 }, /* hpBackTab */
-    { 0x100000fc, 16911 }, /* hpblock */
-    { 0x1000ff6f, 16919 }, /* hpClearLine */
-    { 0x1000ff73, 16931 }, /* hpDeleteChar */
-    { 0x1000ff71, 16944 }, /* hpDeleteLine */
-    { 0x100000be, 16957 }, /* hpguilder */
-    { 0x1000ff72, 16967 }, /* hpInsertChar */
-    { 0x1000ff70, 16980 }, /* hpInsertLine */
-    { 0x100000ee, 16993 }, /* hpIO */
-    { 0x1000ff75, 16998 }, /* hpKP_BackTab */
-    { 0x100000af, 17011 }, /* hplira */
-    { 0x100000f6, 17018 }, /* hplongminus */
-    { 0x1000ff48, 17030 }, /* hpModelock1 */
-    { 0x1000ff49, 17042 }, /* hpModelock2 */
-    { 0x100000a8, 17054 }, /* hpmute_acute */
-    { 0x100000aa, 17067 }, /* hpmute_asciicircum */
-    { 0x100000ac, 17086 }, /* hpmute_asciitilde */
-    { 0x100000ab, 17104 }, /* hpmute_diaeresis */
-    { 0x100000a9, 17121 }, /* hpmute_grave */
-    { 0x1000ff6c, 17134 }, /* hpReset */
-    { 0x1000ff6d, 17142 }, /* hpSystem */
-    { 0x1000ff6e, 17151 }, /* hpUser */
-    { 0x100000ee, 17158 }, /* hpYdiaeresis */
-    { 0x000002a1, 17171 }, /* Hstroke */
-    { 0x000002b1, 17179 }, /* hstroke */
-    { 0x000009e2, 17187 }, /* ht */
-    { 0x0000ffed, 17190 }, /* Hyper_L */
-    { 0x0000ffee, 17198 }, /* Hyper_R */
-    { 0x000000ad, 17206 }, /* hyphen */
-    { 0x00000049, 17213 }, /* I */
-    { 0x00000069, 17215 }, /* i */
-    { 0x000002a9, 17217 }, /* Iabovedot */
-    { 0x000000cd, 17227 }, /* Iacute */
-    { 0x000000ed, 17234 }, /* iacute */
-    { 0x01001eca, 17241 }, /* Ibelowdot */
-    { 0x01001ecb, 17251 }, /* ibelowdot */
-    { 0x0100012c, 17261 }, /* Ibreve */
-    { 0x0100012d, 17268 }, /* ibreve */
-    { 0x000000ce, 17275 }, /* Icircumflex */
-    { 0x000000ee, 17287 }, /* icircumflex */
-    { 0x000008cf, 17299 }, /* identical */
-    { 0x000000cf, 17309 }, /* Idiaeresis */
-    { 0x000000ef, 17320 }, /* idiaeresis */
-    { 0x000002b9, 17331 }, /* idotless */
-    { 0x000008cd, 17340 }, /* ifonlyif */
-    { 0x000000cc, 17349 }, /* Igrave */
-    { 0x000000ec, 17356 }, /* igrave */
-    { 0x01001ec8, 17363 }, /* Ihook */
-    { 0x01001ec9, 17369 }, /* ihook */
-    { 0x000003cf, 17375 }, /* Imacron */
-    { 0x000003ef, 17383 }, /* imacron */
-    { 0x000008ce, 17391 }, /* implies */
-    { 0x000008da, 17399 }, /* includedin */
-    { 0x000008db, 17410 }, /* includes */
-    { 0x000008c2, 17419 }, /* infinity */
-    { 0x0000ff63, 17428 }, /* Insert */
-    { 0x1000ff72, 17435 }, /* InsertChar */
-    { 0x1000ff70, 17446 }, /* InsertLine */
-    { 0x000008bf, 17457 }, /* integral */
-    { 0x000008dc, 17466 }, /* intersection */
-    { 0x100000ee, 17479 }, /* IO */
-    { 0x000003c7, 17482 }, /* Iogonek */
-    { 0x000003e7, 17490 }, /* iogonek */
-    { 0x0000fe33, 17498 }, /* ISO_Center_Object */
-    { 0x0000fe30, 17516 }, /* ISO_Continuous_Underline */
-    { 0x0000fe31, 17541 }, /* ISO_Discontinuous_Underline */
-    { 0x0000fe32, 17569 }, /* ISO_Emphasize */
-    { 0x0000fe34, 17583 }, /* ISO_Enter */
-    { 0x0000fe2f, 17593 }, /* ISO_Fast_Cursor_Down */
-    { 0x0000fe2c, 17614 }, /* ISO_Fast_Cursor_Left */
-    { 0x0000fe2d, 17635 }, /* ISO_Fast_Cursor_Right */
-    { 0x0000fe2e, 17657 }, /* ISO_Fast_Cursor_Up */
-    { 0x0000fe0c, 17676 }, /* ISO_First_Group */
-    { 0x0000fe0d, 17692 }, /* ISO_First_Group_Lock */
-    { 0x0000fe06, 17713 }, /* ISO_Group_Latch */
-    { 0x0000fe07, 17729 }, /* ISO_Group_Lock */
-    { 0x0000ff7e, 17744 }, /* ISO_Group_Shift */
-    { 0x0000fe0e, 17760 }, /* ISO_Last_Group */
-    { 0x0000fe0f, 17775 }, /* ISO_Last_Group_Lock */
-    { 0x0000fe20, 17795 }, /* ISO_Left_Tab */
-    { 0x0000fe02, 17808 }, /* ISO_Level2_Latch */
-    { 0x0000fe04, 17825 }, /* ISO_Level3_Latch */
-    { 0x0000fe05, 17842 }, /* ISO_Level3_Lock */
-    { 0x0000fe03, 17858 }, /* ISO_Level3_Shift */
-    { 0x0000fe12, 17875 }, /* ISO_Level5_Latch */
-    { 0x0000fe13, 17892 }, /* ISO_Level5_Lock */
-    { 0x0000fe11, 17908 }, /* ISO_Level5_Shift */
-    { 0x0000fe01, 17925 }, /* ISO_Lock */
-    { 0x0000fe22, 17934 }, /* ISO_Move_Line_Down */
-    { 0x0000fe21, 17953 }, /* ISO_Move_Line_Up */
-    { 0x0000fe08, 17970 }, /* ISO_Next_Group */
-    { 0x0000fe09, 17985 }, /* ISO_Next_Group_Lock */
-    { 0x0000fe24, 18005 }, /* ISO_Partial_Line_Down */
-    { 0x0000fe23, 18027 }, /* ISO_Partial_Line_Up */
-    { 0x0000fe25, 18047 }, /* ISO_Partial_Space_Left */
-    { 0x0000fe26, 18070 }, /* ISO_Partial_Space_Right */
-    { 0x0000fe0a, 18094 }, /* ISO_Prev_Group */
-    { 0x0000fe0b, 18109 }, /* ISO_Prev_Group_Lock */
-    { 0x0000fe2b, 18129 }, /* ISO_Release_Both_Margins */
-    { 0x0000fe29, 18154 }, /* ISO_Release_Margin_Left */
-    { 0x0000fe2a, 18178 }, /* ISO_Release_Margin_Right */
-    { 0x0000fe27, 18203 }, /* ISO_Set_Margin_Left */
-    { 0x0000fe28, 18223 }, /* ISO_Set_Margin_Right */
-    { 0x000003a5, 18244 }, /* Itilde */
-    { 0x000003b5, 18251 }, /* itilde */
-    { 0x0000004a, 18258 }, /* J */
-    { 0x0000006a, 18260 }, /* j */
-    { 0x000002ac, 18262 }, /* Jcircumflex */
-    { 0x000002bc, 18274 }, /* jcircumflex */
-    { 0x00000bca, 18286 }, /* jot */
-    { 0x0000004b, 18290 }, /* K */
-    { 0x0000006b, 18292 }, /* k */
-    { 0x000004b1, 18294 }, /* kana_A */
-    { 0x000004a7, 18301 }, /* kana_a */
-    { 0x000004c1, 18308 }, /* kana_CHI */
-    { 0x000004a3, 18317 }, /* kana_closingbracket */
-    { 0x000004a4, 18337 }, /* kana_comma */
-    { 0x000004a5, 18348 }, /* kana_conjunctive */
-    { 0x000004b4, 18365 }, /* kana_E */
-    { 0x000004aa, 18372 }, /* kana_e */
-    { 0x000004cc, 18379 }, /* kana_FU */
-    { 0x000004a1, 18387 }, /* kana_fullstop */
-    { 0x000004ca, 18401 }, /* kana_HA */
-    { 0x000004cd, 18409 }, /* kana_HE */
-    { 0x000004cb, 18417 }, /* kana_HI */
-    { 0x000004ce, 18425 }, /* kana_HO */
-    { 0x000004cc, 18433 }, /* kana_HU */
-    { 0x000004b2, 18441 }, /* kana_I */
-    { 0x000004a8, 18448 }, /* kana_i */
-    { 0x000004b6, 18455 }, /* kana_KA */
-    { 0x000004b9, 18463 }, /* kana_KE */
-    { 0x000004b7, 18471 }, /* kana_KI */
-    { 0x000004ba, 18479 }, /* kana_KO */
-    { 0x000004b8, 18487 }, /* kana_KU */
-    { 0x0000ff2d, 18495 }, /* Kana_Lock */
-    { 0x000004cf, 18505 }, /* kana_MA */
-    { 0x000004d2, 18513 }, /* kana_ME */
-    { 0x000004d0, 18521 }, /* kana_MI */
-    { 0x000004a5, 18529 }, /* kana_middledot */
-    { 0x000004d3, 18544 }, /* kana_MO */
-    { 0x000004d1, 18552 }, /* kana_MU */
-    { 0x000004dd, 18560 }, /* kana_N */
-    { 0x000004c5, 18567 }, /* kana_NA */
-    { 0x000004c8, 18575 }, /* kana_NE */
-    { 0x000004c6, 18583 }, /* kana_NI */
-    { 0x000004c9, 18591 }, /* kana_NO */
-    { 0x000004c7, 18599 }, /* kana_NU */
-    { 0x000004b5, 18607 }, /* kana_O */
-    { 0x000004ab, 18614 }, /* kana_o */
-    { 0x000004a2, 18621 }, /* kana_openingbracket */
-    { 0x000004d7, 18641 }, /* kana_RA */
-    { 0x000004da, 18649 }, /* kana_RE */
-    { 0x000004d8, 18657 }, /* kana_RI */
-    { 0x000004db, 18665 }, /* kana_RO */
-    { 0x000004d9, 18673 }, /* kana_RU */
-    { 0x000004bb, 18681 }, /* kana_SA */
-    { 0x000004be, 18689 }, /* kana_SE */
-    { 0x000004bc, 18697 }, /* kana_SHI */
-    { 0x0000ff2e, 18706 }, /* Kana_Shift */
-    { 0x000004bf, 18717 }, /* kana_SO */
-    { 0x000004bd, 18725 }, /* kana_SU */
-    { 0x0000ff7e, 18733 }, /* kana_switch */
-    { 0x000004c0, 18745 }, /* kana_TA */
-    { 0x000004c3, 18753 }, /* kana_TE */
-    { 0x000004c1, 18761 }, /* kana_TI */
-    { 0x000004c4, 18769 }, /* kana_TO */
-    { 0x000004c2, 18777 }, /* kana_TSU */
-    { 0x000004af, 18786 }, /* kana_tsu */
-    { 0x000004c2, 18795 }, /* kana_TU */
-    { 0x000004af, 18803 }, /* kana_tu */
-    { 0x000004b3, 18811 }, /* kana_U */
-    { 0x000004a9, 18818 }, /* kana_u */
-    { 0x000004dc, 18825 }, /* kana_WA */
-    { 0x000004a6, 18833 }, /* kana_WO */
-    { 0x000004d4, 18841 }, /* kana_YA */
-    { 0x000004ac, 18849 }, /* kana_ya */
-    { 0x000004d6, 18857 }, /* kana_YO */
-    { 0x000004ae, 18865 }, /* kana_yo */
-    { 0x000004d5, 18873 }, /* kana_YU */
-    { 0x000004ad, 18881 }, /* kana_yu */
-    { 0x0000ff21, 18889 }, /* Kanji */
-    { 0x0000ff37, 18895 }, /* Kanji_Bangou */
-    { 0x000003a2, 18908 }, /* kappa */
-    { 0x0000ff26, 18914 }, /* Katakana */
-    { 0x000003d3, 18923 }, /* Kcedilla */
-    { 0x000003f3, 18932 }, /* kcedilla */
-    { 0x00000eff, 18941 }, /* Korean_Won */
-    { 0x0000ffb0, 18952 }, /* KP_0 */
-    { 0x0000ffb1, 18957 }, /* KP_1 */
-    { 0x0000ffb2, 18962 }, /* KP_2 */
-    { 0x0000ffb3, 18967 }, /* KP_3 */
-    { 0x0000ffb4, 18972 }, /* KP_4 */
-    { 0x0000ffb5, 18977 }, /* KP_5 */
-    { 0x0000ffb6, 18982 }, /* KP_6 */
-    { 0x0000ffb7, 18987 }, /* KP_7 */
-    { 0x0000ffb8, 18992 }, /* KP_8 */
-    { 0x0000ffb9, 18997 }, /* KP_9 */
-    { 0x0000ffab, 19002 }, /* KP_Add */
-    { 0x1000ff75, 19009 }, /* KP_BackTab */
-    { 0x0000ff9d, 19020 }, /* KP_Begin */
-    { 0x0000ffae, 19029 }, /* KP_Decimal */
-    { 0x0000ff9f, 19040 }, /* KP_Delete */
-    { 0x0000ffaf, 19050 }, /* KP_Divide */
-    { 0x0000ff99, 19060 }, /* KP_Down */
-    { 0x0000ff9c, 19068 }, /* KP_End */
-    { 0x0000ff8d, 19075 }, /* KP_Enter */
-    { 0x0000ffbd, 19084 }, /* KP_Equal */
-    { 0x0000ff91, 19093 }, /* KP_F1 */
-    { 0x0000ff92, 19099 }, /* KP_F2 */
-    { 0x0000ff93, 19105 }, /* KP_F3 */
-    { 0x0000ff94, 19111 }, /* KP_F4 */
-    { 0x0000ff95, 19117 }, /* KP_Home */
-    { 0x0000ff9e, 19125 }, /* KP_Insert */
-    { 0x0000ff96, 19135 }, /* KP_Left */
-    { 0x0000ffaa, 19143 }, /* KP_Multiply */
-    { 0x0000ff9b, 19155 }, /* KP_Next */
-    { 0x0000ff9b, 19163 }, /* KP_Page_Down */
-    { 0x0000ff9a, 19176 }, /* KP_Page_Up */
-    { 0x0000ff9a, 19187 }, /* KP_Prior */
-    { 0x0000ff98, 19196 }, /* KP_Right */
-    { 0x0000ffac, 19205 }, /* KP_Separator */
-    { 0x0000ff80, 19218 }, /* KP_Space */
-    { 0x0000ffad, 19227 }, /* KP_Subtract */
-    { 0x0000ff89, 19239 }, /* KP_Tab */
-    { 0x0000ff97, 19246 }, /* KP_Up */
-    { 0x000003a2, 19252 }, /* kra */
-    { 0x0000004c, 19256 }, /* L */
-    { 0x0000006c, 19258 }, /* l */
-    { 0x0000ffc8, 19260 }, /* L1 */
-    { 0x0000ffd1, 19263 }, /* L10 */
-    { 0x0000ffc9, 19267 }, /* L2 */
-    { 0x0000ffca, 19270 }, /* L3 */
-    { 0x0000ffcb, 19273 }, /* L4 */
-    { 0x0000ffcc, 19276 }, /* L5 */
-    { 0x0000ffcd, 19279 }, /* L6 */
-    { 0x0000ffce, 19282 }, /* L7 */
-    { 0x0000ffcf, 19285 }, /* L8 */
-    { 0x0000ffd0, 19288 }, /* L9 */
-    { 0x000001c5, 19291 }, /* Lacute */
-    { 0x000001e5, 19298 }, /* lacute */
-    { 0x0000fed4, 19305 }, /* Last_Virtual_Screen */
-    { 0x00000ad9, 19325 }, /* latincross */
-    { 0x01001e36, 19336 }, /* Lbelowdot */
-    { 0x01001e37, 19346 }, /* lbelowdot */
-    { 0x000001a5, 19356 }, /* Lcaron */
-    { 0x000001b5, 19363 }, /* lcaron */
-    { 0x000003a6, 19370 }, /* Lcedilla */
-    { 0x000003b6, 19379 }, /* lcedilla */
-    { 0x0000ff51, 19388 }, /* Left */
-    { 0x00000abc, 19393 }, /* leftanglebracket */
-    { 0x000008fb, 19410 }, /* leftarrow */
-    { 0x00000ba3, 19420 }, /* leftcaret */
-    { 0x00000ad2, 19430 }, /* leftdoublequotemark */
-    { 0x000008af, 19450 }, /* leftmiddlecurlybrace */
-    { 0x00000acc, 19471 }, /* leftopentriangle */
-    { 0x00000aea, 19488 }, /* leftpointer */
-    { 0x000008a1, 19500 }, /* leftradical */
-    { 0x00000bda, 19512 }, /* leftshoe */
-    { 0x00000ad0, 19521 }, /* leftsinglequotemark */
-    { 0x000009f4, 19541 }, /* leftt */
-    { 0x00000bdc, 19547 }, /* lefttack */
-    { 0x0000003c, 19556 }, /* less */
-    { 0x000008bc, 19561 }, /* lessthanequal */
-    { 0x000009e5, 19575 }, /* lf */
-    { 0x0000ff0a, 19578 }, /* Linefeed */
-    { 0x100000af, 19587 }, /* lira */
-    { 0x010020a4, 19592 }, /* LiraSign */
-    { 0x000008de, 19601 }, /* logicaland */
-    { 0x000008df, 19612 }, /* logicalor */
-    { 0x100000f6, 19622 }, /* longminus */
-    { 0x000009ed, 19632 }, /* lowleftcorner */
-    { 0x000009ea, 19646 }, /* lowrightcorner */
-    { 0x000001a3, 19661 }, /* Lstroke */
-    { 0x000001b3, 19669 }, /* lstroke */
-    { 0x0000004d, 19677 }, /* M */
-    { 0x0000006d, 19679 }, /* m */
-    { 0x01001e40, 19681 }, /* Mabovedot */
-    { 0x01001e41, 19691 }, /* mabovedot */
-    { 0x000006b5, 19701 }, /* Macedonia_DSE */
-    { 0x000006a5, 19715 }, /* Macedonia_dse */
-    { 0x000006b2, 19729 }, /* Macedonia_GJE */
-    { 0x000006a2, 19743 }, /* Macedonia_gje */
-    { 0x000006bc, 19757 }, /* Macedonia_KJE */
-    { 0x000006ac, 19771 }, /* Macedonia_kje */
-    { 0x000000af, 19785 }, /* macron */
-    { 0x0000ff3e, 19792 }, /* Mae_Koho */
-    { 0x00000af7, 19801 }, /* malesymbol */
-    { 0x00000af0, 19812 }, /* maltesecross */
-    { 0x00000abf, 19825 }, /* marker */
-    { 0x000000ba, 19832 }, /* masculine */
-    { 0x0000ff2c, 19842 }, /* Massyo */
-    { 0x0000ff67, 19849 }, /* Menu */
-    { 0x0000ffe7, 19854 }, /* Meta_L */
-    { 0x0000ffe8, 19861 }, /* Meta_R */
-    { 0x010020a5, 19868 }, /* MillSign */
-    { 0x0000002d, 19877 }, /* minus */
-    { 0x00000ad6, 19883 }, /* minutes */
-    { 0x0000ff7e, 19891 }, /* Mode_switch */
-    { 0x0000fe77, 19903 }, /* MouseKeys_Accel_Enable */
-    { 0x0000fe76, 19926 }, /* MouseKeys_Enable */
-    { 0x000000b5, 19943 }, /* mu */
-    { 0x0000ff22, 19946 }, /* Muhenkan */
-    { 0x0000ff20, 19955 }, /* Multi_key */
-    { 0x0000ff3d, 19965 }, /* MultipleCandidate */
-    { 0x000000d7, 19983 }, /* multiply */
-    { 0x00000af6, 19992 }, /* musicalflat */
-    { 0x00000af5, 20004 }, /* musicalsharp */
-    { 0x100000a8, 20017 }, /* mute_acute */
-    { 0x100000aa, 20028 }, /* mute_asciicircum */
-    { 0x100000ac, 20045 }, /* mute_asciitilde */
-    { 0x100000ab, 20061 }, /* mute_diaeresis */
-    { 0x100000a9, 20076 }, /* mute_grave */
-    { 0x0000004e, 20087 }, /* N */
-    { 0x0000006e, 20089 }, /* n */
-    { 0x000008c5, 20091 }, /* nabla */
-    { 0x000001d1, 20097 }, /* Nacute */
-    { 0x000001f1, 20104 }, /* nacute */
-    { 0x010020a6, 20111 }, /* NairaSign */
-    { 0x000001d2, 20121 }, /* Ncaron */
-    { 0x000001f2, 20128 }, /* ncaron */
-    { 0x000003d1, 20135 }, /* Ncedilla */
-    { 0x000003f1, 20144 }, /* ncedilla */
-    { 0x010020aa, 20153 }, /* NewSheqelSign */
-    { 0x0000ff56, 20167 }, /* Next */
-    { 0x0000fed2, 20172 }, /* Next_Virtual_Screen */
-    { 0x01002089, 20192 }, /* ninesubscript */
-    { 0x01002079, 20206 }, /* ninesuperior */
-    { 0x000009e8, 20219 }, /* nl */
-    { 0x000000a0, 20222 }, /* nobreakspace */
-    { 0x00000000, 20235 }, /* NoSymbol */
-    { 0x01002247, 20244 }, /* notapproxeq */
-    { 0x01002209, 20256 }, /* notelementof */
-    { 0x000008bd, 20269 }, /* notequal */
-    { 0x01002262, 20278 }, /* notidentical */
-    { 0x000000ac, 20291 }, /* notsign */
-    { 0x000000d1, 20299 }, /* Ntilde */
-    { 0x000000f1, 20306 }, /* ntilde */
-    { 0x0000ff7f, 20313 }, /* Num_Lock */
-    { 0x00000023, 20322 }, /* numbersign */
-    { 0x000006b0, 20333 }, /* numerosign */
-    { 0x0000004f, 20344 }, /* O */
-    { 0x0000006f, 20346 }, /* o */
-    { 0x000000d3, 20348 }, /* Oacute */
-    { 0x000000f3, 20355 }, /* oacute */
-    { 0x0100019f, 20362 }, /* Obarred */
-    { 0x01000275, 20370 }, /* obarred */
-    { 0x01001ecc, 20378 }, /* Obelowdot */
-    { 0x01001ecd, 20388 }, /* obelowdot */
-    { 0x010001d1, 20398 }, /* Ocaron */
-    { 0x010001d2, 20405 }, /* ocaron */
-    { 0x000000d4, 20412 }, /* Ocircumflex */
-    { 0x000000f4, 20424 }, /* ocircumflex */
-    { 0x01001ed0, 20436 }, /* Ocircumflexacute */
-    { 0x01001ed1, 20453 }, /* ocircumflexacute */
-    { 0x01001ed8, 20470 }, /* Ocircumflexbelowdot */
-    { 0x01001ed9, 20490 }, /* ocircumflexbelowdot */
-    { 0x01001ed2, 20510 }, /* Ocircumflexgrave */
-    { 0x01001ed3, 20527 }, /* ocircumflexgrave */
-    { 0x01001ed4, 20544 }, /* Ocircumflexhook */
-    { 0x01001ed5, 20560 }, /* ocircumflexhook */
-    { 0x01001ed6, 20576 }, /* Ocircumflextilde */
-    { 0x01001ed7, 20593 }, /* ocircumflextilde */
-    { 0x000000d6, 20610 }, /* Odiaeresis */
-    { 0x000000f6, 20621 }, /* odiaeresis */
-    { 0x000001d5, 20632 }, /* Odoubleacute */
-    { 0x000001f5, 20645 }, /* odoubleacute */
-    { 0x000013bc, 20658 }, /* OE */
-    { 0x000013bd, 20661 }, /* oe */
-    { 0x000001b2, 20664 }, /* ogonek */
-    { 0x000000d2, 20671 }, /* Ograve */
-    { 0x000000f2, 20678 }, /* ograve */
-    { 0x01001ece, 20685 }, /* Ohook */
-    { 0x01001ecf, 20691 }, /* ohook */
-    { 0x010001a0, 20697 }, /* Ohorn */
-    { 0x010001a1, 20703 }, /* ohorn */
-    { 0x01001eda, 20709 }, /* Ohornacute */
-    { 0x01001edb, 20720 }, /* ohornacute */
-    { 0x01001ee2, 20731 }, /* Ohornbelowdot */
-    { 0x01001ee3, 20745 }, /* ohornbelowdot */
-    { 0x01001edc, 20759 }, /* Ohorngrave */
-    { 0x01001edd, 20770 }, /* ohorngrave */
-    { 0x01001ede, 20781 }, /* Ohornhook */
-    { 0x01001edf, 20791 }, /* ohornhook */
-    { 0x01001ee0, 20801 }, /* Ohorntilde */
-    { 0x01001ee1, 20812 }, /* ohorntilde */
-    { 0x000003d2, 20823 }, /* Omacron */
-    { 0x000003f2, 20831 }, /* omacron */
-    { 0x00000ac3, 20839 }, /* oneeighth */
-    { 0x00000ab2, 20849 }, /* onefifth */
-    { 0x000000bd, 20858 }, /* onehalf */
-    { 0x000000bc, 20866 }, /* onequarter */
-    { 0x00000ab6, 20877 }, /* onesixth */
-    { 0x01002081, 20886 }, /* onesubscript */
-    { 0x000000b9, 20899 }, /* onesuperior */
-    { 0x00000ab0, 20911 }, /* onethird */
-    { 0x000000d8, 20920 }, /* Ooblique */
-    { 0x000000f8, 20929 }, /* ooblique */
-    { 0x00000ae2, 20938 }, /* openrectbullet */
-    { 0x00000ae5, 20953 }, /* openstar */
-    { 0x00000ae4, 20962 }, /* opentribulletdown */
-    { 0x00000ae3, 20980 }, /* opentribulletup */
-    { 0x000000aa, 20996 }, /* ordfeminine */
-    { 0x000000ba, 21008 }, /* ordmasculine */
-    { 0x1004ff44, 21021 }, /* osfActivate */
-    { 0x1004ff31, 21033 }, /* osfAddMode */
-    { 0x1004ff08, 21044 }, /* osfBackSpace */
-    { 0x1004ff07, 21057 }, /* osfBackTab */
-    { 0x1004ff5a, 21068 }, /* osfBeginData */
-    { 0x1004ff58, 21081 }, /* osfBeginLine */
-    { 0x1004ff69, 21094 }, /* osfCancel */
-    { 0x1004ff0b, 21104 }, /* osfClear */
-    { 0x1004ff02, 21113 }, /* osfCopy */
-    { 0x1004ff03, 21121 }, /* osfCut */
-    { 0x1004ffff, 21128 }, /* osfDelete */
-    { 0x1004ff72, 21138 }, /* osfDeselectAll */
-    { 0x1004ff54, 21153 }, /* osfDown */
-    { 0x1004ff59, 21161 }, /* osfEndData */
-    { 0x1004ff57, 21172 }, /* osfEndLine */
-    { 0x1004ff1b, 21183 }, /* osfEscape */
-    { 0x1004ff74, 21193 }, /* osfExtend */
-    { 0x1004ff6a, 21203 }, /* osfHelp */
-    { 0x1004ff63, 21211 }, /* osfInsert */
-    { 0x1004ff51, 21221 }, /* osfLeft */
-    { 0x1004ff67, 21229 }, /* osfMenu */
-    { 0x1004ff45, 21237 }, /* osfMenuBar */
-    { 0x1004ff5e, 21248 }, /* osfNextField */
-    { 0x1004ff5c, 21261 }, /* osfNextMenu */
-    { 0x1004ff42, 21273 }, /* osfPageDown */
-    { 0x1004ff40, 21285 }, /* osfPageLeft */
-    { 0x1004ff43, 21297 }, /* osfPageRight */
-    { 0x1004ff41, 21310 }, /* osfPageUp */
-    { 0x1004ff04, 21320 }, /* osfPaste */
-    { 0x1004ff5d, 21329 }, /* osfPrevField */
-    { 0x1004ff5b, 21342 }, /* osfPrevMenu */
-    { 0x1004ff32, 21354 }, /* osfPrimaryPaste */
-    { 0x1004ff33, 21370 }, /* osfQuickPaste */
-    { 0x1004ff73, 21384 }, /* osfReselect */
-    { 0x1004ff78, 21396 }, /* osfRestore */
-    { 0x1004ff53, 21407 }, /* osfRight */
-    { 0x1004ff60, 21416 }, /* osfSelect */
-    { 0x1004ff71, 21426 }, /* osfSelectAll */
-    { 0x1004ff65, 21439 }, /* osfUndo */
-    { 0x1004ff52, 21447 }, /* osfUp */
-    { 0x000000d8, 21453 }, /* Oslash */
-    { 0x000000f8, 21460 }, /* oslash */
-    { 0x000000d5, 21467 }, /* Otilde */
-    { 0x000000f5, 21474 }, /* otilde */
-    { 0x00000bc0, 21481 }, /* overbar */
-    { 0x0000fe78, 21489 }, /* Overlay1_Enable */
-    { 0x0000fe79, 21505 }, /* Overlay2_Enable */
-    { 0x0000047e, 21521 }, /* overline */
-    { 0x00000050, 21530 }, /* P */
-    { 0x00000070, 21532 }, /* p */
-    { 0x01001e56, 21534 }, /* Pabovedot */
-    { 0x01001e57, 21544 }, /* pabovedot */
-    { 0x0000ff56, 21554 }, /* Page_Down */
-    { 0x0000ff55, 21564 }, /* Page_Up */
-    { 0x000000b6, 21572 }, /* paragraph */
-    { 0x00000028, 21582 }, /* parenleft */
-    { 0x00000029, 21592 }, /* parenright */
-    { 0x01002202, 21603 }, /* partdifferential */
-    { 0x000008ef, 21620 }, /* partialderivative */
-    { 0x0000ff13, 21638 }, /* Pause */
-    { 0x00000025, 21644 }, /* percent */
-    { 0x0000002e, 21652 }, /* period */
-    { 0x000000b7, 21659 }, /* periodcentered */
-    { 0x00000ad5, 21674 }, /* permille */
-    { 0x010020a7, 21683 }, /* PesetaSign */
-    { 0x00000afb, 21694 }, /* phonographcopyright */
-    { 0x0000002b, 21714 }, /* plus */
-    { 0x000000b1, 21719 }, /* plusminus */
-    { 0x0000fefa, 21729 }, /* Pointer_Accelerate */
-    { 0x0000fee9, 21748 }, /* Pointer_Button1 */
-    { 0x0000feea, 21764 }, /* Pointer_Button2 */
-    { 0x0000feeb, 21780 }, /* Pointer_Button3 */
-    { 0x0000feec, 21796 }, /* Pointer_Button4 */
-    { 0x0000feed, 21812 }, /* Pointer_Button5 */
-    { 0x0000fee8, 21828 }, /* Pointer_Button_Dflt */
-    { 0x0000feef, 21848 }, /* Pointer_DblClick1 */
-    { 0x0000fef0, 21866 }, /* Pointer_DblClick2 */
-    { 0x0000fef1, 21884 }, /* Pointer_DblClick3 */
-    { 0x0000fef2, 21902 }, /* Pointer_DblClick4 */
-    { 0x0000fef3, 21920 }, /* Pointer_DblClick5 */
-    { 0x0000feee, 21938 }, /* Pointer_DblClick_Dflt */
-    { 0x0000fefb, 21960 }, /* Pointer_DfltBtnNext */
-    { 0x0000fefc, 21980 }, /* Pointer_DfltBtnPrev */
-    { 0x0000fee3, 22000 }, /* Pointer_Down */
-    { 0x0000fee6, 22013 }, /* Pointer_DownLeft */
-    { 0x0000fee7, 22030 }, /* Pointer_DownRight */
-    { 0x0000fef5, 22048 }, /* Pointer_Drag1 */
-    { 0x0000fef6, 22062 }, /* Pointer_Drag2 */
-    { 0x0000fef7, 22076 }, /* Pointer_Drag3 */
-    { 0x0000fef8, 22090 }, /* Pointer_Drag4 */
-    { 0x0000fefd, 22104 }, /* Pointer_Drag5 */
-    { 0x0000fef4, 22118 }, /* Pointer_Drag_Dflt */
-    { 0x0000fef9, 22136 }, /* Pointer_EnableKeys */
-    { 0x0000fee0, 22155 }, /* Pointer_Left */
-    { 0x0000fee1, 22168 }, /* Pointer_Right */
-    { 0x0000fee2, 22182 }, /* Pointer_Up */
-    { 0x0000fee4, 22193 }, /* Pointer_UpLeft */
-    { 0x0000fee5, 22208 }, /* Pointer_UpRight */
-    { 0x00000ad4, 22224 }, /* prescription */
-    { 0x0000fed1, 22237 }, /* Prev_Virtual_Screen */
-    { 0x0000ff3e, 22257 }, /* PreviousCandidate */
-    { 0x0000ff61, 22275 }, /* Print */
-    { 0x0000ff55, 22281 }, /* Prior */
-    { 0x000004b0, 22287 }, /* prolongedsound */
-    { 0x00000aa6, 22302 }, /* punctspace */
-    { 0x00000051, 22313 }, /* Q */
-    { 0x00000071, 22315 }, /* q */
-    { 0x00000bcc, 22317 }, /* quad */
-    { 0x0000003f, 22322 }, /* question */
-    { 0x000000bf, 22331 }, /* questiondown */
-    { 0x00000022, 22344 }, /* quotedbl */
-    { 0x00000060, 22353 }, /* quoteleft */
-    { 0x00000027, 22363 }, /* quoteright */
-    { 0x00000052, 22374 }, /* R */
-    { 0x00000072, 22376 }, /* r */
-    { 0x0000ffd2, 22378 }, /* R1 */
-    { 0x0000ffdb, 22381 }, /* R10 */
-    { 0x0000ffdc, 22385 }, /* R11 */
-    { 0x0000ffdd, 22389 }, /* R12 */
-    { 0x0000ffde, 22393 }, /* R13 */
-    { 0x0000ffdf, 22397 }, /* R14 */
-    { 0x0000ffe0, 22401 }, /* R15 */
-    { 0x0000ffd3, 22405 }, /* R2 */
-    { 0x0000ffd4, 22408 }, /* R3 */
-    { 0x0000ffd5, 22411 }, /* R4 */
-    { 0x0000ffd6, 22414 }, /* R5 */
-    { 0x0000ffd7, 22417 }, /* R6 */
-    { 0x0000ffd8, 22420 }, /* R7 */
-    { 0x0000ffd9, 22423 }, /* R8 */
-    { 0x0000ffda, 22426 }, /* R9 */
-    { 0x000001c0, 22429 }, /* Racute */
-    { 0x000001e0, 22436 }, /* racute */
-    { 0x000008d6, 22443 }, /* radical */
-    { 0x000001d8, 22451 }, /* Rcaron */
-    { 0x000001f8, 22458 }, /* rcaron */
-    { 0x000003a3, 22465 }, /* Rcedilla */
-    { 0x000003b3, 22474 }, /* rcedilla */
-    { 0x0000ff66, 22483 }, /* Redo */
-    { 0x000000ae, 22488 }, /* registered */
-    { 0x0000fe72, 22499 }, /* RepeatKeys_Enable */
-    { 0x1000ff6c, 22517 }, /* Reset */
-    { 0x0000ff0d, 22523 }, /* Return */
-    { 0x0000ff53, 22530 }, /* Right */
-    { 0x00000abe, 22536 }, /* rightanglebracket */
-    { 0x000008fd, 22554 }, /* rightarrow */
-    { 0x00000ba6, 22565 }, /* rightcaret */
-    { 0x00000ad3, 22576 }, /* rightdoublequotemark */
-    { 0x000008b0, 22597 }, /* rightmiddlecurlybrace */
-    { 0x000008b7, 22619 }, /* rightmiddlesummation */
-    { 0x00000acd, 22640 }, /* rightopentriangle */
-    { 0x00000aeb, 22658 }, /* rightpointer */
-    { 0x00000bd8, 22671 }, /* rightshoe */
-    { 0x00000ad1, 22681 }, /* rightsinglequotemark */
-    { 0x000009f5, 22702 }, /* rightt */
-    { 0x00000bfc, 22709 }, /* righttack */
-    { 0x0000ff24, 22719 }, /* Romaji */
-    { 0x010020a8, 22726 }, /* RupeeSign */
-    { 0x00000053, 22736 }, /* S */
-    { 0x00000073, 22738 }, /* s */
-    { 0x01001e60, 22740 }, /* Sabovedot */
-    { 0x01001e61, 22750 }, /* sabovedot */
-    { 0x000001a6, 22760 }, /* Sacute */
-    { 0x000001b6, 22767 }, /* sacute */
-    { 0x000001a9, 22774 }, /* Scaron */
-    { 0x000001b9, 22781 }, /* scaron */
-    { 0x000001aa, 22788 }, /* Scedilla */
-    { 0x000001ba, 22797 }, /* scedilla */
-    { 0x0100018f, 22806 }, /* SCHWA */
-    { 0x01000259, 22812 }, /* schwa */
-    { 0x000002de, 22818 }, /* Scircumflex */
-    { 0x000002fe, 22830 }, /* scircumflex */
-    { 0x0000ff7e, 22842 }, /* script_switch */
-    { 0x0000ff14, 22856 }, /* Scroll_Lock */
-    { 0x00000ad7, 22868 }, /* seconds */
-    { 0x000000a7, 22876 }, /* section */
-    { 0x0000ff60, 22884 }, /* Select */
-    { 0x0000003b, 22891 }, /* semicolon */
-    { 0x000004df, 22901 }, /* semivoicedsound */
-    { 0x000006b1, 22917 }, /* Serbian_DJE */
-    { 0x000006a1, 22929 }, /* Serbian_dje */
-    { 0x000006bf, 22941 }, /* Serbian_DZE */
-    { 0x000006af, 22953 }, /* Serbian_dze */
-    { 0x000006b8, 22965 }, /* Serbian_JE */
-    { 0x000006a8, 22976 }, /* Serbian_je */
-    { 0x000006b9, 22987 }, /* Serbian_LJE */
-    { 0x000006a9, 22999 }, /* Serbian_lje */
-    { 0x000006ba, 23011 }, /* Serbian_NJE */
-    { 0x000006aa, 23023 }, /* Serbian_nje */
-    { 0x000006bb, 23035 }, /* Serbian_TSHE */
-    { 0x000006ab, 23048 }, /* Serbian_tshe */
-    { 0x00000ac6, 23061 }, /* seveneighths */
-    { 0x01002087, 23074 }, /* sevensubscript */
-    { 0x01002077, 23089 }, /* sevensuperior */
-    { 0x0000ffe1, 23103 }, /* Shift_L */
-    { 0x0000ffe6, 23111 }, /* Shift_Lock */
-    { 0x0000ffe2, 23122 }, /* Shift_R */
-    { 0x00000aca, 23130 }, /* signaturemark */
-    { 0x00000aac, 23144 }, /* signifblank */
-    { 0x000008c9, 23156 }, /* similarequal */
-    { 0x0000ff3c, 23169 }, /* SingleCandidate */
-    { 0x00000afd, 23185 }, /* singlelowquotemark */
-    { 0x01000d85, 23204 }, /* Sinh_a */
-    { 0x01000d86, 23211 }, /* Sinh_aa */
-    { 0x01000dcf, 23219 }, /* Sinh_aa2 */
-    { 0x01000d87, 23228 }, /* Sinh_ae */
-    { 0x01000dd0, 23236 }, /* Sinh_ae2 */
-    { 0x01000d88, 23245 }, /* Sinh_aee */
-    { 0x01000dd1, 23254 }, /* Sinh_aee2 */
-    { 0x01000d93, 23264 }, /* Sinh_ai */
-    { 0x01000ddb, 23272 }, /* Sinh_ai2 */
-    { 0x01000dca, 23281 }, /* Sinh_al */
-    { 0x01000d96, 23289 }, /* Sinh_au */
-    { 0x01000dde, 23297 }, /* Sinh_au2 */
-    { 0x01000db6, 23306 }, /* Sinh_ba */
-    { 0x01000db7, 23314 }, /* Sinh_bha */
-    { 0x01000da0, 23323 }, /* Sinh_ca */
-    { 0x01000da1, 23331 }, /* Sinh_cha */
-    { 0x01000da9, 23340 }, /* Sinh_dda */
-    { 0x01000daa, 23349 }, /* Sinh_ddha */
-    { 0x01000daf, 23359 }, /* Sinh_dha */
-    { 0x01000db0, 23368 }, /* Sinh_dhha */
-    { 0x01000d91, 23378 }, /* Sinh_e */
-    { 0x01000dd9, 23385 }, /* Sinh_e2 */
-    { 0x01000d92, 23393 }, /* Sinh_ee */
-    { 0x01000dda, 23401 }, /* Sinh_ee2 */
-    { 0x01000dc6, 23410 }, /* Sinh_fa */
-    { 0x01000d9c, 23418 }, /* Sinh_ga */
-    { 0x01000d9d, 23426 }, /* Sinh_gha */
-    { 0x01000d83, 23435 }, /* Sinh_h2 */
-    { 0x01000dc4, 23443 }, /* Sinh_ha */
-    { 0x01000d89, 23451 }, /* Sinh_i */
-    { 0x01000dd2, 23458 }, /* Sinh_i2 */
-    { 0x01000d8a, 23466 }, /* Sinh_ii */
-    { 0x01000dd3, 23474 }, /* Sinh_ii2 */
-    { 0x01000da2, 23483 }, /* Sinh_ja */
-    { 0x01000da3, 23491 }, /* Sinh_jha */
-    { 0x01000da5, 23500 }, /* Sinh_jnya */
-    { 0x01000d9a, 23510 }, /* Sinh_ka */
-    { 0x01000d9b, 23518 }, /* Sinh_kha */
-    { 0x01000df4, 23527 }, /* Sinh_kunddaliya */
-    { 0x01000dbd, 23543 }, /* Sinh_la */
-    { 0x01000dc5, 23551 }, /* Sinh_lla */
-    { 0x01000d8f, 23560 }, /* Sinh_lu */
-    { 0x01000ddf, 23568 }, /* Sinh_lu2 */
-    { 0x01000d90, 23577 }, /* Sinh_luu */
-    { 0x01000df3, 23586 }, /* Sinh_luu2 */
-    { 0x01000db8, 23596 }, /* Sinh_ma */
-    { 0x01000db9, 23604 }, /* Sinh_mba */
-    { 0x01000db1, 23613 }, /* Sinh_na */
-    { 0x01000dac, 23621 }, /* Sinh_ndda */
-    { 0x01000db3, 23631 }, /* Sinh_ndha */
-    { 0x01000d82, 23641 }, /* Sinh_ng */
-    { 0x01000d9e, 23649 }, /* Sinh_ng2 */
-    { 0x01000d9f, 23658 }, /* Sinh_nga */
-    { 0x01000da6, 23667 }, /* Sinh_nja */
-    { 0x01000dab, 23676 }, /* Sinh_nna */
-    { 0x01000da4, 23685 }, /* Sinh_nya */
-    { 0x01000d94, 23694 }, /* Sinh_o */
-    { 0x01000ddc, 23701 }, /* Sinh_o2 */
-    { 0x01000d95, 23709 }, /* Sinh_oo */
-    { 0x01000ddd, 23717 }, /* Sinh_oo2 */
-    { 0x01000db4, 23726 }, /* Sinh_pa */
-    { 0x01000db5, 23734 }, /* Sinh_pha */
-    { 0x01000dbb, 23743 }, /* Sinh_ra */
-    { 0x01000d8d, 23751 }, /* Sinh_ri */
-    { 0x01000d8e, 23759 }, /* Sinh_rii */
-    { 0x01000dd8, 23768 }, /* Sinh_ru2 */
-    { 0x01000df2, 23777 }, /* Sinh_ruu2 */
-    { 0x01000dc3, 23787 }, /* Sinh_sa */
-    { 0x01000dc1, 23795 }, /* Sinh_sha */
-    { 0x01000dc2, 23804 }, /* Sinh_ssha */
-    { 0x01000dad, 23814 }, /* Sinh_tha */
-    { 0x01000dae, 23823 }, /* Sinh_thha */
-    { 0x01000da7, 23833 }, /* Sinh_tta */
-    { 0x01000da8, 23842 }, /* Sinh_ttha */
-    { 0x01000d8b, 23852 }, /* Sinh_u */
-    { 0x01000dd4, 23859 }, /* Sinh_u2 */
-    { 0x01000d8c, 23867 }, /* Sinh_uu */
-    { 0x01000dd6, 23875 }, /* Sinh_uu2 */
-    { 0x01000dc0, 23884 }, /* Sinh_va */
-    { 0x01000dba, 23892 }, /* Sinh_ya */
-    { 0x01002086, 23900 }, /* sixsubscript */
-    { 0x01002076, 23913 }, /* sixsuperior */
-    { 0x0000002f, 23925 }, /* slash */
-    { 0x0000fe73, 23931 }, /* SlowKeys_Enable */
-    { 0x000009e0, 23947 }, /* soliddiamond */
-    { 0x00000020, 23960 }, /* space */
-    { 0x0100221a, 23966 }, /* squareroot */
-    { 0x000000df, 23977 }, /* ssharp */
-    { 0x000000a3, 23984 }, /* sterling */
-    { 0x0000fe75, 23993 }, /* StickyKeys_Enable */
-    { 0x01002263, 24011 }, /* stricteq */
-    { 0x0000ff66, 24020 }, /* SunAgain */
-    { 0x0000ff7e, 24029 }, /* SunAltGraph */
-    { 0x1005ff77, 24041 }, /* SunAudioLowerVolume */
-    { 0x1005ff78, 24061 }, /* SunAudioMute */
-    { 0x1005ff79, 24074 }, /* SunAudioRaiseVolume */
-    { 0x0000ff20, 24094 }, /* SunCompose */
-    { 0x1005ff72, 24105 }, /* SunCopy */
-    { 0x1005ff75, 24113 }, /* SunCut */
-    { 0x1005ff10, 24120 }, /* SunF36 */
-    { 0x1005ff11, 24127 }, /* SunF37 */
-    { 0x1005ff03, 24134 }, /* SunFA_Acute */
-    { 0x1005ff05, 24146 }, /* SunFA_Cedilla */
-    { 0x1005ff01, 24160 }, /* SunFA_Circum */
-    { 0x1005ff04, 24173 }, /* SunFA_Diaeresis */
-    { 0x1005ff00, 24189 }, /* SunFA_Grave */
-    { 0x1005ff02, 24201 }, /* SunFA_Tilde */
-    { 0x0000ff68, 24213 }, /* SunFind */
-    { 0x1005ff71, 24221 }, /* SunFront */
-    { 0x1005ff73, 24230 }, /* SunOpen */
-    { 0x0000ff56, 24238 }, /* SunPageDown */
-    { 0x0000ff55, 24250 }, /* SunPageUp */
-    { 0x1005ff74, 24260 }, /* SunPaste */
-    { 0x1005ff76, 24269 }, /* SunPowerSwitch */
-    { 0x1005ff7d, 24284 }, /* SunPowerSwitchShift */
-    { 0x0000ff61, 24304 }, /* SunPrint_Screen */
-    { 0x1005ff70, 24320 }, /* SunProps */
-    { 0x0000ff69, 24329 }, /* SunStop */
-    { 0x1005ff60, 24337 }, /* SunSys_Req */
-    { 0x0000ff65, 24348 }, /* SunUndo */
-    { 0x1005ff7a, 24356 }, /* SunVideoDegauss */
-    { 0x1005ff7b, 24372 }, /* SunVideoLowerBrightness */
-    { 0x1005ff7c, 24396 }, /* SunVideoRaiseBrightness */
-    { 0x0000ffeb, 24420 }, /* Super_L */
-    { 0x0000ffec, 24428 }, /* Super_R */
-    { 0x0000ff15, 24436 }, /* Sys_Req */
-    { 0x1000ff6d, 24444 }, /* System */
-    { 0x00000054, 24451 }, /* T */
-    { 0x00000074, 24453 }, /* t */
-    { 0x0000ff09, 24455 }, /* Tab */
-    { 0x01001e6a, 24459 }, /* Tabovedot */
-    { 0x01001e6b, 24469 }, /* tabovedot */
-    { 0x000001ab, 24479 }, /* Tcaron */
-    { 0x000001bb, 24486 }, /* tcaron */
-    { 0x000001de, 24493 }, /* Tcedilla */
-    { 0x000001fe, 24502 }, /* tcedilla */
-    { 0x00000af9, 24511 }, /* telephone */
-    { 0x00000afa, 24521 }, /* telephonerecorder */
-    { 0x0000fed5, 24539 }, /* Terminate_Server */
-    { 0x00000ddf, 24556 }, /* Thai_baht */
-    { 0x00000dba, 24566 }, /* Thai_bobaimai */
-    { 0x00000da8, 24580 }, /* Thai_chochan */
-    { 0x00000daa, 24593 }, /* Thai_chochang */
-    { 0x00000da9, 24607 }, /* Thai_choching */
-    { 0x00000dac, 24621 }, /* Thai_chochoe */
-    { 0x00000dae, 24634 }, /* Thai_dochada */
-    { 0x00000db4, 24647 }, /* Thai_dodek */
-    { 0x00000dbd, 24658 }, /* Thai_fofa */
-    { 0x00000dbf, 24668 }, /* Thai_fofan */
-    { 0x00000dcb, 24679 }, /* Thai_hohip */
-    { 0x00000dce, 24690 }, /* Thai_honokhuk */
-    { 0x00000da2, 24704 }, /* Thai_khokhai */
-    { 0x00000da5, 24717 }, /* Thai_khokhon */
-    { 0x00000da3, 24730 }, /* Thai_khokhuat */
-    { 0x00000da4, 24744 }, /* Thai_khokhwai */
-    { 0x00000da6, 24758 }, /* Thai_khorakhang */
-    { 0x00000da1, 24774 }, /* Thai_kokai */
-    { 0x00000de5, 24785 }, /* Thai_lakkhangyao */
-    { 0x00000df7, 24802 }, /* Thai_lekchet */
-    { 0x00000df5, 24815 }, /* Thai_lekha */
-    { 0x00000df6, 24826 }, /* Thai_lekhok */
-    { 0x00000df9, 24838 }, /* Thai_lekkao */
-    { 0x00000df1, 24850 }, /* Thai_leknung */
-    { 0x00000df8, 24863 }, /* Thai_lekpaet */
-    { 0x00000df3, 24876 }, /* Thai_leksam */
-    { 0x00000df4, 24888 }, /* Thai_leksi */
-    { 0x00000df2, 24899 }, /* Thai_leksong */
-    { 0x00000df0, 24912 }, /* Thai_leksun */
-    { 0x00000dcc, 24924 }, /* Thai_lochula */
-    { 0x00000dc5, 24937 }, /* Thai_loling */
-    { 0x00000dc6, 24949 }, /* Thai_lu */
-    { 0x00000deb, 24957 }, /* Thai_maichattawa */
-    { 0x00000de8, 24974 }, /* Thai_maiek */
-    { 0x00000dd1, 24985 }, /* Thai_maihanakat */
-    { 0x00000dde, 25001 }, /* Thai_maihanakat_maitho */
-    { 0x00000de7, 25024 }, /* Thai_maitaikhu */
-    { 0x00000de9, 25039 }, /* Thai_maitho */
-    { 0x00000dea, 25051 }, /* Thai_maitri */
-    { 0x00000de6, 25063 }, /* Thai_maiyamok */
-    { 0x00000dc1, 25077 }, /* Thai_moma */
-    { 0x00000da7, 25087 }, /* Thai_ngongu */
-    { 0x00000ded, 25099 }, /* Thai_nikhahit */
-    { 0x00000db3, 25113 }, /* Thai_nonen */
-    { 0x00000db9, 25124 }, /* Thai_nonu */
-    { 0x00000dcd, 25134 }, /* Thai_oang */
-    { 0x00000dcf, 25144 }, /* Thai_paiyannoi */
-    { 0x00000dda, 25159 }, /* Thai_phinthu */
-    { 0x00000dbe, 25172 }, /* Thai_phophan */
-    { 0x00000dbc, 25185 }, /* Thai_phophung */
-    { 0x00000dc0, 25199 }, /* Thai_phosamphao */
-    { 0x00000dbb, 25215 }, /* Thai_popla */
-    { 0x00000dc3, 25226 }, /* Thai_rorua */
-    { 0x00000dc4, 25237 }, /* Thai_ru */
-    { 0x00000dd0, 25245 }, /* Thai_saraa */
-    { 0x00000dd2, 25256 }, /* Thai_saraaa */
-    { 0x00000de1, 25268 }, /* Thai_saraae */
-    { 0x00000de4, 25280 }, /* Thai_saraaimaimalai */
-    { 0x00000de3, 25300 }, /* Thai_saraaimaimuan */
-    { 0x00000dd3, 25319 }, /* Thai_saraam */
-    { 0x00000de0, 25331 }, /* Thai_sarae */
-    { 0x00000dd4, 25342 }, /* Thai_sarai */
-    { 0x00000dd5, 25353 }, /* Thai_saraii */
-    { 0x00000de2, 25365 }, /* Thai_sarao */
-    { 0x00000dd8, 25376 }, /* Thai_sarau */
-    { 0x00000dd6, 25387 }, /* Thai_saraue */
-    { 0x00000dd7, 25399 }, /* Thai_sarauee */
-    { 0x00000dd9, 25412 }, /* Thai_sarauu */
-    { 0x00000dc9, 25424 }, /* Thai_sorusi */
-    { 0x00000dc8, 25436 }, /* Thai_sosala */
-    { 0x00000dab, 25448 }, /* Thai_soso */
-    { 0x00000dca, 25458 }, /* Thai_sosua */
-    { 0x00000dec, 25469 }, /* Thai_thanthakhat */
-    { 0x00000db1, 25486 }, /* Thai_thonangmontho */
-    { 0x00000db2, 25505 }, /* Thai_thophuthao */
-    { 0x00000db7, 25521 }, /* Thai_thothahan */
-    { 0x00000db0, 25536 }, /* Thai_thothan */
-    { 0x00000db8, 25549 }, /* Thai_thothong */
-    { 0x00000db6, 25563 }, /* Thai_thothung */
-    { 0x00000daf, 25577 }, /* Thai_topatak */
-    { 0x00000db5, 25590 }, /* Thai_totao */
-    { 0x00000dc7, 25601 }, /* Thai_wowaen */
-    { 0x00000dc2, 25613 }, /* Thai_yoyak */
-    { 0x00000dad, 25624 }, /* Thai_yoying */
-    { 0x000008c0, 25636 }, /* therefore */
-    { 0x00000aa7, 25646 }, /* thinspace */
-    { 0x000000de, 25656 }, /* THORN */
-    { 0x000000de, 25662 }, /* Thorn */
-    { 0x000000fe, 25668 }, /* thorn */
-    { 0x00000ac4, 25674 }, /* threeeighths */
-    { 0x00000ab4, 25687 }, /* threefifths */
-    { 0x000000be, 25699 }, /* threequarters */
-    { 0x01002083, 25713 }, /* threesubscript */
-    { 0x000000b3, 25728 }, /* threesuperior */
-    { 0x0100222d, 25742 }, /* tintegral */
-    { 0x000008a4, 25752 }, /* topintegral */
-    { 0x000008ab, 25764 }, /* topleftparens */
-    { 0x000008a2, 25778 }, /* topleftradical */
-    { 0x000008a7, 25793 }, /* topleftsqbracket */
-    { 0x000008b1, 25810 }, /* topleftsummation */
-    { 0x000008ad, 25827 }, /* toprightparens */
-    { 0x000008a9, 25842 }, /* toprightsqbracket */
-    { 0x000008b5, 25860 }, /* toprightsummation */
-    { 0x000009f7, 25878 }, /* topt */
-    { 0x000008b3, 25883 }, /* topvertsummationconnector */
-    { 0x0000ff2b, 25909 }, /* Touroku */
-    { 0x00000ac9, 25917 }, /* trademark */
-    { 0x00000acb, 25927 }, /* trademarkincircle */
-    { 0x000003ac, 25945 }, /* Tslash */
-    { 0x000003bc, 25952 }, /* tslash */
-    { 0x00000ab3, 25959 }, /* twofifths */
-    { 0x01002082, 25969 }, /* twosubscript */
-    { 0x000000b2, 25982 }, /* twosuperior */
-    { 0x00000ab1, 25994 }, /* twothirds */
-    { 0x00000055, 26004 }, /* U */
-    { 0x00000075, 26006 }, /* u */
-    { 0x000000da, 26008 }, /* Uacute */
-    { 0x000000fa, 26015 }, /* uacute */
-    { 0x01001ee4, 26022 }, /* Ubelowdot */
-    { 0x01001ee5, 26032 }, /* ubelowdot */
-    { 0x000002dd, 26042 }, /* Ubreve */
-    { 0x000002fd, 26049 }, /* ubreve */
-    { 0x000000db, 26056 }, /* Ucircumflex */
-    { 0x000000fb, 26068 }, /* ucircumflex */
-    { 0x000000dc, 26080 }, /* Udiaeresis */
-    { 0x000000fc, 26091 }, /* udiaeresis */
-    { 0x000001db, 26102 }, /* Udoubleacute */
-    { 0x000001fb, 26115 }, /* udoubleacute */
-    { 0x000000d9, 26128 }, /* Ugrave */
-    { 0x000000f9, 26135 }, /* ugrave */
-    { 0x01001ee6, 26142 }, /* Uhook */
-    { 0x01001ee7, 26148 }, /* uhook */
-    { 0x010001af, 26154 }, /* Uhorn */
-    { 0x010001b0, 26160 }, /* uhorn */
-    { 0x01001ee8, 26166 }, /* Uhornacute */
-    { 0x01001ee9, 26177 }, /* uhornacute */
-    { 0x01001ef0, 26188 }, /* Uhornbelowdot */
-    { 0x01001ef1, 26202 }, /* uhornbelowdot */
-    { 0x01001eea, 26216 }, /* Uhorngrave */
-    { 0x01001eeb, 26227 }, /* uhorngrave */
-    { 0x01001eec, 26238 }, /* Uhornhook */
-    { 0x01001eed, 26248 }, /* uhornhook */
-    { 0x01001eee, 26258 }, /* Uhorntilde */
-    { 0x01001eef, 26269 }, /* uhorntilde */
-    { 0x000006bd, 26280 }, /* Ukrainian_GHE_WITH_UPTURN */
-    { 0x000006ad, 26306 }, /* Ukrainian_ghe_with_upturn */
-    { 0x000006b6, 26332 }, /* Ukrainian_I */
-    { 0x000006a6, 26344 }, /* Ukrainian_i */
-    { 0x000006b4, 26356 }, /* Ukrainian_IE */
-    { 0x000006a4, 26369 }, /* Ukrainian_ie */
-    { 0x000006b7, 26382 }, /* Ukrainian_YI */
-    { 0x000006a7, 26395 }, /* Ukrainian_yi */
-    { 0x000006b6, 26408 }, /* Ukranian_I */
-    { 0x000006a6, 26419 }, /* Ukranian_i */
-    { 0x000006b4, 26430 }, /* Ukranian_JE */
-    { 0x000006a4, 26442 }, /* Ukranian_je */
-    { 0x000006b7, 26454 }, /* Ukranian_YI */
-    { 0x000006a7, 26466 }, /* Ukranian_yi */
-    { 0x000003de, 26478 }, /* Umacron */
-    { 0x000003fe, 26486 }, /* umacron */
-    { 0x00000bc6, 26494 }, /* underbar */
-    { 0x0000005f, 26503 }, /* underscore */
-    { 0x0000ff65, 26514 }, /* Undo */
-    { 0x000008dd, 26519 }, /* union */
-    { 0x000003d9, 26525 }, /* Uogonek */
-    { 0x000003f9, 26533 }, /* uogonek */
-    { 0x0000ff52, 26541 }, /* Up */
-    { 0x000008fc, 26544 }, /* uparrow */
-    { 0x00000ba9, 26552 }, /* upcaret */
-    { 0x000009ec, 26560 }, /* upleftcorner */
-    { 0x000009eb, 26573 }, /* uprightcorner */
-    { 0x00000bc3, 26587 }, /* upshoe */
-    { 0x00000bd3, 26594 }, /* upstile */
-    { 0x00000bce, 26602 }, /* uptack */
-    { 0x000001d9, 26609 }, /* Uring */
-    { 0x000001f9, 26615 }, /* uring */
-    { 0x1000ff6e, 26621 }, /* User */
-    { 0x000003dd, 26626 }, /* Utilde */
-    { 0x000003fd, 26633 }, /* utilde */
-    { 0x00000056, 26640 }, /* V */
-    { 0x00000076, 26642 }, /* v */
-    { 0x000008c1, 26644 }, /* variation */
-    { 0x000009f8, 26654 }, /* vertbar */
-    { 0x000008a6, 26662 }, /* vertconnector */
-    { 0x000004de, 26676 }, /* voicedsound */
-    { 0x00ffffff, 26688 }, /* VoidSymbol */
-    { 0x000009e9, 26699 }, /* vt */
-    { 0x00000057, 26702 }, /* W */
-    { 0x00000077, 26704 }, /* w */
-    { 0x01001e82, 26706 }, /* Wacute */
-    { 0x01001e83, 26713 }, /* wacute */
-    { 0x01000174, 26720 }, /* Wcircumflex */
-    { 0x01000175, 26732 }, /* wcircumflex */
-    { 0x01001e84, 26744 }, /* Wdiaeresis */
-    { 0x01001e85, 26755 }, /* wdiaeresis */
-    { 0x01001e80, 26766 }, /* Wgrave */
-    { 0x01001e81, 26773 }, /* wgrave */
-    { 0x010020a9, 26780 }, /* WonSign */
-    { 0x00000058, 26788 }, /* X */
-    { 0x00000078, 26790 }, /* x */
-    { 0x01001e8a, 26792 }, /* Xabovedot */
-    { 0x01001e8b, 26802 }, /* xabovedot */
-    { 0x100811b9, 26812 }, /* XF8610ChannelsDown */
-    { 0x100811b8, 26831 }, /* XF8610ChannelsUp */
-    { 0x1008126f, 26848 }, /* XF863DMode */
-    { 0x1008124e, 26859 }, /* XF86Accessibility */
-    { 0x1008ff39, 26877 }, /* XF86AddFavorite */
-    { 0x100811ad, 26893 }, /* XF86Addressbook */
-    { 0x10081230, 26909 }, /* XF86ALSToggle */
-    { 0x1008ff50, 26923 }, /* XF86ApplicationLeft */
-    { 0x1008ff51, 26943 }, /* XF86ApplicationRight */
-    { 0x10081244, 26964 }, /* XF86AppSelect */
-    { 0x10081177, 26978 }, /* XF86AspectRatio */
-    { 0x10081247, 26994 }, /* XF86Assistant */
-    { 0x1008121c, 27008 }, /* XF86AttendantOff */
-    { 0x1008121b, 27025 }, /* XF86AttendantOn */
-    { 0x1008121d, 27041 }, /* XF86AttendantToggle */
-    { 0x10081188, 27061 }, /* XF86Audio */
-    { 0x1008ff9b, 27071 }, /* XF86AudioCycleTrack */
-    { 0x1008126e, 27091 }, /* XF86AudioDesc */
-    { 0x1008ff97, 27105 }, /* XF86AudioForward */
-    { 0x1008ff11, 27122 }, /* XF86AudioLowerVolume */
-    { 0x1008ff32, 27143 }, /* XF86AudioMedia */
-    { 0x1008ffb2, 27158 }, /* XF86AudioMicMute */
-    { 0x1008ff12, 27175 }, /* XF86AudioMute */
-    { 0x1008ff17, 27189 }, /* XF86AudioNext */
-    { 0x1008ff31, 27203 }, /* XF86AudioPause */
-    { 0x1008ff14, 27218 }, /* XF86AudioPlay */
-    { 0x1008ffb6, 27232 }, /* XF86AudioPreset */
-    { 0x1008ff16, 27248 }, /* XF86AudioPrev */
-    { 0x1008ff13, 27262 }, /* XF86AudioRaiseVolume */
-    { 0x1008ff99, 27283 }, /* XF86AudioRandomPlay */
-    { 0x1008ff1c, 27303 }, /* XF86AudioRecord */
-    { 0x1008ff98, 27319 }, /* XF86AudioRepeat */
-    { 0x1008ff3e, 27335 }, /* XF86AudioRewind */
-    { 0x1008ff15, 27351 }, /* XF86AudioStop */
-    { 0x1008127d, 27365 }, /* XF86AutopilotEngageToggle */
-    { 0x1008ff8d, 27391 }, /* XF86Away */
-    { 0x1008ff26, 27400 }, /* XF86Back */
-    { 0x1008ff3f, 27409 }, /* XF86BackForward */
-    { 0x1008ff93, 27425 }, /* XF86Battery */
-    { 0x1008ffa6, 27437 }, /* XF86Blue */
-    { 0x1008ff94, 27446 }, /* XF86Bluetooth */
-    { 0x1008ff52, 27460 }, /* XF86Book */
-    { 0x1008119b, 27469 }, /* XF86Break */
-    { 0x1008ff3b, 27479 }, /* XF86BrightnessAdjust */
-    { 0x100810f4, 27500 }, /* XF86BrightnessAuto */
-    { 0x10081251, 27519 }, /* XF86BrightnessMax */
-    { 0x10081250, 27537 }, /* XF86BrightnessMin */
-    { 0x10081240, 27555 }, /* XF86Buttonconfig */
-    { 0x1008ff54, 27572 }, /* XF86Calculater */
-    { 0x1008ff1d, 27587 }, /* XF86Calculator */
-    { 0x1008ff20, 27602 }, /* XF86Calendar */
-    { 0x1008124c, 27615 }, /* XF86CameraAccessDisable */
-    { 0x1008124b, 27639 }, /* XF86CameraAccessEnable */
-    { 0x1008124d, 27662 }, /* XF86CameraAccessToggle */
-    { 0x10081218, 27685 }, /* XF86CameraDown */
-    { 0x10081210, 27700 }, /* XF86CameraFocus */
-    { 0x10081219, 27716 }, /* XF86CameraLeft */
-    { 0x1008121a, 27731 }, /* XF86CameraRight */
-    { 0x10081217, 27747 }, /* XF86CameraUp */
-    { 0x10081215, 27760 }, /* XF86CameraZoomIn */
-    { 0x10081216, 27777 }, /* XF86CameraZoomOut */
-    { 0x1008ff53, 27795 }, /* XF86CD */
-    { 0x10081193, 27802 }, /* XF86ChannelDown */
-    { 0x10081192, 27818 }, /* XF86ChannelUp */
-    { 0x1008ff55, 27832 }, /* XF86Clear */
-    { 0x1008fe21, 27842 }, /* XF86ClearGrab */
-    { 0x10081286, 27856 }, /* XF86ClearvuSonar */
-    { 0x1008ff56, 27873 }, /* XF86Close */
-    { 0x1008ff3d, 27883 }, /* XF86Community */
-    { 0x100811b6, 27897 }, /* XF86ContextMenu */
-    { 0x1008ff22, 27913 }, /* XF86ContrastAdjust */
-    { 0x10081243, 27932 }, /* XF86ControlPanel */
-    { 0x1008ff57, 27949 }, /* XF86Copy */
-    { 0x1008ff58, 27958 }, /* XF86Cut */
-    { 0x1008ff9c, 27966 }, /* XF86CycleAngle */
-    { 0x10081277, 27981 }, /* XF86Data */
-    { 0x100811aa, 27990 }, /* XF86Database */
-    { 0x1008124a, 28003 }, /* XF86Dictate */
-    { 0x1008ff59, 28015 }, /* XF86Display */
-    { 0x100810f5, 28027 }, /* XF86DisplayOff */
-    { 0x100811af, 28042 }, /* XF86DisplayToggle */
-    { 0x1008ff5b, 28060 }, /* XF86Documents */
-    { 0x1008124f, 28074 }, /* XF86DoNotDisturb */
-    { 0x1008ff5a, 28091 }, /* XF86DOS */
-    { 0x10081283, 28099 }, /* XF86DualRangeRadar */
-    { 0x10081185, 28118 }, /* XF86DVD */
-    { 0x100811a6, 28126 }, /* XF86Editor */
-    { 0x1008ff2c, 28137 }, /* XF86Eject */
-    { 0x10081249, 28147 }, /* XF86EmojiPicker */
-    { 0x1008ff5c, 28163 }, /* XF86Excel */
-    { 0x1008ff5d, 28173 }, /* XF86Explorer */
-    { 0x10081275, 28186 }, /* XF86FastReverse */
-    { 0x1008ff30, 28202 }, /* XF86Favorites */
-    { 0x1008ff3c, 28216 }, /* XF86Finance */
-    { 0x10081281, 28228 }, /* XF86FishingChart */
-    { 0x100811d0, 28245 }, /* XF86Fn */
-    { 0x100811d1, 28252 }, /* XF86Fn_Esc */
-    { 0x100811e5, 28263 }, /* XF86FnRightShift */
-    { 0x1008ff27, 28280 }, /* XF86Forward */
-    { 0x1008ff9d, 28292 }, /* XF86FrameBack */
-    { 0x1008ff9e, 28306 }, /* XF86FrameForward */
-    { 0x1008ffb8, 28323 }, /* XF86FullScreen */
-    { 0x1008ff5e, 28338 }, /* XF86Game */
-    { 0x1008ff5f, 28347 }, /* XF86Go */
-    { 0x100811a8, 28354 }, /* XF86GraphicsEditor */
-    { 0x1008ffa4, 28373 }, /* XF86Green */
-    { 0x100811be, 28383 }, /* XF86HangupPhone */
-    { 0x1008ffa8, 28399 }, /* XF86Hibernate */
-    { 0x1008ff37, 28413 }, /* XF86History */
-    { 0x1008ff18, 28425 }, /* XF86HomePage */
-    { 0x1008ff3a, 28438 }, /* XF86HotLinks */
-    { 0x100811ba, 28451 }, /* XF86Images */
-    { 0x10081166, 28462 }, /* XF86Info */
-    { 0x1008ff60, 28471 }, /* XF86iTouch */
-    { 0x10081242, 28482 }, /* XF86Journal */
-    { 0x1008ff06, 28494 }, /* XF86KbdBrightnessDown */
-    { 0x1008ff05, 28516 }, /* XF86KbdBrightnessUp */
-    { 0x10081264, 28536 }, /* XF86KbdInputAssistAccept */
-    { 0x10081265, 28561 }, /* XF86KbdInputAssistCancel */
-    { 0x10081261, 28586 }, /* XF86KbdInputAssistNext */
-    { 0x10081263, 28609 }, /* XF86KbdInputAssistNextgroup */
-    { 0x10081260, 28637 }, /* XF86KbdInputAssistPrev */
-    { 0x10081262, 28660 }, /* XF86KbdInputAssistPrevgroup */
-    { 0x100812b8, 28688 }, /* XF86KbdLcdMenu1 */
-    { 0x100812b9, 28704 }, /* XF86KbdLcdMenu2 */
-    { 0x100812ba, 28720 }, /* XF86KbdLcdMenu3 */
-    { 0x100812bb, 28736 }, /* XF86KbdLcdMenu4 */
-    { 0x100812bc, 28752 }, /* XF86KbdLcdMenu5 */
-    { 0x1008ff04, 28768 }, /* XF86KbdLightOnOff */
-    { 0x1008ffb3, 28786 }, /* XF86Keyboard */
-    { 0x1008ff40, 28799 }, /* XF86Launch0 */
-    { 0x1008ff41, 28811 }, /* XF86Launch1 */
-    { 0x1008ff42, 28823 }, /* XF86Launch2 */
-    { 0x1008ff43, 28835 }, /* XF86Launch3 */
-    { 0x1008ff44, 28847 }, /* XF86Launch4 */
-    { 0x1008ff45, 28859 }, /* XF86Launch5 */
-    { 0x1008ff46, 28871 }, /* XF86Launch6 */
-    { 0x1008ff47, 28883 }, /* XF86Launch7 */
-    { 0x1008ff48, 28895 }, /* XF86Launch8 */
-    { 0x1008ff49, 28907 }, /* XF86Launch9 */
-    { 0x1008ff4a, 28919 }, /* XF86LaunchA */
-    { 0x1008ff4b, 28931 }, /* XF86LaunchB */
-    { 0x1008ff4c, 28943 }, /* XF86LaunchC */
-    { 0x1008ff4d, 28955 }, /* XF86LaunchD */
-    { 0x1008ff4e, 28967 }, /* XF86LaunchE */
-    { 0x1008ff4f, 28979 }, /* XF86LaunchF */
-    { 0x10081269, 28991 }, /* XF86LeftDown */
-    { 0x10081268, 29004 }, /* XF86LeftUp */
-    { 0x1008ff35, 29015 }, /* XF86LightBulb */
-    { 0x1008121e, 29029 }, /* XF86LightsToggle */
-    { 0x1008fe25, 29046 }, /* XF86LogGrabInfo */
-    { 0x1008ff61, 29062 }, /* XF86LogOff */
-    { 0x1008fe24, 29073 }, /* XF86LogWindowTree */
-    { 0x10081290, 29091 }, /* XF86Macro1 */
-    { 0x10081299, 29102 }, /* XF86Macro10 */
-    { 0x1008129a, 29114 }, /* XF86Macro11 */
-    { 0x1008129b, 29126 }, /* XF86Macro12 */
-    { 0x1008129c, 29138 }, /* XF86Macro13 */
-    { 0x1008129d, 29150 }, /* XF86Macro14 */
-    { 0x1008129e, 29162 }, /* XF86Macro15 */
-    { 0x1008129f, 29174 }, /* XF86Macro16 */
-    { 0x100812a0, 29186 }, /* XF86Macro17 */
-    { 0x100812a1, 29198 }, /* XF86Macro18 */
-    { 0x100812a2, 29210 }, /* XF86Macro19 */
-    { 0x10081291, 29222 }, /* XF86Macro2 */
-    { 0x100812a3, 29233 }, /* XF86Macro20 */
-    { 0x100812a4, 29245 }, /* XF86Macro21 */
-    { 0x100812a5, 29257 }, /* XF86Macro22 */
-    { 0x100812a6, 29269 }, /* XF86Macro23 */
-    { 0x100812a7, 29281 }, /* XF86Macro24 */
-    { 0x100812a8, 29293 }, /* XF86Macro25 */
-    { 0x100812a9, 29305 }, /* XF86Macro26 */
-    { 0x100812aa, 29317 }, /* XF86Macro27 */
-    { 0x100812ab, 29329 }, /* XF86Macro28 */
-    { 0x100812ac, 29341 }, /* XF86Macro29 */
-    { 0x10081292, 29353 }, /* XF86Macro3 */
-    { 0x100812ad, 29364 }, /* XF86Macro30 */
-    { 0x10081293, 29376 }, /* XF86Macro4 */
-    { 0x10081294, 29387 }, /* XF86Macro5 */
-    { 0x10081295, 29398 }, /* XF86Macro6 */
-    { 0x10081296, 29409 }, /* XF86Macro7 */
-    { 0x10081297, 29420 }, /* XF86Macro8 */
-    { 0x10081298, 29431 }, /* XF86Macro9 */
-    { 0x100812b3, 29442 }, /* XF86MacroPreset1 */
-    { 0x100812b4, 29459 }, /* XF86MacroPreset2 */
-    { 0x100812b5, 29476 }, /* XF86MacroPreset3 */
-    { 0x100812b2, 29493 }, /* XF86MacroPresetCycle */
-    { 0x100812b0, 29514 }, /* XF86MacroRecordStart */
-    { 0x100812b1, 29535 }, /* XF86MacroRecordStop */
-    { 0x1008ff19, 29555 }, /* XF86Mail */
-    { 0x1008ff90, 29564 }, /* XF86MailForward */
-    { 0x1008ff62, 29580 }, /* XF86Market */
-    { 0x1008127e, 29591 }, /* XF86MarkWaypoint */
-    { 0x100811b7, 29608 }, /* XF86MediaRepeat */
-    { 0x1008126b, 29624 }, /* XF86MediaTopMenu */
-    { 0x1008ff63, 29641 }, /* XF86Meeting */
-    { 0x1008ff1e, 29653 }, /* XF86Memo */
-    { 0x1008ff65, 29662 }, /* XF86MenuKB */
-    { 0x1008ff66, 29673 }, /* XF86MenuPB */
-    { 0x1008ff8e, 29684 }, /* XF86Messenger */
-    { 0x1008ff01, 29698 }, /* XF86ModeLock */
-    { 0x1008ff07, 29711 }, /* XF86MonBrightnessCycle */
-    { 0x1008ff03, 29734 }, /* XF86MonBrightnessDown */
-    { 0x1008ff02, 29756 }, /* XF86MonBrightnessUp */
-    { 0x1008ff92, 29776 }, /* XF86Music */
-    { 0x1008ff33, 29786 }, /* XF86MyComputer */
-    { 0x1008ff67, 29801 }, /* XF86MySites */
-    { 0x10081280, 29813 }, /* XF86NavChart */
-    { 0x10081288, 29826 }, /* XF86NavInfo */
-    { 0x1008ff68, 29838 }, /* XF86New */
-    { 0x1008ff69, 29846 }, /* XF86News */
-    { 0x1008fe22, 29855 }, /* XF86Next_VMode */
-    { 0x1008127b, 29870 }, /* XF86NextElement */
-    { 0x10081270, 29886 }, /* XF86NextFavorite */
-    { 0x100811bc, 29903 }, /* XF86NotificationCenter */
-    { 0x10081200, 29926 }, /* XF86Numeric0 */
-    { 0x10081201, 29939 }, /* XF86Numeric1 */
-    { 0x1008126c, 29952 }, /* XF86Numeric11 */
-    { 0x1008126d, 29966 }, /* XF86Numeric12 */
-    { 0x10081202, 29980 }, /* XF86Numeric2 */
-    { 0x10081203, 29993 }, /* XF86Numeric3 */
-    { 0x10081204, 30006 }, /* XF86Numeric4 */
-    { 0x10081205, 30019 }, /* XF86Numeric5 */
-    { 0x10081206, 30032 }, /* XF86Numeric6 */
-    { 0x10081207, 30045 }, /* XF86Numeric7 */
-    { 0x10081208, 30058 }, /* XF86Numeric8 */
-    { 0x10081209, 30071 }, /* XF86Numeric9 */
-    { 0x1008120c, 30084 }, /* XF86NumericA */
-    { 0x1008120d, 30097 }, /* XF86NumericB */
-    { 0x1008120e, 30110 }, /* XF86NumericC */
-    { 0x1008120f, 30123 }, /* XF86NumericD */
-    { 0x1008120b, 30136 }, /* XF86NumericPound */
-    { 0x1008120a, 30153 }, /* XF86NumericStar */
-    { 0x1008ff6a, 30169 }, /* XF86OfficeHome */
-    { 0x10081278, 30184 }, /* XF86OnScreenKeyboard */
-    { 0x1008ff6b, 30205 }, /* XF86Open */
-    { 0x1008ff38, 30214 }, /* XF86OpenURL */
-    { 0x1008ff6c, 30226 }, /* XF86Option */
-    { 0x1008ff6d, 30237 }, /* XF86Paste */
-    { 0x10081272, 30247 }, /* XF86PauseRecord */
-    { 0x1008ff6e, 30263 }, /* XF86Phone */
-    { 0x100811bd, 30273 }, /* XF86PickupPhone */
-    { 0x1008ff91, 30289 }, /* XF86Pictures */
-    { 0x1008ff21, 30302 }, /* XF86PowerDown */
-    { 0x1008ff2a, 30316 }, /* XF86PowerOff */
-    { 0x100811a9, 30329 }, /* XF86Presentation */
-    { 0x1008fe23, 30346 }, /* XF86Prev_VMode */
-    { 0x1008127c, 30361 }, /* XF86PreviousElement */
-    { 0x10081279, 30381 }, /* XF86PrivacyScreenToggle */
-    { 0x1008ff70, 30405 }, /* XF86Q */
-    { 0x10081284, 30411 }, /* XF86RadarOverlay */
-    { 0x1008ffa3, 30428 }, /* XF86Red */
-    { 0x1008ff29, 30436 }, /* XF86Refresh */
-    { 0x10081232, 30448 }, /* XF86RefreshRateToggle */
-    { 0x1008ff73, 30470 }, /* XF86Reload */
-    { 0x1008ff72, 30481 }, /* XF86Reply */
-    { 0x1008ffb5, 30491 }, /* XF86RFKill */
-    { 0x10081267, 30502 }, /* XF86RightDown */
-    { 0x10081266, 30516 }, /* XF86RightUp */
-    { 0x1008ff24, 30528 }, /* XF86RockerDown */
-    { 0x1008ff25, 30543 }, /* XF86RockerEnter */
-    { 0x1008ff23, 30559 }, /* XF86RockerUp */
-    { 0x1008126a, 30572 }, /* XF86RootMenu */
-    { 0x1008ff74, 30585 }, /* XF86RotateWindows */
-    { 0x1008ff76, 30603 }, /* XF86RotationKB */
-    { 0x1008ffb7, 30618 }, /* XF86RotationLockToggle */
-    { 0x1008ff75, 30641 }, /* XF86RotationPB */
-    { 0x1008ff77, 30656 }, /* XF86Save */
-    { 0x1008ff2d, 30665 }, /* XF86ScreenSaver */
-    { 0x10081245, 30681 }, /* XF86Screensaver */
-    { 0x1008ff7a, 30697 }, /* XF86ScrollClick */
-    { 0x1008ff79, 30713 }, /* XF86ScrollDown */
-    { 0x1008ff78, 30728 }, /* XF86ScrollUp */
-    { 0x1008ff1b, 30741 }, /* XF86Search */
-    { 0x1008ffa0, 30752 }, /* XF86Select */
-    { 0x1008127a, 30763 }, /* XF86SelectiveScreenshot */
-    { 0x1008ff7b, 30787 }, /* XF86Send */
-    { 0x1008ff36, 30796 }, /* XF86Shop */
-    { 0x10081287, 30805 }, /* XF86SidevuSonar */
-    { 0x10081282, 30821 }, /* XF86SingleRangeRadar */
-    { 0x1008ff2f, 30842 }, /* XF86Sleep */
-    { 0x10081276, 30852 }, /* XF86SlowReverse */
-    { 0x1008127f, 30868 }, /* XF86Sos */
-    { 0x1008ff7c, 30876 }, /* XF86Spell */
-    { 0x100811b0, 30886 }, /* XF86SpellCheck */
-    { 0x1008ff7d, 30901 }, /* XF86SplitScreen */
-    { 0x1008ff10, 30917 }, /* XF86Standby */
-    { 0x1008ff1a, 30929 }, /* XF86Start */
-    { 0x1008ff28, 30939 }, /* XF86Stop */
-    { 0x10081271, 30948 }, /* XF86StopRecord */
-    { 0x1008ff9a, 30963 }, /* XF86Subtitle */
-    { 0x1008ff7e, 30976 }, /* XF86Support */
-    { 0x1008ffa7, 30988 }, /* XF86Suspend */
-    { 0x1008fe01, 31000 }, /* XF86Switch_VT_1 */
-    { 0x1008fe0a, 31016 }, /* XF86Switch_VT_10 */
-    { 0x1008fe0b, 31033 }, /* XF86Switch_VT_11 */
-    { 0x1008fe0c, 31050 }, /* XF86Switch_VT_12 */
-    { 0x1008fe02, 31067 }, /* XF86Switch_VT_2 */
-    { 0x1008fe03, 31083 }, /* XF86Switch_VT_3 */
-    { 0x1008fe04, 31099 }, /* XF86Switch_VT_4 */
-    { 0x1008fe05, 31115 }, /* XF86Switch_VT_5 */
-    { 0x1008fe06, 31131 }, /* XF86Switch_VT_6 */
-    { 0x1008fe07, 31147 }, /* XF86Switch_VT_7 */
-    { 0x1008fe08, 31163 }, /* XF86Switch_VT_8 */
-    { 0x1008fe09, 31179 }, /* XF86Switch_VT_9 */
-    { 0x10081241, 31195 }, /* XF86Taskmanager */
-    { 0x1008ff7f, 31211 }, /* XF86TaskPane */
-    { 0x1008ff80, 31224 }, /* XF86Terminal */
-    { 0x1008ff9f, 31237 }, /* XF86Time */
-    { 0x1008ff1f, 31246 }, /* XF86ToDoList */
-    { 0x1008ff81, 31259 }, /* XF86Tools */
-    { 0x1008ffa2, 31269 }, /* XF86TopMenu */
-    { 0x1008ffb1, 31281 }, /* XF86TouchpadOff */
-    { 0x1008ffb0, 31297 }, /* XF86TouchpadOn */
-    { 0x1008ffa9, 31312 }, /* XF86TouchpadToggle */
-    { 0x10081285, 31331 }, /* XF86TraditionalSonar */
-    { 0x1008ff82, 31352 }, /* XF86Travel */
-    { 0x1008fe20, 31363 }, /* XF86Ungrab */
-    { 0x10081274, 31374 }, /* XF86Unmute */
-    { 0x1008ff85, 31385 }, /* XF86User1KB */
-    { 0x1008ff86, 31397 }, /* XF86User2KB */
-    { 0x1008ff84, 31409 }, /* XF86UserPB */
-    { 0x1008ff96, 31420 }, /* XF86UWB */
-    { 0x1008ff34, 31428 }, /* XF86VendorHome */
-    { 0x1008ff87, 31443 }, /* XF86Video */
-    { 0x100811a0, 31453 }, /* XF86VideoPhone */
-    { 0x1008ffa1, 31468 }, /* XF86View */
-    { 0x10081273, 31477 }, /* XF86VOD */
-    { 0x10081246, 31485 }, /* XF86VoiceCommand */
-    { 0x100811ac, 31502 }, /* XF86Voicemail */
-    { 0x1008ff2b, 31516 }, /* XF86WakeUp */
-    { 0x1008ff8f, 31527 }, /* XF86WebCam */
-    { 0x1008ff88, 31538 }, /* XF86WheelButton */
-    { 0x1008ff95, 31554 }, /* XF86WLAN */
-    { 0x1008ff89, 31563 }, /* XF86Word */
-    { 0x10081211, 31572 }, /* XF86WPSButton */
-    { 0x1008ffb4, 31586 }, /* XF86WWAN */
-    { 0x1008ff2e, 31595 }, /* XF86WWW */
-    { 0x1008ff8a, 31603 }, /* XF86Xfer */
-    { 0x1008ffa5, 31612 }, /* XF86Yellow */
-    { 0x1008ff8b, 31623 }, /* XF86ZoomIn */
-    { 0x1008ff8c, 31634 }, /* XF86ZoomOut */
-    { 0x100811a4, 31646 }, /* XF86ZoomReset */
-    { 0x00000059, 31660 }, /* Y */
-    { 0x00000079, 31662 }, /* y */
-    { 0x000000dd, 31664 }, /* Yacute */
-    { 0x000000fd, 31671 }, /* yacute */
-    { 0x01001ef4, 31678 }, /* Ybelowdot */
-    { 0x01001ef5, 31688 }, /* ybelowdot */
-    { 0x01000176, 31698 }, /* Ycircumflex */
-    { 0x01000177, 31710 }, /* ycircumflex */
-    { 0x000013be, 31722 }, /* Ydiaeresis */
-    { 0x000000ff, 31733 }, /* ydiaeresis */
-    { 0x000000a5, 31744 }, /* yen */
-    { 0x01001ef2, 31748 }, /* Ygrave */
-    { 0x01001ef3, 31755 }, /* ygrave */
-    { 0x01001ef6, 31762 }, /* Yhook */
-    { 0x01001ef7, 31768 }, /* yhook */
-    { 0x01001ef8, 31774 }, /* Ytilde */
-    { 0x01001ef9, 31781 }, /* ytilde */
-    { 0x0000005a, 31788 }, /* Z */
-    { 0x0000007a, 31790 }, /* z */
-    { 0x000001af, 31792 }, /* Zabovedot */
-    { 0x000001bf, 31802 }, /* zabovedot */
-    { 0x000001ac, 31812 }, /* Zacute */
-    { 0x000001bc, 31819 }, /* zacute */
-    { 0x000001ae, 31826 }, /* Zcaron */
-    { 0x000001be, 31833 }, /* zcaron */
-    { 0x0000ff3d, 31840 }, /* Zen_Koho */
-    { 0x0000ff28, 31849 }, /* Zenkaku */
-    { 0x0000ff2a, 31857 }, /* Zenkaku_Hankaku */
-    { 0x01002080, 31873 }, /* zerosubscript */
-    { 0x01002070, 31887 }, /* zerosuperior */
-    { 0x010001b5, 31900 }, /* Zstroke */
-    { 0x010001b6, 31908 }, /* zstroke */
+    { 0x00000031, 3 }, /* 1 */
+    { 0x00000032, 6 }, /* 2 */
+    { 0x00000033, 9 }, /* 3 */
+    { 0x0000fd10, 12 }, /* 3270_AltCursor */
+    { 0x0000fd0e, 28 }, /* 3270_Attn */
+    { 0x0000fd05, 39 }, /* 3270_BackTab */
+    { 0x0000fd19, 53 }, /* 3270_ChangeScreen */
+    { 0x0000fd15, 72 }, /* 3270_Copy */
+    { 0x0000fd0f, 83 }, /* 3270_CursorBlink */
+    { 0x0000fd1c, 101 }, /* 3270_CursorSelect */
+    { 0x0000fd1a, 120 }, /* 3270_DeleteWord */
+    { 0x0000fd01, 137 }, /* 3270_Duplicate */
+    { 0x0000fd1e, 153 }, /* 3270_Enter */
+    { 0x0000fd06, 165 }, /* 3270_EraseEOF */
+    { 0x0000fd07, 180 }, /* 3270_EraseInput */
+    { 0x0000fd1b, 197 }, /* 3270_ExSelect */
+    { 0x0000fd02, 212 }, /* 3270_FieldMark */
+    { 0x0000fd13, 228 }, /* 3270_Ident */
+    { 0x0000fd12, 240 }, /* 3270_Jump */
+    { 0x0000fd11, 251 }, /* 3270_KeyClick */
+    { 0x0000fd04, 266 }, /* 3270_Left2 */
+    { 0x0000fd0a, 278 }, /* 3270_PA1 */
+    { 0x0000fd0b, 288 }, /* 3270_PA2 */
+    { 0x0000fd0c, 298 }, /* 3270_PA3 */
+    { 0x0000fd16, 308 }, /* 3270_Play */
+    { 0x0000fd1d, 319 }, /* 3270_PrintScreen */
+    { 0x0000fd09, 337 }, /* 3270_Quit */
+    { 0x0000fd18, 348 }, /* 3270_Record */
+    { 0x0000fd08, 361 }, /* 3270_Reset */
+    { 0x0000fd03, 373 }, /* 3270_Right2 */
+    { 0x0000fd14, 386 }, /* 3270_Rule */
+    { 0x0000fd17, 397 }, /* 3270_Setup */
+    { 0x0000fd0d, 409 }, /* 3270_Test */
+    { 0x00000034, 420 }, /* 4 */
+    { 0x00000035, 423 }, /* 5 */
+    { 0x00000036, 426 }, /* 6 */
+    { 0x00000037, 429 }, /* 7 */
+    { 0x00000038, 432 }, /* 8 */
+    { 0x00000039, 435 }, /* 9 */
+    { 0x00000041, 438 }, /* A */
+    { 0x00000061, 441 }, /* a */
+    { 0x000000c1, 444 }, /* Aacute */
+    { 0x000000e1, 452 }, /* aacute */
+    { 0x01001ea0, 460 }, /* Abelowdot */
+    { 0x01001ea1, 471 }, /* abelowdot */
+    { 0x000001ff, 482 }, /* abovedot */
+    { 0x000001c3, 492 }, /* Abreve */
+    { 0x000001e3, 500 }, /* abreve */
+    { 0x01001eae, 508 }, /* Abreveacute */
+    { 0x01001eaf, 521 }, /* abreveacute */
+    { 0x01001eb6, 534 }, /* Abrevebelowdot */
+    { 0x01001eb7, 550 }, /* abrevebelowdot */
+    { 0x01001eb0, 566 }, /* Abrevegrave */
+    { 0x01001eb1, 579 }, /* abrevegrave */
+    { 0x01001eb2, 592 }, /* Abrevehook */
+    { 0x01001eb3, 604 }, /* abrevehook */
+    { 0x01001eb4, 616 }, /* Abrevetilde */
+    { 0x01001eb5, 629 }, /* abrevetilde */
+    { 0x0000fe70, 642 }, /* AccessX_Enable */
+    { 0x0000fe71, 658 }, /* AccessX_Feedback_Enable */
+    { 0x000000c2, 683 }, /* Acircumflex */
+    { 0x000000e2, 696 }, /* acircumflex */
+    { 0x01001ea4, 709 }, /* Acircumflexacute */
+    { 0x01001ea5, 727 }, /* acircumflexacute */
+    { 0x01001eac, 745 }, /* Acircumflexbelowdot */
+    { 0x01001ead, 766 }, /* acircumflexbelowdot */
+    { 0x01001ea6, 787 }, /* Acircumflexgrave */
+    { 0x01001ea7, 805 }, /* acircumflexgrave */
+    { 0x01001ea8, 823 }, /* Acircumflexhook */
+    { 0x01001ea9, 840 }, /* acircumflexhook */
+    { 0x01001eaa, 857 }, /* Acircumflextilde */
+    { 0x01001eab, 875 }, /* acircumflextilde */
+    { 0x000000b4, 893 }, /* acute */
+    { 0x000000c4, 900 }, /* Adiaeresis */
+    { 0x000000e4, 912 }, /* adiaeresis */
+    { 0x000000c6, 924 }, /* AE */
+    { 0x000000e6, 928 }, /* ae */
+    { 0x000000c0, 932 }, /* Agrave */
+    { 0x000000e0, 940 }, /* agrave */
+    { 0x01001ea2, 948 }, /* Ahook */
+    { 0x01001ea3, 955 }, /* ahook */
+    { 0x0000ffe9, 962 }, /* Alt_L */
+    { 0x0000ffea, 969 }, /* Alt_R */
+    { 0x000003c0, 976 }, /* Amacron */
+    { 0x000003e0, 985 }, /* amacron */
+    { 0x00000026, 994 }, /* ampersand */
+    { 0x000001a1, 1005 }, /* Aogonek */
+    { 0x000001b1, 1014 }, /* aogonek */
+    { 0x00000027, 1023 }, /* apostrophe */
+    { 0x01002248, 1035 }, /* approxeq */
+    { 0x000008c8, 1045 }, /* approximate */
+    { 0x01000660, 1058 }, /* Arabic_0 */
+    { 0x01000661, 1068 }, /* Arabic_1 */
+    { 0x01000662, 1078 }, /* Arabic_2 */
+    { 0x01000663, 1088 }, /* Arabic_3 */
+    { 0x01000664, 1098 }, /* Arabic_4 */
+    { 0x01000665, 1108 }, /* Arabic_5 */
+    { 0x01000666, 1118 }, /* Arabic_6 */
+    { 0x01000667, 1128 }, /* Arabic_7 */
+    { 0x01000668, 1138 }, /* Arabic_8 */
+    { 0x01000669, 1148 }, /* Arabic_9 */
+    { 0x000005d9, 1158 }, /* Arabic_ain */
+    { 0x000005c7, 1170 }, /* Arabic_alef */
+    { 0x000005e9, 1183 }, /* Arabic_alefmaksura */
+    { 0x000005c8, 1203 }, /* Arabic_beh */
+    { 0x000005ac, 1215 }, /* Arabic_comma */
+    { 0x000005d6, 1229 }, /* Arabic_dad */
+    { 0x000005cf, 1241 }, /* Arabic_dal */
+    { 0x000005ef, 1253 }, /* Arabic_damma */
+    { 0x000005ec, 1267 }, /* Arabic_dammatan */
+    { 0x01000688, 1284 }, /* Arabic_ddal */
+    { 0x010006cc, 1297 }, /* Arabic_farsi_yeh */
+    { 0x000005ee, 1315 }, /* Arabic_fatha */
+    { 0x000005eb, 1329 }, /* Arabic_fathatan */
+    { 0x000005e1, 1346 }, /* Arabic_feh */
+    { 0x010006d4, 1358 }, /* Arabic_fullstop */
+    { 0x010006af, 1375 }, /* Arabic_gaf */
+    { 0x000005da, 1387 }, /* Arabic_ghain */
+    { 0x000005e7, 1401 }, /* Arabic_ha */
+    { 0x000005cd, 1412 }, /* Arabic_hah */
+    { 0x000005c1, 1424 }, /* Arabic_hamza */
+    { 0x01000654, 1438 }, /* Arabic_hamza_above */
+    { 0x01000655, 1458 }, /* Arabic_hamza_below */
+    { 0x000005c3, 1478 }, /* Arabic_hamzaonalef */
+    { 0x000005c4, 1498 }, /* Arabic_hamzaonwaw */
+    { 0x000005c6, 1517 }, /* Arabic_hamzaonyeh */
+    { 0x000005c5, 1536 }, /* Arabic_hamzaunderalef */
+    { 0x000005e7, 1559 }, /* Arabic_heh */
+    { 0x010006be, 1571 }, /* Arabic_heh_doachashmee */
+    { 0x010006c1, 1595 }, /* Arabic_heh_goal */
+    { 0x000005cc, 1612 }, /* Arabic_jeem */
+    { 0x01000698, 1625 }, /* Arabic_jeh */
+    { 0x000005e3, 1637 }, /* Arabic_kaf */
+    { 0x000005f0, 1649 }, /* Arabic_kasra */
+    { 0x000005ed, 1663 }, /* Arabic_kasratan */
+    { 0x010006a9, 1680 }, /* Arabic_keheh */
+    { 0x000005ce, 1694 }, /* Arabic_khah */
+    { 0x000005e4, 1707 }, /* Arabic_lam */
+    { 0x01000653, 1719 }, /* Arabic_madda_above */
+    { 0x000005c2, 1739 }, /* Arabic_maddaonalef */
+    { 0x000005e5, 1759 }, /* Arabic_meem */
+    { 0x000005e6, 1772 }, /* Arabic_noon */
+    { 0x010006ba, 1785 }, /* Arabic_noon_ghunna */
+    { 0x0100067e, 1805 }, /* Arabic_peh */
+    { 0x0100066a, 1817 }, /* Arabic_percent */
+    { 0x000005e2, 1833 }, /* Arabic_qaf */
+    { 0x000005bf, 1845 }, /* Arabic_question_mark */
+    { 0x000005d1, 1867 }, /* Arabic_ra */
+    { 0x01000691, 1878 }, /* Arabic_rreh */
+    { 0x000005d5, 1891 }, /* Arabic_sad */
+    { 0x000005d3, 1903 }, /* Arabic_seen */
+    { 0x000005bb, 1916 }, /* Arabic_semicolon */
+    { 0x000005f1, 1934 }, /* Arabic_shadda */
+    { 0x000005d4, 1949 }, /* Arabic_sheen */
+    { 0x000005f2, 1963 }, /* Arabic_sukun */
+    { 0x01000670, 1977 }, /* Arabic_superscript_alef */
+    { 0x0000ff7e, 2002 }, /* Arabic_switch */
+    { 0x000005d7, 2017 }, /* Arabic_tah */
+    { 0x000005e0, 2029 }, /* Arabic_tatweel */
+    { 0x01000686, 2045 }, /* Arabic_tcheh */
+    { 0x000005ca, 2059 }, /* Arabic_teh */
+    { 0x000005c9, 2071 }, /* Arabic_tehmarbuta */
+    { 0x000005d0, 2090 }, /* Arabic_thal */
+    { 0x000005cb, 2103 }, /* Arabic_theh */
+    { 0x01000679, 2116 }, /* Arabic_tteh */
+    { 0x010006a4, 2129 }, /* Arabic_veh */
+    { 0x000005e8, 2141 }, /* Arabic_waw */
+    { 0x000005ea, 2153 }, /* Arabic_yeh */
+    { 0x010006d2, 2165 }, /* Arabic_yeh_baree */
+    { 0x000005d8, 2183 }, /* Arabic_zah */
+    { 0x000005d2, 2195 }, /* Arabic_zain */
+    { 0x000000c5, 2208 }, /* Aring */
+    { 0x000000e5, 2215 }, /* aring */
+    { 0x0100055b, 2222 }, /* Armenian_accent */
+    { 0x0100055c, 2239 }, /* Armenian_amanak */
+    { 0x0100055a, 2256 }, /* Armenian_apostrophe */
+    { 0x01000538, 2277 }, /* Armenian_AT */
+    { 0x01000568, 2290 }, /* Armenian_at */
+    { 0x01000531, 2303 }, /* Armenian_AYB */
+    { 0x01000561, 2317 }, /* Armenian_ayb */
+    { 0x01000532, 2331 }, /* Armenian_BEN */
+    { 0x01000562, 2345 }, /* Armenian_ben */
+    { 0x0100055d, 2359 }, /* Armenian_but */
+    { 0x01000549, 2373 }, /* Armenian_CHA */
+    { 0x01000579, 2387 }, /* Armenian_cha */
+    { 0x01000534, 2401 }, /* Armenian_DA */
+    { 0x01000564, 2414 }, /* Armenian_da */
+    { 0x01000541, 2427 }, /* Armenian_DZA */
+    { 0x01000571, 2441 }, /* Armenian_dza */
+    { 0x01000537, 2455 }, /* Armenian_E */
+    { 0x01000567, 2467 }, /* Armenian_e */
+    { 0x0100055c, 2479 }, /* Armenian_exclam */
+    { 0x01000556, 2496 }, /* Armenian_FE */
+    { 0x01000586, 2509 }, /* Armenian_fe */
+    { 0x01000589, 2522 }, /* Armenian_full_stop */
+    { 0x01000542, 2542 }, /* Armenian_GHAT */
+    { 0x01000572, 2557 }, /* Armenian_ghat */
+    { 0x01000533, 2572 }, /* Armenian_GIM */
+    { 0x01000563, 2586 }, /* Armenian_gim */
+    { 0x01000545, 2600 }, /* Armenian_HI */
+    { 0x01000575, 2613 }, /* Armenian_hi */
+    { 0x01000540, 2626 }, /* Armenian_HO */
+    { 0x01000570, 2639 }, /* Armenian_ho */
+    { 0x0100058a, 2652 }, /* Armenian_hyphen */
+    { 0x0100053b, 2669 }, /* Armenian_INI */
+    { 0x0100056b, 2683 }, /* Armenian_ini */
+    { 0x0100054b, 2697 }, /* Armenian_JE */
+    { 0x0100057b, 2710 }, /* Armenian_je */
+    { 0x01000554, 2723 }, /* Armenian_KE */
+    { 0x01000584, 2736 }, /* Armenian_ke */
+    { 0x0100053f, 2749 }, /* Armenian_KEN */
+    { 0x0100056f, 2763 }, /* Armenian_ken */
+    { 0x0100053d, 2777 }, /* Armenian_KHE */
+    { 0x0100056d, 2791 }, /* Armenian_khe */
+    { 0x01000587, 2805 }, /* Armenian_ligature_ew */
+    { 0x0100053c, 2827 }, /* Armenian_LYUN */
+    { 0x0100056c, 2842 }, /* Armenian_lyun */
+    { 0x01000544, 2857 }, /* Armenian_MEN */
+    { 0x01000574, 2871 }, /* Armenian_men */
+    { 0x01000546, 2885 }, /* Armenian_NU */
+    { 0x01000576, 2898 }, /* Armenian_nu */
+    { 0x01000555, 2911 }, /* Armenian_O */
+    { 0x01000585, 2923 }, /* Armenian_o */
+    { 0x0100055e, 2935 }, /* Armenian_paruyk */
+    { 0x0100054a, 2952 }, /* Armenian_PE */
+    { 0x0100057a, 2965 }, /* Armenian_pe */
+    { 0x01000553, 2978 }, /* Armenian_PYUR */
+    { 0x01000583, 2993 }, /* Armenian_pyur */
+    { 0x0100055e, 3008 }, /* Armenian_question */
+    { 0x0100054c, 3027 }, /* Armenian_RA */
+    { 0x0100057c, 3040 }, /* Armenian_ra */
+    { 0x01000550, 3053 }, /* Armenian_RE */
+    { 0x01000580, 3066 }, /* Armenian_re */
+    { 0x0100054d, 3079 }, /* Armenian_SE */
+    { 0x0100057d, 3092 }, /* Armenian_se */
+    { 0x0100055d, 3105 }, /* Armenian_separation_mark */
+    { 0x01000547, 3131 }, /* Armenian_SHA */
+    { 0x01000577, 3145 }, /* Armenian_sha */
+    { 0x0100055b, 3159 }, /* Armenian_shesht */
+    { 0x01000543, 3176 }, /* Armenian_TCHE */
+    { 0x01000573, 3191 }, /* Armenian_tche */
+    { 0x01000539, 3206 }, /* Armenian_TO */
+    { 0x01000569, 3219 }, /* Armenian_to */
+    { 0x0100053e, 3232 }, /* Armenian_TSA */
+    { 0x0100056e, 3246 }, /* Armenian_tsa */
+    { 0x01000551, 3260 }, /* Armenian_TSO */
+    { 0x01000581, 3274 }, /* Armenian_tso */
+    { 0x0100054f, 3288 }, /* Armenian_TYUN */
+    { 0x0100057f, 3303 }, /* Armenian_tyun */
+    { 0x01000589, 3318 }, /* Armenian_verjaket */
+    { 0x0100054e, 3337 }, /* Armenian_VEV */
+    { 0x0100057e, 3351 }, /* Armenian_vev */
+    { 0x01000548, 3365 }, /* Armenian_VO */
+    { 0x01000578, 3378 }, /* Armenian_vo */
+    { 0x01000552, 3391 }, /* Armenian_VYUN */
+    { 0x01000582, 3406 }, /* Armenian_vyun */
+    { 0x01000535, 3421 }, /* Armenian_YECH */
+    { 0x01000565, 3436 }, /* Armenian_yech */
+    { 0x0100058a, 3451 }, /* Armenian_yentamna */
+    { 0x01000536, 3470 }, /* Armenian_ZA */
+    { 0x01000566, 3483 }, /* Armenian_za */
+    { 0x0100053a, 3496 }, /* Armenian_ZHE */
+    { 0x0100056a, 3510 }, /* Armenian_zhe */
+    { 0x0000005e, 3524 }, /* asciicircum */
+    { 0x0000007e, 3537 }, /* asciitilde */
+    { 0x0000002a, 3549 }, /* asterisk */
+    { 0x00000040, 3559 }, /* at */
+    { 0x000000c3, 3563 }, /* Atilde */
+    { 0x000000e3, 3571 }, /* atilde */
+    { 0x0000fe7a, 3579 }, /* AudibleBell_Enable */
+    { 0x00000042, 3599 }, /* B */
+    { 0x00000062, 3602 }, /* b */
+    { 0x01001e02, 3605 }, /* Babovedot */
+    { 0x01001e03, 3616 }, /* babovedot */
+    { 0x0000005c, 3627 }, /* backslash */
+    { 0x0000ff08, 3638 }, /* BackSpace */
+    { 0x1000ff74, 3649 }, /* BackTab */
+    { 0x00000af4, 3658 }, /* ballotcross */
+    { 0x0000007c, 3671 }, /* bar */
+    { 0x01002235, 3676 }, /* because */
+    { 0x0000ff58, 3685 }, /* Begin */
+    { 0x000009df, 3692 }, /* blank */
+    { 0x100000fc, 3699 }, /* block */
+    { 0x000008a5, 3706 }, /* botintegral */
+    { 0x000008ac, 3719 }, /* botleftparens */
+    { 0x000008a8, 3734 }, /* botleftsqbracket */
+    { 0x000008b2, 3752 }, /* botleftsummation */
+    { 0x000008ae, 3770 }, /* botrightparens */
+    { 0x000008aa, 3786 }, /* botrightsqbracket */
+    { 0x000008b6, 3805 }, /* botrightsummation */
+    { 0x000009f6, 3824 }, /* bott */
+    { 0x000008b4, 3830 }, /* botvertsummationconnector */
+    { 0x0000fe74, 3857 }, /* BounceKeys_Enable */
+    { 0x0000007b, 3876 }, /* braceleft */
+    { 0x0000007d, 3887 }, /* braceright */
+    { 0x0000005b, 3899 }, /* bracketleft */
+    { 0x0000005d, 3912 }, /* bracketright */
+    { 0x01002800, 3926 }, /* braille_blank */
+    { 0x0000fff1, 3941 }, /* braille_dot_1 */
+    { 0x0000fffa, 3956 }, /* braille_dot_10 */
+    { 0x0000fff2, 3972 }, /* braille_dot_2 */
+    { 0x0000fff3, 3987 }, /* braille_dot_3 */
+    { 0x0000fff4, 4002 }, /* braille_dot_4 */
+    { 0x0000fff5, 4017 }, /* braille_dot_5 */
+    { 0x0000fff6, 4032 }, /* braille_dot_6 */
+    { 0x0000fff7, 4047 }, /* braille_dot_7 */
+    { 0x0000fff8, 4062 }, /* braille_dot_8 */
+    { 0x0000fff9, 4077 }, /* braille_dot_9 */
+    { 0x01002801, 4092 }, /* braille_dots_1 */
+    { 0x01002803, 4108 }, /* braille_dots_12 */
+    { 0x01002807, 4125 }, /* braille_dots_123 */
+    { 0x0100280f, 4143 }, /* braille_dots_1234 */
+    { 0x0100281f, 4162 }, /* braille_dots_12345 */
+    { 0x0100283f, 4182 }, /* braille_dots_123456 */
+    { 0x0100287f, 4203 }, /* braille_dots_1234567 */
+    { 0x010028ff, 4225 }, /* braille_dots_12345678 */
+    { 0x010028bf, 4248 }, /* braille_dots_1234568 */
+    { 0x0100285f, 4270 }, /* braille_dots_123457 */
+    { 0x010028df, 4291 }, /* braille_dots_1234578 */
+    { 0x0100289f, 4313 }, /* braille_dots_123458 */
+    { 0x0100282f, 4334 }, /* braille_dots_12346 */
+    { 0x0100286f, 4354 }, /* braille_dots_123467 */
+    { 0x010028ef, 4375 }, /* braille_dots_1234678 */
+    { 0x010028af, 4397 }, /* braille_dots_123468 */
+    { 0x0100284f, 4418 }, /* braille_dots_12347 */
+    { 0x010028cf, 4438 }, /* braille_dots_123478 */
+    { 0x0100288f, 4459 }, /* braille_dots_12348 */
+    { 0x01002817, 4479 }, /* braille_dots_1235 */
+    { 0x01002837, 4498 }, /* braille_dots_12356 */
+    { 0x01002877, 4518 }, /* braille_dots_123567 */
+    { 0x010028f7, 4539 }, /* braille_dots_1235678 */
+    { 0x010028b7, 4561 }, /* braille_dots_123568 */
+    { 0x01002857, 4582 }, /* braille_dots_12357 */
+    { 0x010028d7, 4602 }, /* braille_dots_123578 */
+    { 0x01002897, 4623 }, /* braille_dots_12358 */
+    { 0x01002827, 4643 }, /* braille_dots_1236 */
+    { 0x01002867, 4662 }, /* braille_dots_12367 */
+    { 0x010028e7, 4682 }, /* braille_dots_123678 */
+    { 0x010028a7, 4703 }, /* braille_dots_12368 */
+    { 0x01002847, 4723 }, /* braille_dots_1237 */
+    { 0x010028c7, 4742 }, /* braille_dots_12378 */
+    { 0x01002887, 4762 }, /* braille_dots_1238 */
+    { 0x0100280b, 4781 }, /* braille_dots_124 */
+    { 0x0100281b, 4799 }, /* braille_dots_1245 */
+    { 0x0100283b, 4818 }, /* braille_dots_12456 */
+    { 0x0100287b, 4838 }, /* braille_dots_124567 */
+    { 0x010028fb, 4859 }, /* braille_dots_1245678 */
+    { 0x010028bb, 4881 }, /* braille_dots_124568 */
+    { 0x0100285b, 4902 }, /* braille_dots_12457 */
+    { 0x010028db, 4922 }, /* braille_dots_124578 */
+    { 0x0100289b, 4943 }, /* braille_dots_12458 */
+    { 0x0100282b, 4963 }, /* braille_dots_1246 */
+    { 0x0100286b, 4982 }, /* braille_dots_12467 */
+    { 0x010028eb, 5002 }, /* braille_dots_124678 */
+    { 0x010028ab, 5023 }, /* braille_dots_12468 */
+    { 0x0100284b, 5043 }, /* braille_dots_1247 */
+    { 0x010028cb, 5062 }, /* braille_dots_12478 */
+    { 0x0100288b, 5082 }, /* braille_dots_1248 */
+    { 0x01002813, 5101 }, /* braille_dots_125 */
+    { 0x01002833, 5119 }, /* braille_dots_1256 */
+    { 0x01002873, 5138 }, /* braille_dots_12567 */
+    { 0x010028f3, 5158 }, /* braille_dots_125678 */
+    { 0x010028b3, 5179 }, /* braille_dots_12568 */
+    { 0x01002853, 5199 }, /* braille_dots_1257 */
+    { 0x010028d3, 5218 }, /* braille_dots_12578 */
+    { 0x01002893, 5238 }, /* braille_dots_1258 */
+    { 0x01002823, 5257 }, /* braille_dots_126 */
+    { 0x01002863, 5275 }, /* braille_dots_1267 */
+    { 0x010028e3, 5294 }, /* braille_dots_12678 */
+    { 0x010028a3, 5314 }, /* braille_dots_1268 */
+    { 0x01002843, 5333 }, /* braille_dots_127 */
+    { 0x010028c3, 5351 }, /* braille_dots_1278 */
+    { 0x01002883, 5370 }, /* braille_dots_128 */
+    { 0x01002805, 5388 }, /* braille_dots_13 */
+    { 0x0100280d, 5405 }, /* braille_dots_134 */
+    { 0x0100281d, 5423 }, /* braille_dots_1345 */
+    { 0x0100283d, 5442 }, /* braille_dots_13456 */
+    { 0x0100287d, 5462 }, /* braille_dots_134567 */
+    { 0x010028fd, 5483 }, /* braille_dots_1345678 */
+    { 0x010028bd, 5505 }, /* braille_dots_134568 */
+    { 0x0100285d, 5526 }, /* braille_dots_13457 */
+    { 0x010028dd, 5546 }, /* braille_dots_134578 */
+    { 0x0100289d, 5567 }, /* braille_dots_13458 */
+    { 0x0100282d, 5587 }, /* braille_dots_1346 */
+    { 0x0100286d, 5606 }, /* braille_dots_13467 */
+    { 0x010028ed, 5626 }, /* braille_dots_134678 */
+    { 0x010028ad, 5647 }, /* braille_dots_13468 */
+    { 0x0100284d, 5667 }, /* braille_dots_1347 */
+    { 0x010028cd, 5686 }, /* braille_dots_13478 */
+    { 0x0100288d, 5706 }, /* braille_dots_1348 */
+    { 0x01002815, 5725 }, /* braille_dots_135 */
+    { 0x01002835, 5743 }, /* braille_dots_1356 */
+    { 0x01002875, 5762 }, /* braille_dots_13567 */
+    { 0x010028f5, 5782 }, /* braille_dots_135678 */
+    { 0x010028b5, 5803 }, /* braille_dots_13568 */
+    { 0x01002855, 5823 }, /* braille_dots_1357 */
+    { 0x010028d5, 5842 }, /* braille_dots_13578 */
+    { 0x01002895, 5862 }, /* braille_dots_1358 */
+    { 0x01002825, 5881 }, /* braille_dots_136 */
+    { 0x01002865, 5899 }, /* braille_dots_1367 */
+    { 0x010028e5, 5918 }, /* braille_dots_13678 */
+    { 0x010028a5, 5938 }, /* braille_dots_1368 */
+    { 0x01002845, 5957 }, /* braille_dots_137 */
+    { 0x010028c5, 5975 }, /* braille_dots_1378 */
+    { 0x01002885, 5994 }, /* braille_dots_138 */
+    { 0x01002809, 6012 }, /* braille_dots_14 */
+    { 0x01002819, 6029 }, /* braille_dots_145 */
+    { 0x01002839, 6047 }, /* braille_dots_1456 */
+    { 0x01002879, 6066 }, /* braille_dots_14567 */
+    { 0x010028f9, 6086 }, /* braille_dots_145678 */
+    { 0x010028b9, 6107 }, /* braille_dots_14568 */
+    { 0x01002859, 6127 }, /* braille_dots_1457 */
+    { 0x010028d9, 6146 }, /* braille_dots_14578 */
+    { 0x01002899, 6166 }, /* braille_dots_1458 */
+    { 0x01002829, 6185 }, /* braille_dots_146 */
+    { 0x01002869, 6203 }, /* braille_dots_1467 */
+    { 0x010028e9, 6222 }, /* braille_dots_14678 */
+    { 0x010028a9, 6242 }, /* braille_dots_1468 */
+    { 0x01002849, 6261 }, /* braille_dots_147 */
+    { 0x010028c9, 6279 }, /* braille_dots_1478 */
+    { 0x01002889, 6298 }, /* braille_dots_148 */
+    { 0x01002811, 6316 }, /* braille_dots_15 */
+    { 0x01002831, 6333 }, /* braille_dots_156 */
+    { 0x01002871, 6351 }, /* braille_dots_1567 */
+    { 0x010028f1, 6370 }, /* braille_dots_15678 */
+    { 0x010028b1, 6390 }, /* braille_dots_1568 */
+    { 0x01002851, 6409 }, /* braille_dots_157 */
+    { 0x010028d1, 6427 }, /* braille_dots_1578 */
+    { 0x01002891, 6446 }, /* braille_dots_158 */
+    { 0x01002821, 6464 }, /* braille_dots_16 */
+    { 0x01002861, 6481 }, /* braille_dots_167 */
+    { 0x010028e1, 6499 }, /* braille_dots_1678 */
+    { 0x010028a1, 6518 }, /* braille_dots_168 */
+    { 0x01002841, 6536 }, /* braille_dots_17 */
+    { 0x010028c1, 6553 }, /* braille_dots_178 */
+    { 0x01002881, 6571 }, /* braille_dots_18 */
+    { 0x01002802, 6588 }, /* braille_dots_2 */
+    { 0x01002806, 6604 }, /* braille_dots_23 */
+    { 0x0100280e, 6621 }, /* braille_dots_234 */
+    { 0x0100281e, 6639 }, /* braille_dots_2345 */
+    { 0x0100283e, 6658 }, /* braille_dots_23456 */
+    { 0x0100287e, 6678 }, /* braille_dots_234567 */
+    { 0x010028fe, 6699 }, /* braille_dots_2345678 */
+    { 0x010028be, 6721 }, /* braille_dots_234568 */
+    { 0x0100285e, 6742 }, /* braille_dots_23457 */
+    { 0x010028de, 6762 }, /* braille_dots_234578 */
+    { 0x0100289e, 6783 }, /* braille_dots_23458 */
+    { 0x0100282e, 6803 }, /* braille_dots_2346 */
+    { 0x0100286e, 6822 }, /* braille_dots_23467 */
+    { 0x010028ee, 6842 }, /* braille_dots_234678 */
+    { 0x010028ae, 6863 }, /* braille_dots_23468 */
+    { 0x0100284e, 6883 }, /* braille_dots_2347 */
+    { 0x010028ce, 6902 }, /* braille_dots_23478 */
+    { 0x0100288e, 6922 }, /* braille_dots_2348 */
+    { 0x01002816, 6941 }, /* braille_dots_235 */
+    { 0x01002836, 6959 }, /* braille_dots_2356 */
+    { 0x01002876, 6978 }, /* braille_dots_23567 */
+    { 0x010028f6, 6998 }, /* braille_dots_235678 */
+    { 0x010028b6, 7019 }, /* braille_dots_23568 */
+    { 0x01002856, 7039 }, /* braille_dots_2357 */
+    { 0x010028d6, 7058 }, /* braille_dots_23578 */
+    { 0x01002896, 7078 }, /* braille_dots_2358 */
+    { 0x01002826, 7097 }, /* braille_dots_236 */
+    { 0x01002866, 7115 }, /* braille_dots_2367 */
+    { 0x010028e6, 7134 }, /* braille_dots_23678 */
+    { 0x010028a6, 7154 }, /* braille_dots_2368 */
+    { 0x01002846, 7173 }, /* braille_dots_237 */
+    { 0x010028c6, 7191 }, /* braille_dots_2378 */
+    { 0x01002886, 7210 }, /* braille_dots_238 */
+    { 0x0100280a, 7228 }, /* braille_dots_24 */
+    { 0x0100281a, 7245 }, /* braille_dots_245 */
+    { 0x0100283a, 7263 }, /* braille_dots_2456 */
+    { 0x0100287a, 7282 }, /* braille_dots_24567 */
+    { 0x010028fa, 7302 }, /* braille_dots_245678 */
+    { 0x010028ba, 7323 }, /* braille_dots_24568 */
+    { 0x0100285a, 7343 }, /* braille_dots_2457 */
+    { 0x010028da, 7362 }, /* braille_dots_24578 */
+    { 0x0100289a, 7382 }, /* braille_dots_2458 */
+    { 0x0100282a, 7401 }, /* braille_dots_246 */
+    { 0x0100286a, 7419 }, /* braille_dots_2467 */
+    { 0x010028ea, 7438 }, /* braille_dots_24678 */
+    { 0x010028aa, 7458 }, /* braille_dots_2468 */
+    { 0x0100284a, 7477 }, /* braille_dots_247 */
+    { 0x010028ca, 7495 }, /* braille_dots_2478 */
+    { 0x0100288a, 7514 }, /* braille_dots_248 */
+    { 0x01002812, 7532 }, /* braille_dots_25 */
+    { 0x01002832, 7549 }, /* braille_dots_256 */
+    { 0x01002872, 7567 }, /* braille_dots_2567 */
+    { 0x010028f2, 7586 }, /* braille_dots_25678 */
+    { 0x010028b2, 7606 }, /* braille_dots_2568 */
+    { 0x01002852, 7625 }, /* braille_dots_257 */
+    { 0x010028d2, 7643 }, /* braille_dots_2578 */
+    { 0x01002892, 7662 }, /* braille_dots_258 */
+    { 0x01002822, 7680 }, /* braille_dots_26 */
+    { 0x01002862, 7697 }, /* braille_dots_267 */
+    { 0x010028e2, 7715 }, /* braille_dots_2678 */
+    { 0x010028a2, 7734 }, /* braille_dots_268 */
+    { 0x01002842, 7752 }, /* braille_dots_27 */
+    { 0x010028c2, 7769 }, /* braille_dots_278 */
+    { 0x01002882, 7787 }, /* braille_dots_28 */
+    { 0x01002804, 7804 }, /* braille_dots_3 */
+    { 0x0100280c, 7820 }, /* braille_dots_34 */
+    { 0x0100281c, 7837 }, /* braille_dots_345 */
+    { 0x0100283c, 7855 }, /* braille_dots_3456 */
+    { 0x0100287c, 7874 }, /* braille_dots_34567 */
+    { 0x010028fc, 7894 }, /* braille_dots_345678 */
+    { 0x010028bc, 7915 }, /* braille_dots_34568 */
+    { 0x0100285c, 7935 }, /* braille_dots_3457 */
+    { 0x010028dc, 7954 }, /* braille_dots_34578 */
+    { 0x0100289c, 7974 }, /* braille_dots_3458 */
+    { 0x0100282c, 7993 }, /* braille_dots_346 */
+    { 0x0100286c, 8011 }, /* braille_dots_3467 */
+    { 0x010028ec, 8030 }, /* braille_dots_34678 */
+    { 0x010028ac, 8050 }, /* braille_dots_3468 */
+    { 0x0100284c, 8069 }, /* braille_dots_347 */
+    { 0x010028cc, 8087 }, /* braille_dots_3478 */
+    { 0x0100288c, 8106 }, /* braille_dots_348 */
+    { 0x01002814, 8124 }, /* braille_dots_35 */
+    { 0x01002834, 8141 }, /* braille_dots_356 */
+    { 0x01002874, 8159 }, /* braille_dots_3567 */
+    { 0x010028f4, 8178 }, /* braille_dots_35678 */
+    { 0x010028b4, 8198 }, /* braille_dots_3568 */
+    { 0x01002854, 8217 }, /* braille_dots_357 */
+    { 0x010028d4, 8235 }, /* braille_dots_3578 */
+    { 0x01002894, 8254 }, /* braille_dots_358 */
+    { 0x01002824, 8272 }, /* braille_dots_36 */
+    { 0x01002864, 8289 }, /* braille_dots_367 */
+    { 0x010028e4, 8307 }, /* braille_dots_3678 */
+    { 0x010028a4, 8326 }, /* braille_dots_368 */
+    { 0x01002844, 8344 }, /* braille_dots_37 */
+    { 0x010028c4, 8361 }, /* braille_dots_378 */
+    { 0x01002884, 8379 }, /* braille_dots_38 */
+    { 0x01002808, 8396 }, /* braille_dots_4 */
+    { 0x01002818, 8412 }, /* braille_dots_45 */
+    { 0x01002838, 8429 }, /* braille_dots_456 */
+    { 0x01002878, 8447 }, /* braille_dots_4567 */
+    { 0x010028f8, 8466 }, /* braille_dots_45678 */
+    { 0x010028b8, 8486 }, /* braille_dots_4568 */
+    { 0x01002858, 8505 }, /* braille_dots_457 */
+    { 0x010028d8, 8523 }, /* braille_dots_4578 */
+    { 0x01002898, 8542 }, /* braille_dots_458 */
+    { 0x01002828, 8560 }, /* braille_dots_46 */
+    { 0x01002868, 8577 }, /* braille_dots_467 */
+    { 0x010028e8, 8595 }, /* braille_dots_4678 */
+    { 0x010028a8, 8614 }, /* braille_dots_468 */
+    { 0x01002848, 8632 }, /* braille_dots_47 */
+    { 0x010028c8, 8649 }, /* braille_dots_478 */
+    { 0x01002888, 8667 }, /* braille_dots_48 */
+    { 0x01002810, 8684 }, /* braille_dots_5 */
+    { 0x01002830, 8700 }, /* braille_dots_56 */
+    { 0x01002870, 8717 }, /* braille_dots_567 */
+    { 0x010028f0, 8735 }, /* braille_dots_5678 */
+    { 0x010028b0, 8754 }, /* braille_dots_568 */
+    { 0x01002850, 8772 }, /* braille_dots_57 */
+    { 0x010028d0, 8789 }, /* braille_dots_578 */
+    { 0x01002890, 8807 }, /* braille_dots_58 */
+    { 0x01002820, 8824 }, /* braille_dots_6 */
+    { 0x01002860, 8840 }, /* braille_dots_67 */
+    { 0x010028e0, 8857 }, /* braille_dots_678 */
+    { 0x010028a0, 8875 }, /* braille_dots_68 */
+    { 0x01002840, 8892 }, /* braille_dots_7 */
+    { 0x010028c0, 8908 }, /* braille_dots_78 */
+    { 0x01002880, 8925 }, /* braille_dots_8 */
+    { 0x0000ff6b, 8941 }, /* Break */
+    { 0x000001a2, 8948 }, /* breve */
+    { 0x000000a6, 8955 }, /* brokenbar */
+    { 0x000006be, 8966 }, /* Byelorussian_SHORTU */
+    { 0x000006ae, 8987 }, /* Byelorussian_shortu */
+    { 0x00000043, 9008 }, /* C */
+    { 0x00000063, 9011 }, /* c */
+    { 0x0000fea5, 9014 }, /* C_H */
+    { 0x0000fea4, 9019 }, /* C_h */
+    { 0x0000fea3, 9024 }, /* c_h */
+    { 0x000002c5, 9029 }, /* Cabovedot */
+    { 0x000002e5, 9040 }, /* cabovedot */
+    { 0x000001c6, 9051 }, /* Cacute */
+    { 0x000001e6, 9059 }, /* cacute */
+    { 0x0000ff69, 9067 }, /* Cancel */
+    { 0x0000ffe5, 9075 }, /* Caps_Lock */
+    { 0x00000ab8, 9086 }, /* careof */
+    { 0x00000afc, 9094 }, /* caret */
+    { 0x000001b7, 9101 }, /* caron */
+    { 0x000001c8, 9108 }, /* Ccaron */
+    { 0x000001e8, 9116 }, /* ccaron */
+    { 0x000000c7, 9124 }, /* Ccedilla */
+    { 0x000000e7, 9134 }, /* ccedilla */
+    { 0x000002c6, 9144 }, /* Ccircumflex */
+    { 0x000002e6, 9157 }, /* ccircumflex */
+    { 0x000000b8, 9170 }, /* cedilla */
+    { 0x000000a2, 9179 }, /* cent */
+    { 0x0000fea2, 9185 }, /* CH */
+    { 0x0000fea1, 9189 }, /* Ch */
+    { 0x0000fea0, 9193 }, /* ch */
+    { 0x000009e1, 9197 }, /* checkerboard */
+    { 0x00000af3, 9211 }, /* checkmark */
+    { 0x00000bcf, 9222 }, /* circle */
+    { 0x0000ff0b, 9230 }, /* Clear */
+    { 0x1000ff6f, 9237 }, /* ClearLine */
+    { 0x00000aec, 9248 }, /* club */
+    { 0x0000ff37, 9254 }, /* Codeinput */
+    { 0x0000003a, 9265 }, /* colon */
+    { 0x010020a1, 9272 }, /* ColonSign */
+    { 0x01000301, 9283 }, /* combining_acute */
+    { 0x01000323, 9300 }, /* combining_belowdot */
+    { 0x01000300, 9320 }, /* combining_grave */
+    { 0x01000309, 9337 }, /* combining_hook */
+    { 0x01000303, 9353 }, /* combining_tilde */
+    { 0x0000002c, 9370 }, /* comma */
+    { 0x0100220b, 9377 }, /* containsas */
+    { 0x0000ffe3, 9389 }, /* Control_L */
+    { 0x0000ffe4, 9400 }, /* Control_R */
+    { 0x000000a9, 9411 }, /* copyright */
+    { 0x000009e4, 9422 }, /* cr */
+    { 0x000009ee, 9426 }, /* crossinglines */
+    { 0x010020a2, 9441 }, /* CruzeiroSign */
+    { 0x0100221b, 9455 }, /* cuberoot */
+    { 0x000000a4, 9465 }, /* currency */
+    { 0x00000aff, 9475 }, /* cursor */
+    { 0x000006e1, 9483 }, /* Cyrillic_A */
+    { 0x000006c1, 9495 }, /* Cyrillic_a */
+    { 0x000006e2, 9507 }, /* Cyrillic_BE */
+    { 0x000006c2, 9520 }, /* Cyrillic_be */
+    { 0x000006fe, 9533 }, /* Cyrillic_CHE */
+    { 0x000006de, 9547 }, /* Cyrillic_che */
+    { 0x010004b6, 9561 }, /* Cyrillic_CHE_descender */
+    { 0x010004b7, 9585 }, /* Cyrillic_che_descender */
+    { 0x010004b8, 9609 }, /* Cyrillic_CHE_vertstroke */
+    { 0x010004b9, 9634 }, /* Cyrillic_che_vertstroke */
+    { 0x000006e4, 9659 }, /* Cyrillic_DE */
+    { 0x000006c4, 9672 }, /* Cyrillic_de */
+    { 0x000006bf, 9685 }, /* Cyrillic_DZHE */
+    { 0x000006af, 9700 }, /* Cyrillic_dzhe */
+    { 0x000006fc, 9715 }, /* Cyrillic_E */
+    { 0x000006dc, 9727 }, /* Cyrillic_e */
+    { 0x000006e6, 9739 }, /* Cyrillic_EF */
+    { 0x000006c6, 9752 }, /* Cyrillic_ef */
+    { 0x000006ec, 9765 }, /* Cyrillic_EL */
+    { 0x000006cc, 9778 }, /* Cyrillic_el */
+    { 0x000006ed, 9791 }, /* Cyrillic_EM */
+    { 0x000006cd, 9804 }, /* Cyrillic_em */
+    { 0x000006ee, 9817 }, /* Cyrillic_EN */
+    { 0x000006ce, 9830 }, /* Cyrillic_en */
+    { 0x010004a2, 9843 }, /* Cyrillic_EN_descender */
+    { 0x010004a3, 9866 }, /* Cyrillic_en_descender */
+    { 0x000006f2, 9889 }, /* Cyrillic_ER */
+    { 0x000006d2, 9902 }, /* Cyrillic_er */
+    { 0x000006f3, 9915 }, /* Cyrillic_ES */
+    { 0x000006d3, 9928 }, /* Cyrillic_es */
+    { 0x000006e7, 9941 }, /* Cyrillic_GHE */
+    { 0x000006c7, 9955 }, /* Cyrillic_ghe */
+    { 0x01000492, 9969 }, /* Cyrillic_GHE_bar */
+    { 0x01000493, 9987 }, /* Cyrillic_ghe_bar */
+    { 0x000006e8, 10005 }, /* Cyrillic_HA */
+    { 0x000006c8, 10018 }, /* Cyrillic_ha */
+    { 0x010004b2, 10031 }, /* Cyrillic_HA_descender */
+    { 0x010004b3, 10054 }, /* Cyrillic_ha_descender */
+    { 0x000006ff, 10077 }, /* Cyrillic_HARDSIGN */
+    { 0x000006df, 10096 }, /* Cyrillic_hardsign */
+    { 0x000006e9, 10115 }, /* Cyrillic_I */
+    { 0x000006c9, 10127 }, /* Cyrillic_i */
+    { 0x010004e2, 10139 }, /* Cyrillic_I_macron */
+    { 0x010004e3, 10158 }, /* Cyrillic_i_macron */
+    { 0x000006e5, 10177 }, /* Cyrillic_IE */
+    { 0x000006c5, 10190 }, /* Cyrillic_ie */
+    { 0x000006b3, 10203 }, /* Cyrillic_IO */
+    { 0x000006a3, 10216 }, /* Cyrillic_io */
+    { 0x000006b8, 10229 }, /* Cyrillic_JE */
+    { 0x000006a8, 10242 }, /* Cyrillic_je */
+    { 0x000006eb, 10255 }, /* Cyrillic_KA */
+    { 0x000006cb, 10268 }, /* Cyrillic_ka */
+    { 0x0100049a, 10281 }, /* Cyrillic_KA_descender */
+    { 0x0100049b, 10304 }, /* Cyrillic_ka_descender */
+    { 0x0100049c, 10327 }, /* Cyrillic_KA_vertstroke */
+    { 0x0100049d, 10351 }, /* Cyrillic_ka_vertstroke */
+    { 0x000006b9, 10375 }, /* Cyrillic_LJE */
+    { 0x000006a9, 10389 }, /* Cyrillic_lje */
+    { 0x000006ba, 10403 }, /* Cyrillic_NJE */
+    { 0x000006aa, 10417 }, /* Cyrillic_nje */
+    { 0x000006ef, 10431 }, /* Cyrillic_O */
+    { 0x000006cf, 10443 }, /* Cyrillic_o */
+    { 0x010004e8, 10455 }, /* Cyrillic_O_bar */
+    { 0x010004e9, 10471 }, /* Cyrillic_o_bar */
+    { 0x000006f0, 10487 }, /* Cyrillic_PE */
+    { 0x000006d0, 10500 }, /* Cyrillic_pe */
+    { 0x010004d8, 10513 }, /* Cyrillic_SCHWA */
+    { 0x010004d9, 10529 }, /* Cyrillic_schwa */
+    { 0x000006fb, 10545 }, /* Cyrillic_SHA */
+    { 0x000006db, 10559 }, /* Cyrillic_sha */
+    { 0x000006fd, 10573 }, /* Cyrillic_SHCHA */
+    { 0x000006dd, 10589 }, /* Cyrillic_shcha */
+    { 0x010004ba, 10605 }, /* Cyrillic_SHHA */
+    { 0x010004bb, 10620 }, /* Cyrillic_shha */
+    { 0x000006ea, 10635 }, /* Cyrillic_SHORTI */
+    { 0x000006ca, 10652 }, /* Cyrillic_shorti */
+    { 0x000006f8, 10669 }, /* Cyrillic_SOFTSIGN */
+    { 0x000006d8, 10688 }, /* Cyrillic_softsign */
+    { 0x000006f4, 10707 }, /* Cyrillic_TE */
+    { 0x000006d4, 10720 }, /* Cyrillic_te */
+    { 0x000006e3, 10733 }, /* Cyrillic_TSE */
+    { 0x000006c3, 10747 }, /* Cyrillic_tse */
+    { 0x000006f5, 10761 }, /* Cyrillic_U */
+    { 0x000006d5, 10773 }, /* Cyrillic_u */
+    { 0x010004ee, 10785 }, /* Cyrillic_U_macron */
+    { 0x010004ef, 10804 }, /* Cyrillic_u_macron */
+    { 0x010004ae, 10823 }, /* Cyrillic_U_straight */
+    { 0x010004af, 10844 }, /* Cyrillic_u_straight */
+    { 0x010004b0, 10865 }, /* Cyrillic_U_straight_bar */
+    { 0x010004b1, 10890 }, /* Cyrillic_u_straight_bar */
+    { 0x000006f7, 10915 }, /* Cyrillic_VE */
+    { 0x000006d7, 10928 }, /* Cyrillic_ve */
+    { 0x000006f1, 10941 }, /* Cyrillic_YA */
+    { 0x000006d1, 10954 }, /* Cyrillic_ya */
+    { 0x000006f9, 10967 }, /* Cyrillic_YERU */
+    { 0x000006d9, 10982 }, /* Cyrillic_yeru */
+    { 0x000006e0, 10997 }, /* Cyrillic_YU */
+    { 0x000006c0, 11010 }, /* Cyrillic_yu */
+    { 0x000006fa, 11023 }, /* Cyrillic_ZE */
+    { 0x000006da, 11036 }, /* Cyrillic_ze */
+    { 0x000006f6, 11049 }, /* Cyrillic_ZHE */
+    { 0x000006d6, 11063 }, /* Cyrillic_zhe */
+    { 0x01000496, 11077 }, /* Cyrillic_ZHE_descender */
+    { 0x01000497, 11101 }, /* Cyrillic_zhe_descender */
+    { 0x00000044, 11125 }, /* D */
+    { 0x00000064, 11128 }, /* d */
+    { 0x01001e0a, 11131 }, /* Dabovedot */
+    { 0x01001e0b, 11142 }, /* dabovedot */
+    { 0x1000fe27, 11153 }, /* Dacute_accent */
+    { 0x00000af1, 11168 }, /* dagger */
+    { 0x000001cf, 11176 }, /* Dcaron */
+    { 0x000001ef, 11184 }, /* dcaron */
+    { 0x1000fe2c, 11192 }, /* Dcedilla_accent */
+    { 0x1000fe5e, 11209 }, /* Dcircumflex_accent */
+    { 0x1000fe22, 11229 }, /* Ddiaeresis */
+    { 0x0000fe81, 11241 }, /* dead_A */
+    { 0x0000fe80, 11249 }, /* dead_a */
+    { 0x0000fe64, 11257 }, /* dead_abovecomma */
+    { 0x0000fe56, 11274 }, /* dead_abovedot */
+    { 0x0000fe65, 11289 }, /* dead_abovereversedcomma */
+    { 0x0000fe58, 11314 }, /* dead_abovering */
+    { 0x0000fe91, 11330 }, /* dead_aboveverticalline */
+    { 0x0000fe51, 11354 }, /* dead_acute */
+    { 0x0000fe6b, 11366 }, /* dead_belowbreve */
+    { 0x0000fe69, 11383 }, /* dead_belowcircumflex */
+    { 0x0000fe6e, 11405 }, /* dead_belowcomma */
+    { 0x0000fe6c, 11422 }, /* dead_belowdiaeresis */
+    { 0x0000fe60, 11443 }, /* dead_belowdot */
+    { 0x0000fe68, 11458 }, /* dead_belowmacron */
+    { 0x0000fe67, 11476 }, /* dead_belowring */
+    { 0x0000fe6a, 11492 }, /* dead_belowtilde */
+    { 0x0000fe92, 11509 }, /* dead_belowverticalline */
+    { 0x0000fe55, 11533 }, /* dead_breve */
+    { 0x0000fe8b, 11545 }, /* dead_capital_schwa */
+    { 0x0000fe5a, 11565 }, /* dead_caron */
+    { 0x0000fe5b, 11577 }, /* dead_cedilla */
+    { 0x0000fe52, 11591 }, /* dead_circumflex */
+    { 0x0000fe6f, 11608 }, /* dead_currency */
+    { 0x0000fe65, 11623 }, /* dead_dasia */
+    { 0x0000fe57, 11635 }, /* dead_diaeresis */
+    { 0x0000fe59, 11651 }, /* dead_doubleacute */
+    { 0x0000fe66, 11669 }, /* dead_doublegrave */
+    { 0x0000fe83, 11687 }, /* dead_E */
+    { 0x0000fe82, 11695 }, /* dead_e */
+    { 0x0000fe50, 11703 }, /* dead_grave */
+    { 0x0000fe8c, 11715 }, /* dead_greek */
+    { 0x0000fe8d, 11727 }, /* dead_hamza */
+    { 0x0000fe61, 11739 }, /* dead_hook */
+    { 0x0000fe62, 11750 }, /* dead_horn */
+    { 0x0000fe85, 11761 }, /* dead_I */
+    { 0x0000fe84, 11769 }, /* dead_i */
+    { 0x0000fe6d, 11777 }, /* dead_invertedbreve */
+    { 0x0000fe5d, 11797 }, /* dead_iota */
+    { 0x0000fe93, 11808 }, /* dead_longsolidusoverlay */
+    { 0x0000fe90, 11833 }, /* dead_lowline */
+    { 0x0000fe54, 11847 }, /* dead_macron */
+    { 0x0000fe87, 11860 }, /* dead_O */
+    { 0x0000fe86, 11868 }, /* dead_o */
+    { 0x0000fe5c, 11876 }, /* dead_ogonek */
+    { 0x0000fe53, 11889 }, /* dead_perispomeni */
+    { 0x0000fe64, 11907 }, /* dead_psili */
+    { 0x0000fe8b, 11919 }, /* dead_SCHWA */
+    { 0x0000fe8a, 11931 }, /* dead_schwa */
+    { 0x0000fe5f, 11943 }, /* dead_semivoiced_sound */
+    { 0x0000fe8a, 11966 }, /* dead_small_schwa */
+    { 0x0000fe63, 11984 }, /* dead_stroke */
+    { 0x0000fe53, 11997 }, /* dead_tilde */
+    { 0x0000fe89, 12009 }, /* dead_U */
+    { 0x0000fe88, 12017 }, /* dead_u */
+    { 0x0000fe5e, 12025 }, /* dead_voiced_sound */
+    { 0x00000abd, 12044 }, /* decimalpoint */
+    { 0x000000b0, 12058 }, /* degree */
+    { 0x0000ffff, 12066 }, /* Delete */
+    { 0x1000ff73, 12074 }, /* DeleteChar */
+    { 0x1000ff71, 12086 }, /* DeleteLine */
+    { 0x1000fe60, 12098 }, /* Dgrave_accent */
+    { 0x000000a8, 12113 }, /* diaeresis */
+    { 0x00000aed, 12124 }, /* diamond */
+    { 0x00000aa5, 12133 }, /* digitspace */
+    { 0x0100222c, 12145 }, /* dintegral */
+    { 0x000000f7, 12156 }, /* division */
+    { 0x00000024, 12166 }, /* dollar */
+    { 0x010020ab, 12174 }, /* DongSign */
+    { 0x00000aaf, 12184 }, /* doubbaselinedot */
+    { 0x000001bd, 12201 }, /* doubleacute */
+    { 0x00000af2, 12214 }, /* doubledagger */
+    { 0x00000afe, 12228 }, /* doublelowquotemark */
+    { 0x0000ff54, 12248 }, /* Down */
+    { 0x000008fe, 12254 }, /* downarrow */
+    { 0x00000ba8, 12265 }, /* downcaret */
+    { 0x00000bd6, 12276 }, /* downshoe */
+    { 0x00000bc4, 12286 }, /* downstile */
+    { 0x00000bc2, 12297 }, /* downtack */
+    { 0x1000ff00, 12307 }, /* DRemove */
+    { 0x1000feb0, 12316 }, /* Dring_accent */
+    { 0x000001d0, 12330 }, /* Dstroke */
+    { 0x000001f0, 12339 }, /* dstroke */
+    { 0x1000fe7e, 12348 }, /* Dtilde */
+    { 0x00000045, 12356 }, /* E */
+    { 0x00000065, 12359 }, /* e */
+    { 0x000003cc, 12362 }, /* Eabovedot */
+    { 0x000003ec, 12373 }, /* eabovedot */
+    { 0x000000c9, 12384 }, /* Eacute */
+    { 0x000000e9, 12392 }, /* eacute */
+    { 0x01001eb8, 12400 }, /* Ebelowdot */
+    { 0x01001eb9, 12411 }, /* ebelowdot */
+    { 0x000001cc, 12422 }, /* Ecaron */
+    { 0x000001ec, 12430 }, /* ecaron */
+    { 0x000000ca, 12438 }, /* Ecircumflex */
+    { 0x000000ea, 12451 }, /* ecircumflex */
+    { 0x01001ebe, 12464 }, /* Ecircumflexacute */
+    { 0x01001ebf, 12482 }, /* ecircumflexacute */
+    { 0x01001ec6, 12500 }, /* Ecircumflexbelowdot */
+    { 0x01001ec7, 12521 }, /* ecircumflexbelowdot */
+    { 0x01001ec0, 12542 }, /* Ecircumflexgrave */
+    { 0x01001ec1, 12560 }, /* ecircumflexgrave */
+    { 0x01001ec2, 12578 }, /* Ecircumflexhook */
+    { 0x01001ec3, 12595 }, /* ecircumflexhook */
+    { 0x01001ec4, 12612 }, /* Ecircumflextilde */
+    { 0x01001ec5, 12630 }, /* ecircumflextilde */
+    { 0x010020a0, 12648 }, /* EcuSign */
+    { 0x000000cb, 12657 }, /* Ediaeresis */
+    { 0x000000eb, 12669 }, /* ediaeresis */
+    { 0x000000c8, 12681 }, /* Egrave */
+    { 0x000000e8, 12689 }, /* egrave */
+    { 0x01001eba, 12697 }, /* Ehook */
+    { 0x01001ebb, 12704 }, /* ehook */
+    { 0x01002088, 12711 }, /* eightsubscript */
+    { 0x01002078, 12727 }, /* eightsuperior */
+    { 0x0000ff2f, 12742 }, /* Eisu_Shift */
+    { 0x0000ff30, 12754 }, /* Eisu_toggle */
+    { 0x01002208, 12767 }, /* elementof */
+    { 0x00000aae, 12778 }, /* ellipsis */
+    { 0x00000aa3, 12788 }, /* em3space */
+    { 0x00000aa4, 12798 }, /* em4space */
+    { 0x000003aa, 12808 }, /* Emacron */
+    { 0x000003ba, 12817 }, /* emacron */
+    { 0x00000aa9, 12826 }, /* emdash */
+    { 0x00000ade, 12834 }, /* emfilledcircle */
+    { 0x00000adf, 12850 }, /* emfilledrect */
+    { 0x00000ace, 12864 }, /* emopencircle */
+    { 0x00000acf, 12878 }, /* emopenrectangle */
+    { 0x01002205, 12895 }, /* emptyset */
+    { 0x00000aa1, 12905 }, /* emspace */
+    { 0x0000ff57, 12914 }, /* End */
+    { 0x00000aaa, 12919 }, /* endash */
+    { 0x00000ae6, 12927 }, /* enfilledcircbullet */
+    { 0x00000ae7, 12947 }, /* enfilledsqbullet */
+    { 0x000003bd, 12965 }, /* ENG */
+    { 0x000003bf, 12970 }, /* eng */
+    { 0x00000ae0, 12975 }, /* enopencircbullet */
+    { 0x00000ae1, 12993 }, /* enopensquarebullet */
+    { 0x00000aa2, 13013 }, /* enspace */
+    { 0x000001ca, 13022 }, /* Eogonek */
+    { 0x000001ea, 13031 }, /* eogonek */
+    { 0x0000003d, 13040 }, /* equal */
+    { 0x0000ff1b, 13047 }, /* Escape */
+    { 0x000000d0, 13055 }, /* ETH */
+    { 0x000000d0, 13060 }, /* Eth */
+    { 0x000000f0, 13065 }, /* eth */
+    { 0x01001ebc, 13070 }, /* Etilde */
+    { 0x01001ebd, 13078 }, /* etilde */
+    { 0x000020ac, 13086 }, /* EuroSign */
+    { 0x00000021, 13096 }, /* exclam */
+    { 0x000000a1, 13104 }, /* exclamdown */
+    { 0x0000ff62, 13116 }, /* Execute */
+    { 0x1000ff76, 13125 }, /* Ext16bit_L */
+    { 0x1000ff77, 13137 }, /* Ext16bit_R */
+    { 0x010001b7, 13149 }, /* EZH */
+    { 0x01000292, 13154 }, /* ezh */
+    { 0x00000046, 13159 }, /* F */
+    { 0x00000066, 13162 }, /* f */
+    { 0x0000ffbe, 13165 }, /* F1 */
+    { 0x0000ffc7, 13169 }, /* F10 */
+    { 0x0000ffc8, 13174 }, /* F11 */
+    { 0x0000ffc9, 13179 }, /* F12 */
+    { 0x0000ffca, 13184 }, /* F13 */
+    { 0x0000ffcb, 13189 }, /* F14 */
+    { 0x0000ffcc, 13194 }, /* F15 */
+    { 0x0000ffcd, 13199 }, /* F16 */
+    { 0x0000ffce, 13204 }, /* F17 */
+    { 0x0000ffcf, 13209 }, /* F18 */
+    { 0x0000ffd0, 13214 }, /* F19 */
+    { 0x0000ffbf, 13219 }, /* F2 */
+    { 0x0000ffd1, 13223 }, /* F20 */
+    { 0x0000ffd2, 13228 }, /* F21 */
+    { 0x0000ffd3, 13233 }, /* F22 */
+    { 0x0000ffd4, 13238 }, /* F23 */
+    { 0x0000ffd5, 13243 }, /* F24 */
+    { 0x0000ffd6, 13248 }, /* F25 */
+    { 0x0000ffd7, 13253 }, /* F26 */
+    { 0x0000ffd8, 13258 }, /* F27 */
+    { 0x0000ffd9, 13263 }, /* F28 */
+    { 0x0000ffda, 13268 }, /* F29 */
+    { 0x0000ffc0, 13273 }, /* F3 */
+    { 0x0000ffdb, 13277 }, /* F30 */
+    { 0x0000ffdc, 13282 }, /* F31 */
+    { 0x0000ffdd, 13287 }, /* F32 */
+    { 0x0000ffde, 13292 }, /* F33 */
+    { 0x0000ffdf, 13297 }, /* F34 */
+    { 0x0000ffe0, 13302 }, /* F35 */
+    { 0x0000ffc1, 13307 }, /* F4 */
+    { 0x0000ffc2, 13311 }, /* F5 */
+    { 0x0000ffc3, 13315 }, /* F6 */
+    { 0x0000ffc4, 13319 }, /* F7 */
+    { 0x0000ffc5, 13323 }, /* F8 */
+    { 0x0000ffc6, 13327 }, /* F9 */
+    { 0x01001e1e, 13331 }, /* Fabovedot */
+    { 0x01001e1f, 13342 }, /* fabovedot */
+    { 0x010006f0, 13353 }, /* Farsi_0 */
+    { 0x010006f1, 13362 }, /* Farsi_1 */
+    { 0x010006f2, 13371 }, /* Farsi_2 */
+    { 0x010006f3, 13380 }, /* Farsi_3 */
+    { 0x010006f4, 13389 }, /* Farsi_4 */
+    { 0x010006f5, 13398 }, /* Farsi_5 */
+    { 0x010006f6, 13407 }, /* Farsi_6 */
+    { 0x010006f7, 13416 }, /* Farsi_7 */
+    { 0x010006f8, 13425 }, /* Farsi_8 */
+    { 0x010006f9, 13434 }, /* Farsi_9 */
+    { 0x010006cc, 13443 }, /* Farsi_yeh */
+    { 0x00000af8, 13454 }, /* femalesymbol */
+    { 0x000009e3, 13468 }, /* ff */
+    { 0x010020a3, 13472 }, /* FFrancSign */
+    { 0x00000abb, 13484 }, /* figdash */
+    { 0x00000adc, 13493 }, /* filledlefttribullet */
+    { 0x00000adb, 13514 }, /* filledrectbullet */
+    { 0x00000add, 13532 }, /* filledrighttribullet */
+    { 0x00000ae9, 13554 }, /* filledtribulletdown */
+    { 0x00000ae8, 13575 }, /* filledtribulletup */
+    { 0x0000ff68, 13594 }, /* Find */
+    { 0x0000fed0, 13600 }, /* First_Virtual_Screen */
+    { 0x00000ac5, 13622 }, /* fiveeighths */
+    { 0x00000ab7, 13635 }, /* fivesixths */
+    { 0x01002085, 13647 }, /* fivesubscript */
+    { 0x01002075, 13662 }, /* fivesuperior */
+    { 0x00000ab5, 13676 }, /* fourfifths */
+    { 0x01002084, 13688 }, /* foursubscript */
+    { 0x01002074, 13703 }, /* foursuperior */
+    { 0x0100221c, 13717 }, /* fourthroot */
+    { 0x000008f6, 13729 }, /* function */
+    { 0x00000047, 13739 }, /* G */
+    { 0x00000067, 13742 }, /* g */
+    { 0x000002d5, 13745 }, /* Gabovedot */
+    { 0x000002f5, 13756 }, /* gabovedot */
+    { 0x000002ab, 13767 }, /* Gbreve */
+    { 0x000002bb, 13775 }, /* gbreve */
+    { 0x010001e6, 13783 }, /* Gcaron */
+    { 0x010001e7, 13791 }, /* gcaron */
+    { 0x000003ab, 13799 }, /* Gcedilla */
+    { 0x000003bb, 13809 }, /* gcedilla */
+    { 0x000002d8, 13819 }, /* Gcircumflex */
+    { 0x000002f8, 13832 }, /* gcircumflex */
+    { 0x010010d0, 13845 }, /* Georgian_an */
+    { 0x010010d1, 13858 }, /* Georgian_ban */
+    { 0x010010ea, 13872 }, /* Georgian_can */
+    { 0x010010ed, 13886 }, /* Georgian_char */
+    { 0x010010e9, 13901 }, /* Georgian_chin */
+    { 0x010010ec, 13916 }, /* Georgian_cil */
+    { 0x010010d3, 13930 }, /* Georgian_don */
+    { 0x010010d4, 13944 }, /* Georgian_en */
+    { 0x010010f6, 13957 }, /* Georgian_fi */
+    { 0x010010d2, 13970 }, /* Georgian_gan */
+    { 0x010010e6, 13984 }, /* Georgian_ghan */
+    { 0x010010f0, 13999 }, /* Georgian_hae */
+    { 0x010010f4, 14013 }, /* Georgian_har */
+    { 0x010010f1, 14027 }, /* Georgian_he */
+    { 0x010010f2, 14040 }, /* Georgian_hie */
+    { 0x010010f5, 14054 }, /* Georgian_hoe */
+    { 0x010010d8, 14068 }, /* Georgian_in */
+    { 0x010010ef, 14081 }, /* Georgian_jhan */
+    { 0x010010eb, 14096 }, /* Georgian_jil */
+    { 0x010010d9, 14110 }, /* Georgian_kan */
+    { 0x010010e5, 14124 }, /* Georgian_khar */
+    { 0x010010da, 14139 }, /* Georgian_las */
+    { 0x010010db, 14153 }, /* Georgian_man */
+    { 0x010010dc, 14167 }, /* Georgian_nar */
+    { 0x010010dd, 14181 }, /* Georgian_on */
+    { 0x010010de, 14194 }, /* Georgian_par */
+    { 0x010010e4, 14208 }, /* Georgian_phar */
+    { 0x010010e7, 14223 }, /* Georgian_qar */
+    { 0x010010e0, 14237 }, /* Georgian_rae */
+    { 0x010010e1, 14251 }, /* Georgian_san */
+    { 0x010010e8, 14265 }, /* Georgian_shin */
+    { 0x010010d7, 14280 }, /* Georgian_tan */
+    { 0x010010e2, 14294 }, /* Georgian_tar */
+    { 0x010010e3, 14308 }, /* Georgian_un */
+    { 0x010010d5, 14321 }, /* Georgian_vin */
+    { 0x010010f3, 14335 }, /* Georgian_we */
+    { 0x010010ee, 14348 }, /* Georgian_xan */
+    { 0x010010d6, 14362 }, /* Georgian_zen */
+    { 0x010010df, 14376 }, /* Georgian_zhar */
+    { 0x00000060, 14391 }, /* grave */
+    { 0x0000003e, 14398 }, /* greater */
+    { 0x000008be, 14407 }, /* greaterthanequal */
+    { 0x000007ae, 14425 }, /* Greek_accentdieresis */
+    { 0x000007c1, 14447 }, /* Greek_ALPHA */
+    { 0x000007e1, 14460 }, /* Greek_alpha */
+    { 0x000007a1, 14473 }, /* Greek_ALPHAaccent */
+    { 0x000007b1, 14492 }, /* Greek_alphaaccent */
+    { 0x000007c2, 14511 }, /* Greek_BETA */
+    { 0x000007e2, 14523 }, /* Greek_beta */
+    { 0x000007d7, 14535 }, /* Greek_CHI */
+    { 0x000007f7, 14546 }, /* Greek_chi */
+    { 0x000007c4, 14557 }, /* Greek_DELTA */
+    { 0x000007e4, 14570 }, /* Greek_delta */
+    { 0x000007c5, 14583 }, /* Greek_EPSILON */
+    { 0x000007e5, 14598 }, /* Greek_epsilon */
+    { 0x000007a2, 14613 }, /* Greek_EPSILONaccent */
+    { 0x000007b2, 14634 }, /* Greek_epsilonaccent */
+    { 0x000007c7, 14655 }, /* Greek_ETA */
+    { 0x000007e7, 14666 }, /* Greek_eta */
+    { 0x000007a3, 14677 }, /* Greek_ETAaccent */
+    { 0x000007b3, 14694 }, /* Greek_etaaccent */
+    { 0x000007f3, 14711 }, /* Greek_finalsmallsigma */
+    { 0x000007c3, 14734 }, /* Greek_GAMMA */
+    { 0x000007e3, 14747 }, /* Greek_gamma */
+    { 0x000007af, 14760 }, /* Greek_horizbar */
+    { 0x000007c9, 14776 }, /* Greek_IOTA */
+    { 0x000007e9, 14788 }, /* Greek_iota */
+    { 0x000007a4, 14800 }, /* Greek_IOTAaccent */
+    { 0x000007b4, 14818 }, /* Greek_iotaaccent */
+    { 0x000007b6, 14836 }, /* Greek_iotaaccentdieresis */
+    { 0x000007a5, 14862 }, /* Greek_IOTAdiaeresis */
+    { 0x000007a5, 14883 }, /* Greek_IOTAdieresis */
+    { 0x000007b5, 14903 }, /* Greek_iotadieresis */
+    { 0x000007ca, 14923 }, /* Greek_KAPPA */
+    { 0x000007ea, 14936 }, /* Greek_kappa */
+    { 0x000007cb, 14949 }, /* Greek_LAMBDA */
+    { 0x000007eb, 14963 }, /* Greek_lambda */
+    { 0x000007cb, 14977 }, /* Greek_LAMDA */
+    { 0x000007eb, 14990 }, /* Greek_lamda */
+    { 0x000007cc, 15003 }, /* Greek_MU */
+    { 0x000007ec, 15013 }, /* Greek_mu */
+    { 0x000007cd, 15023 }, /* Greek_NU */
+    { 0x000007ed, 15033 }, /* Greek_nu */
+    { 0x000007d9, 15043 }, /* Greek_OMEGA */
+    { 0x000007f9, 15056 }, /* Greek_omega */
+    { 0x000007ab, 15069 }, /* Greek_OMEGAaccent */
+    { 0x000007bb, 15088 }, /* Greek_omegaaccent */
+    { 0x000007cf, 15107 }, /* Greek_OMICRON */
+    { 0x000007ef, 15122 }, /* Greek_omicron */
+    { 0x000007a7, 15137 }, /* Greek_OMICRONaccent */
+    { 0x000007b7, 15158 }, /* Greek_omicronaccent */
+    { 0x000007d6, 15179 }, /* Greek_PHI */
+    { 0x000007f6, 15190 }, /* Greek_phi */
+    { 0x000007d0, 15201 }, /* Greek_PI */
+    { 0x000007f0, 15211 }, /* Greek_pi */
+    { 0x000007d8, 15221 }, /* Greek_PSI */
+    { 0x000007f8, 15232 }, /* Greek_psi */
+    { 0x000007d1, 15243 }, /* Greek_RHO */
+    { 0x000007f1, 15254 }, /* Greek_rho */
+    { 0x000007d2, 15265 }, /* Greek_SIGMA */
+    { 0x000007f2, 15278 }, /* Greek_sigma */
+    { 0x0000ff7e, 15291 }, /* Greek_switch */
+    { 0x000007d4, 15305 }, /* Greek_TAU */
+    { 0x000007f4, 15316 }, /* Greek_tau */
+    { 0x000007c8, 15327 }, /* Greek_THETA */
+    { 0x000007e8, 15340 }, /* Greek_theta */
+    { 0x000007d5, 15353 }, /* Greek_UPSILON */
+    { 0x000007f5, 15368 }, /* Greek_upsilon */
+    { 0x000007a8, 15383 }, /* Greek_UPSILONaccent */
+    { 0x000007b8, 15404 }, /* Greek_upsilonaccent */
+    { 0x000007ba, 15425 }, /* Greek_upsilonaccentdieresis */
+    { 0x000007a9, 15454 }, /* Greek_UPSILONdieresis */
+    { 0x000007b9, 15477 }, /* Greek_upsilondieresis */
+    { 0x000007ce, 15500 }, /* Greek_XI */
+    { 0x000007ee, 15510 }, /* Greek_xi */
+    { 0x000007c6, 15520 }, /* Greek_ZETA */
+    { 0x000007e6, 15532 }, /* Greek_zeta */
+    { 0x100000be, 15544 }, /* guilder */
+    { 0x000000ab, 15553 }, /* guillemetleft */
+    { 0x000000bb, 15568 }, /* guillemetright */
+    { 0x000000ab, 15584 }, /* guillemotleft */
+    { 0x000000bb, 15599 }, /* guillemotright */
+    { 0x00000048, 15615 }, /* H */
+    { 0x00000068, 15618 }, /* h */
+    { 0x00000aa8, 15621 }, /* hairspace */
+    { 0x0000ff31, 15632 }, /* Hangul */
+    { 0x00000ebf, 15640 }, /* Hangul_A */
+    { 0x00000ec0, 15650 }, /* Hangul_AE */
+    { 0x00000ef6, 15661 }, /* Hangul_AraeA */
+    { 0x00000ef7, 15675 }, /* Hangul_AraeAE */
+    { 0x0000ff39, 15690 }, /* Hangul_Banja */
+    { 0x00000eba, 15704 }, /* Hangul_Cieuc */
+    { 0x0000ff37, 15718 }, /* Hangul_Codeinput */
+    { 0x00000ea7, 15736 }, /* Hangul_Dikeud */
+    { 0x00000ec4, 15751 }, /* Hangul_E */
+    { 0x0000ff33, 15761 }, /* Hangul_End */
+    { 0x00000ec3, 15773 }, /* Hangul_EO */
+    { 0x00000ed1, 15784 }, /* Hangul_EU */
+    { 0x0000ff34, 15795 }, /* Hangul_Hanja */
+    { 0x00000ebe, 15809 }, /* Hangul_Hieuh */
+    { 0x00000ed3, 15823 }, /* Hangul_I */
+    { 0x00000eb7, 15833 }, /* Hangul_Ieung */
+    { 0x00000eea, 15847 }, /* Hangul_J_Cieuc */
+    { 0x00000eda, 15863 }, /* Hangul_J_Dikeud */
+    { 0x00000eee, 15880 }, /* Hangul_J_Hieuh */
+    { 0x00000ee8, 15896 }, /* Hangul_J_Ieung */
+    { 0x00000ee9, 15912 }, /* Hangul_J_Jieuj */
+    { 0x00000eeb, 15928 }, /* Hangul_J_Khieuq */
+    { 0x00000ed4, 15945 }, /* Hangul_J_Kiyeog */
+    { 0x00000ed6, 15962 }, /* Hangul_J_KiyeogSios */
+    { 0x00000ef9, 15983 }, /* Hangul_J_KkogjiDalrinIeung */
+    { 0x00000ee3, 16011 }, /* Hangul_J_Mieum */
+    { 0x00000ed7, 16027 }, /* Hangul_J_Nieun */
+    { 0x00000ed9, 16043 }, /* Hangul_J_NieunHieuh */
+    { 0x00000ed8, 16064 }, /* Hangul_J_NieunJieuj */
+    { 0x00000ef8, 16085 }, /* Hangul_J_PanSios */
+    { 0x00000eed, 16103 }, /* Hangul_J_Phieuf */
+    { 0x00000ee4, 16120 }, /* Hangul_J_Pieub */
+    { 0x00000ee5, 16136 }, /* Hangul_J_PieubSios */
+    { 0x00000edb, 16156 }, /* Hangul_J_Rieul */
+    { 0x00000ee2, 16172 }, /* Hangul_J_RieulHieuh */
+    { 0x00000edc, 16193 }, /* Hangul_J_RieulKiyeog */
+    { 0x00000edd, 16215 }, /* Hangul_J_RieulMieum */
+    { 0x00000ee1, 16236 }, /* Hangul_J_RieulPhieuf */
+    { 0x00000ede, 16258 }, /* Hangul_J_RieulPieub */
+    { 0x00000edf, 16279 }, /* Hangul_J_RieulSios */
+    { 0x00000ee0, 16299 }, /* Hangul_J_RieulTieut */
+    { 0x00000ee6, 16320 }, /* Hangul_J_Sios */
+    { 0x00000ed5, 16335 }, /* Hangul_J_SsangKiyeog */
+    { 0x00000ee7, 16357 }, /* Hangul_J_SsangSios */
+    { 0x00000eec, 16377 }, /* Hangul_J_Tieut */
+    { 0x00000efa, 16393 }, /* Hangul_J_YeorinHieuh */
+    { 0x0000ff35, 16415 }, /* Hangul_Jamo */
+    { 0x0000ff38, 16428 }, /* Hangul_Jeonja */
+    { 0x00000eb8, 16443 }, /* Hangul_Jieuj */
+    { 0x00000ebb, 16457 }, /* Hangul_Khieuq */
+    { 0x00000ea1, 16472 }, /* Hangul_Kiyeog */
+    { 0x00000ea3, 16487 }, /* Hangul_KiyeogSios */
+    { 0x00000ef3, 16506 }, /* Hangul_KkogjiDalrinIeung */
+    { 0x00000eb1, 16532 }, /* Hangul_Mieum */
+    { 0x0000ff3d, 16546 }, /* Hangul_MultipleCandidate */
+    { 0x00000ea4, 16572 }, /* Hangul_Nieun */
+    { 0x00000ea6, 16586 }, /* Hangul_NieunHieuh */
+    { 0x00000ea5, 16605 }, /* Hangul_NieunJieuj */
+    { 0x00000ec7, 16624 }, /* Hangul_O */
+    { 0x00000eca, 16634 }, /* Hangul_OE */
+    { 0x00000ef2, 16645 }, /* Hangul_PanSios */
+    { 0x00000ebd, 16661 }, /* Hangul_Phieuf */
+    { 0x00000eb2, 16676 }, /* Hangul_Pieub */
+    { 0x00000eb4, 16690 }, /* Hangul_PieubSios */
+    { 0x0000ff3b, 16708 }, /* Hangul_PostHanja */
+    { 0x0000ff3a, 16726 }, /* Hangul_PreHanja */
+    { 0x0000ff3e, 16743 }, /* Hangul_PreviousCandidate */
+    { 0x00000ea9, 16769 }, /* Hangul_Rieul */
+    { 0x00000eb0, 16783 }, /* Hangul_RieulHieuh */
+    { 0x00000eaa, 16802 }, /* Hangul_RieulKiyeog */
+    { 0x00000eab, 16822 }, /* Hangul_RieulMieum */
+    { 0x00000eaf, 16841 }, /* Hangul_RieulPhieuf */
+    { 0x00000eac, 16861 }, /* Hangul_RieulPieub */
+    { 0x00000ead, 16880 }, /* Hangul_RieulSios */
+    { 0x00000eae, 16898 }, /* Hangul_RieulTieut */
+    { 0x00000eef, 16917 }, /* Hangul_RieulYeorinHieuh */
+    { 0x0000ff36, 16942 }, /* Hangul_Romaja */
+    { 0x0000ff3c, 16957 }, /* Hangul_SingleCandidate */
+    { 0x00000eb5, 16981 }, /* Hangul_Sios */
+    { 0x0000ff3f, 16994 }, /* Hangul_Special */
+    { 0x00000ea8, 17010 }, /* Hangul_SsangDikeud */
+    { 0x00000eb9, 17030 }, /* Hangul_SsangJieuj */
+    { 0x00000ea2, 17049 }, /* Hangul_SsangKiyeog */
+    { 0x00000eb3, 17069 }, /* Hangul_SsangPieub */
+    { 0x00000eb6, 17088 }, /* Hangul_SsangSios */
+    { 0x0000ff32, 17106 }, /* Hangul_Start */
+    { 0x00000ef0, 17120 }, /* Hangul_SunkyeongeumMieum */
+    { 0x00000ef4, 17146 }, /* Hangul_SunkyeongeumPhieuf */
+    { 0x00000ef1, 17173 }, /* Hangul_SunkyeongeumPieub */
+    { 0x0000ff7e, 17199 }, /* Hangul_switch */
+    { 0x00000ebc, 17214 }, /* Hangul_Tieut */
+    { 0x00000ecc, 17228 }, /* Hangul_U */
+    { 0x00000ec8, 17238 }, /* Hangul_WA */
+    { 0x00000ec9, 17249 }, /* Hangul_WAE */
+    { 0x00000ece, 17261 }, /* Hangul_WE */
+    { 0x00000ecd, 17272 }, /* Hangul_WEO */
+    { 0x00000ecf, 17284 }, /* Hangul_WI */
+    { 0x00000ec1, 17295 }, /* Hangul_YA */
+    { 0x00000ec2, 17306 }, /* Hangul_YAE */
+    { 0x00000ec6, 17318 }, /* Hangul_YE */
+    { 0x00000ec5, 17329 }, /* Hangul_YEO */
+    { 0x00000ef5, 17341 }, /* Hangul_YeorinHieuh */
+    { 0x00000ed2, 17361 }, /* Hangul_YI */
+    { 0x00000ecb, 17372 }, /* Hangul_YO */
+    { 0x00000ed0, 17383 }, /* Hangul_YU */
+    { 0x0000ff29, 17394 }, /* Hankaku */
+    { 0x000002a6, 17403 }, /* Hcircumflex */
+    { 0x000002b6, 17416 }, /* hcircumflex */
+    { 0x00000aee, 17429 }, /* heart */
+    { 0x00000ce0, 17436 }, /* hebrew_aleph */
+    { 0x00000cf2, 17450 }, /* hebrew_ayin */
+    { 0x00000ce1, 17463 }, /* hebrew_bet */
+    { 0x00000ce1, 17475 }, /* hebrew_beth */
+    { 0x00000ce7, 17488 }, /* hebrew_chet */
+    { 0x00000ce3, 17501 }, /* hebrew_dalet */
+    { 0x00000ce3, 17515 }, /* hebrew_daleth */
+    { 0x00000cdf, 17530 }, /* hebrew_doublelowline */
+    { 0x00000cea, 17552 }, /* hebrew_finalkaph */
+    { 0x00000ced, 17570 }, /* hebrew_finalmem */
+    { 0x00000cef, 17587 }, /* hebrew_finalnun */
+    { 0x00000cf3, 17604 }, /* hebrew_finalpe */
+    { 0x00000cf5, 17620 }, /* hebrew_finalzade */
+    { 0x00000cf5, 17638 }, /* hebrew_finalzadi */
+    { 0x00000ce2, 17656 }, /* hebrew_gimel */
+    { 0x00000ce2, 17670 }, /* hebrew_gimmel */
+    { 0x00000ce4, 17685 }, /* hebrew_he */
+    { 0x00000ce7, 17696 }, /* hebrew_het */
+    { 0x00000ceb, 17708 }, /* hebrew_kaph */
+    { 0x00000cf7, 17721 }, /* hebrew_kuf */
+    { 0x00000cec, 17733 }, /* hebrew_lamed */
+    { 0x00000cee, 17747 }, /* hebrew_mem */
+    { 0x00000cf0, 17759 }, /* hebrew_nun */
+    { 0x00000cf4, 17771 }, /* hebrew_pe */
+    { 0x00000cf7, 17782 }, /* hebrew_qoph */
+    { 0x00000cf8, 17795 }, /* hebrew_resh */
+    { 0x00000cf1, 17808 }, /* hebrew_samech */
+    { 0x00000cf1, 17823 }, /* hebrew_samekh */
+    { 0x00000cf9, 17838 }, /* hebrew_shin */
+    { 0x0000ff7e, 17851 }, /* Hebrew_switch */
+    { 0x00000cfa, 17866 }, /* hebrew_taf */
+    { 0x00000cfa, 17878 }, /* hebrew_taw */
+    { 0x00000ce8, 17890 }, /* hebrew_tet */
+    { 0x00000ce8, 17902 }, /* hebrew_teth */
+    { 0x00000ce5, 17915 }, /* hebrew_waw */
+    { 0x00000ce9, 17927 }, /* hebrew_yod */
+    { 0x00000cf6, 17939 }, /* hebrew_zade */
+    { 0x00000cf6, 17952 }, /* hebrew_zadi */
+    { 0x00000ce6, 17965 }, /* hebrew_zain */
+    { 0x00000ce6, 17978 }, /* hebrew_zayin */
+    { 0x0000ff6a, 17992 }, /* Help */
+    { 0x0000ff23, 17998 }, /* Henkan */
+    { 0x0000ff23, 18006 }, /* Henkan_Mode */
+    { 0x00000ada, 18019 }, /* hexagram */
+    { 0x0000ff25, 18029 }, /* Hiragana */
+    { 0x0000ff27, 18039 }, /* Hiragana_Katakana */
+    { 0x0000ff50, 18058 }, /* Home */
+    { 0x000008a3, 18064 }, /* horizconnector */
+    { 0x000009ef, 18080 }, /* horizlinescan1 */
+    { 0x000009f0, 18096 }, /* horizlinescan3 */
+    { 0x000009f1, 18112 }, /* horizlinescan5 */
+    { 0x000009f2, 18128 }, /* horizlinescan7 */
+    { 0x000009f3, 18144 }, /* horizlinescan9 */
+    { 0x1000ff74, 18160 }, /* hpBackTab */
+    { 0x100000fc, 18171 }, /* hpblock */
+    { 0x1000ff6f, 18180 }, /* hpClearLine */
+    { 0x1000ff73, 18193 }, /* hpDeleteChar */
+    { 0x1000ff71, 18207 }, /* hpDeleteLine */
+    { 0x100000be, 18221 }, /* hpguilder */
+    { 0x1000ff72, 18232 }, /* hpInsertChar */
+    { 0x1000ff70, 18246 }, /* hpInsertLine */
+    { 0x100000ee, 18260 }, /* hpIO */
+    { 0x1000ff75, 18266 }, /* hpKP_BackTab */
+    { 0x100000af, 18280 }, /* hplira */
+    { 0x100000f6, 18288 }, /* hplongminus */
+    { 0x1000ff48, 18301 }, /* hpModelock1 */
+    { 0x1000ff49, 18314 }, /* hpModelock2 */
+    { 0x100000a8, 18327 }, /* hpmute_acute */
+    { 0x100000aa, 18341 }, /* hpmute_asciicircum */
+    { 0x100000ac, 18361 }, /* hpmute_asciitilde */
+    { 0x100000ab, 18380 }, /* hpmute_diaeresis */
+    { 0x100000a9, 18398 }, /* hpmute_grave */
+    { 0x1000ff6c, 18412 }, /* hpReset */
+    { 0x1000ff6d, 18421 }, /* hpSystem */
+    { 0x1000ff6e, 18431 }, /* hpUser */
+    { 0x100000ee, 18439 }, /* hpYdiaeresis */
+    { 0x000002a1, 18453 }, /* Hstroke */
+    { 0x000002b1, 18462 }, /* hstroke */
+    { 0x000009e2, 18471 }, /* ht */
+    { 0x0000ffed, 18475 }, /* Hyper_L */
+    { 0x0000ffee, 18484 }, /* Hyper_R */
+    { 0x000000ad, 18493 }, /* hyphen */
+    { 0x00000049, 18501 }, /* I */
+    { 0x00000069, 18504 }, /* i */
+    { 0x000002a9, 18507 }, /* Iabovedot */
+    { 0x000000cd, 18518 }, /* Iacute */
+    { 0x000000ed, 18526 }, /* iacute */
+    { 0x01001eca, 18534 }, /* Ibelowdot */
+    { 0x01001ecb, 18545 }, /* ibelowdot */
+    { 0x0100012c, 18556 }, /* Ibreve */
+    { 0x0100012d, 18564 }, /* ibreve */
+    { 0x000000ce, 18572 }, /* Icircumflex */
+    { 0x000000ee, 18585 }, /* icircumflex */
+    { 0x000008cf, 18598 }, /* identical */
+    { 0x000000cf, 18609 }, /* Idiaeresis */
+    { 0x000000ef, 18621 }, /* idiaeresis */
+    { 0x000002b9, 18633 }, /* idotless */
+    { 0x000008cd, 18643 }, /* ifonlyif */
+    { 0x000000cc, 18653 }, /* Igrave */
+    { 0x000000ec, 18661 }, /* igrave */
+    { 0x01001ec8, 18669 }, /* Ihook */
+    { 0x01001ec9, 18676 }, /* ihook */
+    { 0x000003cf, 18683 }, /* Imacron */
+    { 0x000003ef, 18692 }, /* imacron */
+    { 0x000008ce, 18701 }, /* implies */
+    { 0x000008da, 18710 }, /* includedin */
+    { 0x000008db, 18722 }, /* includes */
+    { 0x000008c2, 18732 }, /* infinity */
+    { 0x0000ff63, 18742 }, /* Insert */
+    { 0x1000ff72, 18750 }, /* InsertChar */
+    { 0x1000ff70, 18762 }, /* InsertLine */
+    { 0x000008bf, 18774 }, /* integral */
+    { 0x000008dc, 18784 }, /* intersection */
+    { 0x100000ee, 18798 }, /* IO */
+    { 0x000003c7, 18802 }, /* Iogonek */
+    { 0x000003e7, 18811 }, /* iogonek */
+    { 0x0000fe33, 18820 }, /* ISO_Center_Object */
+    { 0x0000fe30, 18839 }, /* ISO_Continuous_Underline */
+    { 0x0000fe31, 18865 }, /* ISO_Discontinuous_Underline */
+    { 0x0000fe32, 18894 }, /* ISO_Emphasize */
+    { 0x0000fe34, 18909 }, /* ISO_Enter */
+    { 0x0000fe2f, 18920 }, /* ISO_Fast_Cursor_Down */
+    { 0x0000fe2c, 18942 }, /* ISO_Fast_Cursor_Left */
+    { 0x0000fe2d, 18964 }, /* ISO_Fast_Cursor_Right */
+    { 0x0000fe2e, 18987 }, /* ISO_Fast_Cursor_Up */
+    { 0x0000fe0c, 19007 }, /* ISO_First_Group */
+    { 0x0000fe0d, 19024 }, /* ISO_First_Group_Lock */
+    { 0x0000fe06, 19046 }, /* ISO_Group_Latch */
+    { 0x0000fe07, 19063 }, /* ISO_Group_Lock */
+    { 0x0000ff7e, 19079 }, /* ISO_Group_Shift */
+    { 0x0000fe0e, 19096 }, /* ISO_Last_Group */
+    { 0x0000fe0f, 19112 }, /* ISO_Last_Group_Lock */
+    { 0x0000fe20, 19133 }, /* ISO_Left_Tab */
+    { 0x0000fe02, 19147 }, /* ISO_Level2_Latch */
+    { 0x0000fe04, 19165 }, /* ISO_Level3_Latch */
+    { 0x0000fe05, 19183 }, /* ISO_Level3_Lock */
+    { 0x0000fe03, 19200 }, /* ISO_Level3_Shift */
+    { 0x0000fe12, 19218 }, /* ISO_Level5_Latch */
+    { 0x0000fe13, 19236 }, /* ISO_Level5_Lock */
+    { 0x0000fe11, 19253 }, /* ISO_Level5_Shift */
+    { 0x0000fe01, 19271 }, /* ISO_Lock */
+    { 0x0000fe22, 19281 }, /* ISO_Move_Line_Down */
+    { 0x0000fe21, 19301 }, /* ISO_Move_Line_Up */
+    { 0x0000fe08, 19319 }, /* ISO_Next_Group */
+    { 0x0000fe09, 19335 }, /* ISO_Next_Group_Lock */
+    { 0x0000fe24, 19356 }, /* ISO_Partial_Line_Down */
+    { 0x0000fe23, 19379 }, /* ISO_Partial_Line_Up */
+    { 0x0000fe25, 19400 }, /* ISO_Partial_Space_Left */
+    { 0x0000fe26, 19424 }, /* ISO_Partial_Space_Right */
+    { 0x0000fe0a, 19449 }, /* ISO_Prev_Group */
+    { 0x0000fe0b, 19465 }, /* ISO_Prev_Group_Lock */
+    { 0x0000fe2b, 19486 }, /* ISO_Release_Both_Margins */
+    { 0x0000fe29, 19512 }, /* ISO_Release_Margin_Left */
+    { 0x0000fe2a, 19537 }, /* ISO_Release_Margin_Right */
+    { 0x0000fe27, 19563 }, /* ISO_Set_Margin_Left */
+    { 0x0000fe28, 19584 }, /* ISO_Set_Margin_Right */
+    { 0x000003a5, 19606 }, /* Itilde */
+    { 0x000003b5, 19614 }, /* itilde */
+    { 0x0000004a, 19622 }, /* J */
+    { 0x0000006a, 19625 }, /* j */
+    { 0x000002ac, 19628 }, /* Jcircumflex */
+    { 0x000002bc, 19641 }, /* jcircumflex */
+    { 0x00000bca, 19654 }, /* jot */
+    { 0x0000004b, 19659 }, /* K */
+    { 0x0000006b, 19662 }, /* k */
+    { 0x000004b1, 19665 }, /* kana_A */
+    { 0x000004a7, 19673 }, /* kana_a */
+    { 0x000004c1, 19681 }, /* kana_CHI */
+    { 0x000004a3, 19691 }, /* kana_closingbracket */
+    { 0x000004a4, 19712 }, /* kana_comma */
+    { 0x000004a5, 19724 }, /* kana_conjunctive */
+    { 0x000004b4, 19742 }, /* kana_E */
+    { 0x000004aa, 19750 }, /* kana_e */
+    { 0x000004cc, 19758 }, /* kana_FU */
+    { 0x000004a1, 19767 }, /* kana_fullstop */
+    { 0x000004ca, 19782 }, /* kana_HA */
+    { 0x000004cd, 19791 }, /* kana_HE */
+    { 0x000004cb, 19800 }, /* kana_HI */
+    { 0x000004ce, 19809 }, /* kana_HO */
+    { 0x000004cc, 19818 }, /* kana_HU */
+    { 0x000004b2, 19827 }, /* kana_I */
+    { 0x000004a8, 19835 }, /* kana_i */
+    { 0x000004b6, 19843 }, /* kana_KA */
+    { 0x000004b9, 19852 }, /* kana_KE */
+    { 0x000004b7, 19861 }, /* kana_KI */
+    { 0x000004ba, 19870 }, /* kana_KO */
+    { 0x000004b8, 19879 }, /* kana_KU */
+    { 0x0000ff2d, 19888 }, /* Kana_Lock */
+    { 0x000004cf, 19899 }, /* kana_MA */
+    { 0x000004d2, 19908 }, /* kana_ME */
+    { 0x000004d0, 19917 }, /* kana_MI */
+    { 0x000004a5, 19926 }, /* kana_middledot */
+    { 0x000004d3, 19942 }, /* kana_MO */
+    { 0x000004d1, 19951 }, /* kana_MU */
+    { 0x000004dd, 19960 }, /* kana_N */
+    { 0x000004c5, 19968 }, /* kana_NA */
+    { 0x000004c8, 19977 }, /* kana_NE */
+    { 0x000004c6, 19986 }, /* kana_NI */
+    { 0x000004c9, 19995 }, /* kana_NO */
+    { 0x000004c7, 20004 }, /* kana_NU */
+    { 0x000004b5, 20013 }, /* kana_O */
+    { 0x000004ab, 20021 }, /* kana_o */
+    { 0x000004a2, 20029 }, /* kana_openingbracket */
+    { 0x000004d7, 20050 }, /* kana_RA */
+    { 0x000004da, 20059 }, /* kana_RE */
+    { 0x000004d8, 20068 }, /* kana_RI */
+    { 0x000004db, 20077 }, /* kana_RO */
+    { 0x000004d9, 20086 }, /* kana_RU */
+    { 0x000004bb, 20095 }, /* kana_SA */
+    { 0x000004be, 20104 }, /* kana_SE */
+    { 0x000004bc, 20113 }, /* kana_SHI */
+    { 0x0000ff2e, 20123 }, /* Kana_Shift */
+    { 0x000004bf, 20135 }, /* kana_SO */
+    { 0x000004bd, 20144 }, /* kana_SU */
+    { 0x0000ff7e, 20153 }, /* kana_switch */
+    { 0x000004c0, 20166 }, /* kana_TA */
+    { 0x000004c3, 20175 }, /* kana_TE */
+    { 0x000004c1, 20184 }, /* kana_TI */
+    { 0x000004c4, 20193 }, /* kana_TO */
+    { 0x000004c2, 20202 }, /* kana_TSU */
+    { 0x000004af, 20212 }, /* kana_tsu */
+    { 0x000004c2, 20222 }, /* kana_TU */
+    { 0x000004af, 20231 }, /* kana_tu */
+    { 0x000004b3, 20240 }, /* kana_U */
+    { 0x000004a9, 20248 }, /* kana_u */
+    { 0x000004dc, 20256 }, /* kana_WA */
+    { 0x000004a6, 20265 }, /* kana_WO */
+    { 0x000004d4, 20274 }, /* kana_YA */
+    { 0x000004ac, 20283 }, /* kana_ya */
+    { 0x000004d6, 20292 }, /* kana_YO */
+    { 0x000004ae, 20301 }, /* kana_yo */
+    { 0x000004d5, 20310 }, /* kana_YU */
+    { 0x000004ad, 20319 }, /* kana_yu */
+    { 0x0000ff21, 20328 }, /* Kanji */
+    { 0x0000ff37, 20335 }, /* Kanji_Bangou */
+    { 0x000003a2, 20349 }, /* kappa */
+    { 0x0000ff26, 20356 }, /* Katakana */
+    { 0x000003d3, 20366 }, /* Kcedilla */
+    { 0x000003f3, 20376 }, /* kcedilla */
+    { 0x00000eff, 20386 }, /* Korean_Won */
+    { 0x0000ffb0, 20398 }, /* KP_0 */
+    { 0x0000ffb1, 20404 }, /* KP_1 */
+    { 0x0000ffb2, 20410 }, /* KP_2 */
+    { 0x0000ffb3, 20416 }, /* KP_3 */
+    { 0x0000ffb4, 20422 }, /* KP_4 */
+    { 0x0000ffb5, 20428 }, /* KP_5 */
+    { 0x0000ffb6, 20434 }, /* KP_6 */
+    { 0x0000ffb7, 20440 }, /* KP_7 */
+    { 0x0000ffb8, 20446 }, /* KP_8 */
+    { 0x0000ffb9, 20452 }, /* KP_9 */
+    { 0x0000ffab, 20458 }, /* KP_Add */
+    { 0x1000ff75, 20466 }, /* KP_BackTab */
+    { 0x0000ff9d, 20478 }, /* KP_Begin */
+    { 0x0000ffae, 20488 }, /* KP_Decimal */
+    { 0x0000ff9f, 20500 }, /* KP_Delete */
+    { 0x0000ffaf, 20511 }, /* KP_Divide */
+    { 0x0000ff99, 20522 }, /* KP_Down */
+    { 0x0000ff9c, 20531 }, /* KP_End */
+    { 0x0000ff8d, 20539 }, /* KP_Enter */
+    { 0x0000ffbd, 20549 }, /* KP_Equal */
+    { 0x0000ff91, 20559 }, /* KP_F1 */
+    { 0x0000ff92, 20566 }, /* KP_F2 */
+    { 0x0000ff93, 20573 }, /* KP_F3 */
+    { 0x0000ff94, 20580 }, /* KP_F4 */
+    { 0x0000ff95, 20587 }, /* KP_Home */
+    { 0x0000ff9e, 20596 }, /* KP_Insert */
+    { 0x0000ff96, 20607 }, /* KP_Left */
+    { 0x0000ffaa, 20616 }, /* KP_Multiply */
+    { 0x0000ff9b, 20629 }, /* KP_Next */
+    { 0x0000ff9b, 20638 }, /* KP_Page_Down */
+    { 0x0000ff9a, 20652 }, /* KP_Page_Up */
+    { 0x0000ff9a, 20664 }, /* KP_Prior */
+    { 0x0000ff98, 20674 }, /* KP_Right */
+    { 0x0000ffac, 20684 }, /* KP_Separator */
+    { 0x0000ff80, 20698 }, /* KP_Space */
+    { 0x0000ffad, 20708 }, /* KP_Subtract */
+    { 0x0000ff89, 20721 }, /* KP_Tab */
+    { 0x0000ff97, 20729 }, /* KP_Up */
+    { 0x000003a2, 20736 }, /* kra */
+    { 0x0000004c, 20741 }, /* L */
+    { 0x0000006c, 20744 }, /* l */
+    { 0x0000ffc8, 20747 }, /* L1 */
+    { 0x0000ffd1, 20751 }, /* L10 */
+    { 0x0000ffc9, 20756 }, /* L2 */
+    { 0x0000ffca, 20760 }, /* L3 */
+    { 0x0000ffcb, 20764 }, /* L4 */
+    { 0x0000ffcc, 20768 }, /* L5 */
+    { 0x0000ffcd, 20772 }, /* L6 */
+    { 0x0000ffce, 20776 }, /* L7 */
+    { 0x0000ffcf, 20780 }, /* L8 */
+    { 0x0000ffd0, 20784 }, /* L9 */
+    { 0x000001c5, 20788 }, /* Lacute */
+    { 0x000001e5, 20796 }, /* lacute */
+    { 0x0000fed4, 20804 }, /* Last_Virtual_Screen */
+    { 0x00000ad9, 20825 }, /* latincross */
+    { 0x01001e36, 20837 }, /* Lbelowdot */
+    { 0x01001e37, 20848 }, /* lbelowdot */
+    { 0x000001a5, 20859 }, /* Lcaron */
+    { 0x000001b5, 20867 }, /* lcaron */
+    { 0x000003a6, 20875 }, /* Lcedilla */
+    { 0x000003b6, 20885 }, /* lcedilla */
+    { 0x0000ff51, 20895 }, /* Left */
+    { 0x00000abc, 20901 }, /* leftanglebracket */
+    { 0x000008fb, 20919 }, /* leftarrow */
+    { 0x00000ba3, 20930 }, /* leftcaret */
+    { 0x00000ad2, 20941 }, /* leftdoublequotemark */
+    { 0x000008af, 20962 }, /* leftmiddlecurlybrace */
+    { 0x00000acc, 20984 }, /* leftopentriangle */
+    { 0x00000aea, 21002 }, /* leftpointer */
+    { 0x000008a1, 21015 }, /* leftradical */
+    { 0x00000bda, 21028 }, /* leftshoe */
+    { 0x00000ad0, 21038 }, /* leftsinglequotemark */
+    { 0x000009f4, 21059 }, /* leftt */
+    { 0x00000bdc, 21066 }, /* lefttack */
+    { 0x0000003c, 21076 }, /* less */
+    { 0x000008bc, 21082 }, /* lessthanequal */
+    { 0x000009e5, 21097 }, /* lf */
+    { 0x0000ff0a, 21101 }, /* Linefeed */
+    { 0x100000af, 21111 }, /* lira */
+    { 0x010020a4, 21117 }, /* LiraSign */
+    { 0x000008de, 21127 }, /* logicaland */
+    { 0x000008df, 21139 }, /* logicalor */
+    { 0x100000f6, 21150 }, /* longminus */
+    { 0x000009ed, 21161 }, /* lowleftcorner */
+    { 0x000009ea, 21176 }, /* lowrightcorner */
+    { 0x000001a3, 21192 }, /* Lstroke */
+    { 0x000001b3, 21201 }, /* lstroke */
+    { 0x0000004d, 21210 }, /* M */
+    { 0x0000006d, 21213 }, /* m */
+    { 0x01001e40, 21216 }, /* Mabovedot */
+    { 0x01001e41, 21227 }, /* mabovedot */
+    { 0x000006b5, 21238 }, /* Macedonia_DSE */
+    { 0x000006a5, 21253 }, /* Macedonia_dse */
+    { 0x000006b2, 21268 }, /* Macedonia_GJE */
+    { 0x000006a2, 21283 }, /* Macedonia_gje */
+    { 0x000006bc, 21298 }, /* Macedonia_KJE */
+    { 0x000006ac, 21313 }, /* Macedonia_kje */
+    { 0x000000af, 21328 }, /* macron */
+    { 0x0000ff3e, 21336 }, /* Mae_Koho */
+    { 0x00000af7, 21346 }, /* malesymbol */
+    { 0x00000af0, 21358 }, /* maltesecross */
+    { 0x00000abf, 21372 }, /* marker */
+    { 0x000000ba, 21380 }, /* masculine */
+    { 0x0000ff2c, 21391 }, /* Massyo */
+    { 0x0000ff67, 21399 }, /* Menu */
+    { 0x0000ffe7, 21405 }, /* Meta_L */
+    { 0x0000ffe8, 21413 }, /* Meta_R */
+    { 0x010020a5, 21421 }, /* MillSign */
+    { 0x0000002d, 21431 }, /* minus */
+    { 0x00000ad6, 21438 }, /* minutes */
+    { 0x0000ff7e, 21447 }, /* Mode_switch */
+    { 0x0000fe77, 21460 }, /* MouseKeys_Accel_Enable */
+    { 0x0000fe76, 21484 }, /* MouseKeys_Enable */
+    { 0x000000b5, 21502 }, /* mu */
+    { 0x0000ff22, 21506 }, /* Muhenkan */
+    { 0x0000ff20, 21516 }, /* Multi_key */
+    { 0x0000ff3d, 21527 }, /* MultipleCandidate */
+    { 0x000000d7, 21546 }, /* multiply */
+    { 0x00000af6, 21556 }, /* musicalflat */
+    { 0x00000af5, 21569 }, /* musicalsharp */
+    { 0x100000a8, 21583 }, /* mute_acute */
+    { 0x100000aa, 21595 }, /* mute_asciicircum */
+    { 0x100000ac, 21613 }, /* mute_asciitilde */
+    { 0x100000ab, 21630 }, /* mute_diaeresis */
+    { 0x100000a9, 21646 }, /* mute_grave */
+    { 0x0000004e, 21658 }, /* N */
+    { 0x0000006e, 21661 }, /* n */
+    { 0x000008c5, 21664 }, /* nabla */
+    { 0x000001d1, 21671 }, /* Nacute */
+    { 0x000001f1, 21679 }, /* nacute */
+    { 0x010020a6, 21687 }, /* NairaSign */
+    { 0x000001d2, 21698 }, /* Ncaron */
+    { 0x000001f2, 21706 }, /* ncaron */
+    { 0x000003d1, 21714 }, /* Ncedilla */
+    { 0x000003f1, 21724 }, /* ncedilla */
+    { 0x010020aa, 21734 }, /* NewSheqelSign */
+    { 0x0000ff56, 21749 }, /* Next */
+    { 0x0000fed2, 21755 }, /* Next_Virtual_Screen */
+    { 0x01002089, 21776 }, /* ninesubscript */
+    { 0x01002079, 21791 }, /* ninesuperior */
+    { 0x000009e8, 21805 }, /* nl */
+    { 0x000000a0, 21809 }, /* nobreakspace */
+    { 0x00000000, 21823 }, /* NoSymbol */
+    { 0x01002247, 21833 }, /* notapproxeq */
+    { 0x01002209, 21846 }, /* notelementof */
+    { 0x000008bd, 21860 }, /* notequal */
+    { 0x01002262, 21870 }, /* notidentical */
+    { 0x000000ac, 21884 }, /* notsign */
+    { 0x000000d1, 21893 }, /* Ntilde */
+    { 0x000000f1, 21901 }, /* ntilde */
+    { 0x0000ff7f, 21909 }, /* Num_Lock */
+    { 0x00000023, 21919 }, /* numbersign */
+    { 0x000006b0, 21931 }, /* numerosign */
+    { 0x0000004f, 21943 }, /* O */
+    { 0x0000006f, 21946 }, /* o */
+    { 0x000000d3, 21949 }, /* Oacute */
+    { 0x000000f3, 21957 }, /* oacute */
+    { 0x0100019f, 21965 }, /* Obarred */
+    { 0x01000275, 21974 }, /* obarred */
+    { 0x01001ecc, 21983 }, /* Obelowdot */
+    { 0x01001ecd, 21994 }, /* obelowdot */
+    { 0x010001d1, 22005 }, /* Ocaron */
+    { 0x010001d2, 22013 }, /* ocaron */
+    { 0x000000d4, 22021 }, /* Ocircumflex */
+    { 0x000000f4, 22034 }, /* ocircumflex */
+    { 0x01001ed0, 22047 }, /* Ocircumflexacute */
+    { 0x01001ed1, 22065 }, /* ocircumflexacute */
+    { 0x01001ed8, 22083 }, /* Ocircumflexbelowdot */
+    { 0x01001ed9, 22104 }, /* ocircumflexbelowdot */
+    { 0x01001ed2, 22125 }, /* Ocircumflexgrave */
+    { 0x01001ed3, 22143 }, /* ocircumflexgrave */
+    { 0x01001ed4, 22161 }, /* Ocircumflexhook */
+    { 0x01001ed5, 22178 }, /* ocircumflexhook */
+    { 0x01001ed6, 22195 }, /* Ocircumflextilde */
+    { 0x01001ed7, 22213 }, /* ocircumflextilde */
+    { 0x000000d6, 22231 }, /* Odiaeresis */
+    { 0x000000f6, 22243 }, /* odiaeresis */
+    { 0x000001d5, 22255 }, /* Odoubleacute */
+    { 0x000001f5, 22269 }, /* odoubleacute */
+    { 0x000013bc, 22283 }, /* OE */
+    { 0x000013bd, 22287 }, /* oe */
+    { 0x000001b2, 22291 }, /* ogonek */
+    { 0x000000d2, 22299 }, /* Ograve */
+    { 0x000000f2, 22307 }, /* ograve */
+    { 0x01001ece, 22315 }, /* Ohook */
+    { 0x01001ecf, 22322 }, /* ohook */
+    { 0x010001a0, 22329 }, /* Ohorn */
+    { 0x010001a1, 22336 }, /* ohorn */
+    { 0x01001eda, 22343 }, /* Ohornacute */
+    { 0x01001edb, 22355 }, /* ohornacute */
+    { 0x01001ee2, 22367 }, /* Ohornbelowdot */
+    { 0x01001ee3, 22382 }, /* ohornbelowdot */
+    { 0x01001edc, 22397 }, /* Ohorngrave */
+    { 0x01001edd, 22409 }, /* ohorngrave */
+    { 0x01001ede, 22421 }, /* Ohornhook */
+    { 0x01001edf, 22432 }, /* ohornhook */
+    { 0x01001ee0, 22443 }, /* Ohorntilde */
+    { 0x01001ee1, 22455 }, /* ohorntilde */
+    { 0x000003d2, 22467 }, /* Omacron */
+    { 0x000003f2, 22476 }, /* omacron */
+    { 0x00000ac3, 22485 }, /* oneeighth */
+    { 0x00000ab2, 22496 }, /* onefifth */
+    { 0x000000bd, 22506 }, /* onehalf */
+    { 0x000000bc, 22515 }, /* onequarter */
+    { 0x00000ab6, 22527 }, /* onesixth */
+    { 0x01002081, 22537 }, /* onesubscript */
+    { 0x000000b9, 22551 }, /* onesuperior */
+    { 0x00000ab0, 22564 }, /* onethird */
+    { 0x000000d8, 22574 }, /* Ooblique */
+    { 0x000000f8, 22584 }, /* ooblique */
+    { 0x00000ae2, 22594 }, /* openrectbullet */
+    { 0x00000ae5, 22610 }, /* openstar */
+    { 0x00000ae4, 22620 }, /* opentribulletdown */
+    { 0x00000ae3, 22639 }, /* opentribulletup */
+    { 0x000000aa, 22656 }, /* ordfeminine */
+    { 0x000000ba, 22669 }, /* ordmasculine */
+    { 0x1004ff44, 22683 }, /* osfActivate */
+    { 0x1004ff31, 22696 }, /* osfAddMode */
+    { 0x1004ff08, 22708 }, /* osfBackSpace */
+    { 0x1004ff07, 22722 }, /* osfBackTab */
+    { 0x1004ff5a, 22734 }, /* osfBeginData */
+    { 0x1004ff58, 22748 }, /* osfBeginLine */
+    { 0x1004ff69, 22762 }, /* osfCancel */
+    { 0x1004ff0b, 22773 }, /* osfClear */
+    { 0x1004ff02, 22783 }, /* osfCopy */
+    { 0x1004ff03, 22792 }, /* osfCut */
+    { 0x1004ffff, 22800 }, /* osfDelete */
+    { 0x1004ff72, 22811 }, /* osfDeselectAll */
+    { 0x1004ff54, 22827 }, /* osfDown */
+    { 0x1004ff59, 22836 }, /* osfEndData */
+    { 0x1004ff57, 22848 }, /* osfEndLine */
+    { 0x1004ff1b, 22860 }, /* osfEscape */
+    { 0x1004ff74, 22871 }, /* osfExtend */
+    { 0x1004ff6a, 22882 }, /* osfHelp */
+    { 0x1004ff63, 22891 }, /* osfInsert */
+    { 0x1004ff51, 22902 }, /* osfLeft */
+    { 0x1004ff67, 22911 }, /* osfMenu */
+    { 0x1004ff45, 22920 }, /* osfMenuBar */
+    { 0x1004ff5e, 22932 }, /* osfNextField */
+    { 0x1004ff5c, 22946 }, /* osfNextMenu */
+    { 0x1004ff42, 22959 }, /* osfPageDown */
+    { 0x1004ff40, 22972 }, /* osfPageLeft */
+    { 0x1004ff43, 22985 }, /* osfPageRight */
+    { 0x1004ff41, 22999 }, /* osfPageUp */
+    { 0x1004ff04, 23010 }, /* osfPaste */
+    { 0x1004ff5d, 23020 }, /* osfPrevField */
+    { 0x1004ff5b, 23034 }, /* osfPrevMenu */
+    { 0x1004ff32, 23047 }, /* osfPrimaryPaste */
+    { 0x1004ff33, 23064 }, /* osfQuickPaste */
+    { 0x1004ff73, 23079 }, /* osfReselect */
+    { 0x1004ff78, 23092 }, /* osfRestore */
+    { 0x1004ff53, 23104 }, /* osfRight */
+    { 0x1004ff60, 23114 }, /* osfSelect */
+    { 0x1004ff71, 23125 }, /* osfSelectAll */
+    { 0x1004ff65, 23139 }, /* osfUndo */
+    { 0x1004ff52, 23148 }, /* osfUp */
+    { 0x000000d8, 23155 }, /* Oslash */
+    { 0x000000f8, 23163 }, /* oslash */
+    { 0x000000d5, 23171 }, /* Otilde */
+    { 0x000000f5, 23179 }, /* otilde */
+    { 0x00000bc0, 23187 }, /* overbar */
+    { 0x0000fe78, 23196 }, /* Overlay1_Enable */
+    { 0x0000fe79, 23213 }, /* Overlay2_Enable */
+    { 0x0000047e, 23230 }, /* overline */
+    { 0x00000050, 23240 }, /* P */
+    { 0x00000070, 23243 }, /* p */
+    { 0x01001e56, 23246 }, /* Pabovedot */
+    { 0x01001e57, 23257 }, /* pabovedot */
+    { 0x0000ff56, 23268 }, /* Page_Down */
+    { 0x0000ff55, 23279 }, /* Page_Up */
+    { 0x000000b6, 23288 }, /* paragraph */
+    { 0x00000028, 23299 }, /* parenleft */
+    { 0x00000029, 23310 }, /* parenright */
+    { 0x01002202, 23322 }, /* partdifferential */
+    { 0x000008ef, 23340 }, /* partialderivative */
+    { 0x0000ff13, 23359 }, /* Pause */
+    { 0x00000025, 23366 }, /* percent */
+    { 0x0000002e, 23375 }, /* period */
+    { 0x000000b7, 23383 }, /* periodcentered */
+    { 0x00000ad5, 23399 }, /* permille */
+    { 0x010020a7, 23409 }, /* PesetaSign */
+    { 0x00000afb, 23421 }, /* phonographcopyright */
+    { 0x0000002b, 23442 }, /* plus */
+    { 0x000000b1, 23448 }, /* plusminus */
+    { 0x0000fefa, 23459 }, /* Pointer_Accelerate */
+    { 0x0000fee9, 23479 }, /* Pointer_Button1 */
+    { 0x0000feea, 23496 }, /* Pointer_Button2 */
+    { 0x0000feeb, 23513 }, /* Pointer_Button3 */
+    { 0x0000feec, 23530 }, /* Pointer_Button4 */
+    { 0x0000feed, 23547 }, /* Pointer_Button5 */
+    { 0x0000fee8, 23564 }, /* Pointer_Button_Dflt */
+    { 0x0000feef, 23585 }, /* Pointer_DblClick1 */
+    { 0x0000fef0, 23604 }, /* Pointer_DblClick2 */
+    { 0x0000fef1, 23623 }, /* Pointer_DblClick3 */
+    { 0x0000fef2, 23642 }, /* Pointer_DblClick4 */
+    { 0x0000fef3, 23661 }, /* Pointer_DblClick5 */
+    { 0x0000feee, 23680 }, /* Pointer_DblClick_Dflt */
+    { 0x0000fefb, 23703 }, /* Pointer_DfltBtnNext */
+    { 0x0000fefc, 23724 }, /* Pointer_DfltBtnPrev */
+    { 0x0000fee3, 23745 }, /* Pointer_Down */
+    { 0x0000fee6, 23759 }, /* Pointer_DownLeft */
+    { 0x0000fee7, 23777 }, /* Pointer_DownRight */
+    { 0x0000fef5, 23796 }, /* Pointer_Drag1 */
+    { 0x0000fef6, 23811 }, /* Pointer_Drag2 */
+    { 0x0000fef7, 23826 }, /* Pointer_Drag3 */
+    { 0x0000fef8, 23841 }, /* Pointer_Drag4 */
+    { 0x0000fefd, 23856 }, /* Pointer_Drag5 */
+    { 0x0000fef4, 23871 }, /* Pointer_Drag_Dflt */
+    { 0x0000fef9, 23890 }, /* Pointer_EnableKeys */
+    { 0x0000fee0, 23910 }, /* Pointer_Left */
+    { 0x0000fee1, 23924 }, /* Pointer_Right */
+    { 0x0000fee2, 23939 }, /* Pointer_Up */
+    { 0x0000fee4, 23951 }, /* Pointer_UpLeft */
+    { 0x0000fee5, 23967 }, /* Pointer_UpRight */
+    { 0x00000ad4, 23984 }, /* prescription */
+    { 0x0000fed1, 23998 }, /* Prev_Virtual_Screen */
+    { 0x0000ff3e, 24019 }, /* PreviousCandidate */
+    { 0x0000ff61, 24038 }, /* Print */
+    { 0x0000ff55, 24045 }, /* Prior */
+    { 0x000004b0, 24052 }, /* prolongedsound */
+    { 0x00000aa6, 24068 }, /* punctspace */
+    { 0x00000051, 24080 }, /* Q */
+    { 0x00000071, 24083 }, /* q */
+    { 0x00000bcc, 24086 }, /* quad */
+    { 0x0000003f, 24092 }, /* question */
+    { 0x000000bf, 24102 }, /* questiondown */
+    { 0x00000022, 24116 }, /* quotedbl */
+    { 0x00000060, 24126 }, /* quoteleft */
+    { 0x00000027, 24137 }, /* quoteright */
+    { 0x00000052, 24149 }, /* R */
+    { 0x00000072, 24152 }, /* r */
+    { 0x0000ffd2, 24155 }, /* R1 */
+    { 0x0000ffdb, 24159 }, /* R10 */
+    { 0x0000ffdc, 24164 }, /* R11 */
+    { 0x0000ffdd, 24169 }, /* R12 */
+    { 0x0000ffde, 24174 }, /* R13 */
+    { 0x0000ffdf, 24179 }, /* R14 */
+    { 0x0000ffe0, 24184 }, /* R15 */
+    { 0x0000ffd3, 24189 }, /* R2 */
+    { 0x0000ffd4, 24193 }, /* R3 */
+    { 0x0000ffd5, 24197 }, /* R4 */
+    { 0x0000ffd6, 24201 }, /* R5 */
+    { 0x0000ffd7, 24205 }, /* R6 */
+    { 0x0000ffd8, 24209 }, /* R7 */
+    { 0x0000ffd9, 24213 }, /* R8 */
+    { 0x0000ffda, 24217 }, /* R9 */
+    { 0x000001c0, 24221 }, /* Racute */
+    { 0x000001e0, 24229 }, /* racute */
+    { 0x000008d6, 24237 }, /* radical */
+    { 0x000001d8, 24246 }, /* Rcaron */
+    { 0x000001f8, 24254 }, /* rcaron */
+    { 0x000003a3, 24262 }, /* Rcedilla */
+    { 0x000003b3, 24272 }, /* rcedilla */
+    { 0x0000ff66, 24282 }, /* Redo */
+    { 0x000000ae, 24288 }, /* registered */
+    { 0x0000fe72, 24300 }, /* RepeatKeys_Enable */
+    { 0x1000ff6c, 24319 }, /* Reset */
+    { 0x0000ff0d, 24326 }, /* Return */
+    { 0x0000ff53, 24334 }, /* Right */
+    { 0x00000abe, 24341 }, /* rightanglebracket */
+    { 0x000008fd, 24360 }, /* rightarrow */
+    { 0x00000ba6, 24372 }, /* rightcaret */
+    { 0x00000ad3, 24384 }, /* rightdoublequotemark */
+    { 0x000008b0, 24406 }, /* rightmiddlecurlybrace */
+    { 0x000008b7, 24429 }, /* rightmiddlesummation */
+    { 0x00000acd, 24451 }, /* rightopentriangle */
+    { 0x00000aeb, 24470 }, /* rightpointer */
+    { 0x00000bd8, 24484 }, /* rightshoe */
+    { 0x00000ad1, 24495 }, /* rightsinglequotemark */
+    { 0x000009f5, 24517 }, /* rightt */
+    { 0x00000bfc, 24525 }, /* righttack */
+    { 0x0000ff24, 24536 }, /* Romaji */
+    { 0x010020a8, 24544 }, /* RupeeSign */
+    { 0x00000053, 24555 }, /* S */
+    { 0x00000073, 24558 }, /* s */
+    { 0x01001e60, 24561 }, /* Sabovedot */
+    { 0x01001e61, 24572 }, /* sabovedot */
+    { 0x000001a6, 24583 }, /* Sacute */
+    { 0x000001b6, 24591 }, /* sacute */
+    { 0x000001a9, 24599 }, /* Scaron */
+    { 0x000001b9, 24607 }, /* scaron */
+    { 0x000001aa, 24615 }, /* Scedilla */
+    { 0x000001ba, 24625 }, /* scedilla */
+    { 0x0100018f, 24635 }, /* SCHWA */
+    { 0x01000259, 24642 }, /* schwa */
+    { 0x000002de, 24649 }, /* Scircumflex */
+    { 0x000002fe, 24662 }, /* scircumflex */
+    { 0x0000ff7e, 24675 }, /* script_switch */
+    { 0x0000ff14, 24690 }, /* Scroll_Lock */
+    { 0x00000ad7, 24703 }, /* seconds */
+    { 0x000000a7, 24712 }, /* section */
+    { 0x0000ff60, 24721 }, /* Select */
+    { 0x0000003b, 24729 }, /* semicolon */
+    { 0x000004df, 24740 }, /* semivoicedsound */
+    { 0x000006b1, 24757 }, /* Serbian_DJE */
+    { 0x000006a1, 24770 }, /* Serbian_dje */
+    { 0x000006bf, 24783 }, /* Serbian_DZE */
+    { 0x000006af, 24796 }, /* Serbian_dze */
+    { 0x000006b8, 24809 }, /* Serbian_JE */
+    { 0x000006a8, 24821 }, /* Serbian_je */
+    { 0x000006b9, 24833 }, /* Serbian_LJE */
+    { 0x000006a9, 24846 }, /* Serbian_lje */
+    { 0x000006ba, 24859 }, /* Serbian_NJE */
+    { 0x000006aa, 24872 }, /* Serbian_nje */
+    { 0x000006bb, 24885 }, /* Serbian_TSHE */
+    { 0x000006ab, 24899 }, /* Serbian_tshe */
+    { 0x00000ac6, 24913 }, /* seveneighths */
+    { 0x01002087, 24927 }, /* sevensubscript */
+    { 0x01002077, 24943 }, /* sevensuperior */
+    { 0x0000ffe1, 24958 }, /* Shift_L */
+    { 0x0000ffe6, 24967 }, /* Shift_Lock */
+    { 0x0000ffe2, 24979 }, /* Shift_R */
+    { 0x00000aca, 24988 }, /* signaturemark */
+    { 0x00000aac, 25003 }, /* signifblank */
+    { 0x000008c9, 25016 }, /* similarequal */
+    { 0x0000ff3c, 25030 }, /* SingleCandidate */
+    { 0x00000afd, 25047 }, /* singlelowquotemark */
+    { 0x01000d85, 25067 }, /* Sinh_a */
+    { 0x01000d86, 25075 }, /* Sinh_aa */
+    { 0x01000dcf, 25084 }, /* Sinh_aa2 */
+    { 0x01000d87, 25094 }, /* Sinh_ae */
+    { 0x01000dd0, 25103 }, /* Sinh_ae2 */
+    { 0x01000d88, 25113 }, /* Sinh_aee */
+    { 0x01000dd1, 25123 }, /* Sinh_aee2 */
+    { 0x01000d93, 25134 }, /* Sinh_ai */
+    { 0x01000ddb, 25143 }, /* Sinh_ai2 */
+    { 0x01000dca, 25153 }, /* Sinh_al */
+    { 0x01000d96, 25162 }, /* Sinh_au */
+    { 0x01000dde, 25171 }, /* Sinh_au2 */
+    { 0x01000db6, 25181 }, /* Sinh_ba */
+    { 0x01000db7, 25190 }, /* Sinh_bha */
+    { 0x01000da0, 25200 }, /* Sinh_ca */
+    { 0x01000da1, 25209 }, /* Sinh_cha */
+    { 0x01000da9, 25219 }, /* Sinh_dda */
+    { 0x01000daa, 25229 }, /* Sinh_ddha */
+    { 0x01000daf, 25240 }, /* Sinh_dha */
+    { 0x01000db0, 25250 }, /* Sinh_dhha */
+    { 0x01000d91, 25261 }, /* Sinh_e */
+    { 0x01000dd9, 25269 }, /* Sinh_e2 */
+    { 0x01000d92, 25278 }, /* Sinh_ee */
+    { 0x01000dda, 25287 }, /* Sinh_ee2 */
+    { 0x01000dc6, 25297 }, /* Sinh_fa */
+    { 0x01000d9c, 25306 }, /* Sinh_ga */
+    { 0x01000d9d, 25315 }, /* Sinh_gha */
+    { 0x01000d83, 25325 }, /* Sinh_h2 */
+    { 0x01000dc4, 25334 }, /* Sinh_ha */
+    { 0x01000d89, 25343 }, /* Sinh_i */
+    { 0x01000dd2, 25351 }, /* Sinh_i2 */
+    { 0x01000d8a, 25360 }, /* Sinh_ii */
+    { 0x01000dd3, 25369 }, /* Sinh_ii2 */
+    { 0x01000da2, 25379 }, /* Sinh_ja */
+    { 0x01000da3, 25388 }, /* Sinh_jha */
+    { 0x01000da5, 25398 }, /* Sinh_jnya */
+    { 0x01000d9a, 25409 }, /* Sinh_ka */
+    { 0x01000d9b, 25418 }, /* Sinh_kha */
+    { 0x01000df4, 25428 }, /* Sinh_kunddaliya */
+    { 0x01000dbd, 25445 }, /* Sinh_la */
+    { 0x01000dc5, 25454 }, /* Sinh_lla */
+    { 0x01000d8f, 25464 }, /* Sinh_lu */
+    { 0x01000ddf, 25473 }, /* Sinh_lu2 */
+    { 0x01000d90, 25483 }, /* Sinh_luu */
+    { 0x01000df3, 25493 }, /* Sinh_luu2 */
+    { 0x01000db8, 25504 }, /* Sinh_ma */
+    { 0x01000db9, 25513 }, /* Sinh_mba */
+    { 0x01000db1, 25523 }, /* Sinh_na */
+    { 0x01000dac, 25532 }, /* Sinh_ndda */
+    { 0x01000db3, 25543 }, /* Sinh_ndha */
+    { 0x01000d82, 25554 }, /* Sinh_ng */
+    { 0x01000d9e, 25563 }, /* Sinh_ng2 */
+    { 0x01000d9f, 25573 }, /* Sinh_nga */
+    { 0x01000da6, 25583 }, /* Sinh_nja */
+    { 0x01000dab, 25593 }, /* Sinh_nna */
+    { 0x01000da4, 25603 }, /* Sinh_nya */
+    { 0x01000d94, 25613 }, /* Sinh_o */
+    { 0x01000ddc, 25621 }, /* Sinh_o2 */
+    { 0x01000d95, 25630 }, /* Sinh_oo */
+    { 0x01000ddd, 25639 }, /* Sinh_oo2 */
+    { 0x01000db4, 25649 }, /* Sinh_pa */
+    { 0x01000db5, 25658 }, /* Sinh_pha */
+    { 0x01000dbb, 25668 }, /* Sinh_ra */
+    { 0x01000d8d, 25677 }, /* Sinh_ri */
+    { 0x01000d8e, 25686 }, /* Sinh_rii */
+    { 0x01000dd8, 25696 }, /* Sinh_ru2 */
+    { 0x01000df2, 25706 }, /* Sinh_ruu2 */
+    { 0x01000dc3, 25717 }, /* Sinh_sa */
+    { 0x01000dc1, 25726 }, /* Sinh_sha */
+    { 0x01000dc2, 25736 }, /* Sinh_ssha */
+    { 0x01000dad, 25747 }, /* Sinh_tha */
+    { 0x01000dae, 25757 }, /* Sinh_thha */
+    { 0x01000da7, 25768 }, /* Sinh_tta */
+    { 0x01000da8, 25778 }, /* Sinh_ttha */
+    { 0x01000d8b, 25789 }, /* Sinh_u */
+    { 0x01000dd4, 25797 }, /* Sinh_u2 */
+    { 0x01000d8c, 25806 }, /* Sinh_uu */
+    { 0x01000dd6, 25815 }, /* Sinh_uu2 */
+    { 0x01000dc0, 25825 }, /* Sinh_va */
+    { 0x01000dba, 25834 }, /* Sinh_ya */
+    { 0x01002086, 25843 }, /* sixsubscript */
+    { 0x01002076, 25857 }, /* sixsuperior */
+    { 0x0000002f, 25870 }, /* slash */
+    { 0x0000fe73, 25877 }, /* SlowKeys_Enable */
+    { 0x000009e0, 25894 }, /* soliddiamond */
+    { 0x00000020, 25908 }, /* space */
+    { 0x0100221a, 25915 }, /* squareroot */
+    { 0x000000df, 25927 }, /* ssharp */
+    { 0x000000a3, 25935 }, /* sterling */
+    { 0x0000fe75, 25945 }, /* StickyKeys_Enable */
+    { 0x01002263, 25964 }, /* stricteq */
+    { 0x0000ff66, 25974 }, /* SunAgain */
+    { 0x0000ff7e, 25984 }, /* SunAltGraph */
+    { 0x1005ff77, 25997 }, /* SunAudioLowerVolume */
+    { 0x1005ff78, 26018 }, /* SunAudioMute */
+    { 0x1005ff79, 26032 }, /* SunAudioRaiseVolume */
+    { 0x0000ff20, 26053 }, /* SunCompose */
+    { 0x1005ff72, 26065 }, /* SunCopy */
+    { 0x1005ff75, 26074 }, /* SunCut */
+    { 0x1005ff10, 26082 }, /* SunF36 */
+    { 0x1005ff11, 26090 }, /* SunF37 */
+    { 0x1005ff03, 26098 }, /* SunFA_Acute */
+    { 0x1005ff05, 26111 }, /* SunFA_Cedilla */
+    { 0x1005ff01, 26126 }, /* SunFA_Circum */
+    { 0x1005ff04, 26140 }, /* SunFA_Diaeresis */
+    { 0x1005ff00, 26157 }, /* SunFA_Grave */
+    { 0x1005ff02, 26170 }, /* SunFA_Tilde */
+    { 0x0000ff68, 26183 }, /* SunFind */
+    { 0x1005ff71, 26192 }, /* SunFront */
+    { 0x1005ff73, 26202 }, /* SunOpen */
+    { 0x0000ff56, 26211 }, /* SunPageDown */
+    { 0x0000ff55, 26224 }, /* SunPageUp */
+    { 0x1005ff74, 26235 }, /* SunPaste */
+    { 0x1005ff76, 26245 }, /* SunPowerSwitch */
+    { 0x1005ff7d, 26261 }, /* SunPowerSwitchShift */
+    { 0x0000ff61, 26282 }, /* SunPrint_Screen */
+    { 0x1005ff70, 26299 }, /* SunProps */
+    { 0x0000ff69, 26309 }, /* SunStop */
+    { 0x1005ff60, 26318 }, /* SunSys_Req */
+    { 0x0000ff65, 26330 }, /* SunUndo */
+    { 0x1005ff7a, 26339 }, /* SunVideoDegauss */
+    { 0x1005ff7b, 26356 }, /* SunVideoLowerBrightness */
+    { 0x1005ff7c, 26381 }, /* SunVideoRaiseBrightness */
+    { 0x0000ffeb, 26406 }, /* Super_L */
+    { 0x0000ffec, 26415 }, /* Super_R */
+    { 0x0000ff15, 26424 }, /* Sys_Req */
+    { 0x1000ff6d, 26433 }, /* System */
+    { 0x00000054, 26441 }, /* T */
+    { 0x00000074, 26444 }, /* t */
+    { 0x0000ff09, 26447 }, /* Tab */
+    { 0x01001e6a, 26452 }, /* Tabovedot */
+    { 0x01001e6b, 26463 }, /* tabovedot */
+    { 0x000001ab, 26474 }, /* Tcaron */
+    { 0x000001bb, 26482 }, /* tcaron */
+    { 0x000001de, 26490 }, /* Tcedilla */
+    { 0x000001fe, 26500 }, /* tcedilla */
+    { 0x00000af9, 26510 }, /* telephone */
+    { 0x00000afa, 26521 }, /* telephonerecorder */
+    { 0x0000fed5, 26540 }, /* Terminate_Server */
+    { 0x00000ddf, 26558 }, /* Thai_baht */
+    { 0x00000dba, 26569 }, /* Thai_bobaimai */
+    { 0x00000da8, 26584 }, /* Thai_chochan */
+    { 0x00000daa, 26598 }, /* Thai_chochang */
+    { 0x00000da9, 26613 }, /* Thai_choching */
+    { 0x00000dac, 26628 }, /* Thai_chochoe */
+    { 0x00000dae, 26642 }, /* Thai_dochada */
+    { 0x00000db4, 26656 }, /* Thai_dodek */
+    { 0x00000dbd, 26668 }, /* Thai_fofa */
+    { 0x00000dbf, 26679 }, /* Thai_fofan */
+    { 0x00000dcb, 26691 }, /* Thai_hohip */
+    { 0x00000dce, 26703 }, /* Thai_honokhuk */
+    { 0x00000da2, 26718 }, /* Thai_khokhai */
+    { 0x00000da5, 26732 }, /* Thai_khokhon */
+    { 0x00000da3, 26746 }, /* Thai_khokhuat */
+    { 0x00000da4, 26761 }, /* Thai_khokhwai */
+    { 0x00000da6, 26776 }, /* Thai_khorakhang */
+    { 0x00000da1, 26793 }, /* Thai_kokai */
+    { 0x00000de5, 26805 }, /* Thai_lakkhangyao */
+    { 0x00000df7, 26823 }, /* Thai_lekchet */
+    { 0x00000df5, 26837 }, /* Thai_lekha */
+    { 0x00000df6, 26849 }, /* Thai_lekhok */
+    { 0x00000df9, 26862 }, /* Thai_lekkao */
+    { 0x00000df1, 26875 }, /* Thai_leknung */
+    { 0x00000df8, 26889 }, /* Thai_lekpaet */
+    { 0x00000df3, 26903 }, /* Thai_leksam */
+    { 0x00000df4, 26916 }, /* Thai_leksi */
+    { 0x00000df2, 26928 }, /* Thai_leksong */
+    { 0x00000df0, 26942 }, /* Thai_leksun */
+    { 0x00000dcc, 26955 }, /* Thai_lochula */
+    { 0x00000dc5, 26969 }, /* Thai_loling */
+    { 0x00000dc6, 26982 }, /* Thai_lu */
+    { 0x00000deb, 26991 }, /* Thai_maichattawa */
+    { 0x00000de8, 27009 }, /* Thai_maiek */
+    { 0x00000dd1, 27021 }, /* Thai_maihanakat */
+    { 0x00000dde, 27038 }, /* Thai_maihanakat_maitho */
+    { 0x00000de7, 27062 }, /* Thai_maitaikhu */
+    { 0x00000de9, 27078 }, /* Thai_maitho */
+    { 0x00000dea, 27091 }, /* Thai_maitri */
+    { 0x00000de6, 27104 }, /* Thai_maiyamok */
+    { 0x00000dc1, 27119 }, /* Thai_moma */
+    { 0x00000da7, 27130 }, /* Thai_ngongu */
+    { 0x00000ded, 27143 }, /* Thai_nikhahit */
+    { 0x00000db3, 27158 }, /* Thai_nonen */
+    { 0x00000db9, 27170 }, /* Thai_nonu */
+    { 0x00000dcd, 27181 }, /* Thai_oang */
+    { 0x00000dcf, 27192 }, /* Thai_paiyannoi */
+    { 0x00000dda, 27208 }, /* Thai_phinthu */
+    { 0x00000dbe, 27222 }, /* Thai_phophan */
+    { 0x00000dbc, 27236 }, /* Thai_phophung */
+    { 0x00000dc0, 27251 }, /* Thai_phosamphao */
+    { 0x00000dbb, 27268 }, /* Thai_popla */
+    { 0x00000dc3, 27280 }, /* Thai_rorua */
+    { 0x00000dc4, 27292 }, /* Thai_ru */
+    { 0x00000dd0, 27301 }, /* Thai_saraa */
+    { 0x00000dd2, 27313 }, /* Thai_saraaa */
+    { 0x00000de1, 27326 }, /* Thai_saraae */
+    { 0x00000de4, 27339 }, /* Thai_saraaimaimalai */
+    { 0x00000de3, 27360 }, /* Thai_saraaimaimuan */
+    { 0x00000dd3, 27380 }, /* Thai_saraam */
+    { 0x00000de0, 27393 }, /* Thai_sarae */
+    { 0x00000dd4, 27405 }, /* Thai_sarai */
+    { 0x00000dd5, 27417 }, /* Thai_saraii */
+    { 0x00000de2, 27430 }, /* Thai_sarao */
+    { 0x00000dd8, 27442 }, /* Thai_sarau */
+    { 0x00000dd6, 27454 }, /* Thai_saraue */
+    { 0x00000dd7, 27467 }, /* Thai_sarauee */
+    { 0x00000dd9, 27481 }, /* Thai_sarauu */
+    { 0x00000dc9, 27494 }, /* Thai_sorusi */
+    { 0x00000dc8, 27507 }, /* Thai_sosala */
+    { 0x00000dab, 27520 }, /* Thai_soso */
+    { 0x00000dca, 27531 }, /* Thai_sosua */
+    { 0x00000dec, 27543 }, /* Thai_thanthakhat */
+    { 0x00000db1, 27561 }, /* Thai_thonangmontho */
+    { 0x00000db2, 27581 }, /* Thai_thophuthao */
+    { 0x00000db7, 27598 }, /* Thai_thothahan */
+    { 0x00000db0, 27614 }, /* Thai_thothan */
+    { 0x00000db8, 27628 }, /* Thai_thothong */
+    { 0x00000db6, 27643 }, /* Thai_thothung */
+    { 0x00000daf, 27658 }, /* Thai_topatak */
+    { 0x00000db5, 27672 }, /* Thai_totao */
+    { 0x00000dc7, 27684 }, /* Thai_wowaen */
+    { 0x00000dc2, 27697 }, /* Thai_yoyak */
+    { 0x00000dad, 27709 }, /* Thai_yoying */
+    { 0x000008c0, 27722 }, /* therefore */
+    { 0x00000aa7, 27733 }, /* thinspace */
+    { 0x000000de, 27744 }, /* THORN */
+    { 0x000000de, 27751 }, /* Thorn */
+    { 0x000000fe, 27758 }, /* thorn */
+    { 0x00000ac4, 27765 }, /* threeeighths */
+    { 0x00000ab4, 27779 }, /* threefifths */
+    { 0x000000be, 27792 }, /* threequarters */
+    { 0x01002083, 27807 }, /* threesubscript */
+    { 0x000000b3, 27823 }, /* threesuperior */
+    { 0x0100222d, 27838 }, /* tintegral */
+    { 0x000008a4, 27849 }, /* topintegral */
+    { 0x000008ab, 27862 }, /* topleftparens */
+    { 0x000008a2, 27877 }, /* topleftradical */
+    { 0x000008a7, 27893 }, /* topleftsqbracket */
+    { 0x000008b1, 27911 }, /* topleftsummation */
+    { 0x000008ad, 27929 }, /* toprightparens */
+    { 0x000008a9, 27945 }, /* toprightsqbracket */
+    { 0x000008b5, 27964 }, /* toprightsummation */
+    { 0x000009f7, 27983 }, /* topt */
+    { 0x000008b3, 27989 }, /* topvertsummationconnector */
+    { 0x0000ff2b, 28016 }, /* Touroku */
+    { 0x00000ac9, 28025 }, /* trademark */
+    { 0x00000acb, 28036 }, /* trademarkincircle */
+    { 0x000003ac, 28055 }, /* Tslash */
+    { 0x000003bc, 28063 }, /* tslash */
+    { 0x00000ab3, 28071 }, /* twofifths */
+    { 0x01002082, 28082 }, /* twosubscript */
+    { 0x000000b2, 28096 }, /* twosuperior */
+    { 0x00000ab1, 28109 }, /* twothirds */
+    { 0x00000055, 28120 }, /* U */
+    { 0x00000075, 28123 }, /* u */
+    { 0x000000da, 28126 }, /* Uacute */
+    { 0x000000fa, 28134 }, /* uacute */
+    { 0x01001ee4, 28142 }, /* Ubelowdot */
+    { 0x01001ee5, 28153 }, /* ubelowdot */
+    { 0x000002dd, 28164 }, /* Ubreve */
+    { 0x000002fd, 28172 }, /* ubreve */
+    { 0x000000db, 28180 }, /* Ucircumflex */
+    { 0x000000fb, 28193 }, /* ucircumflex */
+    { 0x000000dc, 28206 }, /* Udiaeresis */
+    { 0x000000fc, 28218 }, /* udiaeresis */
+    { 0x000001db, 28230 }, /* Udoubleacute */
+    { 0x000001fb, 28244 }, /* udoubleacute */
+    { 0x000000d9, 28258 }, /* Ugrave */
+    { 0x000000f9, 28266 }, /* ugrave */
+    { 0x01001ee6, 28274 }, /* Uhook */
+    { 0x01001ee7, 28281 }, /* uhook */
+    { 0x010001af, 28288 }, /* Uhorn */
+    { 0x010001b0, 28295 }, /* uhorn */
+    { 0x01001ee8, 28302 }, /* Uhornacute */
+    { 0x01001ee9, 28314 }, /* uhornacute */
+    { 0x01001ef0, 28326 }, /* Uhornbelowdot */
+    { 0x01001ef1, 28341 }, /* uhornbelowdot */
+    { 0x01001eea, 28356 }, /* Uhorngrave */
+    { 0x01001eeb, 28368 }, /* uhorngrave */
+    { 0x01001eec, 28380 }, /* Uhornhook */
+    { 0x01001eed, 28391 }, /* uhornhook */
+    { 0x01001eee, 28402 }, /* Uhorntilde */
+    { 0x01001eef, 28414 }, /* uhorntilde */
+    { 0x000006bd, 28426 }, /* Ukrainian_GHE_WITH_UPTURN */
+    { 0x000006ad, 28453 }, /* Ukrainian_ghe_with_upturn */
+    { 0x000006b6, 28480 }, /* Ukrainian_I */
+    { 0x000006a6, 28493 }, /* Ukrainian_i */
+    { 0x000006b4, 28506 }, /* Ukrainian_IE */
+    { 0x000006a4, 28520 }, /* Ukrainian_ie */
+    { 0x000006b7, 28534 }, /* Ukrainian_YI */
+    { 0x000006a7, 28548 }, /* Ukrainian_yi */
+    { 0x000006b6, 28562 }, /* Ukranian_I */
+    { 0x000006a6, 28574 }, /* Ukranian_i */
+    { 0x000006b4, 28586 }, /* Ukranian_JE */
+    { 0x000006a4, 28599 }, /* Ukranian_je */
+    { 0x000006b7, 28612 }, /* Ukranian_YI */
+    { 0x000006a7, 28625 }, /* Ukranian_yi */
+    { 0x000003de, 28638 }, /* Umacron */
+    { 0x000003fe, 28647 }, /* umacron */
+    { 0x00000bc6, 28656 }, /* underbar */
+    { 0x0000005f, 28666 }, /* underscore */
+    { 0x0000ff65, 28678 }, /* Undo */
+    { 0x000008dd, 28684 }, /* union */
+    { 0x000003d9, 28691 }, /* Uogonek */
+    { 0x000003f9, 28700 }, /* uogonek */
+    { 0x0000ff52, 28709 }, /* Up */
+    { 0x000008fc, 28713 }, /* uparrow */
+    { 0x00000ba9, 28722 }, /* upcaret */
+    { 0x000009ec, 28731 }, /* upleftcorner */
+    { 0x000009eb, 28745 }, /* uprightcorner */
+    { 0x00000bc3, 28760 }, /* upshoe */
+    { 0x00000bd3, 28768 }, /* upstile */
+    { 0x00000bce, 28777 }, /* uptack */
+    { 0x000001d9, 28785 }, /* Uring */
+    { 0x000001f9, 28792 }, /* uring */
+    { 0x1000ff6e, 28799 }, /* User */
+    { 0x000003dd, 28805 }, /* Utilde */
+    { 0x000003fd, 28813 }, /* utilde */
+    { 0x00000056, 28821 }, /* V */
+    { 0x00000076, 28824 }, /* v */
+    { 0x000008c1, 28827 }, /* variation */
+    { 0x000009f8, 28838 }, /* vertbar */
+    { 0x000008a6, 28847 }, /* vertconnector */
+    { 0x000004de, 28862 }, /* voicedsound */
+    { 0x00ffffff, 28875 }, /* VoidSymbol */
+    { 0x000009e9, 28887 }, /* vt */
+    { 0x00000057, 28891 }, /* W */
+    { 0x00000077, 28894 }, /* w */
+    { 0x01001e82, 28897 }, /* Wacute */
+    { 0x01001e83, 28905 }, /* wacute */
+    { 0x01000174, 28913 }, /* Wcircumflex */
+    { 0x01000175, 28926 }, /* wcircumflex */
+    { 0x01001e84, 28939 }, /* Wdiaeresis */
+    { 0x01001e85, 28951 }, /* wdiaeresis */
+    { 0x01001e80, 28963 }, /* Wgrave */
+    { 0x01001e81, 28971 }, /* wgrave */
+    { 0x010020a9, 28979 }, /* WonSign */
+    { 0x00000058, 28988 }, /* X */
+    { 0x00000078, 28991 }, /* x */
+    { 0x01001e8a, 28994 }, /* Xabovedot */
+    { 0x01001e8b, 29005 }, /* xabovedot */
+    { 0x100811b9, 29016 }, /* XF8610ChannelsDown */
+    { 0x100811b8, 29036 }, /* XF8610ChannelsUp */
+    { 0x1008126f, 29054 }, /* XF863DMode */
+    { 0x1008124e, 29066 }, /* XF86Accessibility */
+    { 0x1008ff39, 29085 }, /* XF86AddFavorite */
+    { 0x100811ad, 29102 }, /* XF86Addressbook */
+    { 0x10081230, 29119 }, /* XF86ALSToggle */
+    { 0x1008ff50, 29134 }, /* XF86ApplicationLeft */
+    { 0x1008ff51, 29155 }, /* XF86ApplicationRight */
+    { 0x10081244, 29177 }, /* XF86AppSelect */
+    { 0x10081177, 29192 }, /* XF86AspectRatio */
+    { 0x10081247, 29209 }, /* XF86Assistant */
+    { 0x1008121c, 29224 }, /* XF86AttendantOff */
+    { 0x1008121b, 29242 }, /* XF86AttendantOn */
+    { 0x1008121d, 29259 }, /* XF86AttendantToggle */
+    { 0x10081188, 29280 }, /* XF86Audio */
+    { 0x1008ff9b, 29291 }, /* XF86AudioCycleTrack */
+    { 0x1008126e, 29312 }, /* XF86AudioDesc */
+    { 0x1008ff97, 29327 }, /* XF86AudioForward */
+    { 0x1008ff11, 29345 }, /* XF86AudioLowerVolume */
+    { 0x1008ff32, 29367 }, /* XF86AudioMedia */
+    { 0x1008ffb2, 29383 }, /* XF86AudioMicMute */
+    { 0x1008ff12, 29401 }, /* XF86AudioMute */
+    { 0x1008ff17, 29416 }, /* XF86AudioNext */
+    { 0x1008ff31, 29431 }, /* XF86AudioPause */
+    { 0x1008ff14, 29447 }, /* XF86AudioPlay */
+    { 0x1008ffb6, 29462 }, /* XF86AudioPreset */
+    { 0x1008ff16, 29479 }, /* XF86AudioPrev */
+    { 0x1008ff13, 29494 }, /* XF86AudioRaiseVolume */
+    { 0x1008ff99, 29516 }, /* XF86AudioRandomPlay */
+    { 0x1008ff1c, 29537 }, /* XF86AudioRecord */
+    { 0x1008ff98, 29554 }, /* XF86AudioRepeat */
+    { 0x1008ff3e, 29571 }, /* XF86AudioRewind */
+    { 0x1008ff15, 29588 }, /* XF86AudioStop */
+    { 0x1008127d, 29603 }, /* XF86AutopilotEngageToggle */
+    { 0x1008ff8d, 29630 }, /* XF86Away */
+    { 0x1008ff26, 29640 }, /* XF86Back */
+    { 0x1008ff3f, 29650 }, /* XF86BackForward */
+    { 0x1008ff93, 29667 }, /* XF86Battery */
+    { 0x1008ffa6, 29680 }, /* XF86Blue */
+    { 0x1008ff94, 29690 }, /* XF86Bluetooth */
+    { 0x1008ff52, 29705 }, /* XF86Book */
+    { 0x1008119b, 29715 }, /* XF86Break */
+    { 0x1008ff3b, 29726 }, /* XF86BrightnessAdjust */
+    { 0x100810f4, 29748 }, /* XF86BrightnessAuto */
+    { 0x10081251, 29768 }, /* XF86BrightnessMax */
+    { 0x10081250, 29787 }, /* XF86BrightnessMin */
+    { 0x10081240, 29806 }, /* XF86Buttonconfig */
+    { 0x1008ff54, 29824 }, /* XF86Calculater */
+    { 0x1008ff1d, 29840 }, /* XF86Calculator */
+    { 0x1008ff20, 29856 }, /* XF86Calendar */
+    { 0x1008124c, 29870 }, /* XF86CameraAccessDisable */
+    { 0x1008124b, 29895 }, /* XF86CameraAccessEnable */
+    { 0x1008124d, 29919 }, /* XF86CameraAccessToggle */
+    { 0x10081218, 29943 }, /* XF86CameraDown */
+    { 0x10081210, 29959 }, /* XF86CameraFocus */
+    { 0x10081219, 29976 }, /* XF86CameraLeft */
+    { 0x1008121a, 29992 }, /* XF86CameraRight */
+    { 0x10081217, 30009 }, /* XF86CameraUp */
+    { 0x10081215, 30023 }, /* XF86CameraZoomIn */
+    { 0x10081216, 30041 }, /* XF86CameraZoomOut */
+    { 0x1008ff53, 30060 }, /* XF86CD */
+    { 0x10081193, 30068 }, /* XF86ChannelDown */
+    { 0x10081192, 30085 }, /* XF86ChannelUp */
+    { 0x1008ff55, 30100 }, /* XF86Clear */
+    { 0x1008fe21, 30111 }, /* XF86ClearGrab */
+    { 0x10081286, 30126 }, /* XF86ClearvuSonar */
+    { 0x1008ff56, 30144 }, /* XF86Close */
+    { 0x1008ff3d, 30155 }, /* XF86Community */
+    { 0x100811b6, 30170 }, /* XF86ContextMenu */
+    { 0x1008ff22, 30187 }, /* XF86ContrastAdjust */
+    { 0x10081243, 30207 }, /* XF86ControlPanel */
+    { 0x1008ff57, 30225 }, /* XF86Copy */
+    { 0x1008ff58, 30235 }, /* XF86Cut */
+    { 0x1008ff9c, 30244 }, /* XF86CycleAngle */
+    { 0x10081277, 30260 }, /* XF86Data */
+    { 0x100811aa, 30270 }, /* XF86Database */
+    { 0x1008124a, 30284 }, /* XF86Dictate */
+    { 0x1008ff59, 30297 }, /* XF86Display */
+    { 0x100810f5, 30310 }, /* XF86DisplayOff */
+    { 0x100811af, 30326 }, /* XF86DisplayToggle */
+    { 0x1008ff5b, 30345 }, /* XF86Documents */
+    { 0x1008124f, 30360 }, /* XF86DoNotDisturb */
+    { 0x1008ff5a, 30378 }, /* XF86DOS */
+    { 0x10081283, 30387 }, /* XF86DualRangeRadar */
+    { 0x10081185, 30407 }, /* XF86DVD */
+    { 0x100811a6, 30416 }, /* XF86Editor */
+    { 0x1008ff2c, 30428 }, /* XF86Eject */
+    { 0x10081249, 30439 }, /* XF86EmojiPicker */
+    { 0x1008ff5c, 30456 }, /* XF86Excel */
+    { 0x1008ff5d, 30467 }, /* XF86Explorer */
+    { 0x10081275, 30481 }, /* XF86FastReverse */
+    { 0x1008ff30, 30498 }, /* XF86Favorites */
+    { 0x1008ff3c, 30513 }, /* XF86Finance */
+    { 0x10081281, 30526 }, /* XF86FishingChart */
+    { 0x100811d0, 30544 }, /* XF86Fn */
+    { 0x100811d1, 30552 }, /* XF86Fn_Esc */
+    { 0x100811e5, 30564 }, /* XF86FnRightShift */
+    { 0x1008ff27, 30582 }, /* XF86Forward */
+    { 0x1008ff9d, 30595 }, /* XF86FrameBack */
+    { 0x1008ff9e, 30610 }, /* XF86FrameForward */
+    { 0x1008ffb8, 30628 }, /* XF86FullScreen */
+    { 0x1008ff5e, 30644 }, /* XF86Game */
+    { 0x1008ff5f, 30654 }, /* XF86Go */
+    { 0x100811a8, 30662 }, /* XF86GraphicsEditor */
+    { 0x1008ffa4, 30682 }, /* XF86Green */
+    { 0x100811be, 30693 }, /* XF86HangupPhone */
+    { 0x1008ffa8, 30710 }, /* XF86Hibernate */
+    { 0x1008ff37, 30725 }, /* XF86History */
+    { 0x1008ff18, 30738 }, /* XF86HomePage */
+    { 0x1008ff3a, 30752 }, /* XF86HotLinks */
+    { 0x100811ba, 30766 }, /* XF86Images */
+    { 0x10081166, 30778 }, /* XF86Info */
+    { 0x1008ff60, 30788 }, /* XF86iTouch */
+    { 0x10081242, 30800 }, /* XF86Journal */
+    { 0x1008ff06, 30813 }, /* XF86KbdBrightnessDown */
+    { 0x1008ff05, 30836 }, /* XF86KbdBrightnessUp */
+    { 0x10081264, 30857 }, /* XF86KbdInputAssistAccept */
+    { 0x10081265, 30883 }, /* XF86KbdInputAssistCancel */
+    { 0x10081261, 30909 }, /* XF86KbdInputAssistNext */
+    { 0x10081263, 30933 }, /* XF86KbdInputAssistNextgroup */
+    { 0x10081260, 30962 }, /* XF86KbdInputAssistPrev */
+    { 0x10081262, 30986 }, /* XF86KbdInputAssistPrevgroup */
+    { 0x100812b8, 31015 }, /* XF86KbdLcdMenu1 */
+    { 0x100812b9, 31032 }, /* XF86KbdLcdMenu2 */
+    { 0x100812ba, 31049 }, /* XF86KbdLcdMenu3 */
+    { 0x100812bb, 31066 }, /* XF86KbdLcdMenu4 */
+    { 0x100812bc, 31083 }, /* XF86KbdLcdMenu5 */
+    { 0x1008ff04, 31100 }, /* XF86KbdLightOnOff */
+    { 0x1008ffb3, 31119 }, /* XF86Keyboard */
+    { 0x1008ff40, 31133 }, /* XF86Launch0 */
+    { 0x1008ff41, 31146 }, /* XF86Launch1 */
+    { 0x1008ff42, 31159 }, /* XF86Launch2 */
+    { 0x1008ff43, 31172 }, /* XF86Launch3 */
+    { 0x1008ff44, 31185 }, /* XF86Launch4 */
+    { 0x1008ff45, 31198 }, /* XF86Launch5 */
+    { 0x1008ff46, 31211 }, /* XF86Launch6 */
+    { 0x1008ff47, 31224 }, /* XF86Launch7 */
+    { 0x1008ff48, 31237 }, /* XF86Launch8 */
+    { 0x1008ff49, 31250 }, /* XF86Launch9 */
+    { 0x1008ff4a, 31263 }, /* XF86LaunchA */
+    { 0x1008ff4b, 31276 }, /* XF86LaunchB */
+    { 0x1008ff4c, 31289 }, /* XF86LaunchC */
+    { 0x1008ff4d, 31302 }, /* XF86LaunchD */
+    { 0x1008ff4e, 31315 }, /* XF86LaunchE */
+    { 0x1008ff4f, 31328 }, /* XF86LaunchF */
+    { 0x10081269, 31341 }, /* XF86LeftDown */
+    { 0x10081268, 31355 }, /* XF86LeftUp */
+    { 0x1008ff35, 31367 }, /* XF86LightBulb */
+    { 0x1008121e, 31382 }, /* XF86LightsToggle */
+    { 0x1008fe25, 31400 }, /* XF86LogGrabInfo */
+    { 0x1008ff61, 31417 }, /* XF86LogOff */
+    { 0x1008fe24, 31429 }, /* XF86LogWindowTree */
+    { 0x10081290, 31448 }, /* XF86Macro1 */
+    { 0x10081299, 31460 }, /* XF86Macro10 */
+    { 0x1008129a, 31473 }, /* XF86Macro11 */
+    { 0x1008129b, 31486 }, /* XF86Macro12 */
+    { 0x1008129c, 31499 }, /* XF86Macro13 */
+    { 0x1008129d, 31512 }, /* XF86Macro14 */
+    { 0x1008129e, 31525 }, /* XF86Macro15 */
+    { 0x1008129f, 31538 }, /* XF86Macro16 */
+    { 0x100812a0, 31551 }, /* XF86Macro17 */
+    { 0x100812a1, 31564 }, /* XF86Macro18 */
+    { 0x100812a2, 31577 }, /* XF86Macro19 */
+    { 0x10081291, 31590 }, /* XF86Macro2 */
+    { 0x100812a3, 31602 }, /* XF86Macro20 */
+    { 0x100812a4, 31615 }, /* XF86Macro21 */
+    { 0x100812a5, 31628 }, /* XF86Macro22 */
+    { 0x100812a6, 31641 }, /* XF86Macro23 */
+    { 0x100812a7, 31654 }, /* XF86Macro24 */
+    { 0x100812a8, 31667 }, /* XF86Macro25 */
+    { 0x100812a9, 31680 }, /* XF86Macro26 */
+    { 0x100812aa, 31693 }, /* XF86Macro27 */
+    { 0x100812ab, 31706 }, /* XF86Macro28 */
+    { 0x100812ac, 31719 }, /* XF86Macro29 */
+    { 0x10081292, 31732 }, /* XF86Macro3 */
+    { 0x100812ad, 31744 }, /* XF86Macro30 */
+    { 0x10081293, 31757 }, /* XF86Macro4 */
+    { 0x10081294, 31769 }, /* XF86Macro5 */
+    { 0x10081295, 31781 }, /* XF86Macro6 */
+    { 0x10081296, 31793 }, /* XF86Macro7 */
+    { 0x10081297, 31805 }, /* XF86Macro8 */
+    { 0x10081298, 31817 }, /* XF86Macro9 */
+    { 0x100812b3, 31829 }, /* XF86MacroPreset1 */
+    { 0x100812b4, 31847 }, /* XF86MacroPreset2 */
+    { 0x100812b5, 31865 }, /* XF86MacroPreset3 */
+    { 0x100812b2, 31883 }, /* XF86MacroPresetCycle */
+    { 0x100812b0, 31905 }, /* XF86MacroRecordStart */
+    { 0x100812b1, 31927 }, /* XF86MacroRecordStop */
+    { 0x1008ff19, 31948 }, /* XF86Mail */
+    { 0x1008ff90, 31958 }, /* XF86MailForward */
+    { 0x1008ff62, 31975 }, /* XF86Market */
+    { 0x1008127e, 31987 }, /* XF86MarkWaypoint */
+    { 0x100811b7, 32005 }, /* XF86MediaRepeat */
+    { 0x1008126b, 32022 }, /* XF86MediaTopMenu */
+    { 0x1008ff63, 32040 }, /* XF86Meeting */
+    { 0x1008ff1e, 32053 }, /* XF86Memo */
+    { 0x1008ff65, 32063 }, /* XF86MenuKB */
+    { 0x1008ff66, 32075 }, /* XF86MenuPB */
+    { 0x1008ff8e, 32087 }, /* XF86Messenger */
+    { 0x1008ff01, 32102 }, /* XF86ModeLock */
+    { 0x1008ff07, 32116 }, /* XF86MonBrightnessCycle */
+    { 0x1008ff03, 32140 }, /* XF86MonBrightnessDown */
+    { 0x1008ff02, 32163 }, /* XF86MonBrightnessUp */
+    { 0x1008ff92, 32184 }, /* XF86Music */
+    { 0x1008ff33, 32195 }, /* XF86MyComputer */
+    { 0x1008ff67, 32211 }, /* XF86MySites */
+    { 0x10081280, 32224 }, /* XF86NavChart */
+    { 0x10081288, 32238 }, /* XF86NavInfo */
+    { 0x1008ff68, 32251 }, /* XF86New */
+    { 0x1008ff69, 32260 }, /* XF86News */
+    { 0x1008fe22, 32270 }, /* XF86Next_VMode */
+    { 0x1008127b, 32286 }, /* XF86NextElement */
+    { 0x10081270, 32303 }, /* XF86NextFavorite */
+    { 0x100811bc, 32321 }, /* XF86NotificationCenter */
+    { 0x10081200, 32345 }, /* XF86Numeric0 */
+    { 0x10081201, 32359 }, /* XF86Numeric1 */
+    { 0x1008126c, 32373 }, /* XF86Numeric11 */
+    { 0x1008126d, 32388 }, /* XF86Numeric12 */
+    { 0x10081202, 32403 }, /* XF86Numeric2 */
+    { 0x10081203, 32417 }, /* XF86Numeric3 */
+    { 0x10081204, 32431 }, /* XF86Numeric4 */
+    { 0x10081205, 32445 }, /* XF86Numeric5 */
+    { 0x10081206, 32459 }, /* XF86Numeric6 */
+    { 0x10081207, 32473 }, /* XF86Numeric7 */
+    { 0x10081208, 32487 }, /* XF86Numeric8 */
+    { 0x10081209, 32501 }, /* XF86Numeric9 */
+    { 0x1008120c, 32515 }, /* XF86NumericA */
+    { 0x1008120d, 32529 }, /* XF86NumericB */
+    { 0x1008120e, 32543 }, /* XF86NumericC */
+    { 0x1008120f, 32557 }, /* XF86NumericD */
+    { 0x1008120b, 32571 }, /* XF86NumericPound */
+    { 0x1008120a, 32589 }, /* XF86NumericStar */
+    { 0x1008ff6a, 32606 }, /* XF86OfficeHome */
+    { 0x10081278, 32622 }, /* XF86OnScreenKeyboard */
+    { 0x1008ff6b, 32644 }, /* XF86Open */
+    { 0x1008ff38, 32654 }, /* XF86OpenURL */
+    { 0x1008ff6c, 32667 }, /* XF86Option */
+    { 0x1008ff6d, 32679 }, /* XF86Paste */
+    { 0x10081272, 32690 }, /* XF86PauseRecord */
+    { 0x1008ff6e, 32707 }, /* XF86Phone */
+    { 0x100811bd, 32718 }, /* XF86PickupPhone */
+    { 0x1008ff91, 32735 }, /* XF86Pictures */
+    { 0x1008ff21, 32749 }, /* XF86PowerDown */
+    { 0x1008ff2a, 32764 }, /* XF86PowerOff */
+    { 0x100811a9, 32778 }, /* XF86Presentation */
+    { 0x1008fe23, 32796 }, /* XF86Prev_VMode */
+    { 0x1008127c, 32812 }, /* XF86PreviousElement */
+    { 0x10081279, 32833 }, /* XF86PrivacyScreenToggle */
+    { 0x1008ff70, 32858 }, /* XF86Q */
+    { 0x10081284, 32865 }, /* XF86RadarOverlay */
+    { 0x1008ffa3, 32883 }, /* XF86Red */
+    { 0x1008ff29, 32892 }, /* XF86Refresh */
+    { 0x10081232, 32905 }, /* XF86RefreshRateToggle */
+    { 0x1008ff73, 32928 }, /* XF86Reload */
+    { 0x1008ff72, 32940 }, /* XF86Reply */
+    { 0x1008ffb5, 32951 }, /* XF86RFKill */
+    { 0x10081267, 32963 }, /* XF86RightDown */
+    { 0x10081266, 32978 }, /* XF86RightUp */
+    { 0x1008ff24, 32991 }, /* XF86RockerDown */
+    { 0x1008ff25, 33007 }, /* XF86RockerEnter */
+    { 0x1008ff23, 33024 }, /* XF86RockerUp */
+    { 0x1008126a, 33038 }, /* XF86RootMenu */
+    { 0x1008ff74, 33052 }, /* XF86RotateWindows */
+    { 0x1008ff76, 33071 }, /* XF86RotationKB */
+    { 0x1008ffb7, 33087 }, /* XF86RotationLockToggle */
+    { 0x1008ff75, 33111 }, /* XF86RotationPB */
+    { 0x1008ff77, 33127 }, /* XF86Save */
+    { 0x1008ff2d, 33137 }, /* XF86ScreenSaver */
+    { 0x10081245, 33154 }, /* XF86Screensaver */
+    { 0x1008ff7a, 33171 }, /* XF86ScrollClick */
+    { 0x1008ff79, 33188 }, /* XF86ScrollDown */
+    { 0x1008ff78, 33204 }, /* XF86ScrollUp */
+    { 0x1008ff1b, 33218 }, /* XF86Search */
+    { 0x1008ffa0, 33230 }, /* XF86Select */
+    { 0x1008127a, 33242 }, /* XF86SelectiveScreenshot */
+    { 0x1008ff7b, 33267 }, /* XF86Send */
+    { 0x1008ff36, 33277 }, /* XF86Shop */
+    { 0x10081287, 33287 }, /* XF86SidevuSonar */
+    { 0x10081282, 33304 }, /* XF86SingleRangeRadar */
+    { 0x1008ff2f, 33326 }, /* XF86Sleep */
+    { 0x10081276, 33337 }, /* XF86SlowReverse */
+    { 0x1008127f, 33354 }, /* XF86Sos */
+    { 0x1008ff7c, 33363 }, /* XF86Spell */
+    { 0x100811b0, 33374 }, /* XF86SpellCheck */
+    { 0x1008ff7d, 33390 }, /* XF86SplitScreen */
+    { 0x1008ff10, 33407 }, /* XF86Standby */
+    { 0x1008ff1a, 33420 }, /* XF86Start */
+    { 0x1008ff28, 33431 }, /* XF86Stop */
+    { 0x10081271, 33441 }, /* XF86StopRecord */
+    { 0x1008ff9a, 33457 }, /* XF86Subtitle */
+    { 0x1008ff7e, 33471 }, /* XF86Support */
+    { 0x1008ffa7, 33484 }, /* XF86Suspend */
+    { 0x1008fe01, 33497 }, /* XF86Switch_VT_1 */
+    { 0x1008fe0a, 33514 }, /* XF86Switch_VT_10 */
+    { 0x1008fe0b, 33532 }, /* XF86Switch_VT_11 */
+    { 0x1008fe0c, 33550 }, /* XF86Switch_VT_12 */
+    { 0x1008fe02, 33568 }, /* XF86Switch_VT_2 */
+    { 0x1008fe03, 33585 }, /* XF86Switch_VT_3 */
+    { 0x1008fe04, 33602 }, /* XF86Switch_VT_4 */
+    { 0x1008fe05, 33619 }, /* XF86Switch_VT_5 */
+    { 0x1008fe06, 33636 }, /* XF86Switch_VT_6 */
+    { 0x1008fe07, 33653 }, /* XF86Switch_VT_7 */
+    { 0x1008fe08, 33670 }, /* XF86Switch_VT_8 */
+    { 0x1008fe09, 33687 }, /* XF86Switch_VT_9 */
+    { 0x10081241, 33704 }, /* XF86Taskmanager */
+    { 0x1008ff7f, 33721 }, /* XF86TaskPane */
+    { 0x1008ff80, 33735 }, /* XF86Terminal */
+    { 0x1008ff9f, 33749 }, /* XF86Time */
+    { 0x1008ff1f, 33759 }, /* XF86ToDoList */
+    { 0x1008ff81, 33773 }, /* XF86Tools */
+    { 0x1008ffa2, 33784 }, /* XF86TopMenu */
+    { 0x1008ffb1, 33797 }, /* XF86TouchpadOff */
+    { 0x1008ffb0, 33814 }, /* XF86TouchpadOn */
+    { 0x1008ffa9, 33830 }, /* XF86TouchpadToggle */
+    { 0x10081285, 33850 }, /* XF86TraditionalSonar */
+    { 0x1008ff82, 33872 }, /* XF86Travel */
+    { 0x1008fe20, 33884 }, /* XF86Ungrab */
+    { 0x10081274, 33896 }, /* XF86Unmute */
+    { 0x1008ff85, 33908 }, /* XF86User1KB */
+    { 0x1008ff86, 33921 }, /* XF86User2KB */
+    { 0x1008ff84, 33934 }, /* XF86UserPB */
+    { 0x1008ff96, 33946 }, /* XF86UWB */
+    { 0x1008ff34, 33955 }, /* XF86VendorHome */
+    { 0x1008ff87, 33971 }, /* XF86Video */
+    { 0x100811a0, 33982 }, /* XF86VideoPhone */
+    { 0x1008ffa1, 33998 }, /* XF86View */
+    { 0x10081273, 34008 }, /* XF86VOD */
+    { 0x10081246, 34017 }, /* XF86VoiceCommand */
+    { 0x100811ac, 34035 }, /* XF86Voicemail */
+    { 0x1008ff2b, 34050 }, /* XF86WakeUp */
+    { 0x1008ff8f, 34062 }, /* XF86WebCam */
+    { 0x1008ff88, 34074 }, /* XF86WheelButton */
+    { 0x1008ff95, 34091 }, /* XF86WLAN */
+    { 0x1008ff89, 34101 }, /* XF86Word */
+    { 0x10081211, 34111 }, /* XF86WPSButton */
+    { 0x1008ffb4, 34126 }, /* XF86WWAN */
+    { 0x1008ff2e, 34136 }, /* XF86WWW */
+    { 0x1008ff8a, 34145 }, /* XF86Xfer */
+    { 0x1008ffa5, 34155 }, /* XF86Yellow */
+    { 0x1008ff8b, 34167 }, /* XF86ZoomIn */
+    { 0x1008ff8c, 34179 }, /* XF86ZoomOut */
+    { 0x100811a4, 34192 }, /* XF86ZoomReset */
+    { 0x00000059, 34207 }, /* Y */
+    { 0x00000079, 34210 }, /* y */
+    { 0x000000dd, 34213 }, /* Yacute */
+    { 0x000000fd, 34221 }, /* yacute */
+    { 0x01001ef4, 34229 }, /* Ybelowdot */
+    { 0x01001ef5, 34240 }, /* ybelowdot */
+    { 0x01000176, 34251 }, /* Ycircumflex */
+    { 0x01000177, 34264 }, /* ycircumflex */
+    { 0x000013be, 34277 }, /* Ydiaeresis */
+    { 0x000000ff, 34289 }, /* ydiaeresis */
+    { 0x000000a5, 34301 }, /* yen */
+    { 0x01001ef2, 34306 }, /* Ygrave */
+    { 0x01001ef3, 34314 }, /* ygrave */
+    { 0x01001ef6, 34322 }, /* Yhook */
+    { 0x01001ef7, 34329 }, /* yhook */
+    { 0x01001ef8, 34336 }, /* Ytilde */
+    { 0x01001ef9, 34344 }, /* ytilde */
+    { 0x0000005a, 34352 }, /* Z */
+    { 0x0000007a, 34355 }, /* z */
+    { 0x000001af, 34358 }, /* Zabovedot */
+    { 0x000001bf, 34369 }, /* zabovedot */
+    { 0x000001ac, 34380 }, /* Zacute */
+    { 0x000001bc, 34388 }, /* zacute */
+    { 0x000001ae, 34396 }, /* Zcaron */
+    { 0x000001be, 34404 }, /* zcaron */
+    { 0x0000ff3d, 34412 }, /* Zen_Koho */
+    { 0x0000ff28, 34422 }, /* Zenkaku */
+    { 0x0000ff2a, 34431 }, /* Zenkaku_Hankaku */
+    { 0x01002080, 34448 }, /* zerosubscript */
+    { 0x01002070, 34463 }, /* zerosuperior */
+    { 0x010001b5, 34477 }, /* Zstroke */
+    { 0x010001b6, 34486 }, /* zstroke */
 };
 
 static const struct name_keysym keysym_to_name[] = {
-    { 0x00000000, 20235 }, /* NoSymbol */
-    { 0x00000020, 23960 }, /* space */
-    { 0x00000021, 12214 }, /* exclam */
-    { 0x00000022, 22344 }, /* quotedbl */
-    { 0x00000023, 20322 }, /* numbersign */
-    { 0x00000024, 11366 }, /* dollar */
-    { 0x00000025, 21644 }, /* percent */
-    { 0x00000026, 908 }, /* ampersand */
-    { 0x00000027, 934 }, /* apostrophe */
-    { 0x00000028, 21582 }, /* parenleft */
-    { 0x00000029, 21592 }, /* parenright */
-    { 0x0000002a, 3283 }, /* asterisk */
-    { 0x0000002b, 21714 }, /* plus */
-    { 0x0000002c, 8762 }, /* comma */
-    { 0x0000002d, 19877 }, /* minus */
-    { 0x0000002e, 21652 }, /* period */
-    { 0x0000002f, 23925 }, /* slash */
+    { 0x00000000, 21823 }, /* NoSymbol */
+    { 0x00000020, 25908 }, /* space */
+    { 0x00000021, 13096 }, /* exclam */
+    { 0x00000022, 24116 }, /* quotedbl */
+    { 0x00000023, 21919 }, /* numbersign */
+    { 0x00000024, 12166 }, /* dollar */
+    { 0x00000025, 23366 }, /* percent */
+    { 0x00000026, 994 }, /* ampersand */
+    { 0x00000027, 1023 }, /* apostrophe */
+    { 0x00000028, 23299 }, /* parenleft */
+    { 0x00000029, 23310 }, /* parenright */
+    { 0x0000002a, 3549 }, /* asterisk */
+    { 0x0000002b, 23442 }, /* plus */
+    { 0x0000002c, 9370 }, /* comma */
+    { 0x0000002d, 21431 }, /* minus */
+    { 0x0000002e, 23375 }, /* period */
+    { 0x0000002f, 25870 }, /* slash */
     { 0x00000030, 0 }, /* 0 */
-    { 0x00000031, 2 }, /* 1 */
-    { 0x00000032, 4 }, /* 2 */
-    { 0x00000033, 6 }, /* 3 */
-    { 0x00000034, 386 }, /* 4 */
-    { 0x00000035, 388 }, /* 5 */
-    { 0x00000036, 390 }, /* 6 */
-    { 0x00000037, 392 }, /* 7 */
-    { 0x00000038, 394 }, /* 8 */
-    { 0x00000039, 396 }, /* 9 */
-    { 0x0000003a, 8664 }, /* colon */
-    { 0x0000003b, 22891 }, /* semicolon */
-    { 0x0000003c, 19556 }, /* less */
-    { 0x0000003d, 12166 }, /* equal */
-    { 0x0000003e, 13387 }, /* greater */
-    { 0x0000003f, 22322 }, /* question */
-    { 0x00000040, 3292 }, /* at */
-    { 0x00000041, 398 }, /* A */
-    { 0x00000042, 3328 }, /* B */
-    { 0x00000043, 8439 }, /* C */
-    { 0x00000044, 10402 }, /* D */
-    { 0x00000045, 11539 }, /* E */
-    { 0x00000046, 12270 }, /* F */
-    { 0x00000047, 12780 }, /* G */
-    { 0x00000048, 14522 }, /* H */
-    { 0x00000049, 17213 }, /* I */
-    { 0x0000004a, 18258 }, /* J */
-    { 0x0000004b, 18290 }, /* K */
-    { 0x0000004c, 19256 }, /* L */
-    { 0x0000004d, 19677 }, /* M */
-    { 0x0000004e, 20087 }, /* N */
-    { 0x0000004f, 20344 }, /* O */
-    { 0x00000050, 21530 }, /* P */
-    { 0x00000051, 22313 }, /* Q */
-    { 0x00000052, 22374 }, /* R */
-    { 0x00000053, 22736 }, /* S */
-    { 0x00000054, 24451 }, /* T */
-    { 0x00000055, 26004 }, /* U */
-    { 0x00000056, 26640 }, /* V */
-    { 0x00000057, 26702 }, /* W */
-    { 0x00000058, 26788 }, /* X */
-    { 0x00000059, 31660 }, /* Y */
-    { 0x0000005a, 31788 }, /* Z */
-    { 0x0000005b, 3603 }, /* bracketleft */
-    { 0x0000005c, 3352 }, /* backslash */
-    { 0x0000005d, 3615 }, /* bracketright */
-    { 0x0000005e, 3260 }, /* asciicircum */
-    { 0x0000005f, 26503 }, /* underscore */
-    { 0x00000060, 13381 }, /* grave */
-    { 0x00000061, 400 }, /* a */
-    { 0x00000062, 3330 }, /* b */
-    { 0x00000063, 8441 }, /* c */
-    { 0x00000064, 10404 }, /* d */
-    { 0x00000065, 11541 }, /* e */
-    { 0x00000066, 12272 }, /* f */
-    { 0x00000067, 12782 }, /* g */
-    { 0x00000068, 14524 }, /* h */
-    { 0x00000069, 17215 }, /* i */
-    { 0x0000006a, 18260 }, /* j */
-    { 0x0000006b, 18292 }, /* k */
-    { 0x0000006c, 19258 }, /* l */
-    { 0x0000006d, 19679 }, /* m */
-    { 0x0000006e, 20089 }, /* n */
-    { 0x0000006f, 20346 }, /* o */
-    { 0x00000070, 21532 }, /* p */
-    { 0x00000071, 22315 }, /* q */
-    { 0x00000072, 22376 }, /* r */
-    { 0x00000073, 22738 }, /* s */
-    { 0x00000074, 24453 }, /* t */
-    { 0x00000075, 26006 }, /* u */
-    { 0x00000076, 26642 }, /* v */
-    { 0x00000077, 26704 }, /* w */
-    { 0x00000078, 26790 }, /* x */
-    { 0x00000079, 31662 }, /* y */
-    { 0x0000007a, 31790 }, /* z */
-    { 0x0000007b, 3582 }, /* braceleft */
-    { 0x0000007c, 3392 }, /* bar */
-    { 0x0000007d, 3592 }, /* braceright */
-    { 0x0000007e, 3272 }, /* asciitilde */
-    { 0x000000a0, 20222 }, /* nobreakspace */
-    { 0x000000a1, 12221 }, /* exclamdown */
-    { 0x000000a2, 8589 }, /* cent */
-    { 0x000000a3, 23984 }, /* sterling */
-    { 0x000000a4, 8848 }, /* currency */
-    { 0x000000a5, 31744 }, /* yen */
-    { 0x000000a6, 8389 }, /* brokenbar */
-    { 0x000000a7, 22876 }, /* section */
-    { 0x000000a8, 11318 }, /* diaeresis */
-    { 0x000000a9, 8799 }, /* copyright */
-    { 0x000000aa, 20996 }, /* ordfeminine */
-    { 0x000000ab, 14493 }, /* guillemotleft */
-    { 0x000000ac, 20291 }, /* notsign */
-    { 0x000000ad, 17206 }, /* hyphen */
-    { 0x000000ae, 22488 }, /* registered */
-    { 0x000000af, 19785 }, /* macron */
-    { 0x000000b0, 11268 }, /* degree */
-    { 0x000000b1, 21719 }, /* plusminus */
-    { 0x000000b2, 25982 }, /* twosuperior */
-    { 0x000000b3, 25728 }, /* threesuperior */
-    { 0x000000b4, 820 }, /* acute */
-    { 0x000000b5, 19943 }, /* mu */
-    { 0x000000b6, 21572 }, /* paragraph */
-    { 0x000000b7, 21659 }, /* periodcentered */
-    { 0x000000b8, 8581 }, /* cedilla */
-    { 0x000000b9, 20899 }, /* onesuperior */
-    { 0x000000ba, 19832 }, /* masculine */
-    { 0x000000bb, 14507 }, /* guillemotright */
-    { 0x000000bc, 20866 }, /* onequarter */
-    { 0x000000bd, 20858 }, /* onehalf */
-    { 0x000000be, 25699 }, /* threequarters */
-    { 0x000000bf, 22331 }, /* questiondown */
-    { 0x000000c0, 854 }, /* Agrave */
-    { 0x000000c1, 402 }, /* Aacute */
-    { 0x000000c2, 622 }, /* Acircumflex */
-    { 0x000000c3, 3295 }, /* Atilde */
-    { 0x000000c4, 826 }, /* Adiaeresis */
-    { 0x000000c5, 2036 }, /* Aring */
-    { 0x000000c6, 848 }, /* AE */
-    { 0x000000c7, 8539 }, /* Ccedilla */
-    { 0x000000c8, 11839 }, /* Egrave */
-    { 0x000000c9, 11563 }, /* Eacute */
-    { 0x000000ca, 11611 }, /* Ecircumflex */
-    { 0x000000cb, 11817 }, /* Ediaeresis */
-    { 0x000000cc, 17349 }, /* Igrave */
-    { 0x000000cd, 17227 }, /* Iacute */
-    { 0x000000ce, 17275 }, /* Icircumflex */
-    { 0x000000cf, 17309 }, /* Idiaeresis */
-    { 0x000000d0, 12179 }, /* ETH */
-    { 0x000000d1, 20299 }, /* Ntilde */
-    { 0x000000d2, 20671 }, /* Ograve */
-    { 0x000000d3, 20348 }, /* Oacute */
-    { 0x000000d4, 20412 }, /* Ocircumflex */
-    { 0x000000d5, 21467 }, /* Otilde */
-    { 0x000000d6, 20610 }, /* Odiaeresis */
-    { 0x000000d7, 19983 }, /* multiply */
-    { 0x000000d8, 21453 }, /* Oslash */
-    { 0x000000d9, 26128 }, /* Ugrave */
-    { 0x000000da, 26008 }, /* Uacute */
-    { 0x000000db, 26056 }, /* Ucircumflex */
-    { 0x000000dc, 26080 }, /* Udiaeresis */
-    { 0x000000dd, 31664 }, /* Yacute */
-    { 0x000000de, 25656 }, /* THORN */
-    { 0x000000df, 23977 }, /* ssharp */
-    { 0x000000e0, 861 }, /* agrave */
-    { 0x000000e1, 409 }, /* aacute */
-    { 0x000000e2, 634 }, /* acircumflex */
-    { 0x000000e3, 3302 }, /* atilde */
-    { 0x000000e4, 837 }, /* adiaeresis */
-    { 0x000000e5, 2042 }, /* aring */
-    { 0x000000e6, 851 }, /* ae */
-    { 0x000000e7, 8548 }, /* ccedilla */
-    { 0x000000e8, 11846 }, /* egrave */
-    { 0x000000e9, 11570 }, /* eacute */
-    { 0x000000ea, 11623 }, /* ecircumflex */
-    { 0x000000eb, 11828 }, /* ediaeresis */
-    { 0x000000ec, 17356 }, /* igrave */
-    { 0x000000ed, 17234 }, /* iacute */
-    { 0x000000ee, 17287 }, /* icircumflex */
-    { 0x000000ef, 17320 }, /* idiaeresis */
-    { 0x000000f0, 12187 }, /* eth */
-    { 0x000000f1, 20306 }, /* ntilde */
-    { 0x000000f2, 20678 }, /* ograve */
-    { 0x000000f3, 20355 }, /* oacute */
-    { 0x000000f4, 20424 }, /* ocircumflex */
-    { 0x000000f5, 21474 }, /* otilde */
-    { 0x000000f6, 20621 }, /* odiaeresis */
-    { 0x000000f7, 11357 }, /* division */
-    { 0x000000f8, 21460 }, /* oslash */
-    { 0x000000f9, 26135 }, /* ugrave */
-    { 0x000000fa, 26015 }, /* uacute */
-    { 0x000000fb, 26068 }, /* ucircumflex */
-    { 0x000000fc, 26091 }, /* udiaeresis */
-    { 0x000000fd, 31671 }, /* yacute */
-    { 0x000000fe, 25668 }, /* thorn */
-    { 0x000000ff, 31733 }, /* ydiaeresis */
-    { 0x000001a1, 918 }, /* Aogonek */
-    { 0x000001a2, 8383 }, /* breve */
-    { 0x000001a3, 19661 }, /* Lstroke */
-    { 0x000001a5, 19356 }, /* Lcaron */
-    { 0x000001a6, 22760 }, /* Sacute */
-    { 0x000001a9, 22774 }, /* Scaron */
-    { 0x000001aa, 22788 }, /* Scedilla */
-    { 0x000001ab, 24479 }, /* Tcaron */
-    { 0x000001ac, 31812 }, /* Zacute */
-    { 0x000001ae, 31826 }, /* Zcaron */
-    { 0x000001af, 31792 }, /* Zabovedot */
-    { 0x000001b1, 926 }, /* aogonek */
-    { 0x000001b2, 20664 }, /* ogonek */
-    { 0x000001b3, 19669 }, /* lstroke */
-    { 0x000001b5, 19363 }, /* lcaron */
-    { 0x000001b6, 22767 }, /* sacute */
-    { 0x000001b7, 8519 }, /* caron */
-    { 0x000001b9, 22781 }, /* scaron */
-    { 0x000001ba, 22797 }, /* scedilla */
-    { 0x000001bb, 24486 }, /* tcaron */
-    { 0x000001bc, 31819 }, /* zacute */
-    { 0x000001bd, 11398 }, /* doubleacute */
-    { 0x000001be, 31833 }, /* zcaron */
-    { 0x000001bf, 31802 }, /* zabovedot */
-    { 0x000001c0, 22429 }, /* Racute */
-    { 0x000001c3, 445 }, /* Abreve */
-    { 0x000001c5, 19291 }, /* Lacute */
-    { 0x000001c6, 8475 }, /* Cacute */
-    { 0x000001c8, 8525 }, /* Ccaron */
-    { 0x000001ca, 12150 }, /* Eogonek */
-    { 0x000001cc, 11597 }, /* Ecaron */
-    { 0x000001cf, 10447 }, /* Dcaron */
-    { 0x000001d0, 11516 }, /* Dstroke */
-    { 0x000001d1, 20097 }, /* Nacute */
-    { 0x000001d2, 20121 }, /* Ncaron */
-    { 0x000001d5, 20632 }, /* Odoubleacute */
-    { 0x000001d8, 22451 }, /* Rcaron */
-    { 0x000001d9, 26609 }, /* Uring */
-    { 0x000001db, 26102 }, /* Udoubleacute */
-    { 0x000001de, 24493 }, /* Tcedilla */
-    { 0x000001e0, 22436 }, /* racute */
-    { 0x000001e3, 452 }, /* abreve */
-    { 0x000001e5, 19298 }, /* lacute */
-    { 0x000001e6, 8482 }, /* cacute */
-    { 0x000001e8, 8532 }, /* ccaron */
-    { 0x000001ea, 12158 }, /* eogonek */
-    { 0x000001ec, 11604 }, /* ecaron */
-    { 0x000001ef, 10454 }, /* dcaron */
-    { 0x000001f0, 11524 }, /* dstroke */
-    { 0x000001f1, 20104 }, /* nacute */
-    { 0x000001f2, 20128 }, /* ncaron */
-    { 0x000001f5, 20645 }, /* odoubleacute */
-    { 0x000001f8, 22458 }, /* rcaron */
-    { 0x000001f9, 26615 }, /* uring */
-    { 0x000001fb, 26115 }, /* udoubleacute */
-    { 0x000001fe, 24502 }, /* tcedilla */
-    { 0x000001ff, 436 }, /* abovedot */
-    { 0x000002a1, 17171 }, /* Hstroke */
-    { 0x000002a6, 16200 }, /* Hcircumflex */
-    { 0x000002a9, 17217 }, /* Iabovedot */
-    { 0x000002ab, 12804 }, /* Gbreve */
-    { 0x000002ac, 18262 }, /* Jcircumflex */
-    { 0x000002b1, 17179 }, /* hstroke */
-    { 0x000002b6, 16212 }, /* hcircumflex */
-    { 0x000002b9, 17331 }, /* idotless */
-    { 0x000002bb, 12811 }, /* gbreve */
-    { 0x000002bc, 18274 }, /* jcircumflex */
-    { 0x000002c5, 8455 }, /* Cabovedot */
-    { 0x000002c6, 8557 }, /* Ccircumflex */
-    { 0x000002d5, 12784 }, /* Gabovedot */
-    { 0x000002d8, 12850 }, /* Gcircumflex */
-    { 0x000002dd, 26042 }, /* Ubreve */
-    { 0x000002de, 22818 }, /* Scircumflex */
-    { 0x000002e5, 8465 }, /* cabovedot */
-    { 0x000002e6, 8569 }, /* ccircumflex */
-    { 0x000002f5, 12794 }, /* gabovedot */
-    { 0x000002f8, 12862 }, /* gcircumflex */
-    { 0x000002fd, 26049 }, /* ubreve */
-    { 0x000002fe, 22830 }, /* scircumflex */
-    { 0x000003a2, 19252 }, /* kra */
-    { 0x000003a3, 22465 }, /* Rcedilla */
-    { 0x000003a5, 18244 }, /* Itilde */
-    { 0x000003a6, 19370 }, /* Lcedilla */
-    { 0x000003aa, 11954 }, /* Emacron */
-    { 0x000003ab, 12832 }, /* Gcedilla */
-    { 0x000003ac, 25945 }, /* Tslash */
-    { 0x000003b3, 22474 }, /* rcedilla */
-    { 0x000003b5, 18251 }, /* itilde */
-    { 0x000003b6, 19379 }, /* lcedilla */
-    { 0x000003ba, 11962 }, /* emacron */
-    { 0x000003bb, 12841 }, /* gcedilla */
-    { 0x000003bc, 25952 }, /* tslash */
-    { 0x000003bd, 12098 }, /* ENG */
-    { 0x000003bf, 12102 }, /* eng */
-    { 0x000003c0, 892 }, /* Amacron */
-    { 0x000003c7, 17482 }, /* Iogonek */
-    { 0x000003cc, 11543 }, /* Eabovedot */
-    { 0x000003cf, 17375 }, /* Imacron */
-    { 0x000003d1, 20135 }, /* Ncedilla */
-    { 0x000003d2, 20823 }, /* Omacron */
-    { 0x000003d3, 18923 }, /* Kcedilla */
-    { 0x000003d9, 26525 }, /* Uogonek */
-    { 0x000003dd, 26626 }, /* Utilde */
-    { 0x000003de, 26478 }, /* Umacron */
-    { 0x000003e0, 900 }, /* amacron */
-    { 0x000003e7, 17490 }, /* iogonek */
-    { 0x000003ec, 11553 }, /* eabovedot */
-    { 0x000003ef, 17383 }, /* imacron */
-    { 0x000003f1, 20144 }, /* ncedilla */
-    { 0x000003f2, 20831 }, /* omacron */
-    { 0x000003f3, 18932 }, /* kcedilla */
-    { 0x000003f9, 26533 }, /* uogonek */
-    { 0x000003fd, 26633 }, /* utilde */
-    { 0x000003fe, 26486 }, /* umacron */
-    { 0x0000047e, 21521 }, /* overline */
-    { 0x000004a1, 18387 }, /* kana_fullstop */
-    { 0x000004a2, 18621 }, /* kana_openingbracket */
-    { 0x000004a3, 18317 }, /* kana_closingbracket */
-    { 0x000004a4, 18337 }, /* kana_comma */
-    { 0x000004a5, 18348 }, /* kana_conjunctive */
-    { 0x000004a6, 18833 }, /* kana_WO */
-    { 0x000004a7, 18301 }, /* kana_a */
-    { 0x000004a8, 18448 }, /* kana_i */
-    { 0x000004a9, 18818 }, /* kana_u */
-    { 0x000004aa, 18372 }, /* kana_e */
-    { 0x000004ab, 18614 }, /* kana_o */
-    { 0x000004ac, 18849 }, /* kana_ya */
-    { 0x000004ad, 18881 }, /* kana_yu */
-    { 0x000004ae, 18865 }, /* kana_yo */
-    { 0x000004af, 18786 }, /* kana_tsu */
-    { 0x000004b0, 22287 }, /* prolongedsound */
-    { 0x000004b1, 18294 }, /* kana_A */
-    { 0x000004b2, 18441 }, /* kana_I */
-    { 0x000004b3, 18811 }, /* kana_U */
-    { 0x000004b4, 18365 }, /* kana_E */
-    { 0x000004b5, 18607 }, /* kana_O */
-    { 0x000004b6, 18455 }, /* kana_KA */
-    { 0x000004b7, 18471 }, /* kana_KI */
-    { 0x000004b8, 18487 }, /* kana_KU */
-    { 0x000004b9, 18463 }, /* kana_KE */
-    { 0x000004ba, 18479 }, /* kana_KO */
-    { 0x000004bb, 18681 }, /* kana_SA */
-    { 0x000004bc, 18697 }, /* kana_SHI */
-    { 0x000004bd, 18725 }, /* kana_SU */
-    { 0x000004be, 18689 }, /* kana_SE */
-    { 0x000004bf, 18717 }, /* kana_SO */
-    { 0x000004c0, 18745 }, /* kana_TA */
-    { 0x000004c1, 18308 }, /* kana_CHI */
-    { 0x000004c2, 18777 }, /* kana_TSU */
-    { 0x000004c3, 18753 }, /* kana_TE */
-    { 0x000004c4, 18769 }, /* kana_TO */
-    { 0x000004c5, 18567 }, /* kana_NA */
-    { 0x000004c6, 18583 }, /* kana_NI */
-    { 0x000004c7, 18599 }, /* kana_NU */
-    { 0x000004c8, 18575 }, /* kana_NE */
-    { 0x000004c9, 18591 }, /* kana_NO */
-    { 0x000004ca, 18401 }, /* kana_HA */
-    { 0x000004cb, 18417 }, /* kana_HI */
-    { 0x000004cc, 18379 }, /* kana_FU */
-    { 0x000004cd, 18409 }, /* kana_HE */
-    { 0x000004ce, 18425 }, /* kana_HO */
-    { 0x000004cf, 18505 }, /* kana_MA */
-    { 0x000004d0, 18521 }, /* kana_MI */
-    { 0x000004d1, 18552 }, /* kana_MU */
-    { 0x000004d2, 18513 }, /* kana_ME */
-    { 0x000004d3, 18544 }, /* kana_MO */
-    { 0x000004d4, 18841 }, /* kana_YA */
-    { 0x000004d5, 18873 }, /* kana_YU */
-    { 0x000004d6, 18857 }, /* kana_YO */
-    { 0x000004d7, 18641 }, /* kana_RA */
-    { 0x000004d8, 18657 }, /* kana_RI */
-    { 0x000004d9, 18673 }, /* kana_RU */
-    { 0x000004da, 18649 }, /* kana_RE */
-    { 0x000004db, 18665 }, /* kana_RO */
-    { 0x000004dc, 18825 }, /* kana_WA */
-    { 0x000004dd, 18560 }, /* kana_N */
-    { 0x000004de, 26676 }, /* voicedsound */
-    { 0x000004df, 22901 }, /* semivoicedsound */
-    { 0x000005ac, 1109 }, /* Arabic_comma */
-    { 0x000005bb, 1764 }, /* Arabic_semicolon */
-    { 0x000005bf, 1698 }, /* Arabic_question_mark */
-    { 0x000005c1, 1303 }, /* Arabic_hamza */
-    { 0x000005c2, 1599 }, /* Arabic_maddaonalef */
-    { 0x000005c3, 1354 }, /* Arabic_hamzaonalef */
-    { 0x000005c4, 1373 }, /* Arabic_hamzaonwaw */
-    { 0x000005c5, 1409 }, /* Arabic_hamzaunderalef */
-    { 0x000005c6, 1391 }, /* Arabic_hamzaonyeh */
-    { 0x000005c7, 1067 }, /* Arabic_alef */
-    { 0x000005c8, 1098 }, /* Arabic_beh */
-    { 0x000005c9, 1909 }, /* Arabic_tehmarbuta */
-    { 0x000005ca, 1898 }, /* Arabic_teh */
-    { 0x000005cb, 1939 }, /* Arabic_theh */
-    { 0x000005cc, 1481 }, /* Arabic_jeem */
-    { 0x000005cd, 1292 }, /* Arabic_hah */
-    { 0x000005ce, 1557 }, /* Arabic_khah */
-    { 0x000005cf, 1133 }, /* Arabic_dal */
-    { 0x000005d0, 1927 }, /* Arabic_thal */
-    { 0x000005d1, 1719 }, /* Arabic_ra */
-    { 0x000005d2, 2024 }, /* Arabic_zain */
-    { 0x000005d3, 1752 }, /* Arabic_seen */
-    { 0x000005d4, 1795 }, /* Arabic_sheen */
-    { 0x000005d5, 1741 }, /* Arabic_sad */
-    { 0x000005d6, 1122 }, /* Arabic_dad */
-    { 0x000005d7, 1859 }, /* Arabic_tah */
-    { 0x000005d8, 2013 }, /* Arabic_zah */
-    { 0x000005d9, 1056 }, /* Arabic_ain */
-    { 0x000005da, 1269 }, /* Arabic_ghain */
-    { 0x000005e0, 1870 }, /* Arabic_tatweel */
-    { 0x000005e1, 1231 }, /* Arabic_feh */
-    { 0x000005e2, 1687 }, /* Arabic_qaf */
-    { 0x000005e3, 1504 }, /* Arabic_kaf */
-    { 0x000005e4, 1569 }, /* Arabic_lam */
-    { 0x000005e5, 1618 }, /* Arabic_meem */
-    { 0x000005e6, 1630 }, /* Arabic_noon */
-    { 0x000005e7, 1282 }, /* Arabic_ha */
-    { 0x000005e8, 1974 }, /* Arabic_waw */
-    { 0x000005e9, 1079 }, /* Arabic_alefmaksura */
-    { 0x000005ea, 1985 }, /* Arabic_yeh */
-    { 0x000005eb, 1215 }, /* Arabic_fathatan */
-    { 0x000005ec, 1157 }, /* Arabic_dammatan */
-    { 0x000005ed, 1528 }, /* Arabic_kasratan */
-    { 0x000005ee, 1202 }, /* Arabic_fatha */
-    { 0x000005ef, 1144 }, /* Arabic_damma */
-    { 0x000005f0, 1515 }, /* Arabic_kasra */
-    { 0x000005f1, 1781 }, /* Arabic_shadda */
-    { 0x000005f2, 1808 }, /* Arabic_sukun */
-    { 0x000006a1, 22929 }, /* Serbian_dje */
-    { 0x000006a2, 19743 }, /* Macedonia_gje */
-    { 0x000006a3, 9550 }, /* Cyrillic_io */
-    { 0x000006a4, 26369 }, /* Ukrainian_ie */
-    { 0x000006a5, 19715 }, /* Macedonia_dse */
-    { 0x000006a6, 26344 }, /* Ukrainian_i */
-    { 0x000006a7, 26395 }, /* Ukrainian_yi */
-    { 0x000006a8, 9574 }, /* Cyrillic_je */
-    { 0x000006a9, 9713 }, /* Cyrillic_lje */
-    { 0x000006aa, 9739 }, /* Cyrillic_nje */
-    { 0x000006ab, 23048 }, /* Serbian_tshe */
-    { 0x000006ac, 19771 }, /* Macedonia_kje */
-    { 0x000006ad, 26306 }, /* Ukrainian_ghe_with_upturn */
-    { 0x000006ae, 8419 }, /* Byelorussian_shortu */
-    { 0x000006af, 9068 }, /* Cyrillic_dzhe */
-    { 0x000006b0, 20333 }, /* numerosign */
-    { 0x000006b1, 22917 }, /* Serbian_DJE */
-    { 0x000006b2, 19729 }, /* Macedonia_GJE */
-    { 0x000006b3, 9538 }, /* Cyrillic_IO */
-    { 0x000006b4, 26356 }, /* Ukrainian_IE */
-    { 0x000006b5, 19701 }, /* Macedonia_DSE */
-    { 0x000006b6, 26332 }, /* Ukrainian_I */
-    { 0x000006b7, 26382 }, /* Ukrainian_YI */
-    { 0x000006b8, 9562 }, /* Cyrillic_JE */
-    { 0x000006b9, 9700 }, /* Cyrillic_LJE */
-    { 0x000006ba, 9726 }, /* Cyrillic_NJE */
-    { 0x000006bb, 23035 }, /* Serbian_TSHE */
-    { 0x000006bc, 19757 }, /* Macedonia_KJE */
-    { 0x000006bd, 26280 }, /* Ukrainian_GHE_WITH_UPTURN */
-    { 0x000006be, 8399 }, /* Byelorussian_SHORTU */
-    { 0x000006bf, 9054 }, /* Cyrillic_DZHE */
-    { 0x000006c0, 10294 }, /* Cyrillic_yu */
-    { 0x000006c1, 8875 }, /* Cyrillic_a */
-    { 0x000006c2, 8898 }, /* Cyrillic_be */
-    { 0x000006c3, 10047 }, /* Cyrillic_tse */
-    { 0x000006c4, 9042 }, /* Cyrillic_de */
-    { 0x000006c5, 9526 }, /* Cyrillic_ie */
-    { 0x000006c6, 9116 }, /* Cyrillic_ef */
-    { 0x000006c7, 9305 }, /* Cyrillic_ghe */
-    { 0x000006c8, 9364 }, /* Cyrillic_ha */
-    { 0x000006c9, 9467 }, /* Cyrillic_i */
-    { 0x000006ca, 9958 }, /* Cyrillic_shorti */
-    { 0x000006cb, 9598 }, /* Cyrillic_ka */
-    { 0x000006cc, 9140 }, /* Cyrillic_el */
-    { 0x000006cd, 9164 }, /* Cyrillic_em */
-    { 0x000006ce, 9188 }, /* Cyrillic_en */
-    { 0x000006cf, 9763 }, /* Cyrillic_o */
-    { 0x000006d0, 9816 }, /* Cyrillic_pe */
-    { 0x000006d1, 10242 }, /* Cyrillic_ya */
-    { 0x000006d2, 9256 }, /* Cyrillic_er */
-    { 0x000006d3, 9280 }, /* Cyrillic_es */
-    { 0x000006d4, 10022 }, /* Cyrillic_te */
-    { 0x000006d5, 10071 }, /* Cyrillic_u */
-    { 0x000006d6, 10343 }, /* Cyrillic_zhe */
-    { 0x000006d7, 10218 }, /* Cyrillic_ve */
-    { 0x000006d8, 9992 }, /* Cyrillic_softsign */
-    { 0x000006d9, 10268 }, /* Cyrillic_yeru */
-    { 0x000006da, 10318 }, /* Cyrillic_ze */
-    { 0x000006db, 9871 }, /* Cyrillic_sha */
-    { 0x000006dc, 9093 }, /* Cyrillic_e */
-    { 0x000006dd, 9899 }, /* Cyrillic_shcha */
-    { 0x000006de, 8923 }, /* Cyrillic_che */
-    { 0x000006df, 9438 }, /* Cyrillic_hardsign */
-    { 0x000006e0, 10282 }, /* Cyrillic_YU */
-    { 0x000006e1, 8864 }, /* Cyrillic_A */
-    { 0x000006e2, 8886 }, /* Cyrillic_BE */
-    { 0x000006e3, 10034 }, /* Cyrillic_TSE */
-    { 0x000006e4, 9030 }, /* Cyrillic_DE */
-    { 0x000006e5, 9514 }, /* Cyrillic_IE */
-    { 0x000006e6, 9104 }, /* Cyrillic_EF */
-    { 0x000006e7, 9292 }, /* Cyrillic_GHE */
-    { 0x000006e8, 9352 }, /* Cyrillic_HA */
-    { 0x000006e9, 9456 }, /* Cyrillic_I */
-    { 0x000006ea, 9942 }, /* Cyrillic_SHORTI */
-    { 0x000006eb, 9586 }, /* Cyrillic_KA */
-    { 0x000006ec, 9128 }, /* Cyrillic_EL */
-    { 0x000006ed, 9152 }, /* Cyrillic_EM */
-    { 0x000006ee, 9176 }, /* Cyrillic_EN */
-    { 0x000006ef, 9752 }, /* Cyrillic_O */
-    { 0x000006f0, 9804 }, /* Cyrillic_PE */
-    { 0x000006f1, 10230 }, /* Cyrillic_YA */
-    { 0x000006f2, 9244 }, /* Cyrillic_ER */
-    { 0x000006f3, 9268 }, /* Cyrillic_ES */
-    { 0x000006f4, 10010 }, /* Cyrillic_TE */
-    { 0x000006f5, 10060 }, /* Cyrillic_U */
-    { 0x000006f6, 10330 }, /* Cyrillic_ZHE */
-    { 0x000006f7, 10206 }, /* Cyrillic_VE */
-    { 0x000006f8, 9974 }, /* Cyrillic_SOFTSIGN */
-    { 0x000006f9, 10254 }, /* Cyrillic_YERU */
-    { 0x000006fa, 10306 }, /* Cyrillic_ZE */
-    { 0x000006fb, 9858 }, /* Cyrillic_SHA */
-    { 0x000006fc, 9082 }, /* Cyrillic_E */
-    { 0x000006fd, 9884 }, /* Cyrillic_SHCHA */
-    { 0x000006fe, 8910 }, /* Cyrillic_CHE */
-    { 0x000006ff, 9420 }, /* Cyrillic_HARDSIGN */
-    { 0x000007a1, 13457 }, /* Greek_ALPHAaccent */
-    { 0x000007a2, 13587 }, /* Greek_EPSILONaccent */
-    { 0x000007a3, 13647 }, /* Greek_ETAaccent */
-    { 0x000007a4, 13762 }, /* Greek_IOTAaccent */
-    { 0x000007a5, 13841 }, /* Greek_IOTAdieresis */
-    { 0x000007a7, 14077 }, /* Greek_OMICRONaccent */
-    { 0x000007a8, 14304 }, /* Greek_UPSILONaccent */
-    { 0x000007a9, 14372 }, /* Greek_UPSILONdieresis */
-    { 0x000007ab, 14013 }, /* Greek_OMEGAaccent */
-    { 0x000007ae, 13412 }, /* Greek_accentdieresis */
-    { 0x000007af, 13725 }, /* Greek_horizbar */
-    { 0x000007b1, 13475 }, /* Greek_alphaaccent */
-    { 0x000007b2, 13607 }, /* Greek_epsilonaccent */
-    { 0x000007b3, 13663 }, /* Greek_etaaccent */
-    { 0x000007b4, 13779 }, /* Greek_iotaaccent */
-    { 0x000007b5, 13860 }, /* Greek_iotadieresis */
-    { 0x000007b6, 13796 }, /* Greek_iotaaccentdieresis */
-    { 0x000007b7, 14097 }, /* Greek_omicronaccent */
-    { 0x000007b8, 14324 }, /* Greek_upsilonaccent */
-    { 0x000007b9, 14394 }, /* Greek_upsilondieresis */
-    { 0x000007ba, 14344 }, /* Greek_upsilonaccentdieresis */
-    { 0x000007bb, 14031 }, /* Greek_omegaaccent */
-    { 0x000007c1, 13433 }, /* Greek_ALPHA */
-    { 0x000007c2, 13493 }, /* Greek_BETA */
-    { 0x000007c3, 13701 }, /* Greek_GAMMA */
-    { 0x000007c4, 13535 }, /* Greek_DELTA */
-    { 0x000007c5, 13559 }, /* Greek_EPSILON */
-    { 0x000007c6, 14434 }, /* Greek_ZETA */
-    { 0x000007c7, 13627 }, /* Greek_ETA */
-    { 0x000007c8, 14252 }, /* Greek_THETA */
-    { 0x000007c9, 13740 }, /* Greek_IOTA */
-    { 0x000007ca, 13879 }, /* Greek_KAPPA */
-    { 0x000007cb, 13929 }, /* Greek_LAMDA */
-    { 0x000007cc, 13953 }, /* Greek_MU */
-    { 0x000007cd, 13971 }, /* Greek_NU */
-    { 0x000007ce, 14416 }, /* Greek_XI */
-    { 0x000007cf, 14049 }, /* Greek_OMICRON */
-    { 0x000007d0, 14137 }, /* Greek_PI */
-    { 0x000007d1, 14175 }, /* Greek_RHO */
-    { 0x000007d2, 14195 }, /* Greek_SIGMA */
-    { 0x000007d4, 14232 }, /* Greek_TAU */
-    { 0x000007d5, 14276 }, /* Greek_UPSILON */
-    { 0x000007d6, 14117 }, /* Greek_PHI */
-    { 0x000007d7, 13515 }, /* Greek_CHI */
-    { 0x000007d8, 14155 }, /* Greek_PSI */
-    { 0x000007d9, 13989 }, /* Greek_OMEGA */
-    { 0x000007e1, 13445 }, /* Greek_alpha */
-    { 0x000007e2, 13504 }, /* Greek_beta */
-    { 0x000007e3, 13713 }, /* Greek_gamma */
-    { 0x000007e4, 13547 }, /* Greek_delta */
-    { 0x000007e5, 13573 }, /* Greek_epsilon */
-    { 0x000007e6, 14445 }, /* Greek_zeta */
-    { 0x000007e7, 13637 }, /* Greek_eta */
-    { 0x000007e8, 14264 }, /* Greek_theta */
-    { 0x000007e9, 13751 }, /* Greek_iota */
-    { 0x000007ea, 13891 }, /* Greek_kappa */
-    { 0x000007eb, 13941 }, /* Greek_lamda */
-    { 0x000007ec, 13962 }, /* Greek_mu */
-    { 0x000007ed, 13980 }, /* Greek_nu */
-    { 0x000007ee, 14425 }, /* Greek_xi */
-    { 0x000007ef, 14063 }, /* Greek_omicron */
-    { 0x000007f0, 14146 }, /* Greek_pi */
-    { 0x000007f1, 14185 }, /* Greek_rho */
-    { 0x000007f2, 14207 }, /* Greek_sigma */
-    { 0x000007f3, 13679 }, /* Greek_finalsmallsigma */
-    { 0x000007f4, 14242 }, /* Greek_tau */
-    { 0x000007f5, 14290 }, /* Greek_upsilon */
-    { 0x000007f6, 14127 }, /* Greek_phi */
-    { 0x000007f7, 13525 }, /* Greek_chi */
-    { 0x000007f8, 14165 }, /* Greek_psi */
-    { 0x000007f9, 14001 }, /* Greek_omega */
-    { 0x000008a1, 19500 }, /* leftradical */
-    { 0x000008a2, 25778 }, /* topleftradical */
-    { 0x000008a3, 16811 }, /* horizconnector */
-    { 0x000008a4, 25752 }, /* topintegral */
-    { 0x000008a5, 3422 }, /* botintegral */
-    { 0x000008a6, 26662 }, /* vertconnector */
-    { 0x000008a7, 25793 }, /* topleftsqbracket */
-    { 0x000008a8, 3448 }, /* botleftsqbracket */
-    { 0x000008a9, 25842 }, /* toprightsqbracket */
-    { 0x000008aa, 3497 }, /* botrightsqbracket */
-    { 0x000008ab, 25764 }, /* topleftparens */
-    { 0x000008ac, 3434 }, /* botleftparens */
-    { 0x000008ad, 25827 }, /* toprightparens */
-    { 0x000008ae, 3482 }, /* botrightparens */
-    { 0x000008af, 19450 }, /* leftmiddlecurlybrace */
-    { 0x000008b0, 22597 }, /* rightmiddlecurlybrace */
-    { 0x000008b1, 25810 }, /* topleftsummation */
-    { 0x000008b2, 3465 }, /* botleftsummation */
-    { 0x000008b3, 25883 }, /* topvertsummationconnector */
-    { 0x000008b4, 3538 }, /* botvertsummationconnector */
-    { 0x000008b5, 25860 }, /* toprightsummation */
-    { 0x000008b6, 3515 }, /* botrightsummation */
-    { 0x000008b7, 22619 }, /* rightmiddlesummation */
-    { 0x000008bc, 19561 }, /* lessthanequal */
-    { 0x000008bd, 20269 }, /* notequal */
-    { 0x000008be, 13395 }, /* greaterthanequal */
-    { 0x000008bf, 17457 }, /* integral */
-    { 0x000008c0, 25636 }, /* therefore */
-    { 0x000008c1, 26644 }, /* variation */
-    { 0x000008c2, 17419 }, /* infinity */
-    { 0x000008c5, 20091 }, /* nabla */
-    { 0x000008c8, 954 }, /* approximate */
-    { 0x000008c9, 23156 }, /* similarequal */
-    { 0x000008cd, 17340 }, /* ifonlyif */
-    { 0x000008ce, 17391 }, /* implies */
-    { 0x000008cf, 17299 }, /* identical */
-    { 0x000008d6, 22443 }, /* radical */
-    { 0x000008da, 17399 }, /* includedin */
-    { 0x000008db, 17410 }, /* includes */
-    { 0x000008dc, 17466 }, /* intersection */
-    { 0x000008dd, 26519 }, /* union */
-    { 0x000008de, 19601 }, /* logicaland */
-    { 0x000008df, 19612 }, /* logicalor */
-    { 0x000008ef, 21620 }, /* partialderivative */
-    { 0x000008f6, 12771 }, /* function */
-    { 0x000008fb, 19410 }, /* leftarrow */
-    { 0x000008fc, 26544 }, /* uparrow */
-    { 0x000008fd, 22554 }, /* rightarrow */
-    { 0x000008fe, 11447 }, /* downarrow */
-    { 0x000009df, 3410 }, /* blank */
-    { 0x000009e0, 23947 }, /* soliddiamond */
-    { 0x000009e1, 8603 }, /* checkerboard */
-    { 0x000009e2, 17187 }, /* ht */
-    { 0x000009e3, 12528 }, /* ff */
-    { 0x000009e4, 8809 }, /* cr */
-    { 0x000009e5, 19575 }, /* lf */
-    { 0x000009e8, 20219 }, /* nl */
-    { 0x000009e9, 26699 }, /* vt */
-    { 0x000009ea, 19646 }, /* lowrightcorner */
-    { 0x000009eb, 26573 }, /* uprightcorner */
-    { 0x000009ec, 26560 }, /* upleftcorner */
-    { 0x000009ed, 19632 }, /* lowleftcorner */
-    { 0x000009ee, 8812 }, /* crossinglines */
-    { 0x000009ef, 16826 }, /* horizlinescan1 */
-    { 0x000009f0, 16841 }, /* horizlinescan3 */
-    { 0x000009f1, 16856 }, /* horizlinescan5 */
-    { 0x000009f2, 16871 }, /* horizlinescan7 */
-    { 0x000009f3, 16886 }, /* horizlinescan9 */
-    { 0x000009f4, 19541 }, /* leftt */
-    { 0x000009f5, 22702 }, /* rightt */
-    { 0x000009f6, 3533 }, /* bott */
-    { 0x000009f7, 25878 }, /* topt */
-    { 0x000009f8, 26654 }, /* vertbar */
-    { 0x00000aa1, 12043 }, /* emspace */
-    { 0x00000aa2, 12142 }, /* enspace */
-    { 0x00000aa3, 11936 }, /* em3space */
-    { 0x00000aa4, 11945 }, /* em4space */
-    { 0x00000aa5, 11336 }, /* digitspace */
-    { 0x00000aa6, 22302 }, /* punctspace */
-    { 0x00000aa7, 25646 }, /* thinspace */
-    { 0x00000aa8, 14526 }, /* hairspace */
-    { 0x00000aa9, 11970 }, /* emdash */
-    { 0x00000aaa, 12055 }, /* endash */
-    { 0x00000aac, 23144 }, /* signifblank */
-    { 0x00000aae, 11927 }, /* ellipsis */
-    { 0x00000aaf, 11382 }, /* doubbaselinedot */
-    { 0x00000ab0, 20911 }, /* onethird */
-    { 0x00000ab1, 25994 }, /* twothirds */
-    { 0x00000ab2, 20849 }, /* onefifth */
-    { 0x00000ab3, 25959 }, /* twofifths */
-    { 0x00000ab4, 25687 }, /* threefifths */
-    { 0x00000ab5, 12722 }, /* fourfifths */
-    { 0x00000ab6, 20877 }, /* onesixth */
-    { 0x00000ab7, 12684 }, /* fivesixths */
-    { 0x00000ab8, 8506 }, /* careof */
-    { 0x00000abb, 12542 }, /* figdash */
-    { 0x00000abc, 19393 }, /* leftanglebracket */
-    { 0x00000abd, 11255 }, /* decimalpoint */
-    { 0x00000abe, 22536 }, /* rightanglebracket */
-    { 0x00000abf, 19825 }, /* marker */
-    { 0x00000ac3, 20839 }, /* oneeighth */
-    { 0x00000ac4, 25674 }, /* threeeighths */
-    { 0x00000ac5, 12672 }, /* fiveeighths */
-    { 0x00000ac6, 23061 }, /* seveneighths */
-    { 0x00000ac9, 25917 }, /* trademark */
-    { 0x00000aca, 23130 }, /* signaturemark */
-    { 0x00000acb, 25927 }, /* trademarkincircle */
-    { 0x00000acc, 19471 }, /* leftopentriangle */
-    { 0x00000acd, 22640 }, /* rightopentriangle */
-    { 0x00000ace, 12005 }, /* emopencircle */
-    { 0x00000acf, 12018 }, /* emopenrectangle */
-    { 0x00000ad0, 19521 }, /* leftsinglequotemark */
-    { 0x00000ad1, 22681 }, /* rightsinglequotemark */
-    { 0x00000ad2, 19430 }, /* leftdoublequotemark */
-    { 0x00000ad3, 22576 }, /* rightdoublequotemark */
-    { 0x00000ad4, 22224 }, /* prescription */
-    { 0x00000ad5, 21674 }, /* permille */
-    { 0x00000ad6, 19883 }, /* minutes */
-    { 0x00000ad7, 22868 }, /* seconds */
-    { 0x00000ad9, 19325 }, /* latincross */
-    { 0x00000ada, 16770 }, /* hexagram */
-    { 0x00000adb, 12570 }, /* filledrectbullet */
-    { 0x00000adc, 12550 }, /* filledlefttribullet */
-    { 0x00000add, 12587 }, /* filledrighttribullet */
-    { 0x00000ade, 11977 }, /* emfilledcircle */
-    { 0x00000adf, 11992 }, /* emfilledrect */
-    { 0x00000ae0, 12106 }, /* enopencircbullet */
-    { 0x00000ae1, 12123 }, /* enopensquarebullet */
-    { 0x00000ae2, 20938 }, /* openrectbullet */
-    { 0x00000ae3, 20980 }, /* opentribulletup */
-    { 0x00000ae4, 20962 }, /* opentribulletdown */
-    { 0x00000ae5, 20953 }, /* openstar */
-    { 0x00000ae6, 12062 }, /* enfilledcircbullet */
-    { 0x00000ae7, 12081 }, /* enfilledsqbullet */
-    { 0x00000ae8, 12628 }, /* filledtribulletup */
-    { 0x00000ae9, 12608 }, /* filledtribulletdown */
-    { 0x00000aea, 19488 }, /* leftpointer */
-    { 0x00000aeb, 22658 }, /* rightpointer */
-    { 0x00000aec, 8649 }, /* club */
-    { 0x00000aed, 11328 }, /* diamond */
-    { 0x00000aee, 16224 }, /* heart */
-    { 0x00000af0, 19812 }, /* maltesecross */
-    { 0x00000af1, 10440 }, /* dagger */
-    { 0x00000af2, 11410 }, /* doubledagger */
-    { 0x00000af3, 8616 }, /* checkmark */
-    { 0x00000af4, 3380 }, /* ballotcross */
-    { 0x00000af5, 20004 }, /* musicalsharp */
-    { 0x00000af6, 19992 }, /* musicalflat */
-    { 0x00000af7, 19801 }, /* malesymbol */
-    { 0x00000af8, 12515 }, /* femalesymbol */
-    { 0x00000af9, 24511 }, /* telephone */
-    { 0x00000afa, 24521 }, /* telephonerecorder */
-    { 0x00000afb, 21694 }, /* phonographcopyright */
-    { 0x00000afc, 8513 }, /* caret */
-    { 0x00000afd, 23185 }, /* singlelowquotemark */
-    { 0x00000afe, 11423 }, /* doublelowquotemark */
-    { 0x00000aff, 8857 }, /* cursor */
-    { 0x00000ba3, 19420 }, /* leftcaret */
-    { 0x00000ba6, 22565 }, /* rightcaret */
-    { 0x00000ba8, 11457 }, /* downcaret */
-    { 0x00000ba9, 26552 }, /* upcaret */
-    { 0x00000bc0, 21481 }, /* overbar */
-    { 0x00000bc2, 11486 }, /* downtack */
-    { 0x00000bc3, 26587 }, /* upshoe */
-    { 0x00000bc4, 11476 }, /* downstile */
-    { 0x00000bc6, 26494 }, /* underbar */
-    { 0x00000bca, 18286 }, /* jot */
-    { 0x00000bcc, 22317 }, /* quad */
-    { 0x00000bce, 26602 }, /* uptack */
-    { 0x00000bcf, 8626 }, /* circle */
-    { 0x00000bd3, 26594 }, /* upstile */
-    { 0x00000bd6, 11467 }, /* downshoe */
-    { 0x00000bd8, 22671 }, /* rightshoe */
-    { 0x00000bda, 19512 }, /* leftshoe */
-    { 0x00000bdc, 19547 }, /* lefttack */
-    { 0x00000bfc, 22709 }, /* righttack */
-    { 0x00000cdf, 16317 }, /* hebrew_doublelowline */
-    { 0x00000ce0, 16230 }, /* hebrew_aleph */
-    { 0x00000ce1, 16255 }, /* hebrew_bet */
-    { 0x00000ce2, 16436 }, /* hebrew_gimel */
-    { 0x00000ce3, 16290 }, /* hebrew_dalet */
-    { 0x00000ce4, 16463 }, /* hebrew_he */
-    { 0x00000ce5, 16675 }, /* hebrew_waw */
-    { 0x00000ce6, 16721 }, /* hebrew_zain */
-    { 0x00000ce7, 16278 }, /* hebrew_chet */
-    { 0x00000ce8, 16652 }, /* hebrew_tet */
-    { 0x00000ce9, 16686 }, /* hebrew_yod */
-    { 0x00000cea, 16338 }, /* hebrew_finalkaph */
-    { 0x00000ceb, 16484 }, /* hebrew_kaph */
-    { 0x00000cec, 16507 }, /* hebrew_lamed */
-    { 0x00000ced, 16355 }, /* hebrew_finalmem */
-    { 0x00000cee, 16520 }, /* hebrew_mem */
-    { 0x00000cef, 16371 }, /* hebrew_finalnun */
-    { 0x00000cf0, 16531 }, /* hebrew_nun */
-    { 0x00000cf1, 16576 }, /* hebrew_samech */
-    { 0x00000cf2, 16243 }, /* hebrew_ayin */
-    { 0x00000cf3, 16387 }, /* hebrew_finalpe */
-    { 0x00000cf4, 16542 }, /* hebrew_pe */
-    { 0x00000cf5, 16402 }, /* hebrew_finalzade */
-    { 0x00000cf6, 16697 }, /* hebrew_zade */
-    { 0x00000cf7, 16552 }, /* hebrew_qoph */
-    { 0x00000cf8, 16564 }, /* hebrew_resh */
-    { 0x00000cf9, 16604 }, /* hebrew_shin */
-    { 0x00000cfa, 16641 }, /* hebrew_taw */
-    { 0x00000da1, 24774 }, /* Thai_kokai */
-    { 0x00000da2, 24704 }, /* Thai_khokhai */
-    { 0x00000da3, 24730 }, /* Thai_khokhuat */
-    { 0x00000da4, 24744 }, /* Thai_khokhwai */
-    { 0x00000da5, 24717 }, /* Thai_khokhon */
-    { 0x00000da6, 24758 }, /* Thai_khorakhang */
-    { 0x00000da7, 25087 }, /* Thai_ngongu */
-    { 0x00000da8, 24580 }, /* Thai_chochan */
-    { 0x00000da9, 24607 }, /* Thai_choching */
-    { 0x00000daa, 24593 }, /* Thai_chochang */
-    { 0x00000dab, 25448 }, /* Thai_soso */
-    { 0x00000dac, 24621 }, /* Thai_chochoe */
-    { 0x00000dad, 25624 }, /* Thai_yoying */
-    { 0x00000dae, 24634 }, /* Thai_dochada */
-    { 0x00000daf, 25577 }, /* Thai_topatak */
-    { 0x00000db0, 25536 }, /* Thai_thothan */
-    { 0x00000db1, 25486 }, /* Thai_thonangmontho */
-    { 0x00000db2, 25505 }, /* Thai_thophuthao */
-    { 0x00000db3, 25113 }, /* Thai_nonen */
-    { 0x00000db4, 24647 }, /* Thai_dodek */
-    { 0x00000db5, 25590 }, /* Thai_totao */
-    { 0x00000db6, 25563 }, /* Thai_thothung */
-    { 0x00000db7, 25521 }, /* Thai_thothahan */
-    { 0x00000db8, 25549 }, /* Thai_thothong */
-    { 0x00000db9, 25124 }, /* Thai_nonu */
-    { 0x00000dba, 24566 }, /* Thai_bobaimai */
-    { 0x00000dbb, 25215 }, /* Thai_popla */
-    { 0x00000dbc, 25185 }, /* Thai_phophung */
-    { 0x00000dbd, 24658 }, /* Thai_fofa */
-    { 0x00000dbe, 25172 }, /* Thai_phophan */
-    { 0x00000dbf, 24668 }, /* Thai_fofan */
-    { 0x00000dc0, 25199 }, /* Thai_phosamphao */
-    { 0x00000dc1, 25077 }, /* Thai_moma */
-    { 0x00000dc2, 25613 }, /* Thai_yoyak */
-    { 0x00000dc3, 25226 }, /* Thai_rorua */
-    { 0x00000dc4, 25237 }, /* Thai_ru */
-    { 0x00000dc5, 24937 }, /* Thai_loling */
-    { 0x00000dc6, 24949 }, /* Thai_lu */
-    { 0x00000dc7, 25601 }, /* Thai_wowaen */
-    { 0x00000dc8, 25436 }, /* Thai_sosala */
-    { 0x00000dc9, 25424 }, /* Thai_sorusi */
-    { 0x00000dca, 25458 }, /* Thai_sosua */
-    { 0x00000dcb, 24679 }, /* Thai_hohip */
-    { 0x00000dcc, 24924 }, /* Thai_lochula */
-    { 0x00000dcd, 25134 }, /* Thai_oang */
-    { 0x00000dce, 24690 }, /* Thai_honokhuk */
-    { 0x00000dcf, 25144 }, /* Thai_paiyannoi */
-    { 0x00000dd0, 25245 }, /* Thai_saraa */
-    { 0x00000dd1, 24985 }, /* Thai_maihanakat */
-    { 0x00000dd2, 25256 }, /* Thai_saraaa */
-    { 0x00000dd3, 25319 }, /* Thai_saraam */
-    { 0x00000dd4, 25342 }, /* Thai_sarai */
-    { 0x00000dd5, 25353 }, /* Thai_saraii */
-    { 0x00000dd6, 25387 }, /* Thai_saraue */
-    { 0x00000dd7, 25399 }, /* Thai_sarauee */
-    { 0x00000dd8, 25376 }, /* Thai_sarau */
-    { 0x00000dd9, 25412 }, /* Thai_sarauu */
-    { 0x00000dda, 25159 }, /* Thai_phinthu */
-    { 0x00000dde, 25001 }, /* Thai_maihanakat_maitho */
-    { 0x00000ddf, 24556 }, /* Thai_baht */
-    { 0x00000de0, 25331 }, /* Thai_sarae */
-    { 0x00000de1, 25268 }, /* Thai_saraae */
-    { 0x00000de2, 25365 }, /* Thai_sarao */
-    { 0x00000de3, 25300 }, /* Thai_saraaimaimuan */
-    { 0x00000de4, 25280 }, /* Thai_saraaimaimalai */
-    { 0x00000de5, 24785 }, /* Thai_lakkhangyao */
-    { 0x00000de6, 25063 }, /* Thai_maiyamok */
-    { 0x00000de7, 25024 }, /* Thai_maitaikhu */
-    { 0x00000de8, 24974 }, /* Thai_maiek */
-    { 0x00000de9, 25039 }, /* Thai_maitho */
-    { 0x00000dea, 25051 }, /* Thai_maitri */
-    { 0x00000deb, 24957 }, /* Thai_maichattawa */
-    { 0x00000dec, 25469 }, /* Thai_thanthakhat */
-    { 0x00000ded, 25099 }, /* Thai_nikhahit */
-    { 0x00000df0, 24912 }, /* Thai_leksun */
-    { 0x00000df1, 24850 }, /* Thai_leknung */
-    { 0x00000df2, 24899 }, /* Thai_leksong */
-    { 0x00000df3, 24876 }, /* Thai_leksam */
-    { 0x00000df4, 24888 }, /* Thai_leksi */
-    { 0x00000df5, 24815 }, /* Thai_lekha */
-    { 0x00000df6, 24826 }, /* Thai_lekhok */
-    { 0x00000df7, 24802 }, /* Thai_lekchet */
-    { 0x00000df8, 24863 }, /* Thai_lekpaet */
-    { 0x00000df9, 24838 }, /* Thai_lekkao */
-    { 0x00000ea1, 15325 }, /* Hangul_Kiyeog */
-    { 0x00000ea2, 15870 }, /* Hangul_SsangKiyeog */
-    { 0x00000ea3, 15339 }, /* Hangul_KiyeogSios */
-    { 0x00000ea4, 15420 }, /* Hangul_Nieun */
-    { 0x00000ea5, 15451 }, /* Hangul_NieunJieuj */
-    { 0x00000ea6, 15433 }, /* Hangul_NieunHieuh */
-    { 0x00000ea7, 14632 }, /* Hangul_Dikeud */
-    { 0x00000ea8, 15833 }, /* Hangul_SsangDikeud */
-    { 0x00000ea9, 15605 }, /* Hangul_Rieul */
-    { 0x00000eaa, 15636 }, /* Hangul_RieulKiyeog */
-    { 0x00000eab, 15655 }, /* Hangul_RieulMieum */
-    { 0x00000eac, 15692 }, /* Hangul_RieulPieub */
-    { 0x00000ead, 15710 }, /* Hangul_RieulSios */
-    { 0x00000eae, 15727 }, /* Hangul_RieulTieut */
-    { 0x00000eaf, 15673 }, /* Hangul_RieulPhieuf */
-    { 0x00000eb0, 15618 }, /* Hangul_RieulHieuh */
-    { 0x00000eb1, 15382 }, /* Hangul_Mieum */
-    { 0x00000eb2, 15517 }, /* Hangul_Pieub */
-    { 0x00000eb3, 15889 }, /* Hangul_SsangPieub */
-    { 0x00000eb4, 15530 }, /* Hangul_PieubSios */
-    { 0x00000eb5, 15806 }, /* Hangul_Sios */
-    { 0x00000eb6, 15907 }, /* Hangul_SsangSios */
-    { 0x00000eb7, 14721 }, /* Hangul_Ieung */
-    { 0x00000eb8, 15298 }, /* Hangul_Jieuj */
-    { 0x00000eb9, 15852 }, /* Hangul_SsangJieuj */
-    { 0x00000eba, 14602 }, /* Hangul_Cieuc */
-    { 0x00000ebb, 15311 }, /* Hangul_Khieuq */
-    { 0x00000ebc, 16027 }, /* Hangul_Tieut */
-    { 0x00000ebd, 15503 }, /* Hangul_Phieuf */
-    { 0x00000ebe, 14699 }, /* Hangul_Hieuh */
-    { 0x00000ebf, 14543 }, /* Hangul_A */
-    { 0x00000ec0, 14552 }, /* Hangul_AE */
-    { 0x00000ec1, 16101 }, /* Hangul_YA */
-    { 0x00000ec2, 16111 }, /* Hangul_YAE */
-    { 0x00000ec3, 14666 }, /* Hangul_EO */
-    { 0x00000ec4, 14646 }, /* Hangul_E */
-    { 0x00000ec5, 16132 }, /* Hangul_YEO */
-    { 0x00000ec6, 16122 }, /* Hangul_YE */
-    { 0x00000ec7, 15469 }, /* Hangul_O */
-    { 0x00000ec8, 16049 }, /* Hangul_WA */
-    { 0x00000ec9, 16059 }, /* Hangul_WAE */
-    { 0x00000eca, 15478 }, /* Hangul_OE */
-    { 0x00000ecb, 16172 }, /* Hangul_YO */
-    { 0x00000ecc, 16040 }, /* Hangul_U */
-    { 0x00000ecd, 16080 }, /* Hangul_WEO */
-    { 0x00000ece, 16070 }, /* Hangul_WE */
-    { 0x00000ecf, 16091 }, /* Hangul_WI */
-    { 0x00000ed0, 16182 }, /* Hangul_YU */
-    { 0x00000ed1, 14676 }, /* Hangul_EU */
-    { 0x00000ed2, 16162 }, /* Hangul_YI */
-    { 0x00000ed3, 14712 }, /* Hangul_I */
-    { 0x00000ed4, 14826 }, /* Hangul_J_Kiyeog */
-    { 0x00000ed5, 15196 }, /* Hangul_J_SsangKiyeog */
-    { 0x00000ed6, 14842 }, /* Hangul_J_KiyeogSios */
-    { 0x00000ed7, 14904 }, /* Hangul_J_Nieun */
-    { 0x00000ed8, 14939 }, /* Hangul_J_NieunJieuj */
-    { 0x00000ed9, 14919 }, /* Hangul_J_NieunHieuh */
-    { 0x00000eda, 14749 }, /* Hangul_J_Dikeud */
-    { 0x00000edb, 15026 }, /* Hangul_J_Rieul */
-    { 0x00000edc, 15061 }, /* Hangul_J_RieulKiyeog */
-    { 0x00000edd, 15082 }, /* Hangul_J_RieulMieum */
-    { 0x00000ede, 15123 }, /* Hangul_J_RieulPieub */
-    { 0x00000edf, 15143 }, /* Hangul_J_RieulSios */
-    { 0x00000ee0, 15162 }, /* Hangul_J_RieulTieut */
-    { 0x00000ee1, 15102 }, /* Hangul_J_RieulPhieuf */
-    { 0x00000ee2, 15041 }, /* Hangul_J_RieulHieuh */
-    { 0x00000ee3, 14889 }, /* Hangul_J_Mieum */
-    { 0x00000ee4, 14992 }, /* Hangul_J_Pieub */
-    { 0x00000ee5, 15007 }, /* Hangul_J_PieubSios */
-    { 0x00000ee6, 15182 }, /* Hangul_J_Sios */
-    { 0x00000ee7, 15217 }, /* Hangul_J_SsangSios */
-    { 0x00000ee8, 14780 }, /* Hangul_J_Ieung */
-    { 0x00000ee9, 14795 }, /* Hangul_J_Jieuj */
-    { 0x00000eea, 14734 }, /* Hangul_J_Cieuc */
-    { 0x00000eeb, 14810 }, /* Hangul_J_Khieuq */
-    { 0x00000eec, 15236 }, /* Hangul_J_Tieut */
-    { 0x00000eed, 14976 }, /* Hangul_J_Phieuf */
-    { 0x00000eee, 14765 }, /* Hangul_J_Hieuh */
-    { 0x00000eef, 15745 }, /* Hangul_RieulYeorinHieuh */
-    { 0x00000ef0, 15937 }, /* Hangul_SunkyeongeumMieum */
-    { 0x00000ef1, 15988 }, /* Hangul_SunkyeongeumPieub */
-    { 0x00000ef2, 15488 }, /* Hangul_PanSios */
-    { 0x00000ef3, 15357 }, /* Hangul_KkogjiDalrinIeung */
-    { 0x00000ef4, 15962 }, /* Hangul_SunkyeongeumPhieuf */
-    { 0x00000ef5, 16143 }, /* Hangul_YeorinHieuh */
-    { 0x00000ef6, 14562 }, /* Hangul_AraeA */
-    { 0x00000ef7, 14575 }, /* Hangul_AraeAE */
-    { 0x00000ef8, 14959 }, /* Hangul_J_PanSios */
-    { 0x00000ef9, 14862 }, /* Hangul_J_KkogjiDalrinIeung */
-    { 0x00000efa, 15251 }, /* Hangul_J_YeorinHieuh */
-    { 0x00000eff, 18941 }, /* Korean_Won */
-    { 0x000013bc, 20658 }, /* OE */
-    { 0x000013bd, 20661 }, /* oe */
-    { 0x000013be, 31722 }, /* Ydiaeresis */
-    { 0x000020ac, 12205 }, /* EuroSign */
-    { 0x0000fd01, 125 }, /* 3270_Duplicate */
-    { 0x0000fd02, 195 }, /* 3270_FieldMark */
-    { 0x0000fd03, 343 }, /* 3270_Right2 */
-    { 0x0000fd04, 245 }, /* 3270_Left2 */
-    { 0x0000fd05, 33 }, /* 3270_BackTab */
-    { 0x0000fd06, 151 }, /* 3270_EraseEOF */
-    { 0x0000fd07, 165 }, /* 3270_EraseInput */
-    { 0x0000fd08, 332 }, /* 3270_Reset */
-    { 0x0000fd09, 310 }, /* 3270_Quit */
-    { 0x0000fd0a, 256 }, /* 3270_PA1 */
-    { 0x0000fd0b, 265 }, /* 3270_PA2 */
-    { 0x0000fd0c, 274 }, /* 3270_PA3 */
-    { 0x0000fd0d, 376 }, /* 3270_Test */
-    { 0x0000fd0e, 23 }, /* 3270_Attn */
-    { 0x0000fd0f, 74 }, /* 3270_CursorBlink */
-    { 0x0000fd10, 8 }, /* 3270_AltCursor */
-    { 0x0000fd11, 231 }, /* 3270_KeyClick */
-    { 0x0000fd12, 221 }, /* 3270_Jump */
-    { 0x0000fd13, 210 }, /* 3270_Ident */
-    { 0x0000fd14, 355 }, /* 3270_Rule */
-    { 0x0000fd15, 64 }, /* 3270_Copy */
-    { 0x0000fd16, 283 }, /* 3270_Play */
-    { 0x0000fd17, 365 }, /* 3270_Setup */
-    { 0x0000fd18, 320 }, /* 3270_Record */
-    { 0x0000fd19, 46 }, /* 3270_ChangeScreen */
-    { 0x0000fd1a, 109 }, /* 3270_DeleteWord */
-    { 0x0000fd1b, 181 }, /* 3270_ExSelect */
-    { 0x0000fd1c, 91 }, /* 3270_CursorSelect */
-    { 0x0000fd1d, 293 }, /* 3270_PrintScreen */
-    { 0x0000fd1e, 140 }, /* 3270_Enter */
-    { 0x0000fe01, 17925 }, /* ISO_Lock */
-    { 0x0000fe02, 17808 }, /* ISO_Level2_Latch */
-    { 0x0000fe03, 17858 }, /* ISO_Level3_Shift */
-    { 0x0000fe04, 17825 }, /* ISO_Level3_Latch */
-    { 0x0000fe05, 17842 }, /* ISO_Level3_Lock */
-    { 0x0000fe06, 17713 }, /* ISO_Group_Latch */
-    { 0x0000fe07, 17729 }, /* ISO_Group_Lock */
-    { 0x0000fe08, 17970 }, /* ISO_Next_Group */
-    { 0x0000fe09, 17985 }, /* ISO_Next_Group_Lock */
-    { 0x0000fe0a, 18094 }, /* ISO_Prev_Group */
-    { 0x0000fe0b, 18109 }, /* ISO_Prev_Group_Lock */
-    { 0x0000fe0c, 17676 }, /* ISO_First_Group */
-    { 0x0000fe0d, 17692 }, /* ISO_First_Group_Lock */
-    { 0x0000fe0e, 17760 }, /* ISO_Last_Group */
-    { 0x0000fe0f, 17775 }, /* ISO_Last_Group_Lock */
-    { 0x0000fe11, 17908 }, /* ISO_Level5_Shift */
-    { 0x0000fe12, 17875 }, /* ISO_Level5_Latch */
-    { 0x0000fe13, 17892 }, /* ISO_Level5_Lock */
-    { 0x0000fe20, 17795 }, /* ISO_Left_Tab */
-    { 0x0000fe21, 17953 }, /* ISO_Move_Line_Up */
-    { 0x0000fe22, 17934 }, /* ISO_Move_Line_Down */
-    { 0x0000fe23, 18027 }, /* ISO_Partial_Line_Up */
-    { 0x0000fe24, 18005 }, /* ISO_Partial_Line_Down */
-    { 0x0000fe25, 18047 }, /* ISO_Partial_Space_Left */
-    { 0x0000fe26, 18070 }, /* ISO_Partial_Space_Right */
-    { 0x0000fe27, 18203 }, /* ISO_Set_Margin_Left */
-    { 0x0000fe28, 18223 }, /* ISO_Set_Margin_Right */
-    { 0x0000fe29, 18154 }, /* ISO_Release_Margin_Left */
-    { 0x0000fe2a, 18178 }, /* ISO_Release_Margin_Right */
-    { 0x0000fe2b, 18129 }, /* ISO_Release_Both_Margins */
-    { 0x0000fe2c, 17614 }, /* ISO_Fast_Cursor_Left */
-    { 0x0000fe2d, 17635 }, /* ISO_Fast_Cursor_Right */
-    { 0x0000fe2e, 17657 }, /* ISO_Fast_Cursor_Up */
-    { 0x0000fe2f, 17593 }, /* ISO_Fast_Cursor_Down */
-    { 0x0000fe30, 17516 }, /* ISO_Continuous_Underline */
-    { 0x0000fe31, 17541 }, /* ISO_Discontinuous_Underline */
-    { 0x0000fe32, 17569 }, /* ISO_Emphasize */
-    { 0x0000fe33, 17498 }, /* ISO_Center_Object */
-    { 0x0000fe34, 17583 }, /* ISO_Enter */
-    { 0x0000fe50, 10940 }, /* dead_grave */
-    { 0x0000fe51, 10613 }, /* dead_acute */
-    { 0x0000fe52, 10836 }, /* dead_circumflex */
-    { 0x0000fe53, 11212 }, /* dead_tilde */
-    { 0x0000fe54, 11073 }, /* dead_macron */
-    { 0x0000fe55, 10782 }, /* dead_breve */
-    { 0x0000fe56, 10537 }, /* dead_abovedot */
-    { 0x0000fe57, 10877 }, /* dead_diaeresis */
-    { 0x0000fe58, 10575 }, /* dead_abovering */
-    { 0x0000fe59, 10892 }, /* dead_doubleacute */
-    { 0x0000fe5a, 10812 }, /* dead_caron */
-    { 0x0000fe5b, 10823 }, /* dead_cedilla */
-    { 0x0000fe5c, 11099 }, /* dead_ogonek */
-    { 0x0000fe5d, 11026 }, /* dead_iota */
-    { 0x0000fe5e, 11237 }, /* dead_voiced_sound */
-    { 0x0000fe5f, 11161 }, /* dead_semivoiced_sound */
-    { 0x0000fe60, 10697 }, /* dead_belowdot */
-    { 0x0000fe61, 10973 }, /* dead_hook */
-    { 0x0000fe62, 10983 }, /* dead_horn */
-    { 0x0000fe63, 11200 }, /* dead_stroke */
-    { 0x0000fe64, 10521 }, /* dead_abovecomma */
-    { 0x0000fe65, 10551 }, /* dead_abovereversedcomma */
-    { 0x0000fe66, 10909 }, /* dead_doublegrave */
-    { 0x0000fe67, 10728 }, /* dead_belowring */
-    { 0x0000fe68, 10711 }, /* dead_belowmacron */
-    { 0x0000fe69, 10640 }, /* dead_belowcircumflex */
-    { 0x0000fe6a, 10743 }, /* dead_belowtilde */
-    { 0x0000fe6b, 10624 }, /* dead_belowbreve */
-    { 0x0000fe6c, 10677 }, /* dead_belowdiaeresis */
-    { 0x0000fe6d, 11007 }, /* dead_invertedbreve */
-    { 0x0000fe6e, 10661 }, /* dead_belowcomma */
-    { 0x0000fe6f, 10852 }, /* dead_currency */
-    { 0x0000fe70, 583 }, /* AccessX_Enable */
-    { 0x0000fe71, 598 }, /* AccessX_Feedback_Enable */
-    { 0x0000fe72, 22499 }, /* RepeatKeys_Enable */
-    { 0x0000fe73, 23931 }, /* SlowKeys_Enable */
-    { 0x0000fe74, 3564 }, /* BounceKeys_Enable */
-    { 0x0000fe75, 23993 }, /* StickyKeys_Enable */
-    { 0x0000fe76, 19926 }, /* MouseKeys_Enable */
-    { 0x0000fe77, 19903 }, /* MouseKeys_Accel_Enable */
-    { 0x0000fe78, 21489 }, /* Overlay1_Enable */
-    { 0x0000fe79, 21505 }, /* Overlay2_Enable */
-    { 0x0000fe7a, 3309 }, /* AudibleBell_Enable */
-    { 0x0000fe80, 10514 }, /* dead_a */
-    { 0x0000fe81, 10507 }, /* dead_A */
-    { 0x0000fe82, 10933 }, /* dead_e */
-    { 0x0000fe83, 10926 }, /* dead_E */
-    { 0x0000fe84, 11000 }, /* dead_i */
-    { 0x0000fe85, 10993 }, /* dead_I */
-    { 0x0000fe86, 11092 }, /* dead_o */
-    { 0x0000fe87, 11085 }, /* dead_O */
-    { 0x0000fe88, 11230 }, /* dead_u */
-    { 0x0000fe89, 11223 }, /* dead_U */
-    { 0x0000fe8a, 11183 }, /* dead_small_schwa */
-    { 0x0000fe8b, 10793 }, /* dead_capital_schwa */
-    { 0x0000fe8c, 10951 }, /* dead_greek */
-    { 0x0000fe8d, 10962 }, /* dead_hamza */
-    { 0x0000fe90, 11060 }, /* dead_lowline */
-    { 0x0000fe91, 10590 }, /* dead_aboveverticalline */
-    { 0x0000fe92, 10759 }, /* dead_belowverticalline */
-    { 0x0000fe93, 11036 }, /* dead_longsolidusoverlay */
-    { 0x0000fea0, 8600 }, /* ch */
-    { 0x0000fea1, 8597 }, /* Ch */
-    { 0x0000fea2, 8594 }, /* CH */
-    { 0x0000fea3, 8451 }, /* c_h */
-    { 0x0000fea4, 8447 }, /* C_h */
-    { 0x0000fea5, 8443 }, /* C_H */
-    { 0x0000fed0, 12651 }, /* First_Virtual_Screen */
-    { 0x0000fed1, 22237 }, /* Prev_Virtual_Screen */
-    { 0x0000fed2, 20172 }, /* Next_Virtual_Screen */
-    { 0x0000fed4, 19305 }, /* Last_Virtual_Screen */
-    { 0x0000fed5, 24539 }, /* Terminate_Server */
-    { 0x0000fee0, 22155 }, /* Pointer_Left */
-    { 0x0000fee1, 22168 }, /* Pointer_Right */
-    { 0x0000fee2, 22182 }, /* Pointer_Up */
-    { 0x0000fee3, 22000 }, /* Pointer_Down */
-    { 0x0000fee4, 22193 }, /* Pointer_UpLeft */
-    { 0x0000fee5, 22208 }, /* Pointer_UpRight */
-    { 0x0000fee6, 22013 }, /* Pointer_DownLeft */
-    { 0x0000fee7, 22030 }, /* Pointer_DownRight */
-    { 0x0000fee8, 21828 }, /* Pointer_Button_Dflt */
-    { 0x0000fee9, 21748 }, /* Pointer_Button1 */
-    { 0x0000feea, 21764 }, /* Pointer_Button2 */
-    { 0x0000feeb, 21780 }, /* Pointer_Button3 */
-    { 0x0000feec, 21796 }, /* Pointer_Button4 */
-    { 0x0000feed, 21812 }, /* Pointer_Button5 */
-    { 0x0000feee, 21938 }, /* Pointer_DblClick_Dflt */
-    { 0x0000feef, 21848 }, /* Pointer_DblClick1 */
-    { 0x0000fef0, 21866 }, /* Pointer_DblClick2 */
-    { 0x0000fef1, 21884 }, /* Pointer_DblClick3 */
-    { 0x0000fef2, 21902 }, /* Pointer_DblClick4 */
-    { 0x0000fef3, 21920 }, /* Pointer_DblClick5 */
-    { 0x0000fef4, 22118 }, /* Pointer_Drag_Dflt */
-    { 0x0000fef5, 22048 }, /* Pointer_Drag1 */
-    { 0x0000fef6, 22062 }, /* Pointer_Drag2 */
-    { 0x0000fef7, 22076 }, /* Pointer_Drag3 */
-    { 0x0000fef8, 22090 }, /* Pointer_Drag4 */
-    { 0x0000fef9, 22136 }, /* Pointer_EnableKeys */
-    { 0x0000fefa, 21729 }, /* Pointer_Accelerate */
-    { 0x0000fefb, 21960 }, /* Pointer_DfltBtnNext */
-    { 0x0000fefc, 21980 }, /* Pointer_DfltBtnPrev */
-    { 0x0000fefd, 22104 }, /* Pointer_Drag5 */
-    { 0x0000ff08, 3362 }, /* BackSpace */
-    { 0x0000ff09, 24455 }, /* Tab */
-    { 0x0000ff0a, 19578 }, /* Linefeed */
-    { 0x0000ff0b, 8633 }, /* Clear */
-    { 0x0000ff0d, 22523 }, /* Return */
-    { 0x0000ff13, 21638 }, /* Pause */
-    { 0x0000ff14, 22856 }, /* Scroll_Lock */
-    { 0x0000ff15, 24436 }, /* Sys_Req */
-    { 0x0000ff1b, 12172 }, /* Escape */
-    { 0x0000ff20, 19955 }, /* Multi_key */
-    { 0x0000ff21, 18889 }, /* Kanji */
-    { 0x0000ff22, 19946 }, /* Muhenkan */
-    { 0x0000ff23, 16758 }, /* Henkan_Mode */
-    { 0x0000ff24, 22719 }, /* Romaji */
-    { 0x0000ff25, 16779 }, /* Hiragana */
-    { 0x0000ff26, 18914 }, /* Katakana */
-    { 0x0000ff27, 16788 }, /* Hiragana_Katakana */
-    { 0x0000ff28, 31849 }, /* Zenkaku */
-    { 0x0000ff29, 16192 }, /* Hankaku */
-    { 0x0000ff2a, 31857 }, /* Zenkaku_Hankaku */
-    { 0x0000ff2b, 25909 }, /* Touroku */
-    { 0x0000ff2c, 19842 }, /* Massyo */
-    { 0x0000ff2d, 18495 }, /* Kana_Lock */
-    { 0x0000ff2e, 18706 }, /* Kana_Shift */
-    { 0x0000ff2f, 11894 }, /* Eisu_Shift */
-    { 0x0000ff30, 11905 }, /* Eisu_toggle */
-    { 0x0000ff31, 14536 }, /* Hangul */
-    { 0x0000ff32, 15924 }, /* Hangul_Start */
-    { 0x0000ff33, 14655 }, /* Hangul_End */
-    { 0x0000ff34, 14686 }, /* Hangul_Hanja */
-    { 0x0000ff35, 15272 }, /* Hangul_Jamo */
-    { 0x0000ff36, 15769 }, /* Hangul_Romaja */
-    { 0x0000ff37, 8654 }, /* Codeinput */
-    { 0x0000ff38, 15284 }, /* Hangul_Jeonja */
-    { 0x0000ff39, 14589 }, /* Hangul_Banja */
-    { 0x0000ff3a, 15564 }, /* Hangul_PreHanja */
-    { 0x0000ff3b, 15547 }, /* Hangul_PostHanja */
-    { 0x0000ff3c, 23169 }, /* SingleCandidate */
-    { 0x0000ff3d, 19965 }, /* MultipleCandidate */
-    { 0x0000ff3e, 22257 }, /* PreviousCandidate */
-    { 0x0000ff3f, 15818 }, /* Hangul_Special */
-    { 0x0000ff50, 16806 }, /* Home */
-    { 0x0000ff51, 19388 }, /* Left */
-    { 0x0000ff52, 26541 }, /* Up */
-    { 0x0000ff53, 22530 }, /* Right */
-    { 0x0000ff54, 11442 }, /* Down */
-    { 0x0000ff55, 22281 }, /* Prior */
-    { 0x0000ff56, 20167 }, /* Next */
-    { 0x0000ff57, 12051 }, /* End */
-    { 0x0000ff58, 3404 }, /* Begin */
-    { 0x0000ff60, 22884 }, /* Select */
-    { 0x0000ff61, 22275 }, /* Print */
-    { 0x0000ff62, 12232 }, /* Execute */
-    { 0x0000ff63, 17428 }, /* Insert */
-    { 0x0000ff65, 26514 }, /* Undo */
-    { 0x0000ff66, 22483 }, /* Redo */
-    { 0x0000ff67, 19849 }, /* Menu */
-    { 0x0000ff68, 12646 }, /* Find */
-    { 0x0000ff69, 8489 }, /* Cancel */
-    { 0x0000ff6a, 16746 }, /* Help */
-    { 0x0000ff6b, 8377 }, /* Break */
-    { 0x0000ff7e, 19891 }, /* Mode_switch */
-    { 0x0000ff7f, 20313 }, /* Num_Lock */
-    { 0x0000ff80, 19218 }, /* KP_Space */
-    { 0x0000ff89, 19239 }, /* KP_Tab */
-    { 0x0000ff8d, 19075 }, /* KP_Enter */
-    { 0x0000ff91, 19093 }, /* KP_F1 */
-    { 0x0000ff92, 19099 }, /* KP_F2 */
-    { 0x0000ff93, 19105 }, /* KP_F3 */
-    { 0x0000ff94, 19111 }, /* KP_F4 */
-    { 0x0000ff95, 19117 }, /* KP_Home */
-    { 0x0000ff96, 19135 }, /* KP_Left */
-    { 0x0000ff97, 19246 }, /* KP_Up */
-    { 0x0000ff98, 19196 }, /* KP_Right */
-    { 0x0000ff99, 19060 }, /* KP_Down */
-    { 0x0000ff9a, 19187 }, /* KP_Prior */
-    { 0x0000ff9b, 19155 }, /* KP_Next */
-    { 0x0000ff9c, 19068 }, /* KP_End */
-    { 0x0000ff9d, 19020 }, /* KP_Begin */
-    { 0x0000ff9e, 19125 }, /* KP_Insert */
-    { 0x0000ff9f, 19040 }, /* KP_Delete */
-    { 0x0000ffaa, 19143 }, /* KP_Multiply */
-    { 0x0000ffab, 19002 }, /* KP_Add */
-    { 0x0000ffac, 19205 }, /* KP_Separator */
-    { 0x0000ffad, 19227 }, /* KP_Subtract */
-    { 0x0000ffae, 19029 }, /* KP_Decimal */
-    { 0x0000ffaf, 19050 }, /* KP_Divide */
-    { 0x0000ffb0, 18952 }, /* KP_0 */
-    { 0x0000ffb1, 18957 }, /* KP_1 */
-    { 0x0000ffb2, 18962 }, /* KP_2 */
-    { 0x0000ffb3, 18967 }, /* KP_3 */
-    { 0x0000ffb4, 18972 }, /* KP_4 */
-    { 0x0000ffb5, 18977 }, /* KP_5 */
-    { 0x0000ffb6, 18982 }, /* KP_6 */
-    { 0x0000ffb7, 18987 }, /* KP_7 */
-    { 0x0000ffb8, 18992 }, /* KP_8 */
-    { 0x0000ffb9, 18997 }, /* KP_9 */
-    { 0x0000ffbd, 19084 }, /* KP_Equal */
-    { 0x0000ffbe, 12274 }, /* F1 */
-    { 0x0000ffbf, 12317 }, /* F2 */
-    { 0x0000ffc0, 12360 }, /* F3 */
-    { 0x0000ffc1, 12387 }, /* F4 */
-    { 0x0000ffc2, 12390 }, /* F5 */
-    { 0x0000ffc3, 12393 }, /* F6 */
-    { 0x0000ffc4, 12396 }, /* F7 */
-    { 0x0000ffc5, 12399 }, /* F8 */
-    { 0x0000ffc6, 12402 }, /* F9 */
-    { 0x0000ffc7, 12277 }, /* F10 */
-    { 0x0000ffc8, 12281 }, /* F11 */
-    { 0x0000ffc9, 12285 }, /* F12 */
-    { 0x0000ffca, 12289 }, /* F13 */
-    { 0x0000ffcb, 12293 }, /* F14 */
-    { 0x0000ffcc, 12297 }, /* F15 */
-    { 0x0000ffcd, 12301 }, /* F16 */
-    { 0x0000ffce, 12305 }, /* F17 */
-    { 0x0000ffcf, 12309 }, /* F18 */
-    { 0x0000ffd0, 12313 }, /* F19 */
-    { 0x0000ffd1, 12320 }, /* F20 */
-    { 0x0000ffd2, 12324 }, /* F21 */
-    { 0x0000ffd3, 12328 }, /* F22 */
-    { 0x0000ffd4, 12332 }, /* F23 */
-    { 0x0000ffd5, 12336 }, /* F24 */
-    { 0x0000ffd6, 12340 }, /* F25 */
-    { 0x0000ffd7, 12344 }, /* F26 */
-    { 0x0000ffd8, 12348 }, /* F27 */
-    { 0x0000ffd9, 12352 }, /* F28 */
-    { 0x0000ffda, 12356 }, /* F29 */
-    { 0x0000ffdb, 12363 }, /* F30 */
-    { 0x0000ffdc, 12367 }, /* F31 */
-    { 0x0000ffdd, 12371 }, /* F32 */
-    { 0x0000ffde, 12375 }, /* F33 */
-    { 0x0000ffdf, 12379 }, /* F34 */
-    { 0x0000ffe0, 12383 }, /* F35 */
-    { 0x0000ffe1, 23103 }, /* Shift_L */
-    { 0x0000ffe2, 23122 }, /* Shift_R */
-    { 0x0000ffe3, 8779 }, /* Control_L */
-    { 0x0000ffe4, 8789 }, /* Control_R */
-    { 0x0000ffe5, 8496 }, /* Caps_Lock */
-    { 0x0000ffe6, 23111 }, /* Shift_Lock */
-    { 0x0000ffe7, 19854 }, /* Meta_L */
-    { 0x0000ffe8, 19861 }, /* Meta_R */
-    { 0x0000ffe9, 880 }, /* Alt_L */
-    { 0x0000ffea, 886 }, /* Alt_R */
-    { 0x0000ffeb, 24420 }, /* Super_L */
-    { 0x0000ffec, 24428 }, /* Super_R */
-    { 0x0000ffed, 17190 }, /* Hyper_L */
-    { 0x0000ffee, 17198 }, /* Hyper_R */
-    { 0x0000fff1, 3642 }, /* braille_dot_1 */
-    { 0x0000fff2, 3671 }, /* braille_dot_2 */
-    { 0x0000fff3, 3685 }, /* braille_dot_3 */
-    { 0x0000fff4, 3699 }, /* braille_dot_4 */
-    { 0x0000fff5, 3713 }, /* braille_dot_5 */
-    { 0x0000fff6, 3727 }, /* braille_dot_6 */
-    { 0x0000fff7, 3741 }, /* braille_dot_7 */
-    { 0x0000fff8, 3755 }, /* braille_dot_8 */
-    { 0x0000fff9, 3769 }, /* braille_dot_9 */
-    { 0x0000fffa, 3656 }, /* braille_dot_10 */
-    { 0x0000ffff, 11275 }, /* Delete */
-    { 0x00ffffff, 26688 }, /* VoidSymbol */
-    { 0x0100012c, 17261 }, /* Ibreve */
-    { 0x0100012d, 17268 }, /* ibreve */
-    { 0x01000174, 26720 }, /* Wcircumflex */
-    { 0x01000175, 26732 }, /* wcircumflex */
-    { 0x01000176, 31698 }, /* Ycircumflex */
-    { 0x01000177, 31710 }, /* ycircumflex */
-    { 0x0100018f, 22806 }, /* SCHWA */
-    { 0x0100019f, 20362 }, /* Obarred */
-    { 0x010001a0, 20697 }, /* Ohorn */
-    { 0x010001a1, 20703 }, /* ohorn */
-    { 0x010001af, 26154 }, /* Uhorn */
-    { 0x010001b0, 26160 }, /* uhorn */
-    { 0x010001b5, 31900 }, /* Zstroke */
-    { 0x010001b6, 31908 }, /* zstroke */
-    { 0x010001b7, 12262 }, /* EZH */
-    { 0x010001d1, 20398 }, /* Ocaron */
-    { 0x010001d2, 20405 }, /* ocaron */
-    { 0x010001e6, 12818 }, /* Gcaron */
-    { 0x010001e7, 12825 }, /* gcaron */
-    { 0x01000259, 22812 }, /* schwa */
-    { 0x01000275, 20370 }, /* obarred */
-    { 0x01000292, 12266 }, /* ezh */
-    { 0x01000300, 8715 }, /* combining_grave */
-    { 0x01000301, 8680 }, /* combining_acute */
-    { 0x01000303, 8746 }, /* combining_tilde */
-    { 0x01000309, 8731 }, /* combining_hook */
-    { 0x01000323, 8696 }, /* combining_belowdot */
-    { 0x01000492, 9318 }, /* Cyrillic_GHE_bar */
-    { 0x01000493, 9335 }, /* Cyrillic_ghe_bar */
-    { 0x01000496, 10356 }, /* Cyrillic_ZHE_descender */
-    { 0x01000497, 10379 }, /* Cyrillic_zhe_descender */
-    { 0x0100049a, 9610 }, /* Cyrillic_KA_descender */
-    { 0x0100049b, 9632 }, /* Cyrillic_ka_descender */
-    { 0x0100049c, 9654 }, /* Cyrillic_KA_vertstroke */
-    { 0x0100049d, 9677 }, /* Cyrillic_ka_vertstroke */
-    { 0x010004a2, 9200 }, /* Cyrillic_EN_descender */
-    { 0x010004a3, 9222 }, /* Cyrillic_en_descender */
-    { 0x010004ae, 10118 }, /* Cyrillic_U_straight */
-    { 0x010004af, 10138 }, /* Cyrillic_u_straight */
-    { 0x010004b0, 10158 }, /* Cyrillic_U_straight_bar */
-    { 0x010004b1, 10182 }, /* Cyrillic_u_straight_bar */
-    { 0x010004b2, 9376 }, /* Cyrillic_HA_descender */
-    { 0x010004b3, 9398 }, /* Cyrillic_ha_descender */
-    { 0x010004b6, 8936 }, /* Cyrillic_CHE_descender */
-    { 0x010004b7, 8959 }, /* Cyrillic_che_descender */
-    { 0x010004b8, 8982 }, /* Cyrillic_CHE_vertstroke */
-    { 0x010004b9, 9006 }, /* Cyrillic_che_vertstroke */
-    { 0x010004ba, 9914 }, /* Cyrillic_SHHA */
-    { 0x010004bb, 9928 }, /* Cyrillic_shha */
-    { 0x010004d8, 9828 }, /* Cyrillic_SCHWA */
-    { 0x010004d9, 9843 }, /* Cyrillic_schwa */
-    { 0x010004e2, 9478 }, /* Cyrillic_I_macron */
-    { 0x010004e3, 9496 }, /* Cyrillic_i_macron */
-    { 0x010004e8, 9774 }, /* Cyrillic_O_bar */
-    { 0x010004e9, 9789 }, /* Cyrillic_o_bar */
-    { 0x010004ee, 10082 }, /* Cyrillic_U_macron */
-    { 0x010004ef, 10100 }, /* Cyrillic_u_macron */
-    { 0x01000531, 2124 }, /* Armenian_AYB */
-    { 0x01000532, 2150 }, /* Armenian_BEN */
-    { 0x01000533, 2374 }, /* Armenian_GIM */
-    { 0x01000534, 2215 }, /* Armenian_DA */
-    { 0x01000535, 3164 }, /* Armenian_YECH */
-    { 0x01000536, 3210 }, /* Armenian_ZA */
-    { 0x01000537, 2265 }, /* Armenian_E */
-    { 0x01000538, 2100 }, /* Armenian_AT */
-    { 0x01000539, 2964 }, /* Armenian_TO */
-    { 0x0100053a, 3234 }, /* Armenian_ZHE */
-    { 0x0100053b, 2464 }, /* Armenian_INI */
-    { 0x0100053c, 2611 }, /* Armenian_LYUN */
-    { 0x0100053d, 2564 }, /* Armenian_KHE */
-    { 0x0100053e, 2988 }, /* Armenian_TSA */
-    { 0x0100053f, 2538 }, /* Armenian_KEN */
-    { 0x01000540, 2424 }, /* Armenian_HO */
-    { 0x01000541, 2239 }, /* Armenian_DZA */
-    { 0x01000542, 2346 }, /* Armenian_GHAT */
-    { 0x01000543, 2936 }, /* Armenian_TCHE */
-    { 0x01000544, 2639 }, /* Armenian_MEN */
-    { 0x01000545, 2400 }, /* Armenian_HI */
-    { 0x01000546, 2665 }, /* Armenian_NU */
-    { 0x01000547, 2894 }, /* Armenian_SHA */
-    { 0x01000548, 3112 }, /* Armenian_VO */
-    { 0x01000549, 2189 }, /* Armenian_CHA */
-    { 0x0100054a, 2727 }, /* Armenian_PE */
-    { 0x0100054b, 2490 }, /* Armenian_JE */
-    { 0x0100054c, 2797 }, /* Armenian_RA */
-    { 0x0100054d, 2845 }, /* Armenian_SE */
-    { 0x0100054e, 3086 }, /* Armenian_VEV */
-    { 0x0100054f, 3040 }, /* Armenian_TYUN */
-    { 0x01000550, 2821 }, /* Armenian_RE */
-    { 0x01000551, 3014 }, /* Armenian_TSO */
-    { 0x01000552, 3136 }, /* Armenian_VYUN */
-    { 0x01000553, 2751 }, /* Armenian_PYUR */
-    { 0x01000554, 2514 }, /* Armenian_KE */
-    { 0x01000555, 2689 }, /* Armenian_O */
-    { 0x01000556, 2303 }, /* Armenian_FE */
-    { 0x0100055a, 2080 }, /* Armenian_apostrophe */
-    { 0x0100055b, 2048 }, /* Armenian_accent */
-    { 0x0100055c, 2287 }, /* Armenian_exclam */
-    { 0x0100055d, 2869 }, /* Armenian_separation_mark */
-    { 0x0100055e, 2779 }, /* Armenian_question */
-    { 0x01000561, 2137 }, /* Armenian_ayb */
-    { 0x01000562, 2163 }, /* Armenian_ben */
-    { 0x01000563, 2387 }, /* Armenian_gim */
-    { 0x01000564, 2227 }, /* Armenian_da */
-    { 0x01000565, 3178 }, /* Armenian_yech */
-    { 0x01000566, 3222 }, /* Armenian_za */
-    { 0x01000567, 2276 }, /* Armenian_e */
-    { 0x01000568, 2112 }, /* Armenian_at */
-    { 0x01000569, 2976 }, /* Armenian_to */
-    { 0x0100056a, 3247 }, /* Armenian_zhe */
-    { 0x0100056b, 2477 }, /* Armenian_ini */
-    { 0x0100056c, 2625 }, /* Armenian_lyun */
-    { 0x0100056d, 2577 }, /* Armenian_khe */
-    { 0x0100056e, 3001 }, /* Armenian_tsa */
-    { 0x0100056f, 2551 }, /* Armenian_ken */
-    { 0x01000570, 2436 }, /* Armenian_ho */
-    { 0x01000571, 2252 }, /* Armenian_dza */
-    { 0x01000572, 2360 }, /* Armenian_ghat */
-    { 0x01000573, 2950 }, /* Armenian_tche */
-    { 0x01000574, 2652 }, /* Armenian_men */
-    { 0x01000575, 2412 }, /* Armenian_hi */
-    { 0x01000576, 2677 }, /* Armenian_nu */
-    { 0x01000577, 2907 }, /* Armenian_sha */
-    { 0x01000578, 3124 }, /* Armenian_vo */
-    { 0x01000579, 2202 }, /* Armenian_cha */
-    { 0x0100057a, 2739 }, /* Armenian_pe */
-    { 0x0100057b, 2502 }, /* Armenian_je */
-    { 0x0100057c, 2809 }, /* Armenian_ra */
-    { 0x0100057d, 2857 }, /* Armenian_se */
-    { 0x0100057e, 3099 }, /* Armenian_vev */
-    { 0x0100057f, 3054 }, /* Armenian_tyun */
-    { 0x01000580, 2833 }, /* Armenian_re */
-    { 0x01000581, 3027 }, /* Armenian_tso */
-    { 0x01000582, 3150 }, /* Armenian_vyun */
-    { 0x01000583, 2765 }, /* Armenian_pyur */
-    { 0x01000584, 2526 }, /* Armenian_ke */
-    { 0x01000585, 2700 }, /* Armenian_o */
-    { 0x01000586, 2315 }, /* Armenian_fe */
-    { 0x01000587, 2590 }, /* Armenian_ligature_ew */
-    { 0x01000589, 2327 }, /* Armenian_full_stop */
-    { 0x0100058a, 2448 }, /* Armenian_hyphen */
-    { 0x01000653, 1580 }, /* Arabic_madda_above */
-    { 0x01000654, 1316 }, /* Arabic_hamza_above */
-    { 0x01000655, 1335 }, /* Arabic_hamza_below */
-    { 0x01000660, 966 }, /* Arabic_0 */
-    { 0x01000661, 975 }, /* Arabic_1 */
-    { 0x01000662, 984 }, /* Arabic_2 */
-    { 0x01000663, 993 }, /* Arabic_3 */
-    { 0x01000664, 1002 }, /* Arabic_4 */
-    { 0x01000665, 1011 }, /* Arabic_5 */
-    { 0x01000666, 1020 }, /* Arabic_6 */
-    { 0x01000667, 1029 }, /* Arabic_7 */
-    { 0x01000668, 1038 }, /* Arabic_8 */
-    { 0x01000669, 1047 }, /* Arabic_9 */
-    { 0x0100066a, 1672 }, /* Arabic_percent */
-    { 0x01000670, 1821 }, /* Arabic_superscript_alef */
-    { 0x01000679, 1951 }, /* Arabic_tteh */
-    { 0x0100067e, 1661 }, /* Arabic_peh */
-    { 0x01000686, 1885 }, /* Arabic_tcheh */
-    { 0x01000688, 1173 }, /* Arabic_ddal */
-    { 0x01000691, 1729 }, /* Arabic_rreh */
-    { 0x01000698, 1493 }, /* Arabic_jeh */
-    { 0x010006a4, 1963 }, /* Arabic_veh */
-    { 0x010006a9, 1544 }, /* Arabic_keheh */
-    { 0x010006af, 1258 }, /* Arabic_gaf */
-    { 0x010006ba, 1642 }, /* Arabic_noon_ghunna */
-    { 0x010006be, 1442 }, /* Arabic_heh_doachashmee */
-    { 0x010006c1, 1465 }, /* Arabic_heh_goal */
-    { 0x010006cc, 12505 }, /* Farsi_yeh */
-    { 0x010006d2, 1996 }, /* Arabic_yeh_baree */
-    { 0x010006d4, 1242 }, /* Arabic_fullstop */
-    { 0x010006f0, 12425 }, /* Farsi_0 */
-    { 0x010006f1, 12433 }, /* Farsi_1 */
-    { 0x010006f2, 12441 }, /* Farsi_2 */
-    { 0x010006f3, 12449 }, /* Farsi_3 */
-    { 0x010006f4, 12457 }, /* Farsi_4 */
-    { 0x010006f5, 12465 }, /* Farsi_5 */
-    { 0x010006f6, 12473 }, /* Farsi_6 */
-    { 0x010006f7, 12481 }, /* Farsi_7 */
-    { 0x010006f8, 12489 }, /* Farsi_8 */
-    { 0x010006f9, 12497 }, /* Farsi_9 */
-    { 0x01000d82, 23641 }, /* Sinh_ng */
-    { 0x01000d83, 23435 }, /* Sinh_h2 */
-    { 0x01000d85, 23204 }, /* Sinh_a */
-    { 0x01000d86, 23211 }, /* Sinh_aa */
-    { 0x01000d87, 23228 }, /* Sinh_ae */
-    { 0x01000d88, 23245 }, /* Sinh_aee */
-    { 0x01000d89, 23451 }, /* Sinh_i */
-    { 0x01000d8a, 23466 }, /* Sinh_ii */
-    { 0x01000d8b, 23852 }, /* Sinh_u */
-    { 0x01000d8c, 23867 }, /* Sinh_uu */
-    { 0x01000d8d, 23751 }, /* Sinh_ri */
-    { 0x01000d8e, 23759 }, /* Sinh_rii */
-    { 0x01000d8f, 23560 }, /* Sinh_lu */
-    { 0x01000d90, 23577 }, /* Sinh_luu */
-    { 0x01000d91, 23378 }, /* Sinh_e */
-    { 0x01000d92, 23393 }, /* Sinh_ee */
-    { 0x01000d93, 23264 }, /* Sinh_ai */
-    { 0x01000d94, 23694 }, /* Sinh_o */
-    { 0x01000d95, 23709 }, /* Sinh_oo */
-    { 0x01000d96, 23289 }, /* Sinh_au */
-    { 0x01000d9a, 23510 }, /* Sinh_ka */
-    { 0x01000d9b, 23518 }, /* Sinh_kha */
-    { 0x01000d9c, 23418 }, /* Sinh_ga */
-    { 0x01000d9d, 23426 }, /* Sinh_gha */
-    { 0x01000d9e, 23649 }, /* Sinh_ng2 */
-    { 0x01000d9f, 23658 }, /* Sinh_nga */
-    { 0x01000da0, 23323 }, /* Sinh_ca */
-    { 0x01000da1, 23331 }, /* Sinh_cha */
-    { 0x01000da2, 23483 }, /* Sinh_ja */
-    { 0x01000da3, 23491 }, /* Sinh_jha */
-    { 0x01000da4, 23685 }, /* Sinh_nya */
-    { 0x01000da5, 23500 }, /* Sinh_jnya */
-    { 0x01000da6, 23667 }, /* Sinh_nja */
-    { 0x01000da7, 23833 }, /* Sinh_tta */
-    { 0x01000da8, 23842 }, /* Sinh_ttha */
-    { 0x01000da9, 23340 }, /* Sinh_dda */
-    { 0x01000daa, 23349 }, /* Sinh_ddha */
-    { 0x01000dab, 23676 }, /* Sinh_nna */
-    { 0x01000dac, 23621 }, /* Sinh_ndda */
-    { 0x01000dad, 23814 }, /* Sinh_tha */
-    { 0x01000dae, 23823 }, /* Sinh_thha */
-    { 0x01000daf, 23359 }, /* Sinh_dha */
-    { 0x01000db0, 23368 }, /* Sinh_dhha */
-    { 0x01000db1, 23613 }, /* Sinh_na */
-    { 0x01000db3, 23631 }, /* Sinh_ndha */
-    { 0x01000db4, 23726 }, /* Sinh_pa */
-    { 0x01000db5, 23734 }, /* Sinh_pha */
-    { 0x01000db6, 23306 }, /* Sinh_ba */
-    { 0x01000db7, 23314 }, /* Sinh_bha */
-    { 0x01000db8, 23596 }, /* Sinh_ma */
-    { 0x01000db9, 23604 }, /* Sinh_mba */
-    { 0x01000dba, 23892 }, /* Sinh_ya */
-    { 0x01000dbb, 23743 }, /* Sinh_ra */
-    { 0x01000dbd, 23543 }, /* Sinh_la */
-    { 0x01000dc0, 23884 }, /* Sinh_va */
-    { 0x01000dc1, 23795 }, /* Sinh_sha */
-    { 0x01000dc2, 23804 }, /* Sinh_ssha */
-    { 0x01000dc3, 23787 }, /* Sinh_sa */
-    { 0x01000dc4, 23443 }, /* Sinh_ha */
-    { 0x01000dc5, 23551 }, /* Sinh_lla */
-    { 0x01000dc6, 23410 }, /* Sinh_fa */
-    { 0x01000dca, 23281 }, /* Sinh_al */
-    { 0x01000dcf, 23219 }, /* Sinh_aa2 */
-    { 0x01000dd0, 23236 }, /* Sinh_ae2 */
-    { 0x01000dd1, 23254 }, /* Sinh_aee2 */
-    { 0x01000dd2, 23458 }, /* Sinh_i2 */
-    { 0x01000dd3, 23474 }, /* Sinh_ii2 */
-    { 0x01000dd4, 23859 }, /* Sinh_u2 */
-    { 0x01000dd6, 23875 }, /* Sinh_uu2 */
-    { 0x01000dd8, 23768 }, /* Sinh_ru2 */
-    { 0x01000dd9, 23385 }, /* Sinh_e2 */
-    { 0x01000dda, 23401 }, /* Sinh_ee2 */
-    { 0x01000ddb, 23272 }, /* Sinh_ai2 */
-    { 0x01000ddc, 23701 }, /* Sinh_o2 */
-    { 0x01000ddd, 23717 }, /* Sinh_oo2 */
-    { 0x01000dde, 23297 }, /* Sinh_au2 */
-    { 0x01000ddf, 23568 }, /* Sinh_lu2 */
-    { 0x01000df2, 23777 }, /* Sinh_ruu2 */
-    { 0x01000df3, 23586 }, /* Sinh_luu2 */
-    { 0x01000df4, 23527 }, /* Sinh_kunddaliya */
-    { 0x010010d0, 12874 }, /* Georgian_an */
-    { 0x010010d1, 12886 }, /* Georgian_ban */
-    { 0x010010d2, 12990 }, /* Georgian_gan */
-    { 0x010010d3, 12953 }, /* Georgian_don */
-    { 0x010010d4, 12966 }, /* Georgian_en */
-    { 0x010010d5, 13316 }, /* Georgian_vin */
-    { 0x010010d6, 13354 }, /* Georgian_zen */
-    { 0x010010d7, 13278 }, /* Georgian_tan */
-    { 0x010010d8, 13081 }, /* Georgian_in */
-    { 0x010010d9, 13120 }, /* Georgian_kan */
-    { 0x010010da, 13147 }, /* Georgian_las */
-    { 0x010010db, 13160 }, /* Georgian_man */
-    { 0x010010dc, 13173 }, /* Georgian_nar */
-    { 0x010010dd, 13186 }, /* Georgian_on */
-    { 0x010010de, 13198 }, /* Georgian_par */
-    { 0x010010df, 13367 }, /* Georgian_zhar */
-    { 0x010010e0, 13238 }, /* Georgian_rae */
-    { 0x010010e1, 13251 }, /* Georgian_san */
-    { 0x010010e2, 13291 }, /* Georgian_tar */
-    { 0x010010e3, 13304 }, /* Georgian_un */
-    { 0x010010e4, 13211 }, /* Georgian_phar */
-    { 0x010010e5, 13133 }, /* Georgian_khar */
-    { 0x010010e6, 13003 }, /* Georgian_ghan */
-    { 0x010010e7, 13225 }, /* Georgian_qar */
-    { 0x010010e8, 13264 }, /* Georgian_shin */
-    { 0x010010e9, 12926 }, /* Georgian_chin */
-    { 0x010010ea, 12899 }, /* Georgian_can */
-    { 0x010010eb, 13107 }, /* Georgian_jil */
-    { 0x010010ec, 12940 }, /* Georgian_cil */
-    { 0x010010ed, 12912 }, /* Georgian_char */
-    { 0x010010ee, 13341 }, /* Georgian_xan */
-    { 0x010010ef, 13093 }, /* Georgian_jhan */
-    { 0x010010f0, 13017 }, /* Georgian_hae */
-    { 0x010010f1, 13043 }, /* Georgian_he */
-    { 0x010010f2, 13055 }, /* Georgian_hie */
-    { 0x010010f3, 13329 }, /* Georgian_we */
-    { 0x010010f4, 13030 }, /* Georgian_har */
-    { 0x010010f5, 13068 }, /* Georgian_hoe */
-    { 0x010010f6, 12978 }, /* Georgian_fi */
-    { 0x01001e02, 3332 }, /* Babovedot */
-    { 0x01001e03, 3342 }, /* babovedot */
-    { 0x01001e0a, 10406 }, /* Dabovedot */
-    { 0x01001e0b, 10416 }, /* dabovedot */
-    { 0x01001e1e, 12405 }, /* Fabovedot */
-    { 0x01001e1f, 12415 }, /* fabovedot */
-    { 0x01001e36, 19336 }, /* Lbelowdot */
-    { 0x01001e37, 19346 }, /* lbelowdot */
-    { 0x01001e40, 19681 }, /* Mabovedot */
-    { 0x01001e41, 19691 }, /* mabovedot */
-    { 0x01001e56, 21534 }, /* Pabovedot */
-    { 0x01001e57, 21544 }, /* pabovedot */
-    { 0x01001e60, 22740 }, /* Sabovedot */
-    { 0x01001e61, 22750 }, /* sabovedot */
-    { 0x01001e6a, 24459 }, /* Tabovedot */
-    { 0x01001e6b, 24469 }, /* tabovedot */
-    { 0x01001e80, 26766 }, /* Wgrave */
-    { 0x01001e81, 26773 }, /* wgrave */
-    { 0x01001e82, 26706 }, /* Wacute */
-    { 0x01001e83, 26713 }, /* wacute */
-    { 0x01001e84, 26744 }, /* Wdiaeresis */
-    { 0x01001e85, 26755 }, /* wdiaeresis */
-    { 0x01001e8a, 26792 }, /* Xabovedot */
-    { 0x01001e8b, 26802 }, /* xabovedot */
-    { 0x01001ea0, 416 }, /* Abelowdot */
-    { 0x01001ea1, 426 }, /* abelowdot */
-    { 0x01001ea2, 868 }, /* Ahook */
-    { 0x01001ea3, 874 }, /* ahook */
-    { 0x01001ea4, 646 }, /* Acircumflexacute */
-    { 0x01001ea5, 663 }, /* acircumflexacute */
-    { 0x01001ea6, 720 }, /* Acircumflexgrave */
-    { 0x01001ea7, 737 }, /* acircumflexgrave */
-    { 0x01001ea8, 754 }, /* Acircumflexhook */
-    { 0x01001ea9, 770 }, /* acircumflexhook */
-    { 0x01001eaa, 786 }, /* Acircumflextilde */
-    { 0x01001eab, 803 }, /* acircumflextilde */
-    { 0x01001eac, 680 }, /* Acircumflexbelowdot */
-    { 0x01001ead, 700 }, /* acircumflexbelowdot */
-    { 0x01001eae, 459 }, /* Abreveacute */
-    { 0x01001eaf, 471 }, /* abreveacute */
-    { 0x01001eb0, 513 }, /* Abrevegrave */
-    { 0x01001eb1, 525 }, /* abrevegrave */
-    { 0x01001eb2, 537 }, /* Abrevehook */
-    { 0x01001eb3, 548 }, /* abrevehook */
-    { 0x01001eb4, 559 }, /* Abrevetilde */
-    { 0x01001eb5, 571 }, /* abrevetilde */
-    { 0x01001eb6, 483 }, /* Abrevebelowdot */
-    { 0x01001eb7, 498 }, /* abrevebelowdot */
-    { 0x01001eb8, 11577 }, /* Ebelowdot */
-    { 0x01001eb9, 11587 }, /* ebelowdot */
-    { 0x01001eba, 11853 }, /* Ehook */
-    { 0x01001ebb, 11859 }, /* ehook */
-    { 0x01001ebc, 12191 }, /* Etilde */
-    { 0x01001ebd, 12198 }, /* etilde */
-    { 0x01001ebe, 11635 }, /* Ecircumflexacute */
-    { 0x01001ebf, 11652 }, /* ecircumflexacute */
-    { 0x01001ec0, 11709 }, /* Ecircumflexgrave */
-    { 0x01001ec1, 11726 }, /* ecircumflexgrave */
-    { 0x01001ec2, 11743 }, /* Ecircumflexhook */
-    { 0x01001ec3, 11759 }, /* ecircumflexhook */
-    { 0x01001ec4, 11775 }, /* Ecircumflextilde */
-    { 0x01001ec5, 11792 }, /* ecircumflextilde */
-    { 0x01001ec6, 11669 }, /* Ecircumflexbelowdot */
-    { 0x01001ec7, 11689 }, /* ecircumflexbelowdot */
-    { 0x01001ec8, 17363 }, /* Ihook */
-    { 0x01001ec9, 17369 }, /* ihook */
-    { 0x01001eca, 17241 }, /* Ibelowdot */
-    { 0x01001ecb, 17251 }, /* ibelowdot */
-    { 0x01001ecc, 20378 }, /* Obelowdot */
-    { 0x01001ecd, 20388 }, /* obelowdot */
-    { 0x01001ece, 20685 }, /* Ohook */
-    { 0x01001ecf, 20691 }, /* ohook */
-    { 0x01001ed0, 20436 }, /* Ocircumflexacute */
-    { 0x01001ed1, 20453 }, /* ocircumflexacute */
-    { 0x01001ed2, 20510 }, /* Ocircumflexgrave */
-    { 0x01001ed3, 20527 }, /* ocircumflexgrave */
-    { 0x01001ed4, 20544 }, /* Ocircumflexhook */
-    { 0x01001ed5, 20560 }, /* ocircumflexhook */
-    { 0x01001ed6, 20576 }, /* Ocircumflextilde */
-    { 0x01001ed7, 20593 }, /* ocircumflextilde */
-    { 0x01001ed8, 20470 }, /* Ocircumflexbelowdot */
-    { 0x01001ed9, 20490 }, /* ocircumflexbelowdot */
-    { 0x01001eda, 20709 }, /* Ohornacute */
-    { 0x01001edb, 20720 }, /* ohornacute */
-    { 0x01001edc, 20759 }, /* Ohorngrave */
-    { 0x01001edd, 20770 }, /* ohorngrave */
-    { 0x01001ede, 20781 }, /* Ohornhook */
-    { 0x01001edf, 20791 }, /* ohornhook */
-    { 0x01001ee0, 20801 }, /* Ohorntilde */
-    { 0x01001ee1, 20812 }, /* ohorntilde */
-    { 0x01001ee2, 20731 }, /* Ohornbelowdot */
-    { 0x01001ee3, 20745 }, /* ohornbelowdot */
-    { 0x01001ee4, 26022 }, /* Ubelowdot */
-    { 0x01001ee5, 26032 }, /* ubelowdot */
-    { 0x01001ee6, 26142 }, /* Uhook */
-    { 0x01001ee7, 26148 }, /* uhook */
-    { 0x01001ee8, 26166 }, /* Uhornacute */
-    { 0x01001ee9, 26177 }, /* uhornacute */
-    { 0x01001eea, 26216 }, /* Uhorngrave */
-    { 0x01001eeb, 26227 }, /* uhorngrave */
-    { 0x01001eec, 26238 }, /* Uhornhook */
-    { 0x01001eed, 26248 }, /* uhornhook */
-    { 0x01001eee, 26258 }, /* Uhorntilde */
-    { 0x01001eef, 26269 }, /* uhorntilde */
-    { 0x01001ef0, 26188 }, /* Uhornbelowdot */
-    { 0x01001ef1, 26202 }, /* uhornbelowdot */
-    { 0x01001ef2, 31748 }, /* Ygrave */
-    { 0x01001ef3, 31755 }, /* ygrave */
-    { 0x01001ef4, 31678 }, /* Ybelowdot */
-    { 0x01001ef5, 31688 }, /* ybelowdot */
-    { 0x01001ef6, 31762 }, /* Yhook */
-    { 0x01001ef7, 31768 }, /* yhook */
-    { 0x01001ef8, 31774 }, /* Ytilde */
-    { 0x01001ef9, 31781 }, /* ytilde */
-    { 0x01002070, 31887 }, /* zerosuperior */
-    { 0x01002074, 12747 }, /* foursuperior */
-    { 0x01002075, 12709 }, /* fivesuperior */
-    { 0x01002076, 23913 }, /* sixsuperior */
-    { 0x01002077, 23089 }, /* sevensuperior */
-    { 0x01002078, 11880 }, /* eightsuperior */
-    { 0x01002079, 20206 }, /* ninesuperior */
-    { 0x01002080, 31873 }, /* zerosubscript */
-    { 0x01002081, 20886 }, /* onesubscript */
-    { 0x01002082, 25969 }, /* twosubscript */
-    { 0x01002083, 25713 }, /* threesubscript */
-    { 0x01002084, 12733 }, /* foursubscript */
-    { 0x01002085, 12695 }, /* fivesubscript */
-    { 0x01002086, 23900 }, /* sixsubscript */
-    { 0x01002087, 23074 }, /* sevensubscript */
-    { 0x01002088, 11865 }, /* eightsubscript */
-    { 0x01002089, 20192 }, /* ninesubscript */
-    { 0x010020a0, 11809 }, /* EcuSign */
-    { 0x010020a1, 8670 }, /* ColonSign */
-    { 0x010020a2, 8826 }, /* CruzeiroSign */
-    { 0x010020a3, 12531 }, /* FFrancSign */
-    { 0x010020a4, 19592 }, /* LiraSign */
-    { 0x010020a5, 19868 }, /* MillSign */
-    { 0x010020a6, 20111 }, /* NairaSign */
-    { 0x010020a7, 21683 }, /* PesetaSign */
-    { 0x010020a8, 22726 }, /* RupeeSign */
-    { 0x010020a9, 26780 }, /* WonSign */
-    { 0x010020aa, 20153 }, /* NewSheqelSign */
-    { 0x010020ab, 11373 }, /* DongSign */
-    { 0x01002202, 21603 }, /* partdifferential */
-    { 0x01002205, 12034 }, /* emptyset */
-    { 0x01002208, 11917 }, /* elementof */
-    { 0x01002209, 20256 }, /* notelementof */
-    { 0x0100220b, 8768 }, /* containsas */
-    { 0x0100221a, 23966 }, /* squareroot */
-    { 0x0100221b, 8839 }, /* cuberoot */
-    { 0x0100221c, 12760 }, /* fourthroot */
-    { 0x0100222c, 11347 }, /* dintegral */
-    { 0x0100222d, 25742 }, /* tintegral */
-    { 0x01002235, 3396 }, /* because */
-    { 0x01002247, 20244 }, /* notapproxeq */
-    { 0x01002248, 945 }, /* approxeq */
-    { 0x01002262, 20278 }, /* notidentical */
-    { 0x01002263, 24011 }, /* stricteq */
-    { 0x01002800, 3628 }, /* braille_blank */
-    { 0x01002801, 3783 }, /* braille_dots_1 */
-    { 0x01002802, 6151 }, /* braille_dots_2 */
-    { 0x01002803, 3798 }, /* braille_dots_12 */
-    { 0x01002804, 7303 }, /* braille_dots_3 */
-    { 0x01002805, 5014 }, /* braille_dots_13 */
-    { 0x01002806, 6166 }, /* braille_dots_23 */
-    { 0x01002807, 3814 }, /* braille_dots_123 */
-    { 0x01002808, 7863 }, /* braille_dots_4 */
-    { 0x01002809, 5606 }, /* braille_dots_14 */
-    { 0x0100280a, 6758 }, /* braille_dots_24 */
-    { 0x0100280b, 4438 }, /* braille_dots_124 */
-    { 0x0100280c, 7318 }, /* braille_dots_34 */
-    { 0x0100280d, 5030 }, /* braille_dots_134 */
-    { 0x0100280e, 6182 }, /* braille_dots_234 */
-    { 0x0100280f, 3831 }, /* braille_dots_1234 */
-    { 0x01002810, 8135 }, /* braille_dots_5 */
-    { 0x01002811, 5894 }, /* braille_dots_15 */
-    { 0x01002812, 7046 }, /* braille_dots_25 */
-    { 0x01002813, 4742 }, /* braille_dots_125 */
-    { 0x01002814, 7606 }, /* braille_dots_35 */
-    { 0x01002815, 5334 }, /* braille_dots_135 */
-    { 0x01002816, 6486 }, /* braille_dots_235 */
-    { 0x01002817, 4151 }, /* braille_dots_1235 */
-    { 0x01002818, 7878 }, /* braille_dots_45 */
-    { 0x01002819, 5622 }, /* braille_dots_145 */
-    { 0x0100281a, 6774 }, /* braille_dots_245 */
-    { 0x0100281b, 4455 }, /* braille_dots_1245 */
-    { 0x0100281c, 7334 }, /* braille_dots_345 */
-    { 0x0100281d, 5047 }, /* braille_dots_1345 */
-    { 0x0100281e, 6199 }, /* braille_dots_2345 */
-    { 0x0100281f, 3849 }, /* braille_dots_12345 */
-    { 0x01002820, 8267 }, /* braille_dots_6 */
-    { 0x01002821, 6034 }, /* braille_dots_16 */
-    { 0x01002822, 7186 }, /* braille_dots_26 */
-    { 0x01002823, 4890 }, /* braille_dots_126 */
-    { 0x01002824, 7746 }, /* braille_dots_36 */
-    { 0x01002825, 5482 }, /* braille_dots_136 */
-    { 0x01002826, 6634 }, /* braille_dots_236 */
-    { 0x01002827, 4307 }, /* braille_dots_1236 */
-    { 0x01002828, 8018 }, /* braille_dots_46 */
-    { 0x01002829, 5770 }, /* braille_dots_146 */
-    { 0x0100282a, 6922 }, /* braille_dots_246 */
-    { 0x0100282b, 4611 }, /* braille_dots_1246 */
-    { 0x0100282c, 7482 }, /* braille_dots_346 */
-    { 0x0100282d, 5203 }, /* braille_dots_1346 */
-    { 0x0100282e, 6355 }, /* braille_dots_2346 */
-    { 0x0100282f, 4013 }, /* braille_dots_12346 */
-    { 0x01002830, 8150 }, /* braille_dots_56 */
-    { 0x01002831, 5910 }, /* braille_dots_156 */
-    { 0x01002832, 7062 }, /* braille_dots_256 */
-    { 0x01002833, 4759 }, /* braille_dots_1256 */
-    { 0x01002834, 7622 }, /* braille_dots_356 */
-    { 0x01002835, 5351 }, /* braille_dots_1356 */
-    { 0x01002836, 6503 }, /* braille_dots_2356 */
-    { 0x01002837, 4169 }, /* braille_dots_12356 */
-    { 0x01002838, 7894 }, /* braille_dots_456 */
-    { 0x01002839, 5639 }, /* braille_dots_1456 */
-    { 0x0100283a, 6791 }, /* braille_dots_2456 */
-    { 0x0100283b, 4473 }, /* braille_dots_12456 */
-    { 0x0100283c, 7351 }, /* braille_dots_3456 */
-    { 0x0100283d, 5065 }, /* braille_dots_13456 */
-    { 0x0100283e, 6217 }, /* braille_dots_23456 */
-    { 0x0100283f, 3868 }, /* braille_dots_123456 */
-    { 0x01002840, 8331 }, /* braille_dots_7 */
-    { 0x01002841, 6102 }, /* braille_dots_17 */
-    { 0x01002842, 7254 }, /* braille_dots_27 */
-    { 0x01002843, 4962 }, /* braille_dots_127 */
-    { 0x01002844, 7814 }, /* braille_dots_37 */
-    { 0x01002845, 5554 }, /* braille_dots_137 */
-    { 0x01002846, 6706 }, /* braille_dots_237 */
-    { 0x01002847, 4383 }, /* braille_dots_1237 */
-    { 0x01002848, 8086 }, /* braille_dots_47 */
-    { 0x01002849, 5842 }, /* braille_dots_147 */
-    { 0x0100284a, 6994 }, /* braille_dots_247 */
-    { 0x0100284b, 4687 }, /* braille_dots_1247 */
-    { 0x0100284c, 7554 }, /* braille_dots_347 */
-    { 0x0100284d, 5279 }, /* braille_dots_1347 */
-    { 0x0100284e, 6431 }, /* braille_dots_2347 */
-    { 0x0100284f, 4093 }, /* braille_dots_12347 */
-    { 0x01002850, 8218 }, /* braille_dots_57 */
-    { 0x01002851, 5982 }, /* braille_dots_157 */
-    { 0x01002852, 7134 }, /* braille_dots_257 */
-    { 0x01002853, 4835 }, /* braille_dots_1257 */
-    { 0x01002854, 7694 }, /* braille_dots_357 */
-    { 0x01002855, 5427 }, /* braille_dots_1357 */
-    { 0x01002856, 6579 }, /* braille_dots_2357 */
-    { 0x01002857, 4249 }, /* braille_dots_12357 */
-    { 0x01002858, 7966 }, /* braille_dots_457 */
-    { 0x01002859, 5715 }, /* braille_dots_1457 */
-    { 0x0100285a, 6867 }, /* braille_dots_2457 */
-    { 0x0100285b, 4553 }, /* braille_dots_12457 */
-    { 0x0100285c, 7427 }, /* braille_dots_3457 */
-    { 0x0100285d, 5145 }, /* braille_dots_13457 */
-    { 0x0100285e, 6297 }, /* braille_dots_23457 */
-    { 0x0100285f, 3952 }, /* braille_dots_123457 */
-    { 0x01002860, 8282 }, /* braille_dots_67 */
-    { 0x01002861, 6050 }, /* braille_dots_167 */
-    { 0x01002862, 7202 }, /* braille_dots_267 */
-    { 0x01002863, 4907 }, /* braille_dots_1267 */
-    { 0x01002864, 7762 }, /* braille_dots_367 */
-    { 0x01002865, 5499 }, /* braille_dots_1367 */
-    { 0x01002866, 6651 }, /* braille_dots_2367 */
-    { 0x01002867, 4325 }, /* braille_dots_12367 */
-    { 0x01002868, 8034 }, /* braille_dots_467 */
-    { 0x01002869, 5787 }, /* braille_dots_1467 */
-    { 0x0100286a, 6939 }, /* braille_dots_2467 */
-    { 0x0100286b, 4629 }, /* braille_dots_12467 */
-    { 0x0100286c, 7499 }, /* braille_dots_3467 */
-    { 0x0100286d, 5221 }, /* braille_dots_13467 */
-    { 0x0100286e, 6373 }, /* braille_dots_23467 */
-    { 0x0100286f, 4032 }, /* braille_dots_123467 */
-    { 0x01002870, 8166 }, /* braille_dots_567 */
-    { 0x01002871, 5927 }, /* braille_dots_1567 */
-    { 0x01002872, 7079 }, /* braille_dots_2567 */
-    { 0x01002873, 4777 }, /* braille_dots_12567 */
-    { 0x01002874, 7639 }, /* braille_dots_3567 */
-    { 0x01002875, 5369 }, /* braille_dots_13567 */
-    { 0x01002876, 6521 }, /* braille_dots_23567 */
-    { 0x01002877, 4188 }, /* braille_dots_123567 */
-    { 0x01002878, 7911 }, /* braille_dots_4567 */
-    { 0x01002879, 5657 }, /* braille_dots_14567 */
-    { 0x0100287a, 6809 }, /* braille_dots_24567 */
-    { 0x0100287b, 4492 }, /* braille_dots_124567 */
-    { 0x0100287c, 7369 }, /* braille_dots_34567 */
-    { 0x0100287d, 5084 }, /* braille_dots_134567 */
-    { 0x0100287e, 6236 }, /* braille_dots_234567 */
-    { 0x0100287f, 3888 }, /* braille_dots_1234567 */
-    { 0x01002880, 8362 }, /* braille_dots_8 */
-    { 0x01002881, 6135 }, /* braille_dots_18 */
-    { 0x01002882, 7287 }, /* braille_dots_28 */
-    { 0x01002883, 4997 }, /* braille_dots_128 */
-    { 0x01002884, 7847 }, /* braille_dots_38 */
-    { 0x01002885, 5589 }, /* braille_dots_138 */
-    { 0x01002886, 6741 }, /* braille_dots_238 */
-    { 0x01002887, 4420 }, /* braille_dots_1238 */
-    { 0x01002888, 8119 }, /* braille_dots_48 */
-    { 0x01002889, 5877 }, /* braille_dots_148 */
-    { 0x0100288a, 7029 }, /* braille_dots_248 */
-    { 0x0100288b, 4724 }, /* braille_dots_1248 */
-    { 0x0100288c, 7589 }, /* braille_dots_348 */
-    { 0x0100288d, 5316 }, /* braille_dots_1348 */
-    { 0x0100288e, 6468 }, /* braille_dots_2348 */
-    { 0x0100288f, 4132 }, /* braille_dots_12348 */
-    { 0x01002890, 8251 }, /* braille_dots_58 */
-    { 0x01002891, 6017 }, /* braille_dots_158 */
-    { 0x01002892, 7169 }, /* braille_dots_258 */
-    { 0x01002893, 4872 }, /* braille_dots_1258 */
-    { 0x01002894, 7729 }, /* braille_dots_358 */
-    { 0x01002895, 5464 }, /* braille_dots_1358 */
-    { 0x01002896, 6616 }, /* braille_dots_2358 */
-    { 0x01002897, 4288 }, /* braille_dots_12358 */
-    { 0x01002898, 8001 }, /* braille_dots_458 */
-    { 0x01002899, 5752 }, /* braille_dots_1458 */
-    { 0x0100289a, 6904 }, /* braille_dots_2458 */
-    { 0x0100289b, 4592 }, /* braille_dots_12458 */
-    { 0x0100289c, 7464 }, /* braille_dots_3458 */
-    { 0x0100289d, 5184 }, /* braille_dots_13458 */
-    { 0x0100289e, 6336 }, /* braille_dots_23458 */
-    { 0x0100289f, 3993 }, /* braille_dots_123458 */
-    { 0x010028a0, 8315 }, /* braille_dots_68 */
-    { 0x010028a1, 6085 }, /* braille_dots_168 */
-    { 0x010028a2, 7237 }, /* braille_dots_268 */
-    { 0x010028a3, 4944 }, /* braille_dots_1268 */
-    { 0x010028a4, 7797 }, /* braille_dots_368 */
-    { 0x010028a5, 5536 }, /* braille_dots_1368 */
-    { 0x010028a6, 6688 }, /* braille_dots_2368 */
-    { 0x010028a7, 4364 }, /* braille_dots_12368 */
-    { 0x010028a8, 8069 }, /* braille_dots_468 */
-    { 0x010028a9, 5824 }, /* braille_dots_1468 */
-    { 0x010028aa, 6976 }, /* braille_dots_2468 */
-    { 0x010028ab, 4668 }, /* braille_dots_12468 */
-    { 0x010028ac, 7536 }, /* braille_dots_3468 */
-    { 0x010028ad, 5260 }, /* braille_dots_13468 */
-    { 0x010028ae, 6412 }, /* braille_dots_23468 */
-    { 0x010028af, 4073 }, /* braille_dots_123468 */
-    { 0x010028b0, 8201 }, /* braille_dots_568 */
-    { 0x010028b1, 5964 }, /* braille_dots_1568 */
-    { 0x010028b2, 7116 }, /* braille_dots_2568 */
-    { 0x010028b3, 4816 }, /* braille_dots_12568 */
-    { 0x010028b4, 7676 }, /* braille_dots_3568 */
-    { 0x010028b5, 5408 }, /* braille_dots_13568 */
-    { 0x010028b6, 6560 }, /* braille_dots_23568 */
-    { 0x010028b7, 4229 }, /* braille_dots_123568 */
-    { 0x010028b8, 7948 }, /* braille_dots_4568 */
-    { 0x010028b9, 5696 }, /* braille_dots_14568 */
-    { 0x010028ba, 6848 }, /* braille_dots_24568 */
-    { 0x010028bb, 4533 }, /* braille_dots_124568 */
-    { 0x010028bc, 7408 }, /* braille_dots_34568 */
-    { 0x010028bd, 5125 }, /* braille_dots_134568 */
-    { 0x010028be, 6277 }, /* braille_dots_234568 */
-    { 0x010028bf, 3931 }, /* braille_dots_1234568 */
-    { 0x010028c0, 8346 }, /* braille_dots_78 */
-    { 0x010028c1, 6118 }, /* braille_dots_178 */
-    { 0x010028c2, 7270 }, /* braille_dots_278 */
-    { 0x010028c3, 4979 }, /* braille_dots_1278 */
-    { 0x010028c4, 7830 }, /* braille_dots_378 */
-    { 0x010028c5, 5571 }, /* braille_dots_1378 */
-    { 0x010028c6, 6723 }, /* braille_dots_2378 */
-    { 0x010028c7, 4401 }, /* braille_dots_12378 */
-    { 0x010028c8, 8102 }, /* braille_dots_478 */
-    { 0x010028c9, 5859 }, /* braille_dots_1478 */
-    { 0x010028ca, 7011 }, /* braille_dots_2478 */
-    { 0x010028cb, 4705 }, /* braille_dots_12478 */
-    { 0x010028cc, 7571 }, /* braille_dots_3478 */
-    { 0x010028cd, 5297 }, /* braille_dots_13478 */
-    { 0x010028ce, 6449 }, /* braille_dots_23478 */
-    { 0x010028cf, 4112 }, /* braille_dots_123478 */
-    { 0x010028d0, 8234 }, /* braille_dots_578 */
-    { 0x010028d1, 5999 }, /* braille_dots_1578 */
-    { 0x010028d2, 7151 }, /* braille_dots_2578 */
-    { 0x010028d3, 4853 }, /* braille_dots_12578 */
-    { 0x010028d4, 7711 }, /* braille_dots_3578 */
-    { 0x010028d5, 5445 }, /* braille_dots_13578 */
-    { 0x010028d6, 6597 }, /* braille_dots_23578 */
-    { 0x010028d7, 4268 }, /* braille_dots_123578 */
-    { 0x010028d8, 7983 }, /* braille_dots_4578 */
-    { 0x010028d9, 5733 }, /* braille_dots_14578 */
-    { 0x010028da, 6885 }, /* braille_dots_24578 */
-    { 0x010028db, 4572 }, /* braille_dots_124578 */
-    { 0x010028dc, 7445 }, /* braille_dots_34578 */
-    { 0x010028dd, 5164 }, /* braille_dots_134578 */
-    { 0x010028de, 6316 }, /* braille_dots_234578 */
-    { 0x010028df, 3972 }, /* braille_dots_1234578 */
-    { 0x010028e0, 8298 }, /* braille_dots_678 */
-    { 0x010028e1, 6067 }, /* braille_dots_1678 */
-    { 0x010028e2, 7219 }, /* braille_dots_2678 */
-    { 0x010028e3, 4925 }, /* braille_dots_12678 */
-    { 0x010028e4, 7779 }, /* braille_dots_3678 */
-    { 0x010028e5, 5517 }, /* braille_dots_13678 */
-    { 0x010028e6, 6669 }, /* braille_dots_23678 */
-    { 0x010028e7, 4344 }, /* braille_dots_123678 */
-    { 0x010028e8, 8051 }, /* braille_dots_4678 */
-    { 0x010028e9, 5805 }, /* braille_dots_14678 */
-    { 0x010028ea, 6957 }, /* braille_dots_24678 */
-    { 0x010028eb, 4648 }, /* braille_dots_124678 */
-    { 0x010028ec, 7517 }, /* braille_dots_34678 */
-    { 0x010028ed, 5240 }, /* braille_dots_134678 */
-    { 0x010028ee, 6392 }, /* braille_dots_234678 */
-    { 0x010028ef, 4052 }, /* braille_dots_1234678 */
-    { 0x010028f0, 8183 }, /* braille_dots_5678 */
-    { 0x010028f1, 5945 }, /* braille_dots_15678 */
-    { 0x010028f2, 7097 }, /* braille_dots_25678 */
-    { 0x010028f3, 4796 }, /* braille_dots_125678 */
-    { 0x010028f4, 7657 }, /* braille_dots_35678 */
-    { 0x010028f5, 5388 }, /* braille_dots_135678 */
-    { 0x010028f6, 6540 }, /* braille_dots_235678 */
-    { 0x010028f7, 4208 }, /* braille_dots_1235678 */
-    { 0x010028f8, 7929 }, /* braille_dots_45678 */
-    { 0x010028f9, 5676 }, /* braille_dots_145678 */
-    { 0x010028fa, 6828 }, /* braille_dots_245678 */
-    { 0x010028fb, 4512 }, /* braille_dots_1245678 */
-    { 0x010028fc, 7388 }, /* braille_dots_345678 */
-    { 0x010028fd, 5104 }, /* braille_dots_1345678 */
-    { 0x010028fe, 6256 }, /* braille_dots_2345678 */
-    { 0x010028ff, 3909 }, /* braille_dots_12345678 */
-    { 0x100000a8, 17054 }, /* hpmute_acute */
-    { 0x100000a9, 17121 }, /* hpmute_grave */
-    { 0x100000aa, 17067 }, /* hpmute_asciicircum */
-    { 0x100000ab, 17104 }, /* hpmute_diaeresis */
-    { 0x100000ac, 17086 }, /* hpmute_asciitilde */
-    { 0x100000af, 17011 }, /* hplira */
-    { 0x100000be, 16957 }, /* hpguilder */
-    { 0x100000ee, 17158 }, /* hpYdiaeresis */
-    { 0x100000f6, 17018 }, /* hplongminus */
-    { 0x100000fc, 16911 }, /* hpblock */
-    { 0x1000fe22, 10496 }, /* Ddiaeresis */
-    { 0x1000fe27, 10426 }, /* Dacute_accent */
-    { 0x1000fe2c, 10461 }, /* Dcedilla_accent */
-    { 0x1000fe5e, 10477 }, /* Dcircumflex_accent */
-    { 0x1000fe60, 11304 }, /* Dgrave_accent */
-    { 0x1000fe7e, 11532 }, /* Dtilde */
-    { 0x1000feb0, 11503 }, /* Dring_accent */
-    { 0x1000ff00, 11495 }, /* DRemove */
-    { 0x1000ff48, 17030 }, /* hpModelock1 */
-    { 0x1000ff49, 17042 }, /* hpModelock2 */
-    { 0x1000ff6c, 17134 }, /* hpReset */
-    { 0x1000ff6d, 17142 }, /* hpSystem */
-    { 0x1000ff6e, 17151 }, /* hpUser */
-    { 0x1000ff6f, 16919 }, /* hpClearLine */
-    { 0x1000ff70, 16980 }, /* hpInsertLine */
-    { 0x1000ff71, 16944 }, /* hpDeleteLine */
-    { 0x1000ff72, 16967 }, /* hpInsertChar */
-    { 0x1000ff73, 16931 }, /* hpDeleteChar */
-    { 0x1000ff74, 16901 }, /* hpBackTab */
-    { 0x1000ff75, 16998 }, /* hpKP_BackTab */
-    { 0x1000ff76, 12240 }, /* Ext16bit_L */
-    { 0x1000ff77, 12251 }, /* Ext16bit_R */
-    { 0x1004ff02, 21113 }, /* osfCopy */
-    { 0x1004ff03, 21121 }, /* osfCut */
-    { 0x1004ff04, 21320 }, /* osfPaste */
-    { 0x1004ff07, 21057 }, /* osfBackTab */
-    { 0x1004ff08, 21044 }, /* osfBackSpace */
-    { 0x1004ff0b, 21104 }, /* osfClear */
-    { 0x1004ff1b, 21183 }, /* osfEscape */
-    { 0x1004ff31, 21033 }, /* osfAddMode */
-    { 0x1004ff32, 21354 }, /* osfPrimaryPaste */
-    { 0x1004ff33, 21370 }, /* osfQuickPaste */
-    { 0x1004ff40, 21285 }, /* osfPageLeft */
-    { 0x1004ff41, 21310 }, /* osfPageUp */
-    { 0x1004ff42, 21273 }, /* osfPageDown */
-    { 0x1004ff43, 21297 }, /* osfPageRight */
-    { 0x1004ff44, 21021 }, /* osfActivate */
-    { 0x1004ff45, 21237 }, /* osfMenuBar */
-    { 0x1004ff51, 21221 }, /* osfLeft */
-    { 0x1004ff52, 21447 }, /* osfUp */
-    { 0x1004ff53, 21407 }, /* osfRight */
-    { 0x1004ff54, 21153 }, /* osfDown */
-    { 0x1004ff57, 21172 }, /* osfEndLine */
-    { 0x1004ff58, 21081 }, /* osfBeginLine */
-    { 0x1004ff59, 21161 }, /* osfEndData */
-    { 0x1004ff5a, 21068 }, /* osfBeginData */
-    { 0x1004ff5b, 21342 }, /* osfPrevMenu */
-    { 0x1004ff5c, 21261 }, /* osfNextMenu */
-    { 0x1004ff5d, 21329 }, /* osfPrevField */
-    { 0x1004ff5e, 21248 }, /* osfNextField */
-    { 0x1004ff60, 21416 }, /* osfSelect */
-    { 0x1004ff63, 21211 }, /* osfInsert */
-    { 0x1004ff65, 21439 }, /* osfUndo */
-    { 0x1004ff67, 21229 }, /* osfMenu */
-    { 0x1004ff69, 21094 }, /* osfCancel */
-    { 0x1004ff6a, 21203 }, /* osfHelp */
-    { 0x1004ff71, 21426 }, /* osfSelectAll */
-    { 0x1004ff72, 21138 }, /* osfDeselectAll */
-    { 0x1004ff73, 21384 }, /* osfReselect */
-    { 0x1004ff74, 21193 }, /* osfExtend */
-    { 0x1004ff78, 21396 }, /* osfRestore */
-    { 0x1004ffff, 21128 }, /* osfDelete */
-    { 0x1005ff00, 24189 }, /* SunFA_Grave */
-    { 0x1005ff01, 24160 }, /* SunFA_Circum */
-    { 0x1005ff02, 24201 }, /* SunFA_Tilde */
-    { 0x1005ff03, 24134 }, /* SunFA_Acute */
-    { 0x1005ff04, 24173 }, /* SunFA_Diaeresis */
-    { 0x1005ff05, 24146 }, /* SunFA_Cedilla */
-    { 0x1005ff10, 24120 }, /* SunF36 */
-    { 0x1005ff11, 24127 }, /* SunF37 */
-    { 0x1005ff60, 24337 }, /* SunSys_Req */
-    { 0x1005ff70, 24320 }, /* SunProps */
-    { 0x1005ff71, 24221 }, /* SunFront */
-    { 0x1005ff72, 24105 }, /* SunCopy */
-    { 0x1005ff73, 24230 }, /* SunOpen */
-    { 0x1005ff74, 24260 }, /* SunPaste */
-    { 0x1005ff75, 24113 }, /* SunCut */
-    { 0x1005ff76, 24269 }, /* SunPowerSwitch */
-    { 0x1005ff77, 24041 }, /* SunAudioLowerVolume */
-    { 0x1005ff78, 24061 }, /* SunAudioMute */
-    { 0x1005ff79, 24074 }, /* SunAudioRaiseVolume */
-    { 0x1005ff7a, 24356 }, /* SunVideoDegauss */
-    { 0x1005ff7b, 24372 }, /* SunVideoLowerBrightness */
-    { 0x1005ff7c, 24396 }, /* SunVideoRaiseBrightness */
-    { 0x1005ff7d, 24284 }, /* SunPowerSwitchShift */
-    { 0x100810f4, 27500 }, /* XF86BrightnessAuto */
-    { 0x100810f5, 28027 }, /* XF86DisplayOff */
-    { 0x10081166, 28462 }, /* XF86Info */
-    { 0x10081177, 26978 }, /* XF86AspectRatio */
-    { 0x10081185, 28118 }, /* XF86DVD */
-    { 0x10081188, 27061 }, /* XF86Audio */
-    { 0x10081192, 27818 }, /* XF86ChannelUp */
-    { 0x10081193, 27802 }, /* XF86ChannelDown */
-    { 0x1008119b, 27469 }, /* XF86Break */
-    { 0x100811a0, 31453 }, /* XF86VideoPhone */
-    { 0x100811a4, 31646 }, /* XF86ZoomReset */
-    { 0x100811a6, 28126 }, /* XF86Editor */
-    { 0x100811a8, 28354 }, /* XF86GraphicsEditor */
-    { 0x100811a9, 30329 }, /* XF86Presentation */
-    { 0x100811aa, 27990 }, /* XF86Database */
-    { 0x100811ac, 31502 }, /* XF86Voicemail */
-    { 0x100811ad, 26893 }, /* XF86Addressbook */
-    { 0x100811af, 28042 }, /* XF86DisplayToggle */
-    { 0x100811b0, 30886 }, /* XF86SpellCheck */
-    { 0x100811b6, 27897 }, /* XF86ContextMenu */
-    { 0x100811b7, 29608 }, /* XF86MediaRepeat */
-    { 0x100811b8, 26831 }, /* XF8610ChannelsUp */
-    { 0x100811b9, 26812 }, /* XF8610ChannelsDown */
-    { 0x100811ba, 28451 }, /* XF86Images */
-    { 0x100811bc, 29903 }, /* XF86NotificationCenter */
-    { 0x100811bd, 30273 }, /* XF86PickupPhone */
-    { 0x100811be, 28383 }, /* XF86HangupPhone */
-    { 0x100811d0, 28245 }, /* XF86Fn */
-    { 0x100811d1, 28252 }, /* XF86Fn_Esc */
-    { 0x100811e5, 28263 }, /* XF86FnRightShift */
-    { 0x10081200, 29926 }, /* XF86Numeric0 */
-    { 0x10081201, 29939 }, /* XF86Numeric1 */
-    { 0x10081202, 29980 }, /* XF86Numeric2 */
-    { 0x10081203, 29993 }, /* XF86Numeric3 */
-    { 0x10081204, 30006 }, /* XF86Numeric4 */
-    { 0x10081205, 30019 }, /* XF86Numeric5 */
-    { 0x10081206, 30032 }, /* XF86Numeric6 */
-    { 0x10081207, 30045 }, /* XF86Numeric7 */
-    { 0x10081208, 30058 }, /* XF86Numeric8 */
-    { 0x10081209, 30071 }, /* XF86Numeric9 */
-    { 0x1008120a, 30153 }, /* XF86NumericStar */
-    { 0x1008120b, 30136 }, /* XF86NumericPound */
-    { 0x1008120c, 30084 }, /* XF86NumericA */
-    { 0x1008120d, 30097 }, /* XF86NumericB */
-    { 0x1008120e, 30110 }, /* XF86NumericC */
-    { 0x1008120f, 30123 }, /* XF86NumericD */
-    { 0x10081210, 27700 }, /* XF86CameraFocus */
-    { 0x10081211, 31572 }, /* XF86WPSButton */
-    { 0x10081215, 27760 }, /* XF86CameraZoomIn */
-    { 0x10081216, 27777 }, /* XF86CameraZoomOut */
-    { 0x10081217, 27747 }, /* XF86CameraUp */
-    { 0x10081218, 27685 }, /* XF86CameraDown */
-    { 0x10081219, 27716 }, /* XF86CameraLeft */
-    { 0x1008121a, 27731 }, /* XF86CameraRight */
-    { 0x1008121b, 27025 }, /* XF86AttendantOn */
-    { 0x1008121c, 27008 }, /* XF86AttendantOff */
-    { 0x1008121d, 27041 }, /* XF86AttendantToggle */
-    { 0x1008121e, 29029 }, /* XF86LightsToggle */
-    { 0x10081230, 26909 }, /* XF86ALSToggle */
-    { 0x10081232, 30448 }, /* XF86RefreshRateToggle */
-    { 0x10081240, 27555 }, /* XF86Buttonconfig */
-    { 0x10081241, 31195 }, /* XF86Taskmanager */
-    { 0x10081242, 28482 }, /* XF86Journal */
-    { 0x10081243, 27932 }, /* XF86ControlPanel */
-    { 0x10081244, 26964 }, /* XF86AppSelect */
-    { 0x10081245, 30681 }, /* XF86Screensaver */
-    { 0x10081246, 31485 }, /* XF86VoiceCommand */
-    { 0x10081247, 26994 }, /* XF86Assistant */
-    { 0x10081249, 28147 }, /* XF86EmojiPicker */
-    { 0x1008124a, 28003 }, /* XF86Dictate */
-    { 0x1008124b, 27639 }, /* XF86CameraAccessEnable */
-    { 0x1008124c, 27615 }, /* XF86CameraAccessDisable */
-    { 0x1008124d, 27662 }, /* XF86CameraAccessToggle */
-    { 0x1008124e, 26859 }, /* XF86Accessibility */
-    { 0x1008124f, 28074 }, /* XF86DoNotDisturb */
-    { 0x10081250, 27537 }, /* XF86BrightnessMin */
-    { 0x10081251, 27519 }, /* XF86BrightnessMax */
-    { 0x10081260, 28637 }, /* XF86KbdInputAssistPrev */
-    { 0x10081261, 28586 }, /* XF86KbdInputAssistNext */
-    { 0x10081262, 28660 }, /* XF86KbdInputAssistPrevgroup */
-    { 0x10081263, 28609 }, /* XF86KbdInputAssistNextgroup */
-    { 0x10081264, 28536 }, /* XF86KbdInputAssistAccept */
-    { 0x10081265, 28561 }, /* XF86KbdInputAssistCancel */
-    { 0x10081266, 30516 }, /* XF86RightUp */
-    { 0x10081267, 30502 }, /* XF86RightDown */
-    { 0x10081268, 29004 }, /* XF86LeftUp */
-    { 0x10081269, 28991 }, /* XF86LeftDown */
-    { 0x1008126a, 30572 }, /* XF86RootMenu */
-    { 0x1008126b, 29624 }, /* XF86MediaTopMenu */
-    { 0x1008126c, 29952 }, /* XF86Numeric11 */
-    { 0x1008126d, 29966 }, /* XF86Numeric12 */
-    { 0x1008126e, 27091 }, /* XF86AudioDesc */
-    { 0x1008126f, 26848 }, /* XF863DMode */
-    { 0x10081270, 29886 }, /* XF86NextFavorite */
-    { 0x10081271, 30948 }, /* XF86StopRecord */
-    { 0x10081272, 30247 }, /* XF86PauseRecord */
-    { 0x10081273, 31477 }, /* XF86VOD */
-    { 0x10081274, 31374 }, /* XF86Unmute */
-    { 0x10081275, 28186 }, /* XF86FastReverse */
-    { 0x10081276, 30852 }, /* XF86SlowReverse */
-    { 0x10081277, 27981 }, /* XF86Data */
-    { 0x10081278, 30184 }, /* XF86OnScreenKeyboard */
-    { 0x10081279, 30381 }, /* XF86PrivacyScreenToggle */
-    { 0x1008127a, 30763 }, /* XF86SelectiveScreenshot */
-    { 0x1008127b, 29870 }, /* XF86NextElement */
-    { 0x1008127c, 30361 }, /* XF86PreviousElement */
-    { 0x1008127d, 27365 }, /* XF86AutopilotEngageToggle */
-    { 0x1008127e, 29591 }, /* XF86MarkWaypoint */
-    { 0x1008127f, 30868 }, /* XF86Sos */
-    { 0x10081280, 29813 }, /* XF86NavChart */
-    { 0x10081281, 28228 }, /* XF86FishingChart */
-    { 0x10081282, 30821 }, /* XF86SingleRangeRadar */
-    { 0x10081283, 28099 }, /* XF86DualRangeRadar */
-    { 0x10081284, 30411 }, /* XF86RadarOverlay */
-    { 0x10081285, 31331 }, /* XF86TraditionalSonar */
-    { 0x10081286, 27856 }, /* XF86ClearvuSonar */
-    { 0x10081287, 30805 }, /* XF86SidevuSonar */
-    { 0x10081288, 29826 }, /* XF86NavInfo */
-    { 0x10081290, 29091 }, /* XF86Macro1 */
-    { 0x10081291, 29222 }, /* XF86Macro2 */
-    { 0x10081292, 29353 }, /* XF86Macro3 */
-    { 0x10081293, 29376 }, /* XF86Macro4 */
-    { 0x10081294, 29387 }, /* XF86Macro5 */
-    { 0x10081295, 29398 }, /* XF86Macro6 */
-    { 0x10081296, 29409 }, /* XF86Macro7 */
-    { 0x10081297, 29420 }, /* XF86Macro8 */
-    { 0x10081298, 29431 }, /* XF86Macro9 */
-    { 0x10081299, 29102 }, /* XF86Macro10 */
-    { 0x1008129a, 29114 }, /* XF86Macro11 */
-    { 0x1008129b, 29126 }, /* XF86Macro12 */
-    { 0x1008129c, 29138 }, /* XF86Macro13 */
-    { 0x1008129d, 29150 }, /* XF86Macro14 */
-    { 0x1008129e, 29162 }, /* XF86Macro15 */
-    { 0x1008129f, 29174 }, /* XF86Macro16 */
-    { 0x100812a0, 29186 }, /* XF86Macro17 */
-    { 0x100812a1, 29198 }, /* XF86Macro18 */
-    { 0x100812a2, 29210 }, /* XF86Macro19 */
-    { 0x100812a3, 29233 }, /* XF86Macro20 */
-    { 0x100812a4, 29245 }, /* XF86Macro21 */
-    { 0x100812a5, 29257 }, /* XF86Macro22 */
-    { 0x100812a6, 29269 }, /* XF86Macro23 */
-    { 0x100812a7, 29281 }, /* XF86Macro24 */
-    { 0x100812a8, 29293 }, /* XF86Macro25 */
-    { 0x100812a9, 29305 }, /* XF86Macro26 */
-    { 0x100812aa, 29317 }, /* XF86Macro27 */
-    { 0x100812ab, 29329 }, /* XF86Macro28 */
-    { 0x100812ac, 29341 }, /* XF86Macro29 */
-    { 0x100812ad, 29364 }, /* XF86Macro30 */
-    { 0x100812b0, 29514 }, /* XF86MacroRecordStart */
-    { 0x100812b1, 29535 }, /* XF86MacroRecordStop */
-    { 0x100812b2, 29493 }, /* XF86MacroPresetCycle */
-    { 0x100812b3, 29442 }, /* XF86MacroPreset1 */
-    { 0x100812b4, 29459 }, /* XF86MacroPreset2 */
-    { 0x100812b5, 29476 }, /* XF86MacroPreset3 */
-    { 0x100812b8, 28688 }, /* XF86KbdLcdMenu1 */
-    { 0x100812b9, 28704 }, /* XF86KbdLcdMenu2 */
-    { 0x100812ba, 28720 }, /* XF86KbdLcdMenu3 */
-    { 0x100812bb, 28736 }, /* XF86KbdLcdMenu4 */
-    { 0x100812bc, 28752 }, /* XF86KbdLcdMenu5 */
-    { 0x1008fe01, 31000 }, /* XF86Switch_VT_1 */
-    { 0x1008fe02, 31067 }, /* XF86Switch_VT_2 */
-    { 0x1008fe03, 31083 }, /* XF86Switch_VT_3 */
-    { 0x1008fe04, 31099 }, /* XF86Switch_VT_4 */
-    { 0x1008fe05, 31115 }, /* XF86Switch_VT_5 */
-    { 0x1008fe06, 31131 }, /* XF86Switch_VT_6 */
-    { 0x1008fe07, 31147 }, /* XF86Switch_VT_7 */
-    { 0x1008fe08, 31163 }, /* XF86Switch_VT_8 */
-    { 0x1008fe09, 31179 }, /* XF86Switch_VT_9 */
-    { 0x1008fe0a, 31016 }, /* XF86Switch_VT_10 */
-    { 0x1008fe0b, 31033 }, /* XF86Switch_VT_11 */
-    { 0x1008fe0c, 31050 }, /* XF86Switch_VT_12 */
-    { 0x1008fe20, 31363 }, /* XF86Ungrab */
-    { 0x1008fe21, 27842 }, /* XF86ClearGrab */
-    { 0x1008fe22, 29855 }, /* XF86Next_VMode */
-    { 0x1008fe23, 30346 }, /* XF86Prev_VMode */
-    { 0x1008fe24, 29073 }, /* XF86LogWindowTree */
-    { 0x1008fe25, 29046 }, /* XF86LogGrabInfo */
-    { 0x1008ff01, 29698 }, /* XF86ModeLock */
-    { 0x1008ff02, 29756 }, /* XF86MonBrightnessUp */
-    { 0x1008ff03, 29734 }, /* XF86MonBrightnessDown */
-    { 0x1008ff04, 28768 }, /* XF86KbdLightOnOff */
-    { 0x1008ff05, 28516 }, /* XF86KbdBrightnessUp */
-    { 0x1008ff06, 28494 }, /* XF86KbdBrightnessDown */
-    { 0x1008ff07, 29711 }, /* XF86MonBrightnessCycle */
-    { 0x1008ff10, 30917 }, /* XF86Standby */
-    { 0x1008ff11, 27122 }, /* XF86AudioLowerVolume */
-    { 0x1008ff12, 27175 }, /* XF86AudioMute */
-    { 0x1008ff13, 27262 }, /* XF86AudioRaiseVolume */
-    { 0x1008ff14, 27218 }, /* XF86AudioPlay */
-    { 0x1008ff15, 27351 }, /* XF86AudioStop */
-    { 0x1008ff16, 27248 }, /* XF86AudioPrev */
-    { 0x1008ff17, 27189 }, /* XF86AudioNext */
-    { 0x1008ff18, 28425 }, /* XF86HomePage */
-    { 0x1008ff19, 29555 }, /* XF86Mail */
-    { 0x1008ff1a, 30929 }, /* XF86Start */
-    { 0x1008ff1b, 30741 }, /* XF86Search */
-    { 0x1008ff1c, 27303 }, /* XF86AudioRecord */
-    { 0x1008ff1d, 27587 }, /* XF86Calculator */
-    { 0x1008ff1e, 29653 }, /* XF86Memo */
-    { 0x1008ff1f, 31246 }, /* XF86ToDoList */
-    { 0x1008ff20, 27602 }, /* XF86Calendar */
-    { 0x1008ff21, 30302 }, /* XF86PowerDown */
-    { 0x1008ff22, 27913 }, /* XF86ContrastAdjust */
-    { 0x1008ff23, 30559 }, /* XF86RockerUp */
-    { 0x1008ff24, 30528 }, /* XF86RockerDown */
-    { 0x1008ff25, 30543 }, /* XF86RockerEnter */
-    { 0x1008ff26, 27400 }, /* XF86Back */
-    { 0x1008ff27, 28280 }, /* XF86Forward */
-    { 0x1008ff28, 30939 }, /* XF86Stop */
-    { 0x1008ff29, 30436 }, /* XF86Refresh */
-    { 0x1008ff2a, 30316 }, /* XF86PowerOff */
-    { 0x1008ff2b, 31516 }, /* XF86WakeUp */
-    { 0x1008ff2c, 28137 }, /* XF86Eject */
-    { 0x1008ff2d, 30665 }, /* XF86ScreenSaver */
-    { 0x1008ff2e, 31595 }, /* XF86WWW */
-    { 0x1008ff2f, 30842 }, /* XF86Sleep */
-    { 0x1008ff30, 28202 }, /* XF86Favorites */
-    { 0x1008ff31, 27203 }, /* XF86AudioPause */
-    { 0x1008ff32, 27143 }, /* XF86AudioMedia */
-    { 0x1008ff33, 29786 }, /* XF86MyComputer */
-    { 0x1008ff34, 31428 }, /* XF86VendorHome */
-    { 0x1008ff35, 29015 }, /* XF86LightBulb */
-    { 0x1008ff36, 30796 }, /* XF86Shop */
-    { 0x1008ff37, 28413 }, /* XF86History */
-    { 0x1008ff38, 30214 }, /* XF86OpenURL */
-    { 0x1008ff39, 26877 }, /* XF86AddFavorite */
-    { 0x1008ff3a, 28438 }, /* XF86HotLinks */
-    { 0x1008ff3b, 27479 }, /* XF86BrightnessAdjust */
-    { 0x1008ff3c, 28216 }, /* XF86Finance */
-    { 0x1008ff3d, 27883 }, /* XF86Community */
-    { 0x1008ff3e, 27335 }, /* XF86AudioRewind */
-    { 0x1008ff3f, 27409 }, /* XF86BackForward */
-    { 0x1008ff40, 28799 }, /* XF86Launch0 */
-    { 0x1008ff41, 28811 }, /* XF86Launch1 */
-    { 0x1008ff42, 28823 }, /* XF86Launch2 */
-    { 0x1008ff43, 28835 }, /* XF86Launch3 */
-    { 0x1008ff44, 28847 }, /* XF86Launch4 */
-    { 0x1008ff45, 28859 }, /* XF86Launch5 */
-    { 0x1008ff46, 28871 }, /* XF86Launch6 */
-    { 0x1008ff47, 28883 }, /* XF86Launch7 */
-    { 0x1008ff48, 28895 }, /* XF86Launch8 */
-    { 0x1008ff49, 28907 }, /* XF86Launch9 */
-    { 0x1008ff4a, 28919 }, /* XF86LaunchA */
-    { 0x1008ff4b, 28931 }, /* XF86LaunchB */
-    { 0x1008ff4c, 28943 }, /* XF86LaunchC */
-    { 0x1008ff4d, 28955 }, /* XF86LaunchD */
-    { 0x1008ff4e, 28967 }, /* XF86LaunchE */
-    { 0x1008ff4f, 28979 }, /* XF86LaunchF */
-    { 0x1008ff50, 26923 }, /* XF86ApplicationLeft */
-    { 0x1008ff51, 26943 }, /* XF86ApplicationRight */
-    { 0x1008ff52, 27460 }, /* XF86Book */
-    { 0x1008ff53, 27795 }, /* XF86CD */
-    { 0x1008ff54, 27572 }, /* XF86Calculater */
-    { 0x1008ff55, 27832 }, /* XF86Clear */
-    { 0x1008ff56, 27873 }, /* XF86Close */
-    { 0x1008ff57, 27949 }, /* XF86Copy */
-    { 0x1008ff58, 27958 }, /* XF86Cut */
-    { 0x1008ff59, 28015 }, /* XF86Display */
-    { 0x1008ff5a, 28091 }, /* XF86DOS */
-    { 0x1008ff5b, 28060 }, /* XF86Documents */
-    { 0x1008ff5c, 28163 }, /* XF86Excel */
-    { 0x1008ff5d, 28173 }, /* XF86Explorer */
-    { 0x1008ff5e, 28338 }, /* XF86Game */
-    { 0x1008ff5f, 28347 }, /* XF86Go */
-    { 0x1008ff60, 28471 }, /* XF86iTouch */
-    { 0x1008ff61, 29062 }, /* XF86LogOff */
-    { 0x1008ff62, 29580 }, /* XF86Market */
-    { 0x1008ff63, 29641 }, /* XF86Meeting */
-    { 0x1008ff65, 29662 }, /* XF86MenuKB */
-    { 0x1008ff66, 29673 }, /* XF86MenuPB */
-    { 0x1008ff67, 29801 }, /* XF86MySites */
-    { 0x1008ff68, 29838 }, /* XF86New */
-    { 0x1008ff69, 29846 }, /* XF86News */
-    { 0x1008ff6a, 30169 }, /* XF86OfficeHome */
-    { 0x1008ff6b, 30205 }, /* XF86Open */
-    { 0x1008ff6c, 30226 }, /* XF86Option */
-    { 0x1008ff6d, 30237 }, /* XF86Paste */
-    { 0x1008ff6e, 30263 }, /* XF86Phone */
-    { 0x1008ff70, 30405 }, /* XF86Q */
-    { 0x1008ff72, 30481 }, /* XF86Reply */
-    { 0x1008ff73, 30470 }, /* XF86Reload */
-    { 0x1008ff74, 30585 }, /* XF86RotateWindows */
-    { 0x1008ff75, 30641 }, /* XF86RotationPB */
-    { 0x1008ff76, 30603 }, /* XF86RotationKB */
-    { 0x1008ff77, 30656 }, /* XF86Save */
-    { 0x1008ff78, 30728 }, /* XF86ScrollUp */
-    { 0x1008ff79, 30713 }, /* XF86ScrollDown */
-    { 0x1008ff7a, 30697 }, /* XF86ScrollClick */
-    { 0x1008ff7b, 30787 }, /* XF86Send */
-    { 0x1008ff7c, 30876 }, /* XF86Spell */
-    { 0x1008ff7d, 30901 }, /* XF86SplitScreen */
-    { 0x1008ff7e, 30976 }, /* XF86Support */
-    { 0x1008ff7f, 31211 }, /* XF86TaskPane */
-    { 0x1008ff80, 31224 }, /* XF86Terminal */
-    { 0x1008ff81, 31259 }, /* XF86Tools */
-    { 0x1008ff82, 31352 }, /* XF86Travel */
-    { 0x1008ff84, 31409 }, /* XF86UserPB */
-    { 0x1008ff85, 31385 }, /* XF86User1KB */
-    { 0x1008ff86, 31397 }, /* XF86User2KB */
-    { 0x1008ff87, 31443 }, /* XF86Video */
-    { 0x1008ff88, 31538 }, /* XF86WheelButton */
-    { 0x1008ff89, 31563 }, /* XF86Word */
-    { 0x1008ff8a, 31603 }, /* XF86Xfer */
-    { 0x1008ff8b, 31623 }, /* XF86ZoomIn */
-    { 0x1008ff8c, 31634 }, /* XF86ZoomOut */
-    { 0x1008ff8d, 27391 }, /* XF86Away */
-    { 0x1008ff8e, 29684 }, /* XF86Messenger */
-    { 0x1008ff8f, 31527 }, /* XF86WebCam */
-    { 0x1008ff90, 29564 }, /* XF86MailForward */
-    { 0x1008ff91, 30289 }, /* XF86Pictures */
-    { 0x1008ff92, 29776 }, /* XF86Music */
-    { 0x1008ff93, 27425 }, /* XF86Battery */
-    { 0x1008ff94, 27446 }, /* XF86Bluetooth */
-    { 0x1008ff95, 31554 }, /* XF86WLAN */
-    { 0x1008ff96, 31420 }, /* XF86UWB */
-    { 0x1008ff97, 27105 }, /* XF86AudioForward */
-    { 0x1008ff98, 27319 }, /* XF86AudioRepeat */
-    { 0x1008ff99, 27283 }, /* XF86AudioRandomPlay */
-    { 0x1008ff9a, 30963 }, /* XF86Subtitle */
-    { 0x1008ff9b, 27071 }, /* XF86AudioCycleTrack */
-    { 0x1008ff9c, 27966 }, /* XF86CycleAngle */
-    { 0x1008ff9d, 28292 }, /* XF86FrameBack */
-    { 0x1008ff9e, 28306 }, /* XF86FrameForward */
-    { 0x1008ff9f, 31237 }, /* XF86Time */
-    { 0x1008ffa0, 30752 }, /* XF86Select */
-    { 0x1008ffa1, 31468 }, /* XF86View */
-    { 0x1008ffa2, 31269 }, /* XF86TopMenu */
-    { 0x1008ffa3, 30428 }, /* XF86Red */
-    { 0x1008ffa4, 28373 }, /* XF86Green */
-    { 0x1008ffa5, 31612 }, /* XF86Yellow */
-    { 0x1008ffa6, 27437 }, /* XF86Blue */
-    { 0x1008ffa7, 30988 }, /* XF86Suspend */
-    { 0x1008ffa8, 28399 }, /* XF86Hibernate */
-    { 0x1008ffa9, 31312 }, /* XF86TouchpadToggle */
-    { 0x1008ffb0, 31297 }, /* XF86TouchpadOn */
-    { 0x1008ffb1, 31281 }, /* XF86TouchpadOff */
-    { 0x1008ffb2, 27158 }, /* XF86AudioMicMute */
-    { 0x1008ffb3, 28786 }, /* XF86Keyboard */
-    { 0x1008ffb4, 31586 }, /* XF86WWAN */
-    { 0x1008ffb5, 30491 }, /* XF86RFKill */
-    { 0x1008ffb6, 27232 }, /* XF86AudioPreset */
-    { 0x1008ffb7, 30618 }, /* XF86RotationLockToggle */
-    { 0x1008ffb8, 28323 }, /* XF86FullScreen */
+    { 0x00000031, 3 }, /* 1 */
+    { 0x00000032, 6 }, /* 2 */
+    { 0x00000033, 9 }, /* 3 */
+    { 0x00000034, 420 }, /* 4 */
+    { 0x00000035, 423 }, /* 5 */
+    { 0x00000036, 426 }, /* 6 */
+    { 0x00000037, 429 }, /* 7 */
+    { 0x00000038, 432 }, /* 8 */
+    { 0x00000039, 435 }, /* 9 */
+    { 0x0000003a, 9265 }, /* colon */
+    { 0x0000003b, 24729 }, /* semicolon */
+    { 0x0000003c, 21076 }, /* less */
+    { 0x0000003d, 13040 }, /* equal */
+    { 0x0000003e, 14398 }, /* greater */
+    { 0x0000003f, 24092 }, /* question */
+    { 0x00000040, 3559 }, /* at */
+    { 0x00000041, 438 }, /* A */
+    { 0x00000042, 3599 }, /* B */
+    { 0x00000043, 9008 }, /* C */
+    { 0x00000044, 11125 }, /* D */
+    { 0x00000045, 12356 }, /* E */
+    { 0x00000046, 13159 }, /* F */
+    { 0x00000047, 13739 }, /* G */
+    { 0x00000048, 15615 }, /* H */
+    { 0x00000049, 18501 }, /* I */
+    { 0x0000004a, 19622 }, /* J */
+    { 0x0000004b, 19659 }, /* K */
+    { 0x0000004c, 20741 }, /* L */
+    { 0x0000004d, 21210 }, /* M */
+    { 0x0000004e, 21658 }, /* N */
+    { 0x0000004f, 21943 }, /* O */
+    { 0x00000050, 23240 }, /* P */
+    { 0x00000051, 24080 }, /* Q */
+    { 0x00000052, 24149 }, /* R */
+    { 0x00000053, 24555 }, /* S */
+    { 0x00000054, 26441 }, /* T */
+    { 0x00000055, 28120 }, /* U */
+    { 0x00000056, 28821 }, /* V */
+    { 0x00000057, 28891 }, /* W */
+    { 0x00000058, 28988 }, /* X */
+    { 0x00000059, 34207 }, /* Y */
+    { 0x0000005a, 34352 }, /* Z */
+    { 0x0000005b, 3899 }, /* bracketleft */
+    { 0x0000005c, 3627 }, /* backslash */
+    { 0x0000005d, 3912 }, /* bracketright */
+    { 0x0000005e, 3524 }, /* asciicircum */
+    { 0x0000005f, 28666 }, /* underscore */
+    { 0x00000060, 14391 }, /* grave */
+    { 0x00000061, 441 }, /* a */
+    { 0x00000062, 3602 }, /* b */
+    { 0x00000063, 9011 }, /* c */
+    { 0x00000064, 11128 }, /* d */
+    { 0x00000065, 12359 }, /* e */
+    { 0x00000066, 13162 }, /* f */
+    { 0x00000067, 13742 }, /* g */
+    { 0x00000068, 15618 }, /* h */
+    { 0x00000069, 18504 }, /* i */
+    { 0x0000006a, 19625 }, /* j */
+    { 0x0000006b, 19662 }, /* k */
+    { 0x0000006c, 20744 }, /* l */
+    { 0x0000006d, 21213 }, /* m */
+    { 0x0000006e, 21661 }, /* n */
+    { 0x0000006f, 21946 }, /* o */
+    { 0x00000070, 23243 }, /* p */
+    { 0x00000071, 24083 }, /* q */
+    { 0x00000072, 24152 }, /* r */
+    { 0x00000073, 24558 }, /* s */
+    { 0x00000074, 26444 }, /* t */
+    { 0x00000075, 28123 }, /* u */
+    { 0x00000076, 28824 }, /* v */
+    { 0x00000077, 28894 }, /* w */
+    { 0x00000078, 28991 }, /* x */
+    { 0x00000079, 34210 }, /* y */
+    { 0x0000007a, 34355 }, /* z */
+    { 0x0000007b, 3876 }, /* braceleft */
+    { 0x0000007c, 3671 }, /* bar */
+    { 0x0000007d, 3887 }, /* braceright */
+    { 0x0000007e, 3537 }, /* asciitilde */
+    { 0x000000a0, 21809 }, /* nobreakspace */
+    { 0x000000a1, 13104 }, /* exclamdown */
+    { 0x000000a2, 9179 }, /* cent */
+    { 0x000000a3, 25935 }, /* sterling */
+    { 0x000000a4, 9465 }, /* currency */
+    { 0x000000a5, 34301 }, /* yen */
+    { 0x000000a6, 8955 }, /* brokenbar */
+    { 0x000000a7, 24712 }, /* section */
+    { 0x000000a8, 12113 }, /* diaeresis */
+    { 0x000000a9, 9411 }, /* copyright */
+    { 0x000000aa, 22656 }, /* ordfeminine */
+    { 0x000000ab, 15584 }, /* guillemotleft */
+    { 0x000000ac, 21884 }, /* notsign */
+    { 0x000000ad, 18493 }, /* hyphen */
+    { 0x000000ae, 24288 }, /* registered */
+    { 0x000000af, 21328 }, /* macron */
+    { 0x000000b0, 12058 }, /* degree */
+    { 0x000000b1, 23448 }, /* plusminus */
+    { 0x000000b2, 28096 }, /* twosuperior */
+    { 0x000000b3, 27823 }, /* threesuperior */
+    { 0x000000b4, 893 }, /* acute */
+    { 0x000000b5, 21502 }, /* mu */
+    { 0x000000b6, 23288 }, /* paragraph */
+    { 0x000000b7, 23383 }, /* periodcentered */
+    { 0x000000b8, 9170 }, /* cedilla */
+    { 0x000000b9, 22551 }, /* onesuperior */
+    { 0x000000ba, 21380 }, /* masculine */
+    { 0x000000bb, 15599 }, /* guillemotright */
+    { 0x000000bc, 22515 }, /* onequarter */
+    { 0x000000bd, 22506 }, /* onehalf */
+    { 0x000000be, 27792 }, /* threequarters */
+    { 0x000000bf, 24102 }, /* questiondown */
+    { 0x000000c0, 932 }, /* Agrave */
+    { 0x000000c1, 444 }, /* Aacute */
+    { 0x000000c2, 683 }, /* Acircumflex */
+    { 0x000000c3, 3563 }, /* Atilde */
+    { 0x000000c4, 900 }, /* Adiaeresis */
+    { 0x000000c5, 2208 }, /* Aring */
+    { 0x000000c6, 924 }, /* AE */
+    { 0x000000c7, 9124 }, /* Ccedilla */
+    { 0x000000c8, 12681 }, /* Egrave */
+    { 0x000000c9, 12384 }, /* Eacute */
+    { 0x000000ca, 12438 }, /* Ecircumflex */
+    { 0x000000cb, 12657 }, /* Ediaeresis */
+    { 0x000000cc, 18653 }, /* Igrave */
+    { 0x000000cd, 18518 }, /* Iacute */
+    { 0x000000ce, 18572 }, /* Icircumflex */
+    { 0x000000cf, 18609 }, /* Idiaeresis */
+    { 0x000000d0, 13055 }, /* ETH */
+    { 0x000000d1, 21893 }, /* Ntilde */
+    { 0x000000d2, 22299 }, /* Ograve */
+    { 0x000000d3, 21949 }, /* Oacute */
+    { 0x000000d4, 22021 }, /* Ocircumflex */
+    { 0x000000d5, 23171 }, /* Otilde */
+    { 0x000000d6, 22231 }, /* Odiaeresis */
+    { 0x000000d7, 21546 }, /* multiply */
+    { 0x000000d8, 23155 }, /* Oslash */
+    { 0x000000d9, 28258 }, /* Ugrave */
+    { 0x000000da, 28126 }, /* Uacute */
+    { 0x000000db, 28180 }, /* Ucircumflex */
+    { 0x000000dc, 28206 }, /* Udiaeresis */
+    { 0x000000dd, 34213 }, /* Yacute */
+    { 0x000000de, 27744 }, /* THORN */
+    { 0x000000df, 25927 }, /* ssharp */
+    { 0x000000e0, 940 }, /* agrave */
+    { 0x000000e1, 452 }, /* aacute */
+    { 0x000000e2, 696 }, /* acircumflex */
+    { 0x000000e3, 3571 }, /* atilde */
+    { 0x000000e4, 912 }, /* adiaeresis */
+    { 0x000000e5, 2215 }, /* aring */
+    { 0x000000e6, 928 }, /* ae */
+    { 0x000000e7, 9134 }, /* ccedilla */
+    { 0x000000e8, 12689 }, /* egrave */
+    { 0x000000e9, 12392 }, /* eacute */
+    { 0x000000ea, 12451 }, /* ecircumflex */
+    { 0x000000eb, 12669 }, /* ediaeresis */
+    { 0x000000ec, 18661 }, /* igrave */
+    { 0x000000ed, 18526 }, /* iacute */
+    { 0x000000ee, 18585 }, /* icircumflex */
+    { 0x000000ef, 18621 }, /* idiaeresis */
+    { 0x000000f0, 13065 }, /* eth */
+    { 0x000000f1, 21901 }, /* ntilde */
+    { 0x000000f2, 22307 }, /* ograve */
+    { 0x000000f3, 21957 }, /* oacute */
+    { 0x000000f4, 22034 }, /* ocircumflex */
+    { 0x000000f5, 23179 }, /* otilde */
+    { 0x000000f6, 22243 }, /* odiaeresis */
+    { 0x000000f7, 12156 }, /* division */
+    { 0x000000f8, 23163 }, /* oslash */
+    { 0x000000f9, 28266 }, /* ugrave */
+    { 0x000000fa, 28134 }, /* uacute */
+    { 0x000000fb, 28193 }, /* ucircumflex */
+    { 0x000000fc, 28218 }, /* udiaeresis */
+    { 0x000000fd, 34221 }, /* yacute */
+    { 0x000000fe, 27758 }, /* thorn */
+    { 0x000000ff, 34289 }, /* ydiaeresis */
+    { 0x000001a1, 1005 }, /* Aogonek */
+    { 0x000001a2, 8948 }, /* breve */
+    { 0x000001a3, 21192 }, /* Lstroke */
+    { 0x000001a5, 20859 }, /* Lcaron */
+    { 0x000001a6, 24583 }, /* Sacute */
+    { 0x000001a9, 24599 }, /* Scaron */
+    { 0x000001aa, 24615 }, /* Scedilla */
+    { 0x000001ab, 26474 }, /* Tcaron */
+    { 0x000001ac, 34380 }, /* Zacute */
+    { 0x000001ae, 34396 }, /* Zcaron */
+    { 0x000001af, 34358 }, /* Zabovedot */
+    { 0x000001b1, 1014 }, /* aogonek */
+    { 0x000001b2, 22291 }, /* ogonek */
+    { 0x000001b3, 21201 }, /* lstroke */
+    { 0x000001b5, 20867 }, /* lcaron */
+    { 0x000001b6, 24591 }, /* sacute */
+    { 0x000001b7, 9101 }, /* caron */
+    { 0x000001b9, 24607 }, /* scaron */
+    { 0x000001ba, 24625 }, /* scedilla */
+    { 0x000001bb, 26482 }, /* tcaron */
+    { 0x000001bc, 34388 }, /* zacute */
+    { 0x000001bd, 12201 }, /* doubleacute */
+    { 0x000001be, 34404 }, /* zcaron */
+    { 0x000001bf, 34369 }, /* zabovedot */
+    { 0x000001c0, 24221 }, /* Racute */
+    { 0x000001c3, 492 }, /* Abreve */
+    { 0x000001c5, 20788 }, /* Lacute */
+    { 0x000001c6, 9051 }, /* Cacute */
+    { 0x000001c8, 9108 }, /* Ccaron */
+    { 0x000001ca, 13022 }, /* Eogonek */
+    { 0x000001cc, 12422 }, /* Ecaron */
+    { 0x000001cf, 11176 }, /* Dcaron */
+    { 0x000001d0, 12330 }, /* Dstroke */
+    { 0x000001d1, 21671 }, /* Nacute */
+    { 0x000001d2, 21698 }, /* Ncaron */
+    { 0x000001d5, 22255 }, /* Odoubleacute */
+    { 0x000001d8, 24246 }, /* Rcaron */
+    { 0x000001d9, 28785 }, /* Uring */
+    { 0x000001db, 28230 }, /* Udoubleacute */
+    { 0x000001de, 26490 }, /* Tcedilla */
+    { 0x000001e0, 24229 }, /* racute */
+    { 0x000001e3, 500 }, /* abreve */
+    { 0x000001e5, 20796 }, /* lacute */
+    { 0x000001e6, 9059 }, /* cacute */
+    { 0x000001e8, 9116 }, /* ccaron */
+    { 0x000001ea, 13031 }, /* eogonek */
+    { 0x000001ec, 12430 }, /* ecaron */
+    { 0x000001ef, 11184 }, /* dcaron */
+    { 0x000001f0, 12339 }, /* dstroke */
+    { 0x000001f1, 21679 }, /* nacute */
+    { 0x000001f2, 21706 }, /* ncaron */
+    { 0x000001f5, 22269 }, /* odoubleacute */
+    { 0x000001f8, 24254 }, /* rcaron */
+    { 0x000001f9, 28792 }, /* uring */
+    { 0x000001fb, 28244 }, /* udoubleacute */
+    { 0x000001fe, 26500 }, /* tcedilla */
+    { 0x000001ff, 482 }, /* abovedot */
+    { 0x000002a1, 18453 }, /* Hstroke */
+    { 0x000002a6, 17403 }, /* Hcircumflex */
+    { 0x000002a9, 18507 }, /* Iabovedot */
+    { 0x000002ab, 13767 }, /* Gbreve */
+    { 0x000002ac, 19628 }, /* Jcircumflex */
+    { 0x000002b1, 18462 }, /* hstroke */
+    { 0x000002b6, 17416 }, /* hcircumflex */
+    { 0x000002b9, 18633 }, /* idotless */
+    { 0x000002bb, 13775 }, /* gbreve */
+    { 0x000002bc, 19641 }, /* jcircumflex */
+    { 0x000002c5, 9029 }, /* Cabovedot */
+    { 0x000002c6, 9144 }, /* Ccircumflex */
+    { 0x000002d5, 13745 }, /* Gabovedot */
+    { 0x000002d8, 13819 }, /* Gcircumflex */
+    { 0x000002dd, 28164 }, /* Ubreve */
+    { 0x000002de, 24649 }, /* Scircumflex */
+    { 0x000002e5, 9040 }, /* cabovedot */
+    { 0x000002e6, 9157 }, /* ccircumflex */
+    { 0x000002f5, 13756 }, /* gabovedot */
+    { 0x000002f8, 13832 }, /* gcircumflex */
+    { 0x000002fd, 28172 }, /* ubreve */
+    { 0x000002fe, 24662 }, /* scircumflex */
+    { 0x000003a2, 20736 }, /* kra */
+    { 0x000003a3, 24262 }, /* Rcedilla */
+    { 0x000003a5, 19606 }, /* Itilde */
+    { 0x000003a6, 20875 }, /* Lcedilla */
+    { 0x000003aa, 12808 }, /* Emacron */
+    { 0x000003ab, 13799 }, /* Gcedilla */
+    { 0x000003ac, 28055 }, /* Tslash */
+    { 0x000003b3, 24272 }, /* rcedilla */
+    { 0x000003b5, 19614 }, /* itilde */
+    { 0x000003b6, 20885 }, /* lcedilla */
+    { 0x000003ba, 12817 }, /* emacron */
+    { 0x000003bb, 13809 }, /* gcedilla */
+    { 0x000003bc, 28063 }, /* tslash */
+    { 0x000003bd, 12965 }, /* ENG */
+    { 0x000003bf, 12970 }, /* eng */
+    { 0x000003c0, 976 }, /* Amacron */
+    { 0x000003c7, 18802 }, /* Iogonek */
+    { 0x000003cc, 12362 }, /* Eabovedot */
+    { 0x000003cf, 18683 }, /* Imacron */
+    { 0x000003d1, 21714 }, /* Ncedilla */
+    { 0x000003d2, 22467 }, /* Omacron */
+    { 0x000003d3, 20366 }, /* Kcedilla */
+    { 0x000003d9, 28691 }, /* Uogonek */
+    { 0x000003dd, 28805 }, /* Utilde */
+    { 0x000003de, 28638 }, /* Umacron */
+    { 0x000003e0, 985 }, /* amacron */
+    { 0x000003e7, 18811 }, /* iogonek */
+    { 0x000003ec, 12373 }, /* eabovedot */
+    { 0x000003ef, 18692 }, /* imacron */
+    { 0x000003f1, 21724 }, /* ncedilla */
+    { 0x000003f2, 22476 }, /* omacron */
+    { 0x000003f3, 20376 }, /* kcedilla */
+    { 0x000003f9, 28700 }, /* uogonek */
+    { 0x000003fd, 28813 }, /* utilde */
+    { 0x000003fe, 28647 }, /* umacron */
+    { 0x0000047e, 23230 }, /* overline */
+    { 0x000004a1, 19767 }, /* kana_fullstop */
+    { 0x000004a2, 20029 }, /* kana_openingbracket */
+    { 0x000004a3, 19691 }, /* kana_closingbracket */
+    { 0x000004a4, 19712 }, /* kana_comma */
+    { 0x000004a5, 19724 }, /* kana_conjunctive */
+    { 0x000004a6, 20265 }, /* kana_WO */
+    { 0x000004a7, 19673 }, /* kana_a */
+    { 0x000004a8, 19835 }, /* kana_i */
+    { 0x000004a9, 20248 }, /* kana_u */
+    { 0x000004aa, 19750 }, /* kana_e */
+    { 0x000004ab, 20021 }, /* kana_o */
+    { 0x000004ac, 20283 }, /* kana_ya */
+    { 0x000004ad, 20319 }, /* kana_yu */
+    { 0x000004ae, 20301 }, /* kana_yo */
+    { 0x000004af, 20212 }, /* kana_tsu */
+    { 0x000004b0, 24052 }, /* prolongedsound */
+    { 0x000004b1, 19665 }, /* kana_A */
+    { 0x000004b2, 19827 }, /* kana_I */
+    { 0x000004b3, 20240 }, /* kana_U */
+    { 0x000004b4, 19742 }, /* kana_E */
+    { 0x000004b5, 20013 }, /* kana_O */
+    { 0x000004b6, 19843 }, /* kana_KA */
+    { 0x000004b7, 19861 }, /* kana_KI */
+    { 0x000004b8, 19879 }, /* kana_KU */
+    { 0x000004b9, 19852 }, /* kana_KE */
+    { 0x000004ba, 19870 }, /* kana_KO */
+    { 0x000004bb, 20095 }, /* kana_SA */
+    { 0x000004bc, 20113 }, /* kana_SHI */
+    { 0x000004bd, 20144 }, /* kana_SU */
+    { 0x000004be, 20104 }, /* kana_SE */
+    { 0x000004bf, 20135 }, /* kana_SO */
+    { 0x000004c0, 20166 }, /* kana_TA */
+    { 0x000004c1, 19681 }, /* kana_CHI */
+    { 0x000004c2, 20202 }, /* kana_TSU */
+    { 0x000004c3, 20175 }, /* kana_TE */
+    { 0x000004c4, 20193 }, /* kana_TO */
+    { 0x000004c5, 19968 }, /* kana_NA */
+    { 0x000004c6, 19986 }, /* kana_NI */
+    { 0x000004c7, 20004 }, /* kana_NU */
+    { 0x000004c8, 19977 }, /* kana_NE */
+    { 0x000004c9, 19995 }, /* kana_NO */
+    { 0x000004ca, 19782 }, /* kana_HA */
+    { 0x000004cb, 19800 }, /* kana_HI */
+    { 0x000004cc, 19758 }, /* kana_FU */
+    { 0x000004cd, 19791 }, /* kana_HE */
+    { 0x000004ce, 19809 }, /* kana_HO */
+    { 0x000004cf, 19899 }, /* kana_MA */
+    { 0x000004d0, 19917 }, /* kana_MI */
+    { 0x000004d1, 19951 }, /* kana_MU */
+    { 0x000004d2, 19908 }, /* kana_ME */
+    { 0x000004d3, 19942 }, /* kana_MO */
+    { 0x000004d4, 20274 }, /* kana_YA */
+    { 0x000004d5, 20310 }, /* kana_YU */
+    { 0x000004d6, 20292 }, /* kana_YO */
+    { 0x000004d7, 20050 }, /* kana_RA */
+    { 0x000004d8, 20068 }, /* kana_RI */
+    { 0x000004d9, 20086 }, /* kana_RU */
+    { 0x000004da, 20059 }, /* kana_RE */
+    { 0x000004db, 20077 }, /* kana_RO */
+    { 0x000004dc, 20256 }, /* kana_WA */
+    { 0x000004dd, 19960 }, /* kana_N */
+    { 0x000004de, 28862 }, /* voicedsound */
+    { 0x000004df, 24740 }, /* semivoicedsound */
+    { 0x000005ac, 1215 }, /* Arabic_comma */
+    { 0x000005bb, 1916 }, /* Arabic_semicolon */
+    { 0x000005bf, 1845 }, /* Arabic_question_mark */
+    { 0x000005c1, 1424 }, /* Arabic_hamza */
+    { 0x000005c2, 1739 }, /* Arabic_maddaonalef */
+    { 0x000005c3, 1478 }, /* Arabic_hamzaonalef */
+    { 0x000005c4, 1498 }, /* Arabic_hamzaonwaw */
+    { 0x000005c5, 1536 }, /* Arabic_hamzaunderalef */
+    { 0x000005c6, 1517 }, /* Arabic_hamzaonyeh */
+    { 0x000005c7, 1170 }, /* Arabic_alef */
+    { 0x000005c8, 1203 }, /* Arabic_beh */
+    { 0x000005c9, 2071 }, /* Arabic_tehmarbuta */
+    { 0x000005ca, 2059 }, /* Arabic_teh */
+    { 0x000005cb, 2103 }, /* Arabic_theh */
+    { 0x000005cc, 1612 }, /* Arabic_jeem */
+    { 0x000005cd, 1412 }, /* Arabic_hah */
+    { 0x000005ce, 1694 }, /* Arabic_khah */
+    { 0x000005cf, 1241 }, /* Arabic_dal */
+    { 0x000005d0, 2090 }, /* Arabic_thal */
+    { 0x000005d1, 1867 }, /* Arabic_ra */
+    { 0x000005d2, 2195 }, /* Arabic_zain */
+    { 0x000005d3, 1903 }, /* Arabic_seen */
+    { 0x000005d4, 1949 }, /* Arabic_sheen */
+    { 0x000005d5, 1891 }, /* Arabic_sad */
+    { 0x000005d6, 1229 }, /* Arabic_dad */
+    { 0x000005d7, 2017 }, /* Arabic_tah */
+    { 0x000005d8, 2183 }, /* Arabic_zah */
+    { 0x000005d9, 1158 }, /* Arabic_ain */
+    { 0x000005da, 1387 }, /* Arabic_ghain */
+    { 0x000005e0, 2029 }, /* Arabic_tatweel */
+    { 0x000005e1, 1346 }, /* Arabic_feh */
+    { 0x000005e2, 1833 }, /* Arabic_qaf */
+    { 0x000005e3, 1637 }, /* Arabic_kaf */
+    { 0x000005e4, 1707 }, /* Arabic_lam */
+    { 0x000005e5, 1759 }, /* Arabic_meem */
+    { 0x000005e6, 1772 }, /* Arabic_noon */
+    { 0x000005e7, 1401 }, /* Arabic_ha */
+    { 0x000005e8, 2141 }, /* Arabic_waw */
+    { 0x000005e9, 1183 }, /* Arabic_alefmaksura */
+    { 0x000005ea, 2153 }, /* Arabic_yeh */
+    { 0x000005eb, 1329 }, /* Arabic_fathatan */
+    { 0x000005ec, 1267 }, /* Arabic_dammatan */
+    { 0x000005ed, 1663 }, /* Arabic_kasratan */
+    { 0x000005ee, 1315 }, /* Arabic_fatha */
+    { 0x000005ef, 1253 }, /* Arabic_damma */
+    { 0x000005f0, 1649 }, /* Arabic_kasra */
+    { 0x000005f1, 1934 }, /* Arabic_shadda */
+    { 0x000005f2, 1963 }, /* Arabic_sukun */
+    { 0x000006a1, 24770 }, /* Serbian_dje */
+    { 0x000006a2, 21283 }, /* Macedonia_gje */
+    { 0x000006a3, 10216 }, /* Cyrillic_io */
+    { 0x000006a4, 28520 }, /* Ukrainian_ie */
+    { 0x000006a5, 21253 }, /* Macedonia_dse */
+    { 0x000006a6, 28493 }, /* Ukrainian_i */
+    { 0x000006a7, 28548 }, /* Ukrainian_yi */
+    { 0x000006a8, 10242 }, /* Cyrillic_je */
+    { 0x000006a9, 10389 }, /* Cyrillic_lje */
+    { 0x000006aa, 10417 }, /* Cyrillic_nje */
+    { 0x000006ab, 24899 }, /* Serbian_tshe */
+    { 0x000006ac, 21313 }, /* Macedonia_kje */
+    { 0x000006ad, 28453 }, /* Ukrainian_ghe_with_upturn */
+    { 0x000006ae, 8987 }, /* Byelorussian_shortu */
+    { 0x000006af, 9700 }, /* Cyrillic_dzhe */
+    { 0x000006b0, 21931 }, /* numerosign */
+    { 0x000006b1, 24757 }, /* Serbian_DJE */
+    { 0x000006b2, 21268 }, /* Macedonia_GJE */
+    { 0x000006b3, 10203 }, /* Cyrillic_IO */
+    { 0x000006b4, 28506 }, /* Ukrainian_IE */
+    { 0x000006b5, 21238 }, /* Macedonia_DSE */
+    { 0x000006b6, 28480 }, /* Ukrainian_I */
+    { 0x000006b7, 28534 }, /* Ukrainian_YI */
+    { 0x000006b8, 10229 }, /* Cyrillic_JE */
+    { 0x000006b9, 10375 }, /* Cyrillic_LJE */
+    { 0x000006ba, 10403 }, /* Cyrillic_NJE */
+    { 0x000006bb, 24885 }, /* Serbian_TSHE */
+    { 0x000006bc, 21298 }, /* Macedonia_KJE */
+    { 0x000006bd, 28426 }, /* Ukrainian_GHE_WITH_UPTURN */
+    { 0x000006be, 8966 }, /* Byelorussian_SHORTU */
+    { 0x000006bf, 9685 }, /* Cyrillic_DZHE */
+    { 0x000006c0, 11010 }, /* Cyrillic_yu */
+    { 0x000006c1, 9495 }, /* Cyrillic_a */
+    { 0x000006c2, 9520 }, /* Cyrillic_be */
+    { 0x000006c3, 10747 }, /* Cyrillic_tse */
+    { 0x000006c4, 9672 }, /* Cyrillic_de */
+    { 0x000006c5, 10190 }, /* Cyrillic_ie */
+    { 0x000006c6, 9752 }, /* Cyrillic_ef */
+    { 0x000006c7, 9955 }, /* Cyrillic_ghe */
+    { 0x000006c8, 10018 }, /* Cyrillic_ha */
+    { 0x000006c9, 10127 }, /* Cyrillic_i */
+    { 0x000006ca, 10652 }, /* Cyrillic_shorti */
+    { 0x000006cb, 10268 }, /* Cyrillic_ka */
+    { 0x000006cc, 9778 }, /* Cyrillic_el */
+    { 0x000006cd, 9804 }, /* Cyrillic_em */
+    { 0x000006ce, 9830 }, /* Cyrillic_en */
+    { 0x000006cf, 10443 }, /* Cyrillic_o */
+    { 0x000006d0, 10500 }, /* Cyrillic_pe */
+    { 0x000006d1, 10954 }, /* Cyrillic_ya */
+    { 0x000006d2, 9902 }, /* Cyrillic_er */
+    { 0x000006d3, 9928 }, /* Cyrillic_es */
+    { 0x000006d4, 10720 }, /* Cyrillic_te */
+    { 0x000006d5, 10773 }, /* Cyrillic_u */
+    { 0x000006d6, 11063 }, /* Cyrillic_zhe */
+    { 0x000006d7, 10928 }, /* Cyrillic_ve */
+    { 0x000006d8, 10688 }, /* Cyrillic_softsign */
+    { 0x000006d9, 10982 }, /* Cyrillic_yeru */
+    { 0x000006da, 11036 }, /* Cyrillic_ze */
+    { 0x000006db, 10559 }, /* Cyrillic_sha */
+    { 0x000006dc, 9727 }, /* Cyrillic_e */
+    { 0x000006dd, 10589 }, /* Cyrillic_shcha */
+    { 0x000006de, 9547 }, /* Cyrillic_che */
+    { 0x000006df, 10096 }, /* Cyrillic_hardsign */
+    { 0x000006e0, 10997 }, /* Cyrillic_YU */
+    { 0x000006e1, 9483 }, /* Cyrillic_A */
+    { 0x000006e2, 9507 }, /* Cyrillic_BE */
+    { 0x000006e3, 10733 }, /* Cyrillic_TSE */
+    { 0x000006e4, 9659 }, /* Cyrillic_DE */
+    { 0x000006e5, 10177 }, /* Cyrillic_IE */
+    { 0x000006e6, 9739 }, /* Cyrillic_EF */
+    { 0x000006e7, 9941 }, /* Cyrillic_GHE */
+    { 0x000006e8, 10005 }, /* Cyrillic_HA */
+    { 0x000006e9, 10115 }, /* Cyrillic_I */
+    { 0x000006ea, 10635 }, /* Cyrillic_SHORTI */
+    { 0x000006eb, 10255 }, /* Cyrillic_KA */
+    { 0x000006ec, 9765 }, /* Cyrillic_EL */
+    { 0x000006ed, 9791 }, /* Cyrillic_EM */
+    { 0x000006ee, 9817 }, /* Cyrillic_EN */
+    { 0x000006ef, 10431 }, /* Cyrillic_O */
+    { 0x000006f0, 10487 }, /* Cyrillic_PE */
+    { 0x000006f1, 10941 }, /* Cyrillic_YA */
+    { 0x000006f2, 9889 }, /* Cyrillic_ER */
+    { 0x000006f3, 9915 }, /* Cyrillic_ES */
+    { 0x000006f4, 10707 }, /* Cyrillic_TE */
+    { 0x000006f5, 10761 }, /* Cyrillic_U */
+    { 0x000006f6, 11049 }, /* Cyrillic_ZHE */
+    { 0x000006f7, 10915 }, /* Cyrillic_VE */
+    { 0x000006f8, 10669 }, /* Cyrillic_SOFTSIGN */
+    { 0x000006f9, 10967 }, /* Cyrillic_YERU */
+    { 0x000006fa, 11023 }, /* Cyrillic_ZE */
+    { 0x000006fb, 10545 }, /* Cyrillic_SHA */
+    { 0x000006fc, 9715 }, /* Cyrillic_E */
+    { 0x000006fd, 10573 }, /* Cyrillic_SHCHA */
+    { 0x000006fe, 9533 }, /* Cyrillic_CHE */
+    { 0x000006ff, 10077 }, /* Cyrillic_HARDSIGN */
+    { 0x000007a1, 14473 }, /* Greek_ALPHAaccent */
+    { 0x000007a2, 14613 }, /* Greek_EPSILONaccent */
+    { 0x000007a3, 14677 }, /* Greek_ETAaccent */
+    { 0x000007a4, 14800 }, /* Greek_IOTAaccent */
+    { 0x000007a5, 14883 }, /* Greek_IOTAdieresis */
+    { 0x000007a7, 15137 }, /* Greek_OMICRONaccent */
+    { 0x000007a8, 15383 }, /* Greek_UPSILONaccent */
+    { 0x000007a9, 15454 }, /* Greek_UPSILONdieresis */
+    { 0x000007ab, 15069 }, /* Greek_OMEGAaccent */
+    { 0x000007ae, 14425 }, /* Greek_accentdieresis */
+    { 0x000007af, 14760 }, /* Greek_horizbar */
+    { 0x000007b1, 14492 }, /* Greek_alphaaccent */
+    { 0x000007b2, 14634 }, /* Greek_epsilonaccent */
+    { 0x000007b3, 14694 }, /* Greek_etaaccent */
+    { 0x000007b4, 14818 }, /* Greek_iotaaccent */
+    { 0x000007b5, 14903 }, /* Greek_iotadieresis */
+    { 0x000007b6, 14836 }, /* Greek_iotaaccentdieresis */
+    { 0x000007b7, 15158 }, /* Greek_omicronaccent */
+    { 0x000007b8, 15404 }, /* Greek_upsilonaccent */
+    { 0x000007b9, 15477 }, /* Greek_upsilondieresis */
+    { 0x000007ba, 15425 }, /* Greek_upsilonaccentdieresis */
+    { 0x000007bb, 15088 }, /* Greek_omegaaccent */
+    { 0x000007c1, 14447 }, /* Greek_ALPHA */
+    { 0x000007c2, 14511 }, /* Greek_BETA */
+    { 0x000007c3, 14734 }, /* Greek_GAMMA */
+    { 0x000007c4, 14557 }, /* Greek_DELTA */
+    { 0x000007c5, 14583 }, /* Greek_EPSILON */
+    { 0x000007c6, 15520 }, /* Greek_ZETA */
+    { 0x000007c7, 14655 }, /* Greek_ETA */
+    { 0x000007c8, 15327 }, /* Greek_THETA */
+    { 0x000007c9, 14776 }, /* Greek_IOTA */
+    { 0x000007ca, 14923 }, /* Greek_KAPPA */
+    { 0x000007cb, 14977 }, /* Greek_LAMDA */
+    { 0x000007cc, 15003 }, /* Greek_MU */
+    { 0x000007cd, 15023 }, /* Greek_NU */
+    { 0x000007ce, 15500 }, /* Greek_XI */
+    { 0x000007cf, 15107 }, /* Greek_OMICRON */
+    { 0x000007d0, 15201 }, /* Greek_PI */
+    { 0x000007d1, 15243 }, /* Greek_RHO */
+    { 0x000007d2, 15265 }, /* Greek_SIGMA */
+    { 0x000007d4, 15305 }, /* Greek_TAU */
+    { 0x000007d5, 15353 }, /* Greek_UPSILON */
+    { 0x000007d6, 15179 }, /* Greek_PHI */
+    { 0x000007d7, 14535 }, /* Greek_CHI */
+    { 0x000007d8, 15221 }, /* Greek_PSI */
+    { 0x000007d9, 15043 }, /* Greek_OMEGA */
+    { 0x000007e1, 14460 }, /* Greek_alpha */
+    { 0x000007e2, 14523 }, /* Greek_beta */
+    { 0x000007e3, 14747 }, /* Greek_gamma */
+    { 0x000007e4, 14570 }, /* Greek_delta */
+    { 0x000007e5, 14598 }, /* Greek_epsilon */
+    { 0x000007e6, 15532 }, /* Greek_zeta */
+    { 0x000007e7, 14666 }, /* Greek_eta */
+    { 0x000007e8, 15340 }, /* Greek_theta */
+    { 0x000007e9, 14788 }, /* Greek_iota */
+    { 0x000007ea, 14936 }, /* Greek_kappa */
+    { 0x000007eb, 14990 }, /* Greek_lamda */
+    { 0x000007ec, 15013 }, /* Greek_mu */
+    { 0x000007ed, 15033 }, /* Greek_nu */
+    { 0x000007ee, 15510 }, /* Greek_xi */
+    { 0x000007ef, 15122 }, /* Greek_omicron */
+    { 0x000007f0, 15211 }, /* Greek_pi */
+    { 0x000007f1, 15254 }, /* Greek_rho */
+    { 0x000007f2, 15278 }, /* Greek_sigma */
+    { 0x000007f3, 14711 }, /* Greek_finalsmallsigma */
+    { 0x000007f4, 15316 }, /* Greek_tau */
+    { 0x000007f5, 15368 }, /* Greek_upsilon */
+    { 0x000007f6, 15190 }, /* Greek_phi */
+    { 0x000007f7, 14546 }, /* Greek_chi */
+    { 0x000007f8, 15232 }, /* Greek_psi */
+    { 0x000007f9, 15056 }, /* Greek_omega */
+    { 0x000008a1, 21015 }, /* leftradical */
+    { 0x000008a2, 27877 }, /* topleftradical */
+    { 0x000008a3, 18064 }, /* horizconnector */
+    { 0x000008a4, 27849 }, /* topintegral */
+    { 0x000008a5, 3706 }, /* botintegral */
+    { 0x000008a6, 28847 }, /* vertconnector */
+    { 0x000008a7, 27893 }, /* topleftsqbracket */
+    { 0x000008a8, 3734 }, /* botleftsqbracket */
+    { 0x000008a9, 27945 }, /* toprightsqbracket */
+    { 0x000008aa, 3786 }, /* botrightsqbracket */
+    { 0x000008ab, 27862 }, /* topleftparens */
+    { 0x000008ac, 3719 }, /* botleftparens */
+    { 0x000008ad, 27929 }, /* toprightparens */
+    { 0x000008ae, 3770 }, /* botrightparens */
+    { 0x000008af, 20962 }, /* leftmiddlecurlybrace */
+    { 0x000008b0, 24406 }, /* rightmiddlecurlybrace */
+    { 0x000008b1, 27911 }, /* topleftsummation */
+    { 0x000008b2, 3752 }, /* botleftsummation */
+    { 0x000008b3, 27989 }, /* topvertsummationconnector */
+    { 0x000008b4, 3830 }, /* botvertsummationconnector */
+    { 0x000008b5, 27964 }, /* toprightsummation */
+    { 0x000008b6, 3805 }, /* botrightsummation */
+    { 0x000008b7, 24429 }, /* rightmiddlesummation */
+    { 0x000008bc, 21082 }, /* lessthanequal */
+    { 0x000008bd, 21860 }, /* notequal */
+    { 0x000008be, 14407 }, /* greaterthanequal */
+    { 0x000008bf, 18774 }, /* integral */
+    { 0x000008c0, 27722 }, /* therefore */
+    { 0x000008c1, 28827 }, /* variation */
+    { 0x000008c2, 18732 }, /* infinity */
+    { 0x000008c5, 21664 }, /* nabla */
+    { 0x000008c8, 1045 }, /* approximate */
+    { 0x000008c9, 25016 }, /* similarequal */
+    { 0x000008cd, 18643 }, /* ifonlyif */
+    { 0x000008ce, 18701 }, /* implies */
+    { 0x000008cf, 18598 }, /* identical */
+    { 0x000008d6, 24237 }, /* radical */
+    { 0x000008da, 18710 }, /* includedin */
+    { 0x000008db, 18722 }, /* includes */
+    { 0x000008dc, 18784 }, /* intersection */
+    { 0x000008dd, 28684 }, /* union */
+    { 0x000008de, 21127 }, /* logicaland */
+    { 0x000008df, 21139 }, /* logicalor */
+    { 0x000008ef, 23340 }, /* partialderivative */
+    { 0x000008f6, 13729 }, /* function */
+    { 0x000008fb, 20919 }, /* leftarrow */
+    { 0x000008fc, 28713 }, /* uparrow */
+    { 0x000008fd, 24360 }, /* rightarrow */
+    { 0x000008fe, 12254 }, /* downarrow */
+    { 0x000009df, 3692 }, /* blank */
+    { 0x000009e0, 25894 }, /* soliddiamond */
+    { 0x000009e1, 9197 }, /* checkerboard */
+    { 0x000009e2, 18471 }, /* ht */
+    { 0x000009e3, 13468 }, /* ff */
+    { 0x000009e4, 9422 }, /* cr */
+    { 0x000009e5, 21097 }, /* lf */
+    { 0x000009e8, 21805 }, /* nl */
+    { 0x000009e9, 28887 }, /* vt */
+    { 0x000009ea, 21176 }, /* lowrightcorner */
+    { 0x000009eb, 28745 }, /* uprightcorner */
+    { 0x000009ec, 28731 }, /* upleftcorner */
+    { 0x000009ed, 21161 }, /* lowleftcorner */
+    { 0x000009ee, 9426 }, /* crossinglines */
+    { 0x000009ef, 18080 }, /* horizlinescan1 */
+    { 0x000009f0, 18096 }, /* horizlinescan3 */
+    { 0x000009f1, 18112 }, /* horizlinescan5 */
+    { 0x000009f2, 18128 }, /* horizlinescan7 */
+    { 0x000009f3, 18144 }, /* horizlinescan9 */
+    { 0x000009f4, 21059 }, /* leftt */
+    { 0x000009f5, 24517 }, /* rightt */
+    { 0x000009f6, 3824 }, /* bott */
+    { 0x000009f7, 27983 }, /* topt */
+    { 0x000009f8, 28838 }, /* vertbar */
+    { 0x00000aa1, 12905 }, /* emspace */
+    { 0x00000aa2, 13013 }, /* enspace */
+    { 0x00000aa3, 12788 }, /* em3space */
+    { 0x00000aa4, 12798 }, /* em4space */
+    { 0x00000aa5, 12133 }, /* digitspace */
+    { 0x00000aa6, 24068 }, /* punctspace */
+    { 0x00000aa7, 27733 }, /* thinspace */
+    { 0x00000aa8, 15621 }, /* hairspace */
+    { 0x00000aa9, 12826 }, /* emdash */
+    { 0x00000aaa, 12919 }, /* endash */
+    { 0x00000aac, 25003 }, /* signifblank */
+    { 0x00000aae, 12778 }, /* ellipsis */
+    { 0x00000aaf, 12184 }, /* doubbaselinedot */
+    { 0x00000ab0, 22564 }, /* onethird */
+    { 0x00000ab1, 28109 }, /* twothirds */
+    { 0x00000ab2, 22496 }, /* onefifth */
+    { 0x00000ab3, 28071 }, /* twofifths */
+    { 0x00000ab4, 27779 }, /* threefifths */
+    { 0x00000ab5, 13676 }, /* fourfifths */
+    { 0x00000ab6, 22527 }, /* onesixth */
+    { 0x00000ab7, 13635 }, /* fivesixths */
+    { 0x00000ab8, 9086 }, /* careof */
+    { 0x00000abb, 13484 }, /* figdash */
+    { 0x00000abc, 20901 }, /* leftanglebracket */
+    { 0x00000abd, 12044 }, /* decimalpoint */
+    { 0x00000abe, 24341 }, /* rightanglebracket */
+    { 0x00000abf, 21372 }, /* marker */
+    { 0x00000ac3, 22485 }, /* oneeighth */
+    { 0x00000ac4, 27765 }, /* threeeighths */
+    { 0x00000ac5, 13622 }, /* fiveeighths */
+    { 0x00000ac6, 24913 }, /* seveneighths */
+    { 0x00000ac9, 28025 }, /* trademark */
+    { 0x00000aca, 24988 }, /* signaturemark */
+    { 0x00000acb, 28036 }, /* trademarkincircle */
+    { 0x00000acc, 20984 }, /* leftopentriangle */
+    { 0x00000acd, 24451 }, /* rightopentriangle */
+    { 0x00000ace, 12864 }, /* emopencircle */
+    { 0x00000acf, 12878 }, /* emopenrectangle */
+    { 0x00000ad0, 21038 }, /* leftsinglequotemark */
+    { 0x00000ad1, 24495 }, /* rightsinglequotemark */
+    { 0x00000ad2, 20941 }, /* leftdoublequotemark */
+    { 0x00000ad3, 24384 }, /* rightdoublequotemark */
+    { 0x00000ad4, 23984 }, /* prescription */
+    { 0x00000ad5, 23399 }, /* permille */
+    { 0x00000ad6, 21438 }, /* minutes */
+    { 0x00000ad7, 24703 }, /* seconds */
+    { 0x00000ad9, 20825 }, /* latincross */
+    { 0x00000ada, 18019 }, /* hexagram */
+    { 0x00000adb, 13514 }, /* filledrectbullet */
+    { 0x00000adc, 13493 }, /* filledlefttribullet */
+    { 0x00000add, 13532 }, /* filledrighttribullet */
+    { 0x00000ade, 12834 }, /* emfilledcircle */
+    { 0x00000adf, 12850 }, /* emfilledrect */
+    { 0x00000ae0, 12975 }, /* enopencircbullet */
+    { 0x00000ae1, 12993 }, /* enopensquarebullet */
+    { 0x00000ae2, 22594 }, /* openrectbullet */
+    { 0x00000ae3, 22639 }, /* opentribulletup */
+    { 0x00000ae4, 22620 }, /* opentribulletdown */
+    { 0x00000ae5, 22610 }, /* openstar */
+    { 0x00000ae6, 12927 }, /* enfilledcircbullet */
+    { 0x00000ae7, 12947 }, /* enfilledsqbullet */
+    { 0x00000ae8, 13575 }, /* filledtribulletup */
+    { 0x00000ae9, 13554 }, /* filledtribulletdown */
+    { 0x00000aea, 21002 }, /* leftpointer */
+    { 0x00000aeb, 24470 }, /* rightpointer */
+    { 0x00000aec, 9248 }, /* club */
+    { 0x00000aed, 12124 }, /* diamond */
+    { 0x00000aee, 17429 }, /* heart */
+    { 0x00000af0, 21358 }, /* maltesecross */
+    { 0x00000af1, 11168 }, /* dagger */
+    { 0x00000af2, 12214 }, /* doubledagger */
+    { 0x00000af3, 9211 }, /* checkmark */
+    { 0x00000af4, 3658 }, /* ballotcross */
+    { 0x00000af5, 21569 }, /* musicalsharp */
+    { 0x00000af6, 21556 }, /* musicalflat */
+    { 0x00000af7, 21346 }, /* malesymbol */
+    { 0x00000af8, 13454 }, /* femalesymbol */
+    { 0x00000af9, 26510 }, /* telephone */
+    { 0x00000afa, 26521 }, /* telephonerecorder */
+    { 0x00000afb, 23421 }, /* phonographcopyright */
+    { 0x00000afc, 9094 }, /* caret */
+    { 0x00000afd, 25047 }, /* singlelowquotemark */
+    { 0x00000afe, 12228 }, /* doublelowquotemark */
+    { 0x00000aff, 9475 }, /* cursor */
+    { 0x00000ba3, 20930 }, /* leftcaret */
+    { 0x00000ba6, 24372 }, /* rightcaret */
+    { 0x00000ba8, 12265 }, /* downcaret */
+    { 0x00000ba9, 28722 }, /* upcaret */
+    { 0x00000bc0, 23187 }, /* overbar */
+    { 0x00000bc2, 12297 }, /* downtack */
+    { 0x00000bc3, 28760 }, /* upshoe */
+    { 0x00000bc4, 12286 }, /* downstile */
+    { 0x00000bc6, 28656 }, /* underbar */
+    { 0x00000bca, 19654 }, /* jot */
+    { 0x00000bcc, 24086 }, /* quad */
+    { 0x00000bce, 28777 }, /* uptack */
+    { 0x00000bcf, 9222 }, /* circle */
+    { 0x00000bd3, 28768 }, /* upstile */
+    { 0x00000bd6, 12276 }, /* downshoe */
+    { 0x00000bd8, 24484 }, /* rightshoe */
+    { 0x00000bda, 21028 }, /* leftshoe */
+    { 0x00000bdc, 21066 }, /* lefttack */
+    { 0x00000bfc, 24525 }, /* righttack */
+    { 0x00000cdf, 17530 }, /* hebrew_doublelowline */
+    { 0x00000ce0, 17436 }, /* hebrew_aleph */
+    { 0x00000ce1, 17463 }, /* hebrew_bet */
+    { 0x00000ce2, 17656 }, /* hebrew_gimel */
+    { 0x00000ce3, 17501 }, /* hebrew_dalet */
+    { 0x00000ce4, 17685 }, /* hebrew_he */
+    { 0x00000ce5, 17915 }, /* hebrew_waw */
+    { 0x00000ce6, 17965 }, /* hebrew_zain */
+    { 0x00000ce7, 17488 }, /* hebrew_chet */
+    { 0x00000ce8, 17890 }, /* hebrew_tet */
+    { 0x00000ce9, 17927 }, /* hebrew_yod */
+    { 0x00000cea, 17552 }, /* hebrew_finalkaph */
+    { 0x00000ceb, 17708 }, /* hebrew_kaph */
+    { 0x00000cec, 17733 }, /* hebrew_lamed */
+    { 0x00000ced, 17570 }, /* hebrew_finalmem */
+    { 0x00000cee, 17747 }, /* hebrew_mem */
+    { 0x00000cef, 17587 }, /* hebrew_finalnun */
+    { 0x00000cf0, 17759 }, /* hebrew_nun */
+    { 0x00000cf1, 17808 }, /* hebrew_samech */
+    { 0x00000cf2, 17450 }, /* hebrew_ayin */
+    { 0x00000cf3, 17604 }, /* hebrew_finalpe */
+    { 0x00000cf4, 17771 }, /* hebrew_pe */
+    { 0x00000cf5, 17620 }, /* hebrew_finalzade */
+    { 0x00000cf6, 17939 }, /* hebrew_zade */
+    { 0x00000cf7, 17782 }, /* hebrew_qoph */
+    { 0x00000cf8, 17795 }, /* hebrew_resh */
+    { 0x00000cf9, 17838 }, /* hebrew_shin */
+    { 0x00000cfa, 17878 }, /* hebrew_taw */
+    { 0x00000da1, 26793 }, /* Thai_kokai */
+    { 0x00000da2, 26718 }, /* Thai_khokhai */
+    { 0x00000da3, 26746 }, /* Thai_khokhuat */
+    { 0x00000da4, 26761 }, /* Thai_khokhwai */
+    { 0x00000da5, 26732 }, /* Thai_khokhon */
+    { 0x00000da6, 26776 }, /* Thai_khorakhang */
+    { 0x00000da7, 27130 }, /* Thai_ngongu */
+    { 0x00000da8, 26584 }, /* Thai_chochan */
+    { 0x00000da9, 26613 }, /* Thai_choching */
+    { 0x00000daa, 26598 }, /* Thai_chochang */
+    { 0x00000dab, 27520 }, /* Thai_soso */
+    { 0x00000dac, 26628 }, /* Thai_chochoe */
+    { 0x00000dad, 27709 }, /* Thai_yoying */
+    { 0x00000dae, 26642 }, /* Thai_dochada */
+    { 0x00000daf, 27658 }, /* Thai_topatak */
+    { 0x00000db0, 27614 }, /* Thai_thothan */
+    { 0x00000db1, 27561 }, /* Thai_thonangmontho */
+    { 0x00000db2, 27581 }, /* Thai_thophuthao */
+    { 0x00000db3, 27158 }, /* Thai_nonen */
+    { 0x00000db4, 26656 }, /* Thai_dodek */
+    { 0x00000db5, 27672 }, /* Thai_totao */
+    { 0x00000db6, 27643 }, /* Thai_thothung */
+    { 0x00000db7, 27598 }, /* Thai_thothahan */
+    { 0x00000db8, 27628 }, /* Thai_thothong */
+    { 0x00000db9, 27170 }, /* Thai_nonu */
+    { 0x00000dba, 26569 }, /* Thai_bobaimai */
+    { 0x00000dbb, 27268 }, /* Thai_popla */
+    { 0x00000dbc, 27236 }, /* Thai_phophung */
+    { 0x00000dbd, 26668 }, /* Thai_fofa */
+    { 0x00000dbe, 27222 }, /* Thai_phophan */
+    { 0x00000dbf, 26679 }, /* Thai_fofan */
+    { 0x00000dc0, 27251 }, /* Thai_phosamphao */
+    { 0x00000dc1, 27119 }, /* Thai_moma */
+    { 0x00000dc2, 27697 }, /* Thai_yoyak */
+    { 0x00000dc3, 27280 }, /* Thai_rorua */
+    { 0x00000dc4, 27292 }, /* Thai_ru */
+    { 0x00000dc5, 26969 }, /* Thai_loling */
+    { 0x00000dc6, 26982 }, /* Thai_lu */
+    { 0x00000dc7, 27684 }, /* Thai_wowaen */
+    { 0x00000dc8, 27507 }, /* Thai_sosala */
+    { 0x00000dc9, 27494 }, /* Thai_sorusi */
+    { 0x00000dca, 27531 }, /* Thai_sosua */
+    { 0x00000dcb, 26691 }, /* Thai_hohip */
+    { 0x00000dcc, 26955 }, /* Thai_lochula */
+    { 0x00000dcd, 27181 }, /* Thai_oang */
+    { 0x00000dce, 26703 }, /* Thai_honokhuk */
+    { 0x00000dcf, 27192 }, /* Thai_paiyannoi */
+    { 0x00000dd0, 27301 }, /* Thai_saraa */
+    { 0x00000dd1, 27021 }, /* Thai_maihanakat */
+    { 0x00000dd2, 27313 }, /* Thai_saraaa */
+    { 0x00000dd3, 27380 }, /* Thai_saraam */
+    { 0x00000dd4, 27405 }, /* Thai_sarai */
+    { 0x00000dd5, 27417 }, /* Thai_saraii */
+    { 0x00000dd6, 27454 }, /* Thai_saraue */
+    { 0x00000dd7, 27467 }, /* Thai_sarauee */
+    { 0x00000dd8, 27442 }, /* Thai_sarau */
+    { 0x00000dd9, 27481 }, /* Thai_sarauu */
+    { 0x00000dda, 27208 }, /* Thai_phinthu */
+    { 0x00000dde, 27038 }, /* Thai_maihanakat_maitho */
+    { 0x00000ddf, 26558 }, /* Thai_baht */
+    { 0x00000de0, 27393 }, /* Thai_sarae */
+    { 0x00000de1, 27326 }, /* Thai_saraae */
+    { 0x00000de2, 27430 }, /* Thai_sarao */
+    { 0x00000de3, 27360 }, /* Thai_saraaimaimuan */
+    { 0x00000de4, 27339 }, /* Thai_saraaimaimalai */
+    { 0x00000de5, 26805 }, /* Thai_lakkhangyao */
+    { 0x00000de6, 27104 }, /* Thai_maiyamok */
+    { 0x00000de7, 27062 }, /* Thai_maitaikhu */
+    { 0x00000de8, 27009 }, /* Thai_maiek */
+    { 0x00000de9, 27078 }, /* Thai_maitho */
+    { 0x00000dea, 27091 }, /* Thai_maitri */
+    { 0x00000deb, 26991 }, /* Thai_maichattawa */
+    { 0x00000dec, 27543 }, /* Thai_thanthakhat */
+    { 0x00000ded, 27143 }, /* Thai_nikhahit */
+    { 0x00000df0, 26942 }, /* Thai_leksun */
+    { 0x00000df1, 26875 }, /* Thai_leknung */
+    { 0x00000df2, 26928 }, /* Thai_leksong */
+    { 0x00000df3, 26903 }, /* Thai_leksam */
+    { 0x00000df4, 26916 }, /* Thai_leksi */
+    { 0x00000df5, 26837 }, /* Thai_lekha */
+    { 0x00000df6, 26849 }, /* Thai_lekhok */
+    { 0x00000df7, 26823 }, /* Thai_lekchet */
+    { 0x00000df8, 26889 }, /* Thai_lekpaet */
+    { 0x00000df9, 26862 }, /* Thai_lekkao */
+    { 0x00000ea1, 16472 }, /* Hangul_Kiyeog */
+    { 0x00000ea2, 17049 }, /* Hangul_SsangKiyeog */
+    { 0x00000ea3, 16487 }, /* Hangul_KiyeogSios */
+    { 0x00000ea4, 16572 }, /* Hangul_Nieun */
+    { 0x00000ea5, 16605 }, /* Hangul_NieunJieuj */
+    { 0x00000ea6, 16586 }, /* Hangul_NieunHieuh */
+    { 0x00000ea7, 15736 }, /* Hangul_Dikeud */
+    { 0x00000ea8, 17010 }, /* Hangul_SsangDikeud */
+    { 0x00000ea9, 16769 }, /* Hangul_Rieul */
+    { 0x00000eaa, 16802 }, /* Hangul_RieulKiyeog */
+    { 0x00000eab, 16822 }, /* Hangul_RieulMieum */
+    { 0x00000eac, 16861 }, /* Hangul_RieulPieub */
+    { 0x00000ead, 16880 }, /* Hangul_RieulSios */
+    { 0x00000eae, 16898 }, /* Hangul_RieulTieut */
+    { 0x00000eaf, 16841 }, /* Hangul_RieulPhieuf */
+    { 0x00000eb0, 16783 }, /* Hangul_RieulHieuh */
+    { 0x00000eb1, 16532 }, /* Hangul_Mieum */
+    { 0x00000eb2, 16676 }, /* Hangul_Pieub */
+    { 0x00000eb3, 17069 }, /* Hangul_SsangPieub */
+    { 0x00000eb4, 16690 }, /* Hangul_PieubSios */
+    { 0x00000eb5, 16981 }, /* Hangul_Sios */
+    { 0x00000eb6, 17088 }, /* Hangul_SsangSios */
+    { 0x00000eb7, 15833 }, /* Hangul_Ieung */
+    { 0x00000eb8, 16443 }, /* Hangul_Jieuj */
+    { 0x00000eb9, 17030 }, /* Hangul_SsangJieuj */
+    { 0x00000eba, 15704 }, /* Hangul_Cieuc */
+    { 0x00000ebb, 16457 }, /* Hangul_Khieuq */
+    { 0x00000ebc, 17214 }, /* Hangul_Tieut */
+    { 0x00000ebd, 16661 }, /* Hangul_Phieuf */
+    { 0x00000ebe, 15809 }, /* Hangul_Hieuh */
+    { 0x00000ebf, 15640 }, /* Hangul_A */
+    { 0x00000ec0, 15650 }, /* Hangul_AE */
+    { 0x00000ec1, 17295 }, /* Hangul_YA */
+    { 0x00000ec2, 17306 }, /* Hangul_YAE */
+    { 0x00000ec3, 15773 }, /* Hangul_EO */
+    { 0x00000ec4, 15751 }, /* Hangul_E */
+    { 0x00000ec5, 17329 }, /* Hangul_YEO */
+    { 0x00000ec6, 17318 }, /* Hangul_YE */
+    { 0x00000ec7, 16624 }, /* Hangul_O */
+    { 0x00000ec8, 17238 }, /* Hangul_WA */
+    { 0x00000ec9, 17249 }, /* Hangul_WAE */
+    { 0x00000eca, 16634 }, /* Hangul_OE */
+    { 0x00000ecb, 17372 }, /* Hangul_YO */
+    { 0x00000ecc, 17228 }, /* Hangul_U */
+    { 0x00000ecd, 17272 }, /* Hangul_WEO */
+    { 0x00000ece, 17261 }, /* Hangul_WE */
+    { 0x00000ecf, 17284 }, /* Hangul_WI */
+    { 0x00000ed0, 17383 }, /* Hangul_YU */
+    { 0x00000ed1, 15784 }, /* Hangul_EU */
+    { 0x00000ed2, 17361 }, /* Hangul_YI */
+    { 0x00000ed3, 15823 }, /* Hangul_I */
+    { 0x00000ed4, 15945 }, /* Hangul_J_Kiyeog */
+    { 0x00000ed5, 16335 }, /* Hangul_J_SsangKiyeog */
+    { 0x00000ed6, 15962 }, /* Hangul_J_KiyeogSios */
+    { 0x00000ed7, 16027 }, /* Hangul_J_Nieun */
+    { 0x00000ed8, 16064 }, /* Hangul_J_NieunJieuj */
+    { 0x00000ed9, 16043 }, /* Hangul_J_NieunHieuh */
+    { 0x00000eda, 15863 }, /* Hangul_J_Dikeud */
+    { 0x00000edb, 16156 }, /* Hangul_J_Rieul */
+    { 0x00000edc, 16193 }, /* Hangul_J_RieulKiyeog */
+    { 0x00000edd, 16215 }, /* Hangul_J_RieulMieum */
+    { 0x00000ede, 16258 }, /* Hangul_J_RieulPieub */
+    { 0x00000edf, 16279 }, /* Hangul_J_RieulSios */
+    { 0x00000ee0, 16299 }, /* Hangul_J_RieulTieut */
+    { 0x00000ee1, 16236 }, /* Hangul_J_RieulPhieuf */
+    { 0x00000ee2, 16172 }, /* Hangul_J_RieulHieuh */
+    { 0x00000ee3, 16011 }, /* Hangul_J_Mieum */
+    { 0x00000ee4, 16120 }, /* Hangul_J_Pieub */
+    { 0x00000ee5, 16136 }, /* Hangul_J_PieubSios */
+    { 0x00000ee6, 16320 }, /* Hangul_J_Sios */
+    { 0x00000ee7, 16357 }, /* Hangul_J_SsangSios */
+    { 0x00000ee8, 15896 }, /* Hangul_J_Ieung */
+    { 0x00000ee9, 15912 }, /* Hangul_J_Jieuj */
+    { 0x00000eea, 15847 }, /* Hangul_J_Cieuc */
+    { 0x00000eeb, 15928 }, /* Hangul_J_Khieuq */
+    { 0x00000eec, 16377 }, /* Hangul_J_Tieut */
+    { 0x00000eed, 16103 }, /* Hangul_J_Phieuf */
+    { 0x00000eee, 15880 }, /* Hangul_J_Hieuh */
+    { 0x00000eef, 16917 }, /* Hangul_RieulYeorinHieuh */
+    { 0x00000ef0, 17120 }, /* Hangul_SunkyeongeumMieum */
+    { 0x00000ef1, 17173 }, /* Hangul_SunkyeongeumPieub */
+    { 0x00000ef2, 16645 }, /* Hangul_PanSios */
+    { 0x00000ef3, 16506 }, /* Hangul_KkogjiDalrinIeung */
+    { 0x00000ef4, 17146 }, /* Hangul_SunkyeongeumPhieuf */
+    { 0x00000ef5, 17341 }, /* Hangul_YeorinHieuh */
+    { 0x00000ef6, 15661 }, /* Hangul_AraeA */
+    { 0x00000ef7, 15675 }, /* Hangul_AraeAE */
+    { 0x00000ef8, 16085 }, /* Hangul_J_PanSios */
+    { 0x00000ef9, 15983 }, /* Hangul_J_KkogjiDalrinIeung */
+    { 0x00000efa, 16393 }, /* Hangul_J_YeorinHieuh */
+    { 0x00000eff, 20386 }, /* Korean_Won */
+    { 0x000013bc, 22283 }, /* OE */
+    { 0x000013bd, 22287 }, /* oe */
+    { 0x000013be, 34277 }, /* Ydiaeresis */
+    { 0x000020ac, 13086 }, /* EuroSign */
+    { 0x0000fd01, 137 }, /* 3270_Duplicate */
+    { 0x0000fd02, 212 }, /* 3270_FieldMark */
+    { 0x0000fd03, 373 }, /* 3270_Right2 */
+    { 0x0000fd04, 266 }, /* 3270_Left2 */
+    { 0x0000fd05, 39 }, /* 3270_BackTab */
+    { 0x0000fd06, 165 }, /* 3270_EraseEOF */
+    { 0x0000fd07, 180 }, /* 3270_EraseInput */
+    { 0x0000fd08, 361 }, /* 3270_Reset */
+    { 0x0000fd09, 337 }, /* 3270_Quit */
+    { 0x0000fd0a, 278 }, /* 3270_PA1 */
+    { 0x0000fd0b, 288 }, /* 3270_PA2 */
+    { 0x0000fd0c, 298 }, /* 3270_PA3 */
+    { 0x0000fd0d, 409 }, /* 3270_Test */
+    { 0x0000fd0e, 28 }, /* 3270_Attn */
+    { 0x0000fd0f, 83 }, /* 3270_CursorBlink */
+    { 0x0000fd10, 12 }, /* 3270_AltCursor */
+    { 0x0000fd11, 251 }, /* 3270_KeyClick */
+    { 0x0000fd12, 240 }, /* 3270_Jump */
+    { 0x0000fd13, 228 }, /* 3270_Ident */
+    { 0x0000fd14, 386 }, /* 3270_Rule */
+    { 0x0000fd15, 72 }, /* 3270_Copy */
+    { 0x0000fd16, 308 }, /* 3270_Play */
+    { 0x0000fd17, 397 }, /* 3270_Setup */
+    { 0x0000fd18, 348 }, /* 3270_Record */
+    { 0x0000fd19, 53 }, /* 3270_ChangeScreen */
+    { 0x0000fd1a, 120 }, /* 3270_DeleteWord */
+    { 0x0000fd1b, 197 }, /* 3270_ExSelect */
+    { 0x0000fd1c, 101 }, /* 3270_CursorSelect */
+    { 0x0000fd1d, 319 }, /* 3270_PrintScreen */
+    { 0x0000fd1e, 153 }, /* 3270_Enter */
+    { 0x0000fe01, 19271 }, /* ISO_Lock */
+    { 0x0000fe02, 19147 }, /* ISO_Level2_Latch */
+    { 0x0000fe03, 19200 }, /* ISO_Level3_Shift */
+    { 0x0000fe04, 19165 }, /* ISO_Level3_Latch */
+    { 0x0000fe05, 19183 }, /* ISO_Level3_Lock */
+    { 0x0000fe06, 19046 }, /* ISO_Group_Latch */
+    { 0x0000fe07, 19063 }, /* ISO_Group_Lock */
+    { 0x0000fe08, 19319 }, /* ISO_Next_Group */
+    { 0x0000fe09, 19335 }, /* ISO_Next_Group_Lock */
+    { 0x0000fe0a, 19449 }, /* ISO_Prev_Group */
+    { 0x0000fe0b, 19465 }, /* ISO_Prev_Group_Lock */
+    { 0x0000fe0c, 19007 }, /* ISO_First_Group */
+    { 0x0000fe0d, 19024 }, /* ISO_First_Group_Lock */
+    { 0x0000fe0e, 19096 }, /* ISO_Last_Group */
+    { 0x0000fe0f, 19112 }, /* ISO_Last_Group_Lock */
+    { 0x0000fe11, 19253 }, /* ISO_Level5_Shift */
+    { 0x0000fe12, 19218 }, /* ISO_Level5_Latch */
+    { 0x0000fe13, 19236 }, /* ISO_Level5_Lock */
+    { 0x0000fe20, 19133 }, /* ISO_Left_Tab */
+    { 0x0000fe21, 19301 }, /* ISO_Move_Line_Up */
+    { 0x0000fe22, 19281 }, /* ISO_Move_Line_Down */
+    { 0x0000fe23, 19379 }, /* ISO_Partial_Line_Up */
+    { 0x0000fe24, 19356 }, /* ISO_Partial_Line_Down */
+    { 0x0000fe25, 19400 }, /* ISO_Partial_Space_Left */
+    { 0x0000fe26, 19424 }, /* ISO_Partial_Space_Right */
+    { 0x0000fe27, 19563 }, /* ISO_Set_Margin_Left */
+    { 0x0000fe28, 19584 }, /* ISO_Set_Margin_Right */
+    { 0x0000fe29, 19512 }, /* ISO_Release_Margin_Left */
+    { 0x0000fe2a, 19537 }, /* ISO_Release_Margin_Right */
+    { 0x0000fe2b, 19486 }, /* ISO_Release_Both_Margins */
+    { 0x0000fe2c, 18942 }, /* ISO_Fast_Cursor_Left */
+    { 0x0000fe2d, 18964 }, /* ISO_Fast_Cursor_Right */
+    { 0x0000fe2e, 18987 }, /* ISO_Fast_Cursor_Up */
+    { 0x0000fe2f, 18920 }, /* ISO_Fast_Cursor_Down */
+    { 0x0000fe30, 18839 }, /* ISO_Continuous_Underline */
+    { 0x0000fe31, 18865 }, /* ISO_Discontinuous_Underline */
+    { 0x0000fe32, 18894 }, /* ISO_Emphasize */
+    { 0x0000fe33, 18820 }, /* ISO_Center_Object */
+    { 0x0000fe34, 18909 }, /* ISO_Enter */
+    { 0x0000fe50, 11703 }, /* dead_grave */
+    { 0x0000fe51, 11354 }, /* dead_acute */
+    { 0x0000fe52, 11591 }, /* dead_circumflex */
+    { 0x0000fe53, 11997 }, /* dead_tilde */
+    { 0x0000fe54, 11847 }, /* dead_macron */
+    { 0x0000fe55, 11533 }, /* dead_breve */
+    { 0x0000fe56, 11274 }, /* dead_abovedot */
+    { 0x0000fe57, 11635 }, /* dead_diaeresis */
+    { 0x0000fe58, 11314 }, /* dead_abovering */
+    { 0x0000fe59, 11651 }, /* dead_doubleacute */
+    { 0x0000fe5a, 11565 }, /* dead_caron */
+    { 0x0000fe5b, 11577 }, /* dead_cedilla */
+    { 0x0000fe5c, 11876 }, /* dead_ogonek */
+    { 0x0000fe5d, 11797 }, /* dead_iota */
+    { 0x0000fe5e, 12025 }, /* dead_voiced_sound */
+    { 0x0000fe5f, 11943 }, /* dead_semivoiced_sound */
+    { 0x0000fe60, 11443 }, /* dead_belowdot */
+    { 0x0000fe61, 11739 }, /* dead_hook */
+    { 0x0000fe62, 11750 }, /* dead_horn */
+    { 0x0000fe63, 11984 }, /* dead_stroke */
+    { 0x0000fe64, 11257 }, /* dead_abovecomma */
+    { 0x0000fe65, 11289 }, /* dead_abovereversedcomma */
+    { 0x0000fe66, 11669 }, /* dead_doublegrave */
+    { 0x0000fe67, 11476 }, /* dead_belowring */
+    { 0x0000fe68, 11458 }, /* dead_belowmacron */
+    { 0x0000fe69, 11383 }, /* dead_belowcircumflex */
+    { 0x0000fe6a, 11492 }, /* dead_belowtilde */
+    { 0x0000fe6b, 11366 }, /* dead_belowbreve */
+    { 0x0000fe6c, 11422 }, /* dead_belowdiaeresis */
+    { 0x0000fe6d, 11777 }, /* dead_invertedbreve */
+    { 0x0000fe6e, 11405 }, /* dead_belowcomma */
+    { 0x0000fe6f, 11608 }, /* dead_currency */
+    { 0x0000fe70, 642 }, /* AccessX_Enable */
+    { 0x0000fe71, 658 }, /* AccessX_Feedback_Enable */
+    { 0x0000fe72, 24300 }, /* RepeatKeys_Enable */
+    { 0x0000fe73, 25877 }, /* SlowKeys_Enable */
+    { 0x0000fe74, 3857 }, /* BounceKeys_Enable */
+    { 0x0000fe75, 25945 }, /* StickyKeys_Enable */
+    { 0x0000fe76, 21484 }, /* MouseKeys_Enable */
+    { 0x0000fe77, 21460 }, /* MouseKeys_Accel_Enable */
+    { 0x0000fe78, 23196 }, /* Overlay1_Enable */
+    { 0x0000fe79, 23213 }, /* Overlay2_Enable */
+    { 0x0000fe7a, 3579 }, /* AudibleBell_Enable */
+    { 0x0000fe80, 11249 }, /* dead_a */
+    { 0x0000fe81, 11241 }, /* dead_A */
+    { 0x0000fe82, 11695 }, /* dead_e */
+    { 0x0000fe83, 11687 }, /* dead_E */
+    { 0x0000fe84, 11769 }, /* dead_i */
+    { 0x0000fe85, 11761 }, /* dead_I */
+    { 0x0000fe86, 11868 }, /* dead_o */
+    { 0x0000fe87, 11860 }, /* dead_O */
+    { 0x0000fe88, 12017 }, /* dead_u */
+    { 0x0000fe89, 12009 }, /* dead_U */
+    { 0x0000fe8a, 11966 }, /* dead_small_schwa */
+    { 0x0000fe8b, 11545 }, /* dead_capital_schwa */
+    { 0x0000fe8c, 11715 }, /* dead_greek */
+    { 0x0000fe8d, 11727 }, /* dead_hamza */
+    { 0x0000fe90, 11833 }, /* dead_lowline */
+    { 0x0000fe91, 11330 }, /* dead_aboveverticalline */
+    { 0x0000fe92, 11509 }, /* dead_belowverticalline */
+    { 0x0000fe93, 11808 }, /* dead_longsolidusoverlay */
+    { 0x0000fea0, 9193 }, /* ch */
+    { 0x0000fea1, 9189 }, /* Ch */
+    { 0x0000fea2, 9185 }, /* CH */
+    { 0x0000fea3, 9024 }, /* c_h */
+    { 0x0000fea4, 9019 }, /* C_h */
+    { 0x0000fea5, 9014 }, /* C_H */
+    { 0x0000fed0, 13600 }, /* First_Virtual_Screen */
+    { 0x0000fed1, 23998 }, /* Prev_Virtual_Screen */
+    { 0x0000fed2, 21755 }, /* Next_Virtual_Screen */
+    { 0x0000fed4, 20804 }, /* Last_Virtual_Screen */
+    { 0x0000fed5, 26540 }, /* Terminate_Server */
+    { 0x0000fee0, 23910 }, /* Pointer_Left */
+    { 0x0000fee1, 23924 }, /* Pointer_Right */
+    { 0x0000fee2, 23939 }, /* Pointer_Up */
+    { 0x0000fee3, 23745 }, /* Pointer_Down */
+    { 0x0000fee4, 23951 }, /* Pointer_UpLeft */
+    { 0x0000fee5, 23967 }, /* Pointer_UpRight */
+    { 0x0000fee6, 23759 }, /* Pointer_DownLeft */
+    { 0x0000fee7, 23777 }, /* Pointer_DownRight */
+    { 0x0000fee8, 23564 }, /* Pointer_Button_Dflt */
+    { 0x0000fee9, 23479 }, /* Pointer_Button1 */
+    { 0x0000feea, 23496 }, /* Pointer_Button2 */
+    { 0x0000feeb, 23513 }, /* Pointer_Button3 */
+    { 0x0000feec, 23530 }, /* Pointer_Button4 */
+    { 0x0000feed, 23547 }, /* Pointer_Button5 */
+    { 0x0000feee, 23680 }, /* Pointer_DblClick_Dflt */
+    { 0x0000feef, 23585 }, /* Pointer_DblClick1 */
+    { 0x0000fef0, 23604 }, /* Pointer_DblClick2 */
+    { 0x0000fef1, 23623 }, /* Pointer_DblClick3 */
+    { 0x0000fef2, 23642 }, /* Pointer_DblClick4 */
+    { 0x0000fef3, 23661 }, /* Pointer_DblClick5 */
+    { 0x0000fef4, 23871 }, /* Pointer_Drag_Dflt */
+    { 0x0000fef5, 23796 }, /* Pointer_Drag1 */
+    { 0x0000fef6, 23811 }, /* Pointer_Drag2 */
+    { 0x0000fef7, 23826 }, /* Pointer_Drag3 */
+    { 0x0000fef8, 23841 }, /* Pointer_Drag4 */
+    { 0x0000fef9, 23890 }, /* Pointer_EnableKeys */
+    { 0x0000fefa, 23459 }, /* Pointer_Accelerate */
+    { 0x0000fefb, 23703 }, /* Pointer_DfltBtnNext */
+    { 0x0000fefc, 23724 }, /* Pointer_DfltBtnPrev */
+    { 0x0000fefd, 23856 }, /* Pointer_Drag5 */
+    { 0x0000ff08, 3638 }, /* BackSpace */
+    { 0x0000ff09, 26447 }, /* Tab */
+    { 0x0000ff0a, 21101 }, /* Linefeed */
+    { 0x0000ff0b, 9230 }, /* Clear */
+    { 0x0000ff0d, 24326 }, /* Return */
+    { 0x0000ff13, 23359 }, /* Pause */
+    { 0x0000ff14, 24690 }, /* Scroll_Lock */
+    { 0x0000ff15, 26424 }, /* Sys_Req */
+    { 0x0000ff1b, 13047 }, /* Escape */
+    { 0x0000ff20, 21516 }, /* Multi_key */
+    { 0x0000ff21, 20328 }, /* Kanji */
+    { 0x0000ff22, 21506 }, /* Muhenkan */
+    { 0x0000ff23, 18006 }, /* Henkan_Mode */
+    { 0x0000ff24, 24536 }, /* Romaji */
+    { 0x0000ff25, 18029 }, /* Hiragana */
+    { 0x0000ff26, 20356 }, /* Katakana */
+    { 0x0000ff27, 18039 }, /* Hiragana_Katakana */
+    { 0x0000ff28, 34422 }, /* Zenkaku */
+    { 0x0000ff29, 17394 }, /* Hankaku */
+    { 0x0000ff2a, 34431 }, /* Zenkaku_Hankaku */
+    { 0x0000ff2b, 28016 }, /* Touroku */
+    { 0x0000ff2c, 21391 }, /* Massyo */
+    { 0x0000ff2d, 19888 }, /* Kana_Lock */
+    { 0x0000ff2e, 20123 }, /* Kana_Shift */
+    { 0x0000ff2f, 12742 }, /* Eisu_Shift */
+    { 0x0000ff30, 12754 }, /* Eisu_toggle */
+    { 0x0000ff31, 15632 }, /* Hangul */
+    { 0x0000ff32, 17106 }, /* Hangul_Start */
+    { 0x0000ff33, 15761 }, /* Hangul_End */
+    { 0x0000ff34, 15795 }, /* Hangul_Hanja */
+    { 0x0000ff35, 16415 }, /* Hangul_Jamo */
+    { 0x0000ff36, 16942 }, /* Hangul_Romaja */
+    { 0x0000ff37, 9254 }, /* Codeinput */
+    { 0x0000ff38, 16428 }, /* Hangul_Jeonja */
+    { 0x0000ff39, 15690 }, /* Hangul_Banja */
+    { 0x0000ff3a, 16726 }, /* Hangul_PreHanja */
+    { 0x0000ff3b, 16708 }, /* Hangul_PostHanja */
+    { 0x0000ff3c, 25030 }, /* SingleCandidate */
+    { 0x0000ff3d, 21527 }, /* MultipleCandidate */
+    { 0x0000ff3e, 24019 }, /* PreviousCandidate */
+    { 0x0000ff3f, 16994 }, /* Hangul_Special */
+    { 0x0000ff50, 18058 }, /* Home */
+    { 0x0000ff51, 20895 }, /* Left */
+    { 0x0000ff52, 28709 }, /* Up */
+    { 0x0000ff53, 24334 }, /* Right */
+    { 0x0000ff54, 12248 }, /* Down */
+    { 0x0000ff55, 24045 }, /* Prior */
+    { 0x0000ff56, 21749 }, /* Next */
+    { 0x0000ff57, 12914 }, /* End */
+    { 0x0000ff58, 3685 }, /* Begin */
+    { 0x0000ff60, 24721 }, /* Select */
+    { 0x0000ff61, 24038 }, /* Print */
+    { 0x0000ff62, 13116 }, /* Execute */
+    { 0x0000ff63, 18742 }, /* Insert */
+    { 0x0000ff65, 28678 }, /* Undo */
+    { 0x0000ff66, 24282 }, /* Redo */
+    { 0x0000ff67, 21399 }, /* Menu */
+    { 0x0000ff68, 13594 }, /* Find */
+    { 0x0000ff69, 9067 }, /* Cancel */
+    { 0x0000ff6a, 17992 }, /* Help */
+    { 0x0000ff6b, 8941 }, /* Break */
+    { 0x0000ff7e, 21447 }, /* Mode_switch */
+    { 0x0000ff7f, 21909 }, /* Num_Lock */
+    { 0x0000ff80, 20698 }, /* KP_Space */
+    { 0x0000ff89, 20721 }, /* KP_Tab */
+    { 0x0000ff8d, 20539 }, /* KP_Enter */
+    { 0x0000ff91, 20559 }, /* KP_F1 */
+    { 0x0000ff92, 20566 }, /* KP_F2 */
+    { 0x0000ff93, 20573 }, /* KP_F3 */
+    { 0x0000ff94, 20580 }, /* KP_F4 */
+    { 0x0000ff95, 20587 }, /* KP_Home */
+    { 0x0000ff96, 20607 }, /* KP_Left */
+    { 0x0000ff97, 20729 }, /* KP_Up */
+    { 0x0000ff98, 20674 }, /* KP_Right */
+    { 0x0000ff99, 20522 }, /* KP_Down */
+    { 0x0000ff9a, 20664 }, /* KP_Prior */
+    { 0x0000ff9b, 20629 }, /* KP_Next */
+    { 0x0000ff9c, 20531 }, /* KP_End */
+    { 0x0000ff9d, 20478 }, /* KP_Begin */
+    { 0x0000ff9e, 20596 }, /* KP_Insert */
+    { 0x0000ff9f, 20500 }, /* KP_Delete */
+    { 0x0000ffaa, 20616 }, /* KP_Multiply */
+    { 0x0000ffab, 20458 }, /* KP_Add */
+    { 0x0000ffac, 20684 }, /* KP_Separator */
+    { 0x0000ffad, 20708 }, /* KP_Subtract */
+    { 0x0000ffae, 20488 }, /* KP_Decimal */
+    { 0x0000ffaf, 20511 }, /* KP_Divide */
+    { 0x0000ffb0, 20398 }, /* KP_0 */
+    { 0x0000ffb1, 20404 }, /* KP_1 */
+    { 0x0000ffb2, 20410 }, /* KP_2 */
+    { 0x0000ffb3, 20416 }, /* KP_3 */
+    { 0x0000ffb4, 20422 }, /* KP_4 */
+    { 0x0000ffb5, 20428 }, /* KP_5 */
+    { 0x0000ffb6, 20434 }, /* KP_6 */
+    { 0x0000ffb7, 20440 }, /* KP_7 */
+    { 0x0000ffb8, 20446 }, /* KP_8 */
+    { 0x0000ffb9, 20452 }, /* KP_9 */
+    { 0x0000ffbd, 20549 }, /* KP_Equal */
+    { 0x0000ffbe, 13165 }, /* F1 */
+    { 0x0000ffbf, 13219 }, /* F2 */
+    { 0x0000ffc0, 13273 }, /* F3 */
+    { 0x0000ffc1, 13307 }, /* F4 */
+    { 0x0000ffc2, 13311 }, /* F5 */
+    { 0x0000ffc3, 13315 }, /* F6 */
+    { 0x0000ffc4, 13319 }, /* F7 */
+    { 0x0000ffc5, 13323 }, /* F8 */
+    { 0x0000ffc6, 13327 }, /* F9 */
+    { 0x0000ffc7, 13169 }, /* F10 */
+    { 0x0000ffc8, 13174 }, /* F11 */
+    { 0x0000ffc9, 13179 }, /* F12 */
+    { 0x0000ffca, 13184 }, /* F13 */
+    { 0x0000ffcb, 13189 }, /* F14 */
+    { 0x0000ffcc, 13194 }, /* F15 */
+    { 0x0000ffcd, 13199 }, /* F16 */
+    { 0x0000ffce, 13204 }, /* F17 */
+    { 0x0000ffcf, 13209 }, /* F18 */
+    { 0x0000ffd0, 13214 }, /* F19 */
+    { 0x0000ffd1, 13223 }, /* F20 */
+    { 0x0000ffd2, 13228 }, /* F21 */
+    { 0x0000ffd3, 13233 }, /* F22 */
+    { 0x0000ffd4, 13238 }, /* F23 */
+    { 0x0000ffd5, 13243 }, /* F24 */
+    { 0x0000ffd6, 13248 }, /* F25 */
+    { 0x0000ffd7, 13253 }, /* F26 */
+    { 0x0000ffd8, 13258 }, /* F27 */
+    { 0x0000ffd9, 13263 }, /* F28 */
+    { 0x0000ffda, 13268 }, /* F29 */
+    { 0x0000ffdb, 13277 }, /* F30 */
+    { 0x0000ffdc, 13282 }, /* F31 */
+    { 0x0000ffdd, 13287 }, /* F32 */
+    { 0x0000ffde, 13292 }, /* F33 */
+    { 0x0000ffdf, 13297 }, /* F34 */
+    { 0x0000ffe0, 13302 }, /* F35 */
+    { 0x0000ffe1, 24958 }, /* Shift_L */
+    { 0x0000ffe2, 24979 }, /* Shift_R */
+    { 0x0000ffe3, 9389 }, /* Control_L */
+    { 0x0000ffe4, 9400 }, /* Control_R */
+    { 0x0000ffe5, 9075 }, /* Caps_Lock */
+    { 0x0000ffe6, 24967 }, /* Shift_Lock */
+    { 0x0000ffe7, 21405 }, /* Meta_L */
+    { 0x0000ffe8, 21413 }, /* Meta_R */
+    { 0x0000ffe9, 962 }, /* Alt_L */
+    { 0x0000ffea, 969 }, /* Alt_R */
+    { 0x0000ffeb, 26406 }, /* Super_L */
+    { 0x0000ffec, 26415 }, /* Super_R */
+    { 0x0000ffed, 18475 }, /* Hyper_L */
+    { 0x0000ffee, 18484 }, /* Hyper_R */
+    { 0x0000fff1, 3941 }, /* braille_dot_1 */
+    { 0x0000fff2, 3972 }, /* braille_dot_2 */
+    { 0x0000fff3, 3987 }, /* braille_dot_3 */
+    { 0x0000fff4, 4002 }, /* braille_dot_4 */
+    { 0x0000fff5, 4017 }, /* braille_dot_5 */
+    { 0x0000fff6, 4032 }, /* braille_dot_6 */
+    { 0x0000fff7, 4047 }, /* braille_dot_7 */
+    { 0x0000fff8, 4062 }, /* braille_dot_8 */
+    { 0x0000fff9, 4077 }, /* braille_dot_9 */
+    { 0x0000fffa, 3956 }, /* braille_dot_10 */
+    { 0x0000ffff, 12066 }, /* Delete */
+    { 0x00ffffff, 28875 }, /* VoidSymbol */
+    { 0x0100012c, 18556 }, /* Ibreve */
+    { 0x0100012d, 18564 }, /* ibreve */
+    { 0x01000174, 28913 }, /* Wcircumflex */
+    { 0x01000175, 28926 }, /* wcircumflex */
+    { 0x01000176, 34251 }, /* Ycircumflex */
+    { 0x01000177, 34264 }, /* ycircumflex */
+    { 0x0100018f, 24635 }, /* SCHWA */
+    { 0x0100019f, 21965 }, /* Obarred */
+    { 0x010001a0, 22329 }, /* Ohorn */
+    { 0x010001a1, 22336 }, /* ohorn */
+    { 0x010001af, 28288 }, /* Uhorn */
+    { 0x010001b0, 28295 }, /* uhorn */
+    { 0x010001b5, 34477 }, /* Zstroke */
+    { 0x010001b6, 34486 }, /* zstroke */
+    { 0x010001b7, 13149 }, /* EZH */
+    { 0x010001d1, 22005 }, /* Ocaron */
+    { 0x010001d2, 22013 }, /* ocaron */
+    { 0x010001e6, 13783 }, /* Gcaron */
+    { 0x010001e7, 13791 }, /* gcaron */
+    { 0x01000259, 24642 }, /* schwa */
+    { 0x01000275, 21974 }, /* obarred */
+    { 0x01000292, 13154 }, /* ezh */
+    { 0x01000300, 9320 }, /* combining_grave */
+    { 0x01000301, 9283 }, /* combining_acute */
+    { 0x01000303, 9353 }, /* combining_tilde */
+    { 0x01000309, 9337 }, /* combining_hook */
+    { 0x01000323, 9300 }, /* combining_belowdot */
+    { 0x01000492, 9969 }, /* Cyrillic_GHE_bar */
+    { 0x01000493, 9987 }, /* Cyrillic_ghe_bar */
+    { 0x01000496, 11077 }, /* Cyrillic_ZHE_descender */
+    { 0x01000497, 11101 }, /* Cyrillic_zhe_descender */
+    { 0x0100049a, 10281 }, /* Cyrillic_KA_descender */
+    { 0x0100049b, 10304 }, /* Cyrillic_ka_descender */
+    { 0x0100049c, 10327 }, /* Cyrillic_KA_vertstroke */
+    { 0x0100049d, 10351 }, /* Cyrillic_ka_vertstroke */
+    { 0x010004a2, 9843 }, /* Cyrillic_EN_descender */
+    { 0x010004a3, 9866 }, /* Cyrillic_en_descender */
+    { 0x010004ae, 10823 }, /* Cyrillic_U_straight */
+    { 0x010004af, 10844 }, /* Cyrillic_u_straight */
+    { 0x010004b0, 10865 }, /* Cyrillic_U_straight_bar */
+    { 0x010004b1, 10890 }, /* Cyrillic_u_straight_bar */
+    { 0x010004b2, 10031 }, /* Cyrillic_HA_descender */
+    { 0x010004b3, 10054 }, /* Cyrillic_ha_descender */
+    { 0x010004b6, 9561 }, /* Cyrillic_CHE_descender */
+    { 0x010004b7, 9585 }, /* Cyrillic_che_descender */
+    { 0x010004b8, 9609 }, /* Cyrillic_CHE_vertstroke */
+    { 0x010004b9, 9634 }, /* Cyrillic_che_vertstroke */
+    { 0x010004ba, 10605 }, /* Cyrillic_SHHA */
+    { 0x010004bb, 10620 }, /* Cyrillic_shha */
+    { 0x010004d8, 10513 }, /* Cyrillic_SCHWA */
+    { 0x010004d9, 10529 }, /* Cyrillic_schwa */
+    { 0x010004e2, 10139 }, /* Cyrillic_I_macron */
+    { 0x010004e3, 10158 }, /* Cyrillic_i_macron */
+    { 0x010004e8, 10455 }, /* Cyrillic_O_bar */
+    { 0x010004e9, 10471 }, /* Cyrillic_o_bar */
+    { 0x010004ee, 10785 }, /* Cyrillic_U_macron */
+    { 0x010004ef, 10804 }, /* Cyrillic_u_macron */
+    { 0x01000531, 2303 }, /* Armenian_AYB */
+    { 0x01000532, 2331 }, /* Armenian_BEN */
+    { 0x01000533, 2572 }, /* Armenian_GIM */
+    { 0x01000534, 2401 }, /* Armenian_DA */
+    { 0x01000535, 3421 }, /* Armenian_YECH */
+    { 0x01000536, 3470 }, /* Armenian_ZA */
+    { 0x01000537, 2455 }, /* Armenian_E */
+    { 0x01000538, 2277 }, /* Armenian_AT */
+    { 0x01000539, 3206 }, /* Armenian_TO */
+    { 0x0100053a, 3496 }, /* Armenian_ZHE */
+    { 0x0100053b, 2669 }, /* Armenian_INI */
+    { 0x0100053c, 2827 }, /* Armenian_LYUN */
+    { 0x0100053d, 2777 }, /* Armenian_KHE */
+    { 0x0100053e, 3232 }, /* Armenian_TSA */
+    { 0x0100053f, 2749 }, /* Armenian_KEN */
+    { 0x01000540, 2626 }, /* Armenian_HO */
+    { 0x01000541, 2427 }, /* Armenian_DZA */
+    { 0x01000542, 2542 }, /* Armenian_GHAT */
+    { 0x01000543, 3176 }, /* Armenian_TCHE */
+    { 0x01000544, 2857 }, /* Armenian_MEN */
+    { 0x01000545, 2600 }, /* Armenian_HI */
+    { 0x01000546, 2885 }, /* Armenian_NU */
+    { 0x01000547, 3131 }, /* Armenian_SHA */
+    { 0x01000548, 3365 }, /* Armenian_VO */
+    { 0x01000549, 2373 }, /* Armenian_CHA */
+    { 0x0100054a, 2952 }, /* Armenian_PE */
+    { 0x0100054b, 2697 }, /* Armenian_JE */
+    { 0x0100054c, 3027 }, /* Armenian_RA */
+    { 0x0100054d, 3079 }, /* Armenian_SE */
+    { 0x0100054e, 3337 }, /* Armenian_VEV */
+    { 0x0100054f, 3288 }, /* Armenian_TYUN */
+    { 0x01000550, 3053 }, /* Armenian_RE */
+    { 0x01000551, 3260 }, /* Armenian_TSO */
+    { 0x01000552, 3391 }, /* Armenian_VYUN */
+    { 0x01000553, 2978 }, /* Armenian_PYUR */
+    { 0x01000554, 2723 }, /* Armenian_KE */
+    { 0x01000555, 2911 }, /* Armenian_O */
+    { 0x01000556, 2496 }, /* Armenian_FE */
+    { 0x0100055a, 2256 }, /* Armenian_apostrophe */
+    { 0x0100055b, 2222 }, /* Armenian_accent */
+    { 0x0100055c, 2479 }, /* Armenian_exclam */
+    { 0x0100055d, 3105 }, /* Armenian_separation_mark */
+    { 0x0100055e, 3008 }, /* Armenian_question */
+    { 0x01000561, 2317 }, /* Armenian_ayb */
+    { 0x01000562, 2345 }, /* Armenian_ben */
+    { 0x01000563, 2586 }, /* Armenian_gim */
+    { 0x01000564, 2414 }, /* Armenian_da */
+    { 0x01000565, 3436 }, /* Armenian_yech */
+    { 0x01000566, 3483 }, /* Armenian_za */
+    { 0x01000567, 2467 }, /* Armenian_e */
+    { 0x01000568, 2290 }, /* Armenian_at */
+    { 0x01000569, 3219 }, /* Armenian_to */
+    { 0x0100056a, 3510 }, /* Armenian_zhe */
+    { 0x0100056b, 2683 }, /* Armenian_ini */
+    { 0x0100056c, 2842 }, /* Armenian_lyun */
+    { 0x0100056d, 2791 }, /* Armenian_khe */
+    { 0x0100056e, 3246 }, /* Armenian_tsa */
+    { 0x0100056f, 2763 }, /* Armenian_ken */
+    { 0x01000570, 2639 }, /* Armenian_ho */
+    { 0x01000571, 2441 }, /* Armenian_dza */
+    { 0x01000572, 2557 }, /* Armenian_ghat */
+    { 0x01000573, 3191 }, /* Armenian_tche */
+    { 0x01000574, 2871 }, /* Armenian_men */
+    { 0x01000575, 2613 }, /* Armenian_hi */
+    { 0x01000576, 2898 }, /* Armenian_nu */
+    { 0x01000577, 3145 }, /* Armenian_sha */
+    { 0x01000578, 3378 }, /* Armenian_vo */
+    { 0x01000579, 2387 }, /* Armenian_cha */
+    { 0x0100057a, 2965 }, /* Armenian_pe */
+    { 0x0100057b, 2710 }, /* Armenian_je */
+    { 0x0100057c, 3040 }, /* Armenian_ra */
+    { 0x0100057d, 3092 }, /* Armenian_se */
+    { 0x0100057e, 3351 }, /* Armenian_vev */
+    { 0x0100057f, 3303 }, /* Armenian_tyun */
+    { 0x01000580, 3066 }, /* Armenian_re */
+    { 0x01000581, 3274 }, /* Armenian_tso */
+    { 0x01000582, 3406 }, /* Armenian_vyun */
+    { 0x01000583, 2993 }, /* Armenian_pyur */
+    { 0x01000584, 2736 }, /* Armenian_ke */
+    { 0x01000585, 2923 }, /* Armenian_o */
+    { 0x01000586, 2509 }, /* Armenian_fe */
+    { 0x01000587, 2805 }, /* Armenian_ligature_ew */
+    { 0x01000589, 2522 }, /* Armenian_full_stop */
+    { 0x0100058a, 2652 }, /* Armenian_hyphen */
+    { 0x01000653, 1719 }, /* Arabic_madda_above */
+    { 0x01000654, 1438 }, /* Arabic_hamza_above */
+    { 0x01000655, 1458 }, /* Arabic_hamza_below */
+    { 0x01000660, 1058 }, /* Arabic_0 */
+    { 0x01000661, 1068 }, /* Arabic_1 */
+    { 0x01000662, 1078 }, /* Arabic_2 */
+    { 0x01000663, 1088 }, /* Arabic_3 */
+    { 0x01000664, 1098 }, /* Arabic_4 */
+    { 0x01000665, 1108 }, /* Arabic_5 */
+    { 0x01000666, 1118 }, /* Arabic_6 */
+    { 0x01000667, 1128 }, /* Arabic_7 */
+    { 0x01000668, 1138 }, /* Arabic_8 */
+    { 0x01000669, 1148 }, /* Arabic_9 */
+    { 0x0100066a, 1817 }, /* Arabic_percent */
+    { 0x01000670, 1977 }, /* Arabic_superscript_alef */
+    { 0x01000679, 2116 }, /* Arabic_tteh */
+    { 0x0100067e, 1805 }, /* Arabic_peh */
+    { 0x01000686, 2045 }, /* Arabic_tcheh */
+    { 0x01000688, 1284 }, /* Arabic_ddal */
+    { 0x01000691, 1878 }, /* Arabic_rreh */
+    { 0x01000698, 1625 }, /* Arabic_jeh */
+    { 0x010006a4, 2129 }, /* Arabic_veh */
+    { 0x010006a9, 1680 }, /* Arabic_keheh */
+    { 0x010006af, 1375 }, /* Arabic_gaf */
+    { 0x010006ba, 1785 }, /* Arabic_noon_ghunna */
+    { 0x010006be, 1571 }, /* Arabic_heh_doachashmee */
+    { 0x010006c1, 1595 }, /* Arabic_heh_goal */
+    { 0x010006cc, 13443 }, /* Farsi_yeh */
+    { 0x010006d2, 2165 }, /* Arabic_yeh_baree */
+    { 0x010006d4, 1358 }, /* Arabic_fullstop */
+    { 0x010006f0, 13353 }, /* Farsi_0 */
+    { 0x010006f1, 13362 }, /* Farsi_1 */
+    { 0x010006f2, 13371 }, /* Farsi_2 */
+    { 0x010006f3, 13380 }, /* Farsi_3 */
+    { 0x010006f4, 13389 }, /* Farsi_4 */
+    { 0x010006f5, 13398 }, /* Farsi_5 */
+    { 0x010006f6, 13407 }, /* Farsi_6 */
+    { 0x010006f7, 13416 }, /* Farsi_7 */
+    { 0x010006f8, 13425 }, /* Farsi_8 */
+    { 0x010006f9, 13434 }, /* Farsi_9 */
+    { 0x01000d82, 25554 }, /* Sinh_ng */
+    { 0x01000d83, 25325 }, /* Sinh_h2 */
+    { 0x01000d85, 25067 }, /* Sinh_a */
+    { 0x01000d86, 25075 }, /* Sinh_aa */
+    { 0x01000d87, 25094 }, /* Sinh_ae */
+    { 0x01000d88, 25113 }, /* Sinh_aee */
+    { 0x01000d89, 25343 }, /* Sinh_i */
+    { 0x01000d8a, 25360 }, /* Sinh_ii */
+    { 0x01000d8b, 25789 }, /* Sinh_u */
+    { 0x01000d8c, 25806 }, /* Sinh_uu */
+    { 0x01000d8d, 25677 }, /* Sinh_ri */
+    { 0x01000d8e, 25686 }, /* Sinh_rii */
+    { 0x01000d8f, 25464 }, /* Sinh_lu */
+    { 0x01000d90, 25483 }, /* Sinh_luu */
+    { 0x01000d91, 25261 }, /* Sinh_e */
+    { 0x01000d92, 25278 }, /* Sinh_ee */
+    { 0x01000d93, 25134 }, /* Sinh_ai */
+    { 0x01000d94, 25613 }, /* Sinh_o */
+    { 0x01000d95, 25630 }, /* Sinh_oo */
+    { 0x01000d96, 25162 }, /* Sinh_au */
+    { 0x01000d9a, 25409 }, /* Sinh_ka */
+    { 0x01000d9b, 25418 }, /* Sinh_kha */
+    { 0x01000d9c, 25306 }, /* Sinh_ga */
+    { 0x01000d9d, 25315 }, /* Sinh_gha */
+    { 0x01000d9e, 25563 }, /* Sinh_ng2 */
+    { 0x01000d9f, 25573 }, /* Sinh_nga */
+    { 0x01000da0, 25200 }, /* Sinh_ca */
+    { 0x01000da1, 25209 }, /* Sinh_cha */
+    { 0x01000da2, 25379 }, /* Sinh_ja */
+    { 0x01000da3, 25388 }, /* Sinh_jha */
+    { 0x01000da4, 25603 }, /* Sinh_nya */
+    { 0x01000da5, 25398 }, /* Sinh_jnya */
+    { 0x01000da6, 25583 }, /* Sinh_nja */
+    { 0x01000da7, 25768 }, /* Sinh_tta */
+    { 0x01000da8, 25778 }, /* Sinh_ttha */
+    { 0x01000da9, 25219 }, /* Sinh_dda */
+    { 0x01000daa, 25229 }, /* Sinh_ddha */
+    { 0x01000dab, 25593 }, /* Sinh_nna */
+    { 0x01000dac, 25532 }, /* Sinh_ndda */
+    { 0x01000dad, 25747 }, /* Sinh_tha */
+    { 0x01000dae, 25757 }, /* Sinh_thha */
+    { 0x01000daf, 25240 }, /* Sinh_dha */
+    { 0x01000db0, 25250 }, /* Sinh_dhha */
+    { 0x01000db1, 25523 }, /* Sinh_na */
+    { 0x01000db3, 25543 }, /* Sinh_ndha */
+    { 0x01000db4, 25649 }, /* Sinh_pa */
+    { 0x01000db5, 25658 }, /* Sinh_pha */
+    { 0x01000db6, 25181 }, /* Sinh_ba */
+    { 0x01000db7, 25190 }, /* Sinh_bha */
+    { 0x01000db8, 25504 }, /* Sinh_ma */
+    { 0x01000db9, 25513 }, /* Sinh_mba */
+    { 0x01000dba, 25834 }, /* Sinh_ya */
+    { 0x01000dbb, 25668 }, /* Sinh_ra */
+    { 0x01000dbd, 25445 }, /* Sinh_la */
+    { 0x01000dc0, 25825 }, /* Sinh_va */
+    { 0x01000dc1, 25726 }, /* Sinh_sha */
+    { 0x01000dc2, 25736 }, /* Sinh_ssha */
+    { 0x01000dc3, 25717 }, /* Sinh_sa */
+    { 0x01000dc4, 25334 }, /* Sinh_ha */
+    { 0x01000dc5, 25454 }, /* Sinh_lla */
+    { 0x01000dc6, 25297 }, /* Sinh_fa */
+    { 0x01000dca, 25153 }, /* Sinh_al */
+    { 0x01000dcf, 25084 }, /* Sinh_aa2 */
+    { 0x01000dd0, 25103 }, /* Sinh_ae2 */
+    { 0x01000dd1, 25123 }, /* Sinh_aee2 */
+    { 0x01000dd2, 25351 }, /* Sinh_i2 */
+    { 0x01000dd3, 25369 }, /* Sinh_ii2 */
+    { 0x01000dd4, 25797 }, /* Sinh_u2 */
+    { 0x01000dd6, 25815 }, /* Sinh_uu2 */
+    { 0x01000dd8, 25696 }, /* Sinh_ru2 */
+    { 0x01000dd9, 25269 }, /* Sinh_e2 */
+    { 0x01000dda, 25287 }, /* Sinh_ee2 */
+    { 0x01000ddb, 25143 }, /* Sinh_ai2 */
+    { 0x01000ddc, 25621 }, /* Sinh_o2 */
+    { 0x01000ddd, 25639 }, /* Sinh_oo2 */
+    { 0x01000dde, 25171 }, /* Sinh_au2 */
+    { 0x01000ddf, 25473 }, /* Sinh_lu2 */
+    { 0x01000df2, 25706 }, /* Sinh_ruu2 */
+    { 0x01000df3, 25493 }, /* Sinh_luu2 */
+    { 0x01000df4, 25428 }, /* Sinh_kunddaliya */
+    { 0x010010d0, 13845 }, /* Georgian_an */
+    { 0x010010d1, 13858 }, /* Georgian_ban */
+    { 0x010010d2, 13970 }, /* Georgian_gan */
+    { 0x010010d3, 13930 }, /* Georgian_don */
+    { 0x010010d4, 13944 }, /* Georgian_en */
+    { 0x010010d5, 14321 }, /* Georgian_vin */
+    { 0x010010d6, 14362 }, /* Georgian_zen */
+    { 0x010010d7, 14280 }, /* Georgian_tan */
+    { 0x010010d8, 14068 }, /* Georgian_in */
+    { 0x010010d9, 14110 }, /* Georgian_kan */
+    { 0x010010da, 14139 }, /* Georgian_las */
+    { 0x010010db, 14153 }, /* Georgian_man */
+    { 0x010010dc, 14167 }, /* Georgian_nar */
+    { 0x010010dd, 14181 }, /* Georgian_on */
+    { 0x010010de, 14194 }, /* Georgian_par */
+    { 0x010010df, 14376 }, /* Georgian_zhar */
+    { 0x010010e0, 14237 }, /* Georgian_rae */
+    { 0x010010e1, 14251 }, /* Georgian_san */
+    { 0x010010e2, 14294 }, /* Georgian_tar */
+    { 0x010010e3, 14308 }, /* Georgian_un */
+    { 0x010010e4, 14208 }, /* Georgian_phar */
+    { 0x010010e5, 14124 }, /* Georgian_khar */
+    { 0x010010e6, 13984 }, /* Georgian_ghan */
+    { 0x010010e7, 14223 }, /* Georgian_qar */
+    { 0x010010e8, 14265 }, /* Georgian_shin */
+    { 0x010010e9, 13901 }, /* Georgian_chin */
+    { 0x010010ea, 13872 }, /* Georgian_can */
+    { 0x010010eb, 14096 }, /* Georgian_jil */
+    { 0x010010ec, 13916 }, /* Georgian_cil */
+    { 0x010010ed, 13886 }, /* Georgian_char */
+    { 0x010010ee, 14348 }, /* Georgian_xan */
+    { 0x010010ef, 14081 }, /* Georgian_jhan */
+    { 0x010010f0, 13999 }, /* Georgian_hae */
+    { 0x010010f1, 14027 }, /* Georgian_he */
+    { 0x010010f2, 14040 }, /* Georgian_hie */
+    { 0x010010f3, 14335 }, /* Georgian_we */
+    { 0x010010f4, 14013 }, /* Georgian_har */
+    { 0x010010f5, 14054 }, /* Georgian_hoe */
+    { 0x010010f6, 13957 }, /* Georgian_fi */
+    { 0x01001e02, 3605 }, /* Babovedot */
+    { 0x01001e03, 3616 }, /* babovedot */
+    { 0x01001e0a, 11131 }, /* Dabovedot */
+    { 0x01001e0b, 11142 }, /* dabovedot */
+    { 0x01001e1e, 13331 }, /* Fabovedot */
+    { 0x01001e1f, 13342 }, /* fabovedot */
+    { 0x01001e36, 20837 }, /* Lbelowdot */
+    { 0x01001e37, 20848 }, /* lbelowdot */
+    { 0x01001e40, 21216 }, /* Mabovedot */
+    { 0x01001e41, 21227 }, /* mabovedot */
+    { 0x01001e56, 23246 }, /* Pabovedot */
+    { 0x01001e57, 23257 }, /* pabovedot */
+    { 0x01001e60, 24561 }, /* Sabovedot */
+    { 0x01001e61, 24572 }, /* sabovedot */
+    { 0x01001e6a, 26452 }, /* Tabovedot */
+    { 0x01001e6b, 26463 }, /* tabovedot */
+    { 0x01001e80, 28963 }, /* Wgrave */
+    { 0x01001e81, 28971 }, /* wgrave */
+    { 0x01001e82, 28897 }, /* Wacute */
+    { 0x01001e83, 28905 }, /* wacute */
+    { 0x01001e84, 28939 }, /* Wdiaeresis */
+    { 0x01001e85, 28951 }, /* wdiaeresis */
+    { 0x01001e8a, 28994 }, /* Xabovedot */
+    { 0x01001e8b, 29005 }, /* xabovedot */
+    { 0x01001ea0, 460 }, /* Abelowdot */
+    { 0x01001ea1, 471 }, /* abelowdot */
+    { 0x01001ea2, 948 }, /* Ahook */
+    { 0x01001ea3, 955 }, /* ahook */
+    { 0x01001ea4, 709 }, /* Acircumflexacute */
+    { 0x01001ea5, 727 }, /* acircumflexacute */
+    { 0x01001ea6, 787 }, /* Acircumflexgrave */
+    { 0x01001ea7, 805 }, /* acircumflexgrave */
+    { 0x01001ea8, 823 }, /* Acircumflexhook */
+    { 0x01001ea9, 840 }, /* acircumflexhook */
+    { 0x01001eaa, 857 }, /* Acircumflextilde */
+    { 0x01001eab, 875 }, /* acircumflextilde */
+    { 0x01001eac, 745 }, /* Acircumflexbelowdot */
+    { 0x01001ead, 766 }, /* acircumflexbelowdot */
+    { 0x01001eae, 508 }, /* Abreveacute */
+    { 0x01001eaf, 521 }, /* abreveacute */
+    { 0x01001eb0, 566 }, /* Abrevegrave */
+    { 0x01001eb1, 579 }, /* abrevegrave */
+    { 0x01001eb2, 592 }, /* Abrevehook */
+    { 0x01001eb3, 604 }, /* abrevehook */
+    { 0x01001eb4, 616 }, /* Abrevetilde */
+    { 0x01001eb5, 629 }, /* abrevetilde */
+    { 0x01001eb6, 534 }, /* Abrevebelowdot */
+    { 0x01001eb7, 550 }, /* abrevebelowdot */
+    { 0x01001eb8, 12400 }, /* Ebelowdot */
+    { 0x01001eb9, 12411 }, /* ebelowdot */
+    { 0x01001eba, 12697 }, /* Ehook */
+    { 0x01001ebb, 12704 }, /* ehook */
+    { 0x01001ebc, 13070 }, /* Etilde */
+    { 0x01001ebd, 13078 }, /* etilde */
+    { 0x01001ebe, 12464 }, /* Ecircumflexacute */
+    { 0x01001ebf, 12482 }, /* ecircumflexacute */
+    { 0x01001ec0, 12542 }, /* Ecircumflexgrave */
+    { 0x01001ec1, 12560 }, /* ecircumflexgrave */
+    { 0x01001ec2, 12578 }, /* Ecircumflexhook */
+    { 0x01001ec3, 12595 }, /* ecircumflexhook */
+    { 0x01001ec4, 12612 }, /* Ecircumflextilde */
+    { 0x01001ec5, 12630 }, /* ecircumflextilde */
+    { 0x01001ec6, 12500 }, /* Ecircumflexbelowdot */
+    { 0x01001ec7, 12521 }, /* ecircumflexbelowdot */
+    { 0x01001ec8, 18669 }, /* Ihook */
+    { 0x01001ec9, 18676 }, /* ihook */
+    { 0x01001eca, 18534 }, /* Ibelowdot */
+    { 0x01001ecb, 18545 }, /* ibelowdot */
+    { 0x01001ecc, 21983 }, /* Obelowdot */
+    { 0x01001ecd, 21994 }, /* obelowdot */
+    { 0x01001ece, 22315 }, /* Ohook */
+    { 0x01001ecf, 22322 }, /* ohook */
+    { 0x01001ed0, 22047 }, /* Ocircumflexacute */
+    { 0x01001ed1, 22065 }, /* ocircumflexacute */
+    { 0x01001ed2, 22125 }, /* Ocircumflexgrave */
+    { 0x01001ed3, 22143 }, /* ocircumflexgrave */
+    { 0x01001ed4, 22161 }, /* Ocircumflexhook */
+    { 0x01001ed5, 22178 }, /* ocircumflexhook */
+    { 0x01001ed6, 22195 }, /* Ocircumflextilde */
+    { 0x01001ed7, 22213 }, /* ocircumflextilde */
+    { 0x01001ed8, 22083 }, /* Ocircumflexbelowdot */
+    { 0x01001ed9, 22104 }, /* ocircumflexbelowdot */
+    { 0x01001eda, 22343 }, /* Ohornacute */
+    { 0x01001edb, 22355 }, /* ohornacute */
+    { 0x01001edc, 22397 }, /* Ohorngrave */
+    { 0x01001edd, 22409 }, /* ohorngrave */
+    { 0x01001ede, 22421 }, /* Ohornhook */
+    { 0x01001edf, 22432 }, /* ohornhook */
+    { 0x01001ee0, 22443 }, /* Ohorntilde */
+    { 0x01001ee1, 22455 }, /* ohorntilde */
+    { 0x01001ee2, 22367 }, /* Ohornbelowdot */
+    { 0x01001ee3, 22382 }, /* ohornbelowdot */
+    { 0x01001ee4, 28142 }, /* Ubelowdot */
+    { 0x01001ee5, 28153 }, /* ubelowdot */
+    { 0x01001ee6, 28274 }, /* Uhook */
+    { 0x01001ee7, 28281 }, /* uhook */
+    { 0x01001ee8, 28302 }, /* Uhornacute */
+    { 0x01001ee9, 28314 }, /* uhornacute */
+    { 0x01001eea, 28356 }, /* Uhorngrave */
+    { 0x01001eeb, 28368 }, /* uhorngrave */
+    { 0x01001eec, 28380 }, /* Uhornhook */
+    { 0x01001eed, 28391 }, /* uhornhook */
+    { 0x01001eee, 28402 }, /* Uhorntilde */
+    { 0x01001eef, 28414 }, /* uhorntilde */
+    { 0x01001ef0, 28326 }, /* Uhornbelowdot */
+    { 0x01001ef1, 28341 }, /* uhornbelowdot */
+    { 0x01001ef2, 34306 }, /* Ygrave */
+    { 0x01001ef3, 34314 }, /* ygrave */
+    { 0x01001ef4, 34229 }, /* Ybelowdot */
+    { 0x01001ef5, 34240 }, /* ybelowdot */
+    { 0x01001ef6, 34322 }, /* Yhook */
+    { 0x01001ef7, 34329 }, /* yhook */
+    { 0x01001ef8, 34336 }, /* Ytilde */
+    { 0x01001ef9, 34344 }, /* ytilde */
+    { 0x01002070, 34463 }, /* zerosuperior */
+    { 0x01002074, 13703 }, /* foursuperior */
+    { 0x01002075, 13662 }, /* fivesuperior */
+    { 0x01002076, 25857 }, /* sixsuperior */
+    { 0x01002077, 24943 }, /* sevensuperior */
+    { 0x01002078, 12727 }, /* eightsuperior */
+    { 0x01002079, 21791 }, /* ninesuperior */
+    { 0x01002080, 34448 }, /* zerosubscript */
+    { 0x01002081, 22537 }, /* onesubscript */
+    { 0x01002082, 28082 }, /* twosubscript */
+    { 0x01002083, 27807 }, /* threesubscript */
+    { 0x01002084, 13688 }, /* foursubscript */
+    { 0x01002085, 13647 }, /* fivesubscript */
+    { 0x01002086, 25843 }, /* sixsubscript */
+    { 0x01002087, 24927 }, /* sevensubscript */
+    { 0x01002088, 12711 }, /* eightsubscript */
+    { 0x01002089, 21776 }, /* ninesubscript */
+    { 0x010020a0, 12648 }, /* EcuSign */
+    { 0x010020a1, 9272 }, /* ColonSign */
+    { 0x010020a2, 9441 }, /* CruzeiroSign */
+    { 0x010020a3, 13472 }, /* FFrancSign */
+    { 0x010020a4, 21117 }, /* LiraSign */
+    { 0x010020a5, 21421 }, /* MillSign */
+    { 0x010020a6, 21687 }, /* NairaSign */
+    { 0x010020a7, 23409 }, /* PesetaSign */
+    { 0x010020a8, 24544 }, /* RupeeSign */
+    { 0x010020a9, 28979 }, /* WonSign */
+    { 0x010020aa, 21734 }, /* NewSheqelSign */
+    { 0x010020ab, 12174 }, /* DongSign */
+    { 0x01002202, 23322 }, /* partdifferential */
+    { 0x01002205, 12895 }, /* emptyset */
+    { 0x01002208, 12767 }, /* elementof */
+    { 0x01002209, 21846 }, /* notelementof */
+    { 0x0100220b, 9377 }, /* containsas */
+    { 0x0100221a, 25915 }, /* squareroot */
+    { 0x0100221b, 9455 }, /* cuberoot */
+    { 0x0100221c, 13717 }, /* fourthroot */
+    { 0x0100222c, 12145 }, /* dintegral */
+    { 0x0100222d, 27838 }, /* tintegral */
+    { 0x01002235, 3676 }, /* because */
+    { 0x01002247, 21833 }, /* notapproxeq */
+    { 0x01002248, 1035 }, /* approxeq */
+    { 0x01002262, 21870 }, /* notidentical */
+    { 0x01002263, 25964 }, /* stricteq */
+    { 0x01002800, 3926 }, /* braille_blank */
+    { 0x01002801, 4092 }, /* braille_dots_1 */
+    { 0x01002802, 6588 }, /* braille_dots_2 */
+    { 0x01002803, 4108 }, /* braille_dots_12 */
+    { 0x01002804, 7804 }, /* braille_dots_3 */
+    { 0x01002805, 5388 }, /* braille_dots_13 */
+    { 0x01002806, 6604 }, /* braille_dots_23 */
+    { 0x01002807, 4125 }, /* braille_dots_123 */
+    { 0x01002808, 8396 }, /* braille_dots_4 */
+    { 0x01002809, 6012 }, /* braille_dots_14 */
+    { 0x0100280a, 7228 }, /* braille_dots_24 */
+    { 0x0100280b, 4781 }, /* braille_dots_124 */
+    { 0x0100280c, 7820 }, /* braille_dots_34 */
+    { 0x0100280d, 5405 }, /* braille_dots_134 */
+    { 0x0100280e, 6621 }, /* braille_dots_234 */
+    { 0x0100280f, 4143 }, /* braille_dots_1234 */
+    { 0x01002810, 8684 }, /* braille_dots_5 */
+    { 0x01002811, 6316 }, /* braille_dots_15 */
+    { 0x01002812, 7532 }, /* braille_dots_25 */
+    { 0x01002813, 5101 }, /* braille_dots_125 */
+    { 0x01002814, 8124 }, /* braille_dots_35 */
+    { 0x01002815, 5725 }, /* braille_dots_135 */
+    { 0x01002816, 6941 }, /* braille_dots_235 */
+    { 0x01002817, 4479 }, /* braille_dots_1235 */
+    { 0x01002818, 8412 }, /* braille_dots_45 */
+    { 0x01002819, 6029 }, /* braille_dots_145 */
+    { 0x0100281a, 7245 }, /* braille_dots_245 */
+    { 0x0100281b, 4799 }, /* braille_dots_1245 */
+    { 0x0100281c, 7837 }, /* braille_dots_345 */
+    { 0x0100281d, 5423 }, /* braille_dots_1345 */
+    { 0x0100281e, 6639 }, /* braille_dots_2345 */
+    { 0x0100281f, 4162 }, /* braille_dots_12345 */
+    { 0x01002820, 8824 }, /* braille_dots_6 */
+    { 0x01002821, 6464 }, /* braille_dots_16 */
+    { 0x01002822, 7680 }, /* braille_dots_26 */
+    { 0x01002823, 5257 }, /* braille_dots_126 */
+    { 0x01002824, 8272 }, /* braille_dots_36 */
+    { 0x01002825, 5881 }, /* braille_dots_136 */
+    { 0x01002826, 7097 }, /* braille_dots_236 */
+    { 0x01002827, 4643 }, /* braille_dots_1236 */
+    { 0x01002828, 8560 }, /* braille_dots_46 */
+    { 0x01002829, 6185 }, /* braille_dots_146 */
+    { 0x0100282a, 7401 }, /* braille_dots_246 */
+    { 0x0100282b, 4963 }, /* braille_dots_1246 */
+    { 0x0100282c, 7993 }, /* braille_dots_346 */
+    { 0x0100282d, 5587 }, /* braille_dots_1346 */
+    { 0x0100282e, 6803 }, /* braille_dots_2346 */
+    { 0x0100282f, 4334 }, /* braille_dots_12346 */
+    { 0x01002830, 8700 }, /* braille_dots_56 */
+    { 0x01002831, 6333 }, /* braille_dots_156 */
+    { 0x01002832, 7549 }, /* braille_dots_256 */
+    { 0x01002833, 5119 }, /* braille_dots_1256 */
+    { 0x01002834, 8141 }, /* braille_dots_356 */
+    { 0x01002835, 5743 }, /* braille_dots_1356 */
+    { 0x01002836, 6959 }, /* braille_dots_2356 */
+    { 0x01002837, 4498 }, /* braille_dots_12356 */
+    { 0x01002838, 8429 }, /* braille_dots_456 */
+    { 0x01002839, 6047 }, /* braille_dots_1456 */
+    { 0x0100283a, 7263 }, /* braille_dots_2456 */
+    { 0x0100283b, 4818 }, /* braille_dots_12456 */
+    { 0x0100283c, 7855 }, /* braille_dots_3456 */
+    { 0x0100283d, 5442 }, /* braille_dots_13456 */
+    { 0x0100283e, 6658 }, /* braille_dots_23456 */
+    { 0x0100283f, 4182 }, /* braille_dots_123456 */
+    { 0x01002840, 8892 }, /* braille_dots_7 */
+    { 0x01002841, 6536 }, /* braille_dots_17 */
+    { 0x01002842, 7752 }, /* braille_dots_27 */
+    { 0x01002843, 5333 }, /* braille_dots_127 */
+    { 0x01002844, 8344 }, /* braille_dots_37 */
+    { 0x01002845, 5957 }, /* braille_dots_137 */
+    { 0x01002846, 7173 }, /* braille_dots_237 */
+    { 0x01002847, 4723 }, /* braille_dots_1237 */
+    { 0x01002848, 8632 }, /* braille_dots_47 */
+    { 0x01002849, 6261 }, /* braille_dots_147 */
+    { 0x0100284a, 7477 }, /* braille_dots_247 */
+    { 0x0100284b, 5043 }, /* braille_dots_1247 */
+    { 0x0100284c, 8069 }, /* braille_dots_347 */
+    { 0x0100284d, 5667 }, /* braille_dots_1347 */
+    { 0x0100284e, 6883 }, /* braille_dots_2347 */
+    { 0x0100284f, 4418 }, /* braille_dots_12347 */
+    { 0x01002850, 8772 }, /* braille_dots_57 */
+    { 0x01002851, 6409 }, /* braille_dots_157 */
+    { 0x01002852, 7625 }, /* braille_dots_257 */
+    { 0x01002853, 5199 }, /* braille_dots_1257 */
+    { 0x01002854, 8217 }, /* braille_dots_357 */
+    { 0x01002855, 5823 }, /* braille_dots_1357 */
+    { 0x01002856, 7039 }, /* braille_dots_2357 */
+    { 0x01002857, 4582 }, /* braille_dots_12357 */
+    { 0x01002858, 8505 }, /* braille_dots_457 */
+    { 0x01002859, 6127 }, /* braille_dots_1457 */
+    { 0x0100285a, 7343 }, /* braille_dots_2457 */
+    { 0x0100285b, 4902 }, /* braille_dots_12457 */
+    { 0x0100285c, 7935 }, /* braille_dots_3457 */
+    { 0x0100285d, 5526 }, /* braille_dots_13457 */
+    { 0x0100285e, 6742 }, /* braille_dots_23457 */
+    { 0x0100285f, 4270 }, /* braille_dots_123457 */
+    { 0x01002860, 8840 }, /* braille_dots_67 */
+    { 0x01002861, 6481 }, /* braille_dots_167 */
+    { 0x01002862, 7697 }, /* braille_dots_267 */
+    { 0x01002863, 5275 }, /* braille_dots_1267 */
+    { 0x01002864, 8289 }, /* braille_dots_367 */
+    { 0x01002865, 5899 }, /* braille_dots_1367 */
+    { 0x01002866, 7115 }, /* braille_dots_2367 */
+    { 0x01002867, 4662 }, /* braille_dots_12367 */
+    { 0x01002868, 8577 }, /* braille_dots_467 */
+    { 0x01002869, 6203 }, /* braille_dots_1467 */
+    { 0x0100286a, 7419 }, /* braille_dots_2467 */
+    { 0x0100286b, 4982 }, /* braille_dots_12467 */
+    { 0x0100286c, 8011 }, /* braille_dots_3467 */
+    { 0x0100286d, 5606 }, /* braille_dots_13467 */
+    { 0x0100286e, 6822 }, /* braille_dots_23467 */
+    { 0x0100286f, 4354 }, /* braille_dots_123467 */
+    { 0x01002870, 8717 }, /* braille_dots_567 */
+    { 0x01002871, 6351 }, /* braille_dots_1567 */
+    { 0x01002872, 7567 }, /* braille_dots_2567 */
+    { 0x01002873, 5138 }, /* braille_dots_12567 */
+    { 0x01002874, 8159 }, /* braille_dots_3567 */
+    { 0x01002875, 5762 }, /* braille_dots_13567 */
+    { 0x01002876, 6978 }, /* braille_dots_23567 */
+    { 0x01002877, 4518 }, /* braille_dots_123567 */
+    { 0x01002878, 8447 }, /* braille_dots_4567 */
+    { 0x01002879, 6066 }, /* braille_dots_14567 */
+    { 0x0100287a, 7282 }, /* braille_dots_24567 */
+    { 0x0100287b, 4838 }, /* braille_dots_124567 */
+    { 0x0100287c, 7874 }, /* braille_dots_34567 */
+    { 0x0100287d, 5462 }, /* braille_dots_134567 */
+    { 0x0100287e, 6678 }, /* braille_dots_234567 */
+    { 0x0100287f, 4203 }, /* braille_dots_1234567 */
+    { 0x01002880, 8925 }, /* braille_dots_8 */
+    { 0x01002881, 6571 }, /* braille_dots_18 */
+    { 0x01002882, 7787 }, /* braille_dots_28 */
+    { 0x01002883, 5370 }, /* braille_dots_128 */
+    { 0x01002884, 8379 }, /* braille_dots_38 */
+    { 0x01002885, 5994 }, /* braille_dots_138 */
+    { 0x01002886, 7210 }, /* braille_dots_238 */
+    { 0x01002887, 4762 }, /* braille_dots_1238 */
+    { 0x01002888, 8667 }, /* braille_dots_48 */
+    { 0x01002889, 6298 }, /* braille_dots_148 */
+    { 0x0100288a, 7514 }, /* braille_dots_248 */
+    { 0x0100288b, 5082 }, /* braille_dots_1248 */
+    { 0x0100288c, 8106 }, /* braille_dots_348 */
+    { 0x0100288d, 5706 }, /* braille_dots_1348 */
+    { 0x0100288e, 6922 }, /* braille_dots_2348 */
+    { 0x0100288f, 4459 }, /* braille_dots_12348 */
+    { 0x01002890, 8807 }, /* braille_dots_58 */
+    { 0x01002891, 6446 }, /* braille_dots_158 */
+    { 0x01002892, 7662 }, /* braille_dots_258 */
+    { 0x01002893, 5238 }, /* braille_dots_1258 */
+    { 0x01002894, 8254 }, /* braille_dots_358 */
+    { 0x01002895, 5862 }, /* braille_dots_1358 */
+    { 0x01002896, 7078 }, /* braille_dots_2358 */
+    { 0x01002897, 4623 }, /* braille_dots_12358 */
+    { 0x01002898, 8542 }, /* braille_dots_458 */
+    { 0x01002899, 6166 }, /* braille_dots_1458 */
+    { 0x0100289a, 7382 }, /* braille_dots_2458 */
+    { 0x0100289b, 4943 }, /* braille_dots_12458 */
+    { 0x0100289c, 7974 }, /* braille_dots_3458 */
+    { 0x0100289d, 5567 }, /* braille_dots_13458 */
+    { 0x0100289e, 6783 }, /* braille_dots_23458 */
+    { 0x0100289f, 4313 }, /* braille_dots_123458 */
+    { 0x010028a0, 8875 }, /* braille_dots_68 */
+    { 0x010028a1, 6518 }, /* braille_dots_168 */
+    { 0x010028a2, 7734 }, /* braille_dots_268 */
+    { 0x010028a3, 5314 }, /* braille_dots_1268 */
+    { 0x010028a4, 8326 }, /* braille_dots_368 */
+    { 0x010028a5, 5938 }, /* braille_dots_1368 */
+    { 0x010028a6, 7154 }, /* braille_dots_2368 */
+    { 0x010028a7, 4703 }, /* braille_dots_12368 */
+    { 0x010028a8, 8614 }, /* braille_dots_468 */
+    { 0x010028a9, 6242 }, /* braille_dots_1468 */
+    { 0x010028aa, 7458 }, /* braille_dots_2468 */
+    { 0x010028ab, 5023 }, /* braille_dots_12468 */
+    { 0x010028ac, 8050 }, /* braille_dots_3468 */
+    { 0x010028ad, 5647 }, /* braille_dots_13468 */
+    { 0x010028ae, 6863 }, /* braille_dots_23468 */
+    { 0x010028af, 4397 }, /* braille_dots_123468 */
+    { 0x010028b0, 8754 }, /* braille_dots_568 */
+    { 0x010028b1, 6390 }, /* braille_dots_1568 */
+    { 0x010028b2, 7606 }, /* braille_dots_2568 */
+    { 0x010028b3, 5179 }, /* braille_dots_12568 */
+    { 0x010028b4, 8198 }, /* braille_dots_3568 */
+    { 0x010028b5, 5803 }, /* braille_dots_13568 */
+    { 0x010028b6, 7019 }, /* braille_dots_23568 */
+    { 0x010028b7, 4561 }, /* braille_dots_123568 */
+    { 0x010028b8, 8486 }, /* braille_dots_4568 */
+    { 0x010028b9, 6107 }, /* braille_dots_14568 */
+    { 0x010028ba, 7323 }, /* braille_dots_24568 */
+    { 0x010028bb, 4881 }, /* braille_dots_124568 */
+    { 0x010028bc, 7915 }, /* braille_dots_34568 */
+    { 0x010028bd, 5505 }, /* braille_dots_134568 */
+    { 0x010028be, 6721 }, /* braille_dots_234568 */
+    { 0x010028bf, 4248 }, /* braille_dots_1234568 */
+    { 0x010028c0, 8908 }, /* braille_dots_78 */
+    { 0x010028c1, 6553 }, /* braille_dots_178 */
+    { 0x010028c2, 7769 }, /* braille_dots_278 */
+    { 0x010028c3, 5351 }, /* braille_dots_1278 */
+    { 0x010028c4, 8361 }, /* braille_dots_378 */
+    { 0x010028c5, 5975 }, /* braille_dots_1378 */
+    { 0x010028c6, 7191 }, /* braille_dots_2378 */
+    { 0x010028c7, 4742 }, /* braille_dots_12378 */
+    { 0x010028c8, 8649 }, /* braille_dots_478 */
+    { 0x010028c9, 6279 }, /* braille_dots_1478 */
+    { 0x010028ca, 7495 }, /* braille_dots_2478 */
+    { 0x010028cb, 5062 }, /* braille_dots_12478 */
+    { 0x010028cc, 8087 }, /* braille_dots_3478 */
+    { 0x010028cd, 5686 }, /* braille_dots_13478 */
+    { 0x010028ce, 6902 }, /* braille_dots_23478 */
+    { 0x010028cf, 4438 }, /* braille_dots_123478 */
+    { 0x010028d0, 8789 }, /* braille_dots_578 */
+    { 0x010028d1, 6427 }, /* braille_dots_1578 */
+    { 0x010028d2, 7643 }, /* braille_dots_2578 */
+    { 0x010028d3, 5218 }, /* braille_dots_12578 */
+    { 0x010028d4, 8235 }, /* braille_dots_3578 */
+    { 0x010028d5, 5842 }, /* braille_dots_13578 */
+    { 0x010028d6, 7058 }, /* braille_dots_23578 */
+    { 0x010028d7, 4602 }, /* braille_dots_123578 */
+    { 0x010028d8, 8523 }, /* braille_dots_4578 */
+    { 0x010028d9, 6146 }, /* braille_dots_14578 */
+    { 0x010028da, 7362 }, /* braille_dots_24578 */
+    { 0x010028db, 4922 }, /* braille_dots_124578 */
+    { 0x010028dc, 7954 }, /* braille_dots_34578 */
+    { 0x010028dd, 5546 }, /* braille_dots_134578 */
+    { 0x010028de, 6762 }, /* braille_dots_234578 */
+    { 0x010028df, 4291 }, /* braille_dots_1234578 */
+    { 0x010028e0, 8857 }, /* braille_dots_678 */
+    { 0x010028e1, 6499 }, /* braille_dots_1678 */
+    { 0x010028e2, 7715 }, /* braille_dots_2678 */
+    { 0x010028e3, 5294 }, /* braille_dots_12678 */
+    { 0x010028e4, 8307 }, /* braille_dots_3678 */
+    { 0x010028e5, 5918 }, /* braille_dots_13678 */
+    { 0x010028e6, 7134 }, /* braille_dots_23678 */
+    { 0x010028e7, 4682 }, /* braille_dots_123678 */
+    { 0x010028e8, 8595 }, /* braille_dots_4678 */
+    { 0x010028e9, 6222 }, /* braille_dots_14678 */
+    { 0x010028ea, 7438 }, /* braille_dots_24678 */
+    { 0x010028eb, 5002 }, /* braille_dots_124678 */
+    { 0x010028ec, 8030 }, /* braille_dots_34678 */
+    { 0x010028ed, 5626 }, /* braille_dots_134678 */
+    { 0x010028ee, 6842 }, /* braille_dots_234678 */
+    { 0x010028ef, 4375 }, /* braille_dots_1234678 */
+    { 0x010028f0, 8735 }, /* braille_dots_5678 */
+    { 0x010028f1, 6370 }, /* braille_dots_15678 */
+    { 0x010028f2, 7586 }, /* braille_dots_25678 */
+    { 0x010028f3, 5158 }, /* braille_dots_125678 */
+    { 0x010028f4, 8178 }, /* braille_dots_35678 */
+    { 0x010028f5, 5782 }, /* braille_dots_135678 */
+    { 0x010028f6, 6998 }, /* braille_dots_235678 */
+    { 0x010028f7, 4539 }, /* braille_dots_1235678 */
+    { 0x010028f8, 8466 }, /* braille_dots_45678 */
+    { 0x010028f9, 6086 }, /* braille_dots_145678 */
+    { 0x010028fa, 7302 }, /* braille_dots_245678 */
+    { 0x010028fb, 4859 }, /* braille_dots_1245678 */
+    { 0x010028fc, 7894 }, /* braille_dots_345678 */
+    { 0x010028fd, 5483 }, /* braille_dots_1345678 */
+    { 0x010028fe, 6699 }, /* braille_dots_2345678 */
+    { 0x010028ff, 4225 }, /* braille_dots_12345678 */
+    { 0x100000a8, 18327 }, /* hpmute_acute */
+    { 0x100000a9, 18398 }, /* hpmute_grave */
+    { 0x100000aa, 18341 }, /* hpmute_asciicircum */
+    { 0x100000ab, 18380 }, /* hpmute_diaeresis */
+    { 0x100000ac, 18361 }, /* hpmute_asciitilde */
+    { 0x100000af, 18280 }, /* hplira */
+    { 0x100000be, 18221 }, /* hpguilder */
+    { 0x100000ee, 18439 }, /* hpYdiaeresis */
+    { 0x100000f6, 18288 }, /* hplongminus */
+    { 0x100000fc, 18171 }, /* hpblock */
+    { 0x1000fe22, 11229 }, /* Ddiaeresis */
+    { 0x1000fe27, 11153 }, /* Dacute_accent */
+    { 0x1000fe2c, 11192 }, /* Dcedilla_accent */
+    { 0x1000fe5e, 11209 }, /* Dcircumflex_accent */
+    { 0x1000fe60, 12098 }, /* Dgrave_accent */
+    { 0x1000fe7e, 12348 }, /* Dtilde */
+    { 0x1000feb0, 12316 }, /* Dring_accent */
+    { 0x1000ff00, 12307 }, /* DRemove */
+    { 0x1000ff48, 18301 }, /* hpModelock1 */
+    { 0x1000ff49, 18314 }, /* hpModelock2 */
+    { 0x1000ff6c, 18412 }, /* hpReset */
+    { 0x1000ff6d, 18421 }, /* hpSystem */
+    { 0x1000ff6e, 18431 }, /* hpUser */
+    { 0x1000ff6f, 18180 }, /* hpClearLine */
+    { 0x1000ff70, 18246 }, /* hpInsertLine */
+    { 0x1000ff71, 18207 }, /* hpDeleteLine */
+    { 0x1000ff72, 18232 }, /* hpInsertChar */
+    { 0x1000ff73, 18193 }, /* hpDeleteChar */
+    { 0x1000ff74, 18160 }, /* hpBackTab */
+    { 0x1000ff75, 18266 }, /* hpKP_BackTab */
+    { 0x1000ff76, 13125 }, /* Ext16bit_L */
+    { 0x1000ff77, 13137 }, /* Ext16bit_R */
+    { 0x1004ff02, 22783 }, /* osfCopy */
+    { 0x1004ff03, 22792 }, /* osfCut */
+    { 0x1004ff04, 23010 }, /* osfPaste */
+    { 0x1004ff07, 22722 }, /* osfBackTab */
+    { 0x1004ff08, 22708 }, /* osfBackSpace */
+    { 0x1004ff0b, 22773 }, /* osfClear */
+    { 0x1004ff1b, 22860 }, /* osfEscape */
+    { 0x1004ff31, 22696 }, /* osfAddMode */
+    { 0x1004ff32, 23047 }, /* osfPrimaryPaste */
+    { 0x1004ff33, 23064 }, /* osfQuickPaste */
+    { 0x1004ff40, 22972 }, /* osfPageLeft */
+    { 0x1004ff41, 22999 }, /* osfPageUp */
+    { 0x1004ff42, 22959 }, /* osfPageDown */
+    { 0x1004ff43, 22985 }, /* osfPageRight */
+    { 0x1004ff44, 22683 }, /* osfActivate */
+    { 0x1004ff45, 22920 }, /* osfMenuBar */
+    { 0x1004ff51, 22902 }, /* osfLeft */
+    { 0x1004ff52, 23148 }, /* osfUp */
+    { 0x1004ff53, 23104 }, /* osfRight */
+    { 0x1004ff54, 22827 }, /* osfDown */
+    { 0x1004ff57, 22848 }, /* osfEndLine */
+    { 0x1004ff58, 22748 }, /* osfBeginLine */
+    { 0x1004ff59, 22836 }, /* osfEndData */
+    { 0x1004ff5a, 22734 }, /* osfBeginData */
+    { 0x1004ff5b, 23034 }, /* osfPrevMenu */
+    { 0x1004ff5c, 22946 }, /* osfNextMenu */
+    { 0x1004ff5d, 23020 }, /* osfPrevField */
+    { 0x1004ff5e, 22932 }, /* osfNextField */
+    { 0x1004ff60, 23114 }, /* osfSelect */
+    { 0x1004ff63, 22891 }, /* osfInsert */
+    { 0x1004ff65, 23139 }, /* osfUndo */
+    { 0x1004ff67, 22911 }, /* osfMenu */
+    { 0x1004ff69, 22762 }, /* osfCancel */
+    { 0x1004ff6a, 22882 }, /* osfHelp */
+    { 0x1004ff71, 23125 }, /* osfSelectAll */
+    { 0x1004ff72, 22811 }, /* osfDeselectAll */
+    { 0x1004ff73, 23079 }, /* osfReselect */
+    { 0x1004ff74, 22871 }, /* osfExtend */
+    { 0x1004ff78, 23092 }, /* osfRestore */
+    { 0x1004ffff, 22800 }, /* osfDelete */
+    { 0x1005ff00, 26157 }, /* SunFA_Grave */
+    { 0x1005ff01, 26126 }, /* SunFA_Circum */
+    { 0x1005ff02, 26170 }, /* SunFA_Tilde */
+    { 0x1005ff03, 26098 }, /* SunFA_Acute */
+    { 0x1005ff04, 26140 }, /* SunFA_Diaeresis */
+    { 0x1005ff05, 26111 }, /* SunFA_Cedilla */
+    { 0x1005ff10, 26082 }, /* SunF36 */
+    { 0x1005ff11, 26090 }, /* SunF37 */
+    { 0x1005ff60, 26318 }, /* SunSys_Req */
+    { 0x1005ff70, 26299 }, /* SunProps */
+    { 0x1005ff71, 26192 }, /* SunFront */
+    { 0x1005ff72, 26065 }, /* SunCopy */
+    { 0x1005ff73, 26202 }, /* SunOpen */
+    { 0x1005ff74, 26235 }, /* SunPaste */
+    { 0x1005ff75, 26074 }, /* SunCut */
+    { 0x1005ff76, 26245 }, /* SunPowerSwitch */
+    { 0x1005ff77, 25997 }, /* SunAudioLowerVolume */
+    { 0x1005ff78, 26018 }, /* SunAudioMute */
+    { 0x1005ff79, 26032 }, /* SunAudioRaiseVolume */
+    { 0x1005ff7a, 26339 }, /* SunVideoDegauss */
+    { 0x1005ff7b, 26356 }, /* SunVideoLowerBrightness */
+    { 0x1005ff7c, 26381 }, /* SunVideoRaiseBrightness */
+    { 0x1005ff7d, 26261 }, /* SunPowerSwitchShift */
+    { 0x100810f4, 29748 }, /* XF86BrightnessAuto */
+    { 0x100810f5, 30310 }, /* XF86DisplayOff */
+    { 0x10081166, 30778 }, /* XF86Info */
+    { 0x10081177, 29192 }, /* XF86AspectRatio */
+    { 0x10081185, 30407 }, /* XF86DVD */
+    { 0x10081188, 29280 }, /* XF86Audio */
+    { 0x10081192, 30085 }, /* XF86ChannelUp */
+    { 0x10081193, 30068 }, /* XF86ChannelDown */
+    { 0x1008119b, 29715 }, /* XF86Break */
+    { 0x100811a0, 33982 }, /* XF86VideoPhone */
+    { 0x100811a4, 34192 }, /* XF86ZoomReset */
+    { 0x100811a6, 30416 }, /* XF86Editor */
+    { 0x100811a8, 30662 }, /* XF86GraphicsEditor */
+    { 0x100811a9, 32778 }, /* XF86Presentation */
+    { 0x100811aa, 30270 }, /* XF86Database */
+    { 0x100811ac, 34035 }, /* XF86Voicemail */
+    { 0x100811ad, 29102 }, /* XF86Addressbook */
+    { 0x100811af, 30326 }, /* XF86DisplayToggle */
+    { 0x100811b0, 33374 }, /* XF86SpellCheck */
+    { 0x100811b6, 30170 }, /* XF86ContextMenu */
+    { 0x100811b7, 32005 }, /* XF86MediaRepeat */
+    { 0x100811b8, 29036 }, /* XF8610ChannelsUp */
+    { 0x100811b9, 29016 }, /* XF8610ChannelsDown */
+    { 0x100811ba, 30766 }, /* XF86Images */
+    { 0x100811bc, 32321 }, /* XF86NotificationCenter */
+    { 0x100811bd, 32718 }, /* XF86PickupPhone */
+    { 0x100811be, 30693 }, /* XF86HangupPhone */
+    { 0x100811d0, 30544 }, /* XF86Fn */
+    { 0x100811d1, 30552 }, /* XF86Fn_Esc */
+    { 0x100811e5, 30564 }, /* XF86FnRightShift */
+    { 0x10081200, 32345 }, /* XF86Numeric0 */
+    { 0x10081201, 32359 }, /* XF86Numeric1 */
+    { 0x10081202, 32403 }, /* XF86Numeric2 */
+    { 0x10081203, 32417 }, /* XF86Numeric3 */
+    { 0x10081204, 32431 }, /* XF86Numeric4 */
+    { 0x10081205, 32445 }, /* XF86Numeric5 */
+    { 0x10081206, 32459 }, /* XF86Numeric6 */
+    { 0x10081207, 32473 }, /* XF86Numeric7 */
+    { 0x10081208, 32487 }, /* XF86Numeric8 */
+    { 0x10081209, 32501 }, /* XF86Numeric9 */
+    { 0x1008120a, 32589 }, /* XF86NumericStar */
+    { 0x1008120b, 32571 }, /* XF86NumericPound */
+    { 0x1008120c, 32515 }, /* XF86NumericA */
+    { 0x1008120d, 32529 }, /* XF86NumericB */
+    { 0x1008120e, 32543 }, /* XF86NumericC */
+    { 0x1008120f, 32557 }, /* XF86NumericD */
+    { 0x10081210, 29959 }, /* XF86CameraFocus */
+    { 0x10081211, 34111 }, /* XF86WPSButton */
+    { 0x10081215, 30023 }, /* XF86CameraZoomIn */
+    { 0x10081216, 30041 }, /* XF86CameraZoomOut */
+    { 0x10081217, 30009 }, /* XF86CameraUp */
+    { 0x10081218, 29943 }, /* XF86CameraDown */
+    { 0x10081219, 29976 }, /* XF86CameraLeft */
+    { 0x1008121a, 29992 }, /* XF86CameraRight */
+    { 0x1008121b, 29242 }, /* XF86AttendantOn */
+    { 0x1008121c, 29224 }, /* XF86AttendantOff */
+    { 0x1008121d, 29259 }, /* XF86AttendantToggle */
+    { 0x1008121e, 31382 }, /* XF86LightsToggle */
+    { 0x10081230, 29119 }, /* XF86ALSToggle */
+    { 0x10081232, 32905 }, /* XF86RefreshRateToggle */
+    { 0x10081240, 29806 }, /* XF86Buttonconfig */
+    { 0x10081241, 33704 }, /* XF86Taskmanager */
+    { 0x10081242, 30800 }, /* XF86Journal */
+    { 0x10081243, 30207 }, /* XF86ControlPanel */
+    { 0x10081244, 29177 }, /* XF86AppSelect */
+    { 0x10081245, 33154 }, /* XF86Screensaver */
+    { 0x10081246, 34017 }, /* XF86VoiceCommand */
+    { 0x10081247, 29209 }, /* XF86Assistant */
+    { 0x10081249, 30439 }, /* XF86EmojiPicker */
+    { 0x1008124a, 30284 }, /* XF86Dictate */
+    { 0x1008124b, 29895 }, /* XF86CameraAccessEnable */
+    { 0x1008124c, 29870 }, /* XF86CameraAccessDisable */
+    { 0x1008124d, 29919 }, /* XF86CameraAccessToggle */
+    { 0x1008124e, 29066 }, /* XF86Accessibility */
+    { 0x1008124f, 30360 }, /* XF86DoNotDisturb */
+    { 0x10081250, 29787 }, /* XF86BrightnessMin */
+    { 0x10081251, 29768 }, /* XF86BrightnessMax */
+    { 0x10081260, 30962 }, /* XF86KbdInputAssistPrev */
+    { 0x10081261, 30909 }, /* XF86KbdInputAssistNext */
+    { 0x10081262, 30986 }, /* XF86KbdInputAssistPrevgroup */
+    { 0x10081263, 30933 }, /* XF86KbdInputAssistNextgroup */
+    { 0x10081264, 30857 }, /* XF86KbdInputAssistAccept */
+    { 0x10081265, 30883 }, /* XF86KbdInputAssistCancel */
+    { 0x10081266, 32978 }, /* XF86RightUp */
+    { 0x10081267, 32963 }, /* XF86RightDown */
+    { 0x10081268, 31355 }, /* XF86LeftUp */
+    { 0x10081269, 31341 }, /* XF86LeftDown */
+    { 0x1008126a, 33038 }, /* XF86RootMenu */
+    { 0x1008126b, 32022 }, /* XF86MediaTopMenu */
+    { 0x1008126c, 32373 }, /* XF86Numeric11 */
+    { 0x1008126d, 32388 }, /* XF86Numeric12 */
+    { 0x1008126e, 29312 }, /* XF86AudioDesc */
+    { 0x1008126f, 29054 }, /* XF863DMode */
+    { 0x10081270, 32303 }, /* XF86NextFavorite */
+    { 0x10081271, 33441 }, /* XF86StopRecord */
+    { 0x10081272, 32690 }, /* XF86PauseRecord */
+    { 0x10081273, 34008 }, /* XF86VOD */
+    { 0x10081274, 33896 }, /* XF86Unmute */
+    { 0x10081275, 30481 }, /* XF86FastReverse */
+    { 0x10081276, 33337 }, /* XF86SlowReverse */
+    { 0x10081277, 30260 }, /* XF86Data */
+    { 0x10081278, 32622 }, /* XF86OnScreenKeyboard */
+    { 0x10081279, 32833 }, /* XF86PrivacyScreenToggle */
+    { 0x1008127a, 33242 }, /* XF86SelectiveScreenshot */
+    { 0x1008127b, 32286 }, /* XF86NextElement */
+    { 0x1008127c, 32812 }, /* XF86PreviousElement */
+    { 0x1008127d, 29603 }, /* XF86AutopilotEngageToggle */
+    { 0x1008127e, 31987 }, /* XF86MarkWaypoint */
+    { 0x1008127f, 33354 }, /* XF86Sos */
+    { 0x10081280, 32224 }, /* XF86NavChart */
+    { 0x10081281, 30526 }, /* XF86FishingChart */
+    { 0x10081282, 33304 }, /* XF86SingleRangeRadar */
+    { 0x10081283, 30387 }, /* XF86DualRangeRadar */
+    { 0x10081284, 32865 }, /* XF86RadarOverlay */
+    { 0x10081285, 33850 }, /* XF86TraditionalSonar */
+    { 0x10081286, 30126 }, /* XF86ClearvuSonar */
+    { 0x10081287, 33287 }, /* XF86SidevuSonar */
+    { 0x10081288, 32238 }, /* XF86NavInfo */
+    { 0x10081290, 31448 }, /* XF86Macro1 */
+    { 0x10081291, 31590 }, /* XF86Macro2 */
+    { 0x10081292, 31732 }, /* XF86Macro3 */
+    { 0x10081293, 31757 }, /* XF86Macro4 */
+    { 0x10081294, 31769 }, /* XF86Macro5 */
+    { 0x10081295, 31781 }, /* XF86Macro6 */
+    { 0x10081296, 31793 }, /* XF86Macro7 */
+    { 0x10081297, 31805 }, /* XF86Macro8 */
+    { 0x10081298, 31817 }, /* XF86Macro9 */
+    { 0x10081299, 31460 }, /* XF86Macro10 */
+    { 0x1008129a, 31473 }, /* XF86Macro11 */
+    { 0x1008129b, 31486 }, /* XF86Macro12 */
+    { 0x1008129c, 31499 }, /* XF86Macro13 */
+    { 0x1008129d, 31512 }, /* XF86Macro14 */
+    { 0x1008129e, 31525 }, /* XF86Macro15 */
+    { 0x1008129f, 31538 }, /* XF86Macro16 */
+    { 0x100812a0, 31551 }, /* XF86Macro17 */
+    { 0x100812a1, 31564 }, /* XF86Macro18 */
+    { 0x100812a2, 31577 }, /* XF86Macro19 */
+    { 0x100812a3, 31602 }, /* XF86Macro20 */
+    { 0x100812a4, 31615 }, /* XF86Macro21 */
+    { 0x100812a5, 31628 }, /* XF86Macro22 */
+    { 0x100812a6, 31641 }, /* XF86Macro23 */
+    { 0x100812a7, 31654 }, /* XF86Macro24 */
+    { 0x100812a8, 31667 }, /* XF86Macro25 */
+    { 0x100812a9, 31680 }, /* XF86Macro26 */
+    { 0x100812aa, 31693 }, /* XF86Macro27 */
+    { 0x100812ab, 31706 }, /* XF86Macro28 */
+    { 0x100812ac, 31719 }, /* XF86Macro29 */
+    { 0x100812ad, 31744 }, /* XF86Macro30 */
+    { 0x100812b0, 31905 }, /* XF86MacroRecordStart */
+    { 0x100812b1, 31927 }, /* XF86MacroRecordStop */
+    { 0x100812b2, 31883 }, /* XF86MacroPresetCycle */
+    { 0x100812b3, 31829 }, /* XF86MacroPreset1 */
+    { 0x100812b4, 31847 }, /* XF86MacroPreset2 */
+    { 0x100812b5, 31865 }, /* XF86MacroPreset3 */
+    { 0x100812b8, 31015 }, /* XF86KbdLcdMenu1 */
+    { 0x100812b9, 31032 }, /* XF86KbdLcdMenu2 */
+    { 0x100812ba, 31049 }, /* XF86KbdLcdMenu3 */
+    { 0x100812bb, 31066 }, /* XF86KbdLcdMenu4 */
+    { 0x100812bc, 31083 }, /* XF86KbdLcdMenu5 */
+    { 0x1008fe01, 33497 }, /* XF86Switch_VT_1 */
+    { 0x1008fe02, 33568 }, /* XF86Switch_VT_2 */
+    { 0x1008fe03, 33585 }, /* XF86Switch_VT_3 */
+    { 0x1008fe04, 33602 }, /* XF86Switch_VT_4 */
+    { 0x1008fe05, 33619 }, /* XF86Switch_VT_5 */
+    { 0x1008fe06, 33636 }, /* XF86Switch_VT_6 */
+    { 0x1008fe07, 33653 }, /* XF86Switch_VT_7 */
+    { 0x1008fe08, 33670 }, /* XF86Switch_VT_8 */
+    { 0x1008fe09, 33687 }, /* XF86Switch_VT_9 */
+    { 0x1008fe0a, 33514 }, /* XF86Switch_VT_10 */
+    { 0x1008fe0b, 33532 }, /* XF86Switch_VT_11 */
+    { 0x1008fe0c, 33550 }, /* XF86Switch_VT_12 */
+    { 0x1008fe20, 33884 }, /* XF86Ungrab */
+    { 0x1008fe21, 30111 }, /* XF86ClearGrab */
+    { 0x1008fe22, 32270 }, /* XF86Next_VMode */
+    { 0x1008fe23, 32796 }, /* XF86Prev_VMode */
+    { 0x1008fe24, 31429 }, /* XF86LogWindowTree */
+    { 0x1008fe25, 31400 }, /* XF86LogGrabInfo */
+    { 0x1008ff01, 32102 }, /* XF86ModeLock */
+    { 0x1008ff02, 32163 }, /* XF86MonBrightnessUp */
+    { 0x1008ff03, 32140 }, /* XF86MonBrightnessDown */
+    { 0x1008ff04, 31100 }, /* XF86KbdLightOnOff */
+    { 0x1008ff05, 30836 }, /* XF86KbdBrightnessUp */
+    { 0x1008ff06, 30813 }, /* XF86KbdBrightnessDown */
+    { 0x1008ff07, 32116 }, /* XF86MonBrightnessCycle */
+    { 0x1008ff10, 33407 }, /* XF86Standby */
+    { 0x1008ff11, 29345 }, /* XF86AudioLowerVolume */
+    { 0x1008ff12, 29401 }, /* XF86AudioMute */
+    { 0x1008ff13, 29494 }, /* XF86AudioRaiseVolume */
+    { 0x1008ff14, 29447 }, /* XF86AudioPlay */
+    { 0x1008ff15, 29588 }, /* XF86AudioStop */
+    { 0x1008ff16, 29479 }, /* XF86AudioPrev */
+    { 0x1008ff17, 29416 }, /* XF86AudioNext */
+    { 0x1008ff18, 30738 }, /* XF86HomePage */
+    { 0x1008ff19, 31948 }, /* XF86Mail */
+    { 0x1008ff1a, 33420 }, /* XF86Start */
+    { 0x1008ff1b, 33218 }, /* XF86Search */
+    { 0x1008ff1c, 29537 }, /* XF86AudioRecord */
+    { 0x1008ff1d, 29840 }, /* XF86Calculator */
+    { 0x1008ff1e, 32053 }, /* XF86Memo */
+    { 0x1008ff1f, 33759 }, /* XF86ToDoList */
+    { 0x1008ff20, 29856 }, /* XF86Calendar */
+    { 0x1008ff21, 32749 }, /* XF86PowerDown */
+    { 0x1008ff22, 30187 }, /* XF86ContrastAdjust */
+    { 0x1008ff23, 33024 }, /* XF86RockerUp */
+    { 0x1008ff24, 32991 }, /* XF86RockerDown */
+    { 0x1008ff25, 33007 }, /* XF86RockerEnter */
+    { 0x1008ff26, 29640 }, /* XF86Back */
+    { 0x1008ff27, 30582 }, /* XF86Forward */
+    { 0x1008ff28, 33431 }, /* XF86Stop */
+    { 0x1008ff29, 32892 }, /* XF86Refresh */
+    { 0x1008ff2a, 32764 }, /* XF86PowerOff */
+    { 0x1008ff2b, 34050 }, /* XF86WakeUp */
+    { 0x1008ff2c, 30428 }, /* XF86Eject */
+    { 0x1008ff2d, 33137 }, /* XF86ScreenSaver */
+    { 0x1008ff2e, 34136 }, /* XF86WWW */
+    { 0x1008ff2f, 33326 }, /* XF86Sleep */
+    { 0x1008ff30, 30498 }, /* XF86Favorites */
+    { 0x1008ff31, 29431 }, /* XF86AudioPause */
+    { 0x1008ff32, 29367 }, /* XF86AudioMedia */
+    { 0x1008ff33, 32195 }, /* XF86MyComputer */
+    { 0x1008ff34, 33955 }, /* XF86VendorHome */
+    { 0x1008ff35, 31367 }, /* XF86LightBulb */
+    { 0x1008ff36, 33277 }, /* XF86Shop */
+    { 0x1008ff37, 30725 }, /* XF86History */
+    { 0x1008ff38, 32654 }, /* XF86OpenURL */
+    { 0x1008ff39, 29085 }, /* XF86AddFavorite */
+    { 0x1008ff3a, 30752 }, /* XF86HotLinks */
+    { 0x1008ff3b, 29726 }, /* XF86BrightnessAdjust */
+    { 0x1008ff3c, 30513 }, /* XF86Finance */
+    { 0x1008ff3d, 30155 }, /* XF86Community */
+    { 0x1008ff3e, 29571 }, /* XF86AudioRewind */
+    { 0x1008ff3f, 29650 }, /* XF86BackForward */
+    { 0x1008ff40, 31133 }, /* XF86Launch0 */
+    { 0x1008ff41, 31146 }, /* XF86Launch1 */
+    { 0x1008ff42, 31159 }, /* XF86Launch2 */
+    { 0x1008ff43, 31172 }, /* XF86Launch3 */
+    { 0x1008ff44, 31185 }, /* XF86Launch4 */
+    { 0x1008ff45, 31198 }, /* XF86Launch5 */
+    { 0x1008ff46, 31211 }, /* XF86Launch6 */
+    { 0x1008ff47, 31224 }, /* XF86Launch7 */
+    { 0x1008ff48, 31237 }, /* XF86Launch8 */
+    { 0x1008ff49, 31250 }, /* XF86Launch9 */
+    { 0x1008ff4a, 31263 }, /* XF86LaunchA */
+    { 0x1008ff4b, 31276 }, /* XF86LaunchB */
+    { 0x1008ff4c, 31289 }, /* XF86LaunchC */
+    { 0x1008ff4d, 31302 }, /* XF86LaunchD */
+    { 0x1008ff4e, 31315 }, /* XF86LaunchE */
+    { 0x1008ff4f, 31328 }, /* XF86LaunchF */
+    { 0x1008ff50, 29134 }, /* XF86ApplicationLeft */
+    { 0x1008ff51, 29155 }, /* XF86ApplicationRight */
+    { 0x1008ff52, 29705 }, /* XF86Book */
+    { 0x1008ff53, 30060 }, /* XF86CD */
+    { 0x1008ff54, 29824 }, /* XF86Calculater */
+    { 0x1008ff55, 30100 }, /* XF86Clear */
+    { 0x1008ff56, 30144 }, /* XF86Close */
+    { 0x1008ff57, 30225 }, /* XF86Copy */
+    { 0x1008ff58, 30235 }, /* XF86Cut */
+    { 0x1008ff59, 30297 }, /* XF86Display */
+    { 0x1008ff5a, 30378 }, /* XF86DOS */
+    { 0x1008ff5b, 30345 }, /* XF86Documents */
+    { 0x1008ff5c, 30456 }, /* XF86Excel */
+    { 0x1008ff5d, 30467 }, /* XF86Explorer */
+    { 0x1008ff5e, 30644 }, /* XF86Game */
+    { 0x1008ff5f, 30654 }, /* XF86Go */
+    { 0x1008ff60, 30788 }, /* XF86iTouch */
+    { 0x1008ff61, 31417 }, /* XF86LogOff */
+    { 0x1008ff62, 31975 }, /* XF86Market */
+    { 0x1008ff63, 32040 }, /* XF86Meeting */
+    { 0x1008ff65, 32063 }, /* XF86MenuKB */
+    { 0x1008ff66, 32075 }, /* XF86MenuPB */
+    { 0x1008ff67, 32211 }, /* XF86MySites */
+    { 0x1008ff68, 32251 }, /* XF86New */
+    { 0x1008ff69, 32260 }, /* XF86News */
+    { 0x1008ff6a, 32606 }, /* XF86OfficeHome */
+    { 0x1008ff6b, 32644 }, /* XF86Open */
+    { 0x1008ff6c, 32667 }, /* XF86Option */
+    { 0x1008ff6d, 32679 }, /* XF86Paste */
+    { 0x1008ff6e, 32707 }, /* XF86Phone */
+    { 0x1008ff70, 32858 }, /* XF86Q */
+    { 0x1008ff72, 32940 }, /* XF86Reply */
+    { 0x1008ff73, 32928 }, /* XF86Reload */
+    { 0x1008ff74, 33052 }, /* XF86RotateWindows */
+    { 0x1008ff75, 33111 }, /* XF86RotationPB */
+    { 0x1008ff76, 33071 }, /* XF86RotationKB */
+    { 0x1008ff77, 33127 }, /* XF86Save */
+    { 0x1008ff78, 33204 }, /* XF86ScrollUp */
+    { 0x1008ff79, 33188 }, /* XF86ScrollDown */
+    { 0x1008ff7a, 33171 }, /* XF86ScrollClick */
+    { 0x1008ff7b, 33267 }, /* XF86Send */
+    { 0x1008ff7c, 33363 }, /* XF86Spell */
+    { 0x1008ff7d, 33390 }, /* XF86SplitScreen */
+    { 0x1008ff7e, 33471 }, /* XF86Support */
+    { 0x1008ff7f, 33721 }, /* XF86TaskPane */
+    { 0x1008ff80, 33735 }, /* XF86Terminal */
+    { 0x1008ff81, 33773 }, /* XF86Tools */
+    { 0x1008ff82, 33872 }, /* XF86Travel */
+    { 0x1008ff84, 33934 }, /* XF86UserPB */
+    { 0x1008ff85, 33908 }, /* XF86User1KB */
+    { 0x1008ff86, 33921 }, /* XF86User2KB */
+    { 0x1008ff87, 33971 }, /* XF86Video */
+    { 0x1008ff88, 34074 }, /* XF86WheelButton */
+    { 0x1008ff89, 34101 }, /* XF86Word */
+    { 0x1008ff8a, 34145 }, /* XF86Xfer */
+    { 0x1008ff8b, 34167 }, /* XF86ZoomIn */
+    { 0x1008ff8c, 34179 }, /* XF86ZoomOut */
+    { 0x1008ff8d, 29630 }, /* XF86Away */
+    { 0x1008ff8e, 32087 }, /* XF86Messenger */
+    { 0x1008ff8f, 34062 }, /* XF86WebCam */
+    { 0x1008ff90, 31958 }, /* XF86MailForward */
+    { 0x1008ff91, 32735 }, /* XF86Pictures */
+    { 0x1008ff92, 32184 }, /* XF86Music */
+    { 0x1008ff93, 29667 }, /* XF86Battery */
+    { 0x1008ff94, 29690 }, /* XF86Bluetooth */
+    { 0x1008ff95, 34091 }, /* XF86WLAN */
+    { 0x1008ff96, 33946 }, /* XF86UWB */
+    { 0x1008ff97, 29327 }, /* XF86AudioForward */
+    { 0x1008ff98, 29554 }, /* XF86AudioRepeat */
+    { 0x1008ff99, 29516 }, /* XF86AudioRandomPlay */
+    { 0x1008ff9a, 33457 }, /* XF86Subtitle */
+    { 0x1008ff9b, 29291 }, /* XF86AudioCycleTrack */
+    { 0x1008ff9c, 30244 }, /* XF86CycleAngle */
+    { 0x1008ff9d, 30595 }, /* XF86FrameBack */
+    { 0x1008ff9e, 30610 }, /* XF86FrameForward */
+    { 0x1008ff9f, 33749 }, /* XF86Time */
+    { 0x1008ffa0, 33230 }, /* XF86Select */
+    { 0x1008ffa1, 33998 }, /* XF86View */
+    { 0x1008ffa2, 33784 }, /* XF86TopMenu */
+    { 0x1008ffa3, 32883 }, /* XF86Red */
+    { 0x1008ffa4, 30682 }, /* XF86Green */
+    { 0x1008ffa5, 34155 }, /* XF86Yellow */
+    { 0x1008ffa6, 29680 }, /* XF86Blue */
+    { 0x1008ffa7, 33484 }, /* XF86Suspend */
+    { 0x1008ffa8, 30710 }, /* XF86Hibernate */
+    { 0x1008ffa9, 33830 }, /* XF86TouchpadToggle */
+    { 0x1008ffb0, 33814 }, /* XF86TouchpadOn */
+    { 0x1008ffb1, 33797 }, /* XF86TouchpadOff */
+    { 0x1008ffb2, 29383 }, /* XF86AudioMicMute */
+    { 0x1008ffb3, 31119 }, /* XF86Keyboard */
+    { 0x1008ffb4, 34126 }, /* XF86WWAN */
+    { 0x1008ffb5, 32951 }, /* XF86RFKill */
+    { 0x1008ffb6, 29462 }, /* XF86AudioPreset */
+    { 0x1008ffb7, 33087 }, /* XF86RotationLockToggle */
+    { 0x1008ffb8, 30628 }, /* XF86FullScreen */
 };
 
 #define DEPRECATED_KEYSYM 0xffff
@@ -7980,37 +7980,37 @@ struct deprecated_keysym {
 };
 
 static const struct deprecated_keysym deprecated_keysyms[] = {
-    { 0x00000027, 934              , 0, 0 }, /* Reference: apostrophe. Deprecated: quoteright */
-    { 0x00000060, 13381            , 0, 0 }, /* Reference: grave. Deprecated: quoteleft */
-    { 0x000000ab, 14464            , 0, 0 }, /* Reference: guillemetleft. Deprecated: guillemotleft */
-    { 0x000000ba, 21008            , 0, 0 }, /* Reference: ordmasculine. Deprecated: masculine */
-    { 0x000000bb, 14478            , 0, 0 }, /* Reference: guillemetright. Deprecated: guillemotright */
-    { 0x000000d0, 12179            , 0, 0 }, /* Reference: ETH. Deprecated: Eth */
-    { 0x000000d8, 21453            , 0, 0 }, /* Reference: Oslash. Deprecated: Ooblique */
-    { 0x000000de, 25656            , 0, 0 }, /* Reference: THORN. Deprecated: Thorn */
-    { 0x000000f8, 21460            , 0, 0 }, /* Reference: oslash. Deprecated: ooblique */
-    { 0x000003a2, 19252            , 0, 0 }, /* Reference: kra. Deprecated: kappa */
-    { 0x000004a5, 18348            , 0, 0 }, /* Reference: kana_conjunctive. Deprecated: kana_middledot */
-    { 0x000004af, 18786            , 0, 0 }, /* Reference: kana_tsu. Deprecated: kana_tu */
-    { 0x000004c1, 18308            , 0, 0 }, /* Reference: kana_CHI. Deprecated: kana_TI */
-    { 0x000004c2, 18777            , 0, 0 }, /* Reference: kana_TSU. Deprecated: kana_TU */
-    { 0x000004cc, 18379            , 0, 0 }, /* Reference: kana_FU. Deprecated: kana_HU */
-    { 0x000005e7, 1282             , 0, 0 }, /* Reference: Arabic_ha. Deprecated: Arabic_heh */
-    { 0x000006a4, 26369            , 0, 0 }, /* Reference: Ukrainian_ie. Deprecated: Ukranian_je */
-    { 0x000006a6, 26344            , 0, 0 }, /* Reference: Ukrainian_i. Deprecated: Ukranian_i */
-    { 0x000006a7, 26395            , 0, 0 }, /* Reference: Ukrainian_yi. Deprecated: Ukranian_yi */
-    { 0x000006a8, 9574             , 0, 0 }, /* Reference: Cyrillic_je. Deprecated: Serbian_je */
-    { 0x000006a9, 9713             , 0, 0 }, /* Reference: Cyrillic_lje. Deprecated: Serbian_lje */
-    { 0x000006aa, 9739             , 0, 0 }, /* Reference: Cyrillic_nje. Deprecated: Serbian_nje */
-    { 0x000006af, 9068             , 0, 0 }, /* Reference: Cyrillic_dzhe. Deprecated: Serbian_dze */
-    { 0x000006b4, 26356            , 0, 0 }, /* Reference: Ukrainian_IE. Deprecated: Ukranian_JE */
-    { 0x000006b6, 26332            , 0, 0 }, /* Reference: Ukrainian_I. Deprecated: Ukranian_I */
-    { 0x000006b7, 26382            , 0, 0 }, /* Reference: Ukrainian_YI. Deprecated: Ukranian_YI */
-    { 0x000006b8, 9562             , 0, 0 }, /* Reference: Cyrillic_JE. Deprecated: Serbian_JE */
-    { 0x000006b9, 9700             , 0, 0 }, /* Reference: Cyrillic_LJE. Deprecated: Serbian_LJE */
-    { 0x000006ba, 9726             , 0, 0 }, /* Reference: Cyrillic_NJE. Deprecated: Serbian_NJE */
-    { 0x000006bf, 9054             , 0, 0 }, /* Reference: Cyrillic_DZHE. Deprecated: Serbian_DZE */
-    { 0x000007a5, 13841            , 0, 0 }, /* Reference: Greek_IOTAdieresis. Deprecated: Greek_IOTAdiaeresis */
+    { 0x00000027, 1023             , 0, 0 }, /* Reference: apostrophe. Deprecated: quoteright */
+    { 0x00000060, 14391            , 0, 0 }, /* Reference: grave. Deprecated: quoteleft */
+    { 0x000000ab, 15553            , 0, 0 }, /* Reference: guillemetleft. Deprecated: guillemotleft */
+    { 0x000000ba, 22669            , 0, 0 }, /* Reference: ordmasculine. Deprecated: masculine */
+    { 0x000000bb, 15568            , 0, 0 }, /* Reference: guillemetright. Deprecated: guillemotright */
+    { 0x000000d0, 13055            , 0, 0 }, /* Reference: ETH. Deprecated: Eth */
+    { 0x000000d8, 23155            , 0, 0 }, /* Reference: Oslash. Deprecated: Ooblique */
+    { 0x000000de, 27744            , 0, 0 }, /* Reference: THORN. Deprecated: Thorn */
+    { 0x000000f8, 23163            , 0, 0 }, /* Reference: oslash. Deprecated: ooblique */
+    { 0x000003a2, 20736            , 0, 0 }, /* Reference: kra. Deprecated: kappa */
+    { 0x000004a5, 19724            , 0, 0 }, /* Reference: kana_conjunctive. Deprecated: kana_middledot */
+    { 0x000004af, 20212            , 0, 0 }, /* Reference: kana_tsu. Deprecated: kana_tu */
+    { 0x000004c1, 19681            , 0, 0 }, /* Reference: kana_CHI. Deprecated: kana_TI */
+    { 0x000004c2, 20202            , 0, 0 }, /* Reference: kana_TSU. Deprecated: kana_TU */
+    { 0x000004cc, 19758            , 0, 0 }, /* Reference: kana_FU. Deprecated: kana_HU */
+    { 0x000005e7, 1401             , 0, 0 }, /* Reference: Arabic_ha. Deprecated: Arabic_heh */
+    { 0x000006a4, 28520            , 0, 0 }, /* Reference: Ukrainian_ie. Deprecated: Ukranian_je */
+    { 0x000006a6, 28493            , 0, 0 }, /* Reference: Ukrainian_i. Deprecated: Ukranian_i */
+    { 0x000006a7, 28548            , 0, 0 }, /* Reference: Ukrainian_yi. Deprecated: Ukranian_yi */
+    { 0x000006a8, 10242            , 0, 0 }, /* Reference: Cyrillic_je. Deprecated: Serbian_je */
+    { 0x000006a9, 10389            , 0, 0 }, /* Reference: Cyrillic_lje. Deprecated: Serbian_lje */
+    { 0x000006aa, 10417            , 0, 0 }, /* Reference: Cyrillic_nje. Deprecated: Serbian_nje */
+    { 0x000006af, 9700             , 0, 0 }, /* Reference: Cyrillic_dzhe. Deprecated: Serbian_dze */
+    { 0x000006b4, 28506            , 0, 0 }, /* Reference: Ukrainian_IE. Deprecated: Ukranian_JE */
+    { 0x000006b6, 28480            , 0, 0 }, /* Reference: Ukrainian_I. Deprecated: Ukranian_I */
+    { 0x000006b7, 28534            , 0, 0 }, /* Reference: Ukrainian_YI. Deprecated: Ukranian_YI */
+    { 0x000006b8, 10229            , 0, 0 }, /* Reference: Cyrillic_JE. Deprecated: Serbian_JE */
+    { 0x000006b9, 10375            , 0, 0 }, /* Reference: Cyrillic_LJE. Deprecated: Serbian_LJE */
+    { 0x000006ba, 10403            , 0, 0 }, /* Reference: Cyrillic_NJE. Deprecated: Serbian_NJE */
+    { 0x000006bf, 9685             , 0, 0 }, /* Reference: Cyrillic_DZHE. Deprecated: Serbian_DZE */
+    { 0x000007a5, 14883            , 0, 0 }, /* Reference: Greek_IOTAdieresis. Deprecated: Greek_IOTAdiaeresis */
     { 0x000008a2, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: topleftradical */
     { 0x000008a3, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: horizconnector */
     { 0x000008a6, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: vertconnector */
@@ -8050,94 +8050,94 @@ static const struct deprecated_keysym deprecated_keysyms[] = {
     { 0x00000bd6, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: downshoe */
     { 0x00000bd8, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: rightshoe */
     { 0x00000bda, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: leftshoe */
-    { 0x00000ce1, 16255            , 0, 0 }, /* Reference: hebrew_bet. Deprecated: hebrew_beth */
-    { 0x00000ce2, 16436            , 0, 0 }, /* Reference: hebrew_gimel. Deprecated: hebrew_gimmel */
-    { 0x00000ce3, 16290            , 0, 0 }, /* Reference: hebrew_dalet. Deprecated: hebrew_daleth */
-    { 0x00000ce6, 16721            , 0, 0 }, /* Reference: hebrew_zain. Deprecated: hebrew_zayin */
-    { 0x00000ce7, 16278            , 0, 0 }, /* Reference: hebrew_chet. Deprecated: hebrew_het */
-    { 0x00000ce8, 16652            , 0, 0 }, /* Reference: hebrew_tet. Deprecated: hebrew_teth */
-    { 0x00000cf1, 16576            , 0, 0 }, /* Reference: hebrew_samech. Deprecated: hebrew_samekh */
-    { 0x00000cf5, 16402            , 0, 0 }, /* Reference: hebrew_finalzade. Deprecated: hebrew_finalzadi */
-    { 0x00000cf6, 16697            , 0, 0 }, /* Reference: hebrew_zade. Deprecated: hebrew_zadi */
-    { 0x00000cf7, 16552            , 0, 0 }, /* Reference: hebrew_qoph. Deprecated: hebrew_kuf */
-    { 0x00000cfa, 16641            , 0, 0 }, /* Reference: hebrew_taw. Deprecated: hebrew_taf */
+    { 0x00000ce1, 17463            , 0, 0 }, /* Reference: hebrew_bet. Deprecated: hebrew_beth */
+    { 0x00000ce2, 17656            , 0, 0 }, /* Reference: hebrew_gimel. Deprecated: hebrew_gimmel */
+    { 0x00000ce3, 17501            , 0, 0 }, /* Reference: hebrew_dalet. Deprecated: hebrew_daleth */
+    { 0x00000ce6, 17965            , 0, 0 }, /* Reference: hebrew_zain. Deprecated: hebrew_zayin */
+    { 0x00000ce7, 17488            , 0, 0 }, /* Reference: hebrew_chet. Deprecated: hebrew_het */
+    { 0x00000ce8, 17890            , 0, 0 }, /* Reference: hebrew_tet. Deprecated: hebrew_teth */
+    { 0x00000cf1, 17808            , 0, 0 }, /* Reference: hebrew_samech. Deprecated: hebrew_samekh */
+    { 0x00000cf5, 17620            , 0, 0 }, /* Reference: hebrew_finalzade. Deprecated: hebrew_finalzadi */
+    { 0x00000cf6, 17939            , 0, 0 }, /* Reference: hebrew_zade. Deprecated: hebrew_zadi */
+    { 0x00000cf7, 17782            , 0, 0 }, /* Reference: hebrew_qoph. Deprecated: hebrew_kuf */
+    { 0x00000cfa, 17878            , 0, 0 }, /* Reference: hebrew_taw. Deprecated: hebrew_taf */
     { 0x00000dde, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: Thai_maihanakat_maitho */
     { 0x00000eff, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: Korean_Won */
-    { 0x0000fe8a, 11150            , 0, 0 }, /* Reference: dead_schwa. Deprecated: dead_small_schwa */
-    { 0x0000fe8b, 11139            , 0, 0 }, /* Reference: dead_SCHWA. Deprecated: dead_capital_schwa */
-    { 0x0000ff20, 19955            , 0, 0 }, /* Reference: Multi_key. Deprecated: SunCompose */
-    { 0x0000ff37, 8654             , 0, 0 }, /* Reference: Codeinput. Deprecated: Kanji_Bangou, Hangul_Codeinput */
-    { 0x0000ff3c, 23169            , 0, 0 }, /* Reference: SingleCandidate. Deprecated: Hangul_SingleCandidate */
-    { 0x0000ff3d, 19965            , 0, 0 }, /* Reference: MultipleCandidate. Deprecated: Zen_Koho, Hangul_MultipleCandidate */
-    { 0x0000ff3e, 22257            , 0, 0 }, /* Reference: PreviousCandidate. Deprecated: Mae_Koho, Hangul_PreviousCandidate */
-    { 0x0000ff55, 22281            , 0, 0 }, /* Reference: Prior. Deprecated: Page_Up, SunPageUp */
-    { 0x0000ff56, 20167            , 0, 0 }, /* Reference: Next. Deprecated: Page_Down, SunPageDown */
-    { 0x0000ff61, 22275            , 0, 0 }, /* Reference: Print. Deprecated: SunPrint_Screen */
-    { 0x0000ff65, 26514            , 0, 0 }, /* Reference: Undo. Deprecated: SunUndo */
-    { 0x0000ff66, 22483            , 0, 0 }, /* Reference: Redo. Deprecated: SunAgain */
-    { 0x0000ff68, 12646            , 0, 0 }, /* Reference: Find. Deprecated: SunFind */
-    { 0x0000ff69, 8489             , 0, 0 }, /* Reference: Cancel. Deprecated: SunStop */
-    { 0x0000ff7e, 19891            , 0, 1 }, /* Reference: Mode_switch. Non deprecated aliases: script_switch, ISO_Group_Shift, kana_switch, Arabic_switch, Greek_switch, Hebrew_switch, Hangul_switch. Deprecated: SunAltGraph */
-    { 0x0000ff9a, 19187            , 0, 0 }, /* Reference: KP_Prior. Deprecated: KP_Page_Up */
-    { 0x0000ff9b, 19155            , 0, 0 }, /* Reference: KP_Next. Deprecated: KP_Page_Down */
-    { 0x0000ffc8, 12281            , 0, 0 }, /* Reference: F11. Deprecated: L1 */
-    { 0x0000ffc9, 12285            , 0, 0 }, /* Reference: F12. Deprecated: L2 */
-    { 0x0000ffca, 12289            , 0, 0 }, /* Reference: F13. Deprecated: L3 */
-    { 0x0000ffcb, 12293            , 0, 0 }, /* Reference: F14. Deprecated: L4 */
-    { 0x0000ffcc, 12297            , 0, 0 }, /* Reference: F15. Deprecated: L5 */
-    { 0x0000ffcd, 12301            , 0, 0 }, /* Reference: F16. Deprecated: L6 */
-    { 0x0000ffce, 12305            , 0, 0 }, /* Reference: F17. Deprecated: L7 */
-    { 0x0000ffcf, 12309            , 0, 0 }, /* Reference: F18. Deprecated: L8 */
-    { 0x0000ffd0, 12313            , 0, 0 }, /* Reference: F19. Deprecated: L9 */
-    { 0x0000ffd1, 12320            , 0, 0 }, /* Reference: F20. Deprecated: L10 */
-    { 0x0000ffd2, 12324            , 0, 0 }, /* Reference: F21. Deprecated: R1 */
-    { 0x0000ffd3, 12328            , 0, 0 }, /* Reference: F22. Deprecated: R2 */
-    { 0x0000ffd4, 12332            , 0, 0 }, /* Reference: F23. Deprecated: R3 */
-    { 0x0000ffd5, 12336            , 0, 0 }, /* Reference: F24. Deprecated: R4 */
-    { 0x0000ffd6, 12340            , 0, 0 }, /* Reference: F25. Deprecated: R5 */
-    { 0x0000ffd7, 12344            , 0, 0 }, /* Reference: F26. Deprecated: R6 */
-    { 0x0000ffd8, 12348            , 0, 0 }, /* Reference: F27. Deprecated: R7 */
-    { 0x0000ffd9, 12352            , 0, 0 }, /* Reference: F28. Deprecated: R8 */
-    { 0x0000ffda, 12356            , 0, 0 }, /* Reference: F29. Deprecated: R9 */
-    { 0x0000ffdb, 12363            , 0, 0 }, /* Reference: F30. Deprecated: R10 */
-    { 0x0000ffdc, 12367            , 0, 0 }, /* Reference: F31. Deprecated: R11 */
-    { 0x0000ffdd, 12371            , 0, 0 }, /* Reference: F32. Deprecated: R12 */
-    { 0x0000ffde, 12375            , 0, 0 }, /* Reference: F33. Deprecated: R13 */
-    { 0x0000ffdf, 12379            , 0, 0 }, /* Reference: F34. Deprecated: R14 */
-    { 0x0000ffe0, 12383            , 0, 0 }, /* Reference: F35. Deprecated: R15 */
-    { 0x0100055b, 2048             , 0, 0 }, /* Reference: Armenian_accent. Deprecated: Armenian_shesht */
-    { 0x0100055c, 2287             , 0, 0 }, /* Reference: Armenian_exclam. Deprecated: Armenian_amanak */
-    { 0x0100055d, 2869             , 0, 0 }, /* Reference: Armenian_separation_mark. Deprecated: Armenian_but */
-    { 0x0100055e, 2779             , 0, 0 }, /* Reference: Armenian_question. Deprecated: Armenian_paruyk */
-    { 0x01000589, 2327             , 0, 0 }, /* Reference: Armenian_full_stop. Deprecated: Armenian_verjaket */
-    { 0x0100058a, 2448             , 0, 0 }, /* Reference: Armenian_hyphen. Deprecated: Armenian_yentamna */
-    { 0x010006cc, 12505            , 0, 0 }, /* Reference: Farsi_yeh. Deprecated: Arabic_farsi_yeh */
+    { 0x0000fe8a, 11931            , 0, 0 }, /* Reference: dead_schwa. Deprecated: dead_small_schwa */
+    { 0x0000fe8b, 11919            , 0, 0 }, /* Reference: dead_SCHWA. Deprecated: dead_capital_schwa */
+    { 0x0000ff20, 21516            , 0, 0 }, /* Reference: Multi_key. Deprecated: SunCompose */
+    { 0x0000ff37, 9254             , 0, 0 }, /* Reference: Codeinput. Deprecated: Kanji_Bangou, Hangul_Codeinput */
+    { 0x0000ff3c, 25030            , 0, 0 }, /* Reference: SingleCandidate. Deprecated: Hangul_SingleCandidate */
+    { 0x0000ff3d, 21527            , 0, 0 }, /* Reference: MultipleCandidate. Deprecated: Zen_Koho, Hangul_MultipleCandidate */
+    { 0x0000ff3e, 24019            , 0, 0 }, /* Reference: PreviousCandidate. Deprecated: Mae_Koho, Hangul_PreviousCandidate */
+    { 0x0000ff55, 24045            , 0, 0 }, /* Reference: Prior. Deprecated: Page_Up, SunPageUp */
+    { 0x0000ff56, 21749            , 0, 0 }, /* Reference: Next. Deprecated: Page_Down, SunPageDown */
+    { 0x0000ff61, 24038            , 0, 0 }, /* Reference: Print. Deprecated: SunPrint_Screen */
+    { 0x0000ff65, 28678            , 0, 0 }, /* Reference: Undo. Deprecated: SunUndo */
+    { 0x0000ff66, 24282            , 0, 0 }, /* Reference: Redo. Deprecated: SunAgain */
+    { 0x0000ff68, 13594            , 0, 0 }, /* Reference: Find. Deprecated: SunFind */
+    { 0x0000ff69, 9067             , 0, 0 }, /* Reference: Cancel. Deprecated: SunStop */
+    { 0x0000ff7e, 21447            , 0, 1 }, /* Reference: Mode_switch. Non deprecated aliases: script_switch, ISO_Group_Shift, kana_switch, Arabic_switch, Greek_switch, Hebrew_switch, Hangul_switch. Deprecated: SunAltGraph */
+    { 0x0000ff9a, 20664            , 0, 0 }, /* Reference: KP_Prior. Deprecated: KP_Page_Up */
+    { 0x0000ff9b, 20629            , 0, 0 }, /* Reference: KP_Next. Deprecated: KP_Page_Down */
+    { 0x0000ffc8, 13174            , 0, 0 }, /* Reference: F11. Deprecated: L1 */
+    { 0x0000ffc9, 13179            , 0, 0 }, /* Reference: F12. Deprecated: L2 */
+    { 0x0000ffca, 13184            , 0, 0 }, /* Reference: F13. Deprecated: L3 */
+    { 0x0000ffcb, 13189            , 0, 0 }, /* Reference: F14. Deprecated: L4 */
+    { 0x0000ffcc, 13194            , 0, 0 }, /* Reference: F15. Deprecated: L5 */
+    { 0x0000ffcd, 13199            , 0, 0 }, /* Reference: F16. Deprecated: L6 */
+    { 0x0000ffce, 13204            , 0, 0 }, /* Reference: F17. Deprecated: L7 */
+    { 0x0000ffcf, 13209            , 0, 0 }, /* Reference: F18. Deprecated: L8 */
+    { 0x0000ffd0, 13214            , 0, 0 }, /* Reference: F19. Deprecated: L9 */
+    { 0x0000ffd1, 13223            , 0, 0 }, /* Reference: F20. Deprecated: L10 */
+    { 0x0000ffd2, 13228            , 0, 0 }, /* Reference: F21. Deprecated: R1 */
+    { 0x0000ffd3, 13233            , 0, 0 }, /* Reference: F22. Deprecated: R2 */
+    { 0x0000ffd4, 13238            , 0, 0 }, /* Reference: F23. Deprecated: R3 */
+    { 0x0000ffd5, 13243            , 0, 0 }, /* Reference: F24. Deprecated: R4 */
+    { 0x0000ffd6, 13248            , 0, 0 }, /* Reference: F25. Deprecated: R5 */
+    { 0x0000ffd7, 13253            , 0, 0 }, /* Reference: F26. Deprecated: R6 */
+    { 0x0000ffd8, 13258            , 0, 0 }, /* Reference: F27. Deprecated: R7 */
+    { 0x0000ffd9, 13263            , 0, 0 }, /* Reference: F28. Deprecated: R8 */
+    { 0x0000ffda, 13268            , 0, 0 }, /* Reference: F29. Deprecated: R9 */
+    { 0x0000ffdb, 13277            , 0, 0 }, /* Reference: F30. Deprecated: R10 */
+    { 0x0000ffdc, 13282            , 0, 0 }, /* Reference: F31. Deprecated: R11 */
+    { 0x0000ffdd, 13287            , 0, 0 }, /* Reference: F32. Deprecated: R12 */
+    { 0x0000ffde, 13292            , 0, 0 }, /* Reference: F33. Deprecated: R13 */
+    { 0x0000ffdf, 13297            , 0, 0 }, /* Reference: F34. Deprecated: R14 */
+    { 0x0000ffe0, 13302            , 0, 0 }, /* Reference: F35. Deprecated: R15 */
+    { 0x0100055b, 2222             , 0, 0 }, /* Reference: Armenian_accent. Deprecated: Armenian_shesht */
+    { 0x0100055c, 2479             , 0, 0 }, /* Reference: Armenian_exclam. Deprecated: Armenian_amanak */
+    { 0x0100055d, 3105             , 0, 0 }, /* Reference: Armenian_separation_mark. Deprecated: Armenian_but */
+    { 0x0100055e, 3008             , 0, 0 }, /* Reference: Armenian_question. Deprecated: Armenian_paruyk */
+    { 0x01000589, 2522             , 0, 0 }, /* Reference: Armenian_full_stop. Deprecated: Armenian_verjaket */
+    { 0x0100058a, 2652             , 0, 0 }, /* Reference: Armenian_hyphen. Deprecated: Armenian_yentamna */
+    { 0x010006cc, 13443            , 0, 0 }, /* Reference: Farsi_yeh. Deprecated: Arabic_farsi_yeh */
     { 0x01002247, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: notapproxeq */
     { 0x01002248, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: approxeq */
-    { 0x100000a8, 17054            , 0, 0 }, /* Reference: hpmute_acute. Deprecated: mute_acute */
-    { 0x100000a9, 17121            , 0, 0 }, /* Reference: hpmute_grave. Deprecated: mute_grave */
-    { 0x100000aa, 17067            , 0, 0 }, /* Reference: hpmute_asciicircum. Deprecated: mute_asciicircum */
-    { 0x100000ab, 17104            , 0, 0 }, /* Reference: hpmute_diaeresis. Deprecated: mute_diaeresis */
-    { 0x100000ac, 17086            , 0, 0 }, /* Reference: hpmute_asciitilde. Deprecated: mute_asciitilde */
-    { 0x100000af, 17011            , 0, 0 }, /* Reference: hplira. Deprecated: lira */
-    { 0x100000be, 16957            , 0, 0 }, /* Reference: hpguilder. Deprecated: guilder */
-    { 0x100000ee, 17158            , 0, 0 }, /* Reference: hpYdiaeresis. Deprecated: hpIO, IO */
-    { 0x100000f6, 17018            , 0, 0 }, /* Reference: hplongminus. Deprecated: longminus */
-    { 0x100000fc, 16911            , 0, 0 }, /* Reference: hpblock. Deprecated: block */
-    { 0x1000ff6c, 17134            , 0, 0 }, /* Reference: hpReset. Deprecated: Reset */
-    { 0x1000ff6d, 17142            , 0, 0 }, /* Reference: hpSystem. Deprecated: System */
-    { 0x1000ff6e, 17151            , 0, 0 }, /* Reference: hpUser. Deprecated: User */
-    { 0x1000ff6f, 16919            , 0, 0 }, /* Reference: hpClearLine. Deprecated: ClearLine */
-    { 0x1000ff70, 16980            , 0, 0 }, /* Reference: hpInsertLine. Deprecated: InsertLine */
-    { 0x1000ff71, 16944            , 0, 0 }, /* Reference: hpDeleteLine. Deprecated: DeleteLine */
-    { 0x1000ff72, 16967            , 0, 0 }, /* Reference: hpInsertChar. Deprecated: InsertChar */
-    { 0x1000ff73, 16931            , 0, 0 }, /* Reference: hpDeleteChar. Deprecated: DeleteChar */
-    { 0x1000ff74, 16901            , 0, 0 }, /* Reference: hpBackTab. Deprecated: BackTab */
-    { 0x1000ff75, 16998            , 0, 0 }, /* Reference: hpKP_BackTab. Deprecated: KP_BackTab */
+    { 0x100000a8, 18327            , 0, 0 }, /* Reference: hpmute_acute. Deprecated: mute_acute */
+    { 0x100000a9, 18398            , 0, 0 }, /* Reference: hpmute_grave. Deprecated: mute_grave */
+    { 0x100000aa, 18341            , 0, 0 }, /* Reference: hpmute_asciicircum. Deprecated: mute_asciicircum */
+    { 0x100000ab, 18380            , 0, 0 }, /* Reference: hpmute_diaeresis. Deprecated: mute_diaeresis */
+    { 0x100000ac, 18361            , 0, 0 }, /* Reference: hpmute_asciitilde. Deprecated: mute_asciitilde */
+    { 0x100000af, 18280            , 0, 0 }, /* Reference: hplira. Deprecated: lira */
+    { 0x100000be, 18221            , 0, 0 }, /* Reference: hpguilder. Deprecated: guilder */
+    { 0x100000ee, 18439            , 0, 0 }, /* Reference: hpYdiaeresis. Deprecated: hpIO, IO */
+    { 0x100000f6, 18288            , 0, 0 }, /* Reference: hplongminus. Deprecated: longminus */
+    { 0x100000fc, 18171            , 0, 0 }, /* Reference: hpblock. Deprecated: block */
+    { 0x1000ff6c, 18412            , 0, 0 }, /* Reference: hpReset. Deprecated: Reset */
+    { 0x1000ff6d, 18421            , 0, 0 }, /* Reference: hpSystem. Deprecated: System */
+    { 0x1000ff6e, 18431            , 0, 0 }, /* Reference: hpUser. Deprecated: User */
+    { 0x1000ff6f, 18180            , 0, 0 }, /* Reference: hpClearLine. Deprecated: ClearLine */
+    { 0x1000ff70, 18246            , 0, 0 }, /* Reference: hpInsertLine. Deprecated: InsertLine */
+    { 0x1000ff71, 18207            , 0, 0 }, /* Reference: hpDeleteLine. Deprecated: DeleteLine */
+    { 0x1000ff72, 18232            , 0, 0 }, /* Reference: hpInsertChar. Deprecated: InsertChar */
+    { 0x1000ff73, 18193            , 0, 0 }, /* Reference: hpDeleteChar. Deprecated: DeleteChar */
+    { 0x1000ff74, 18160            , 0, 0 }, /* Reference: hpBackTab. Deprecated: BackTab */
+    { 0x1000ff75, 18266            , 0, 0 }, /* Reference: hpKP_BackTab. Deprecated: KP_BackTab */
     { 0x1000ff76, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: Ext16bit_L */
     { 0x1000ff77, DEPRECATED_KEYSYM, 0, 0 }, /* Deprecated: Ext16bit_R */
 };
 
 static const uint32_t explicit_deprecated_aliases[] = {
-    24029,
+    25984,
 };
