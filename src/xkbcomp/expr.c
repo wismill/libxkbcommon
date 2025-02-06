@@ -663,8 +663,10 @@ ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
         const char *str = xkb_atom_text(ctx, expr->ident.ident);
         *sym_rtrn = xkb_keysym_from_name(str, 0);
         if (*sym_rtrn != XKB_KEY_NoSymbol) {
+            // FIXME: avoid strlen here?
             check_deprecated_keysyms(log_warn, ctx, ctx,
-                                     *sym_rtrn, str, str, "%s", "\n");
+                                     *sym_rtrn, str, strlen(str), "\n",
+                                     "%s", str);
             return true;
         }
     }
@@ -686,7 +688,8 @@ ExprResolveKeySym(struct xkb_context *ctx, const ExprDef *expr,
     }
 
     if (val <= XKB_KEYSYM_MAX) {
-        check_deprecated_keysyms(log_warn, ctx, ctx, val, NULL, val, "0x%x", "\n");
+        check_deprecated_keysyms(log_warn, ctx, ctx, val, NULL, 0, "\n",
+                                 "0x%x", val);
         log_warn(ctx, XKB_WARNING_NUMERIC_KEYSYM,
                  "numeric keysym \"0x%x\" (%d)",
                  (unsigned int) val, val);

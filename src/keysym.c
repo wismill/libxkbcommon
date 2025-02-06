@@ -46,7 +46,8 @@ find_keysym_index(xkb_keysym_t ks)
     return -1;
 }
 
-#define get_name_by_index(index) (keysym_names + (index))
+#define get_sized_name_by_index(index) (keysym_names + (index))
+#define get_name_by_index(index)       (keysym_names + (index) + 1)
 
 static inline const char *
 get_name(const struct name_keysym *entry)
@@ -187,6 +188,27 @@ xkb_keysym_iterator_next(struct xkb_keysym_iterator *iter)
  * we don't want to allow, like signs, spaces, even locale stuff.
  */
 static bool
+parse_keysym_hex_buffer(const char *s, size_t size, uint32_t *out)
+{
+    uint32_t result = 0;
+    const size_t max = MIN(8, size);
+    size_t i = 0;
+    for (; i < max; i++) {
+        result <<= 4;
+        if ('0' <= s[i] && s[i] <= '9')
+            result += s[i] - '0';
+        else if ('a' <= s[i] && s[i] <= 'f')
+            result += 10 + s[i] - 'a';
+        else if ('A' <= s[i] && s[i] <= 'F')
+            result += 10 + s[i] - 'A';
+        else
+            return false;
+    }
+    *out = result;
+    return i > 0;
+}
+
+static bool
 parse_keysym_hex(const char *s, uint32_t *out)
 {
     uint32_t result = 0;
@@ -204,6 +226,122 @@ parse_keysym_hex(const char *s, uint32_t *out)
     }
     *out = result;
     return s[i] == '\0' && i > 0;
+}
+
+static inline bool
+sized_strcmp(const char *s, const char *buf, size_t buf_size)
+{
+    return buf_size == ((size_t) s[0]) && memcmp(buf, &s[1], buf_size) == 0;
+}
+
+xkb_keysym_t
+xkb_keysym_from_name_buffer(const char *name, size_t size,
+                            enum xkb_keysym_flags flags)
+{
+    const struct name_keysym *entry = NULL;
+    char *tmp;
+    uint32_t val;
+    bool icase = (flags & XKB_KEYSYM_CASE_INSENSITIVE);
+
+    if (flags & ~XKB_KEYSYM_CASE_INSENSITIVE)
+        return XKB_KEY_NoSymbol;
+
+    /*
+     * We need to !icase case to be fast, for e.g. Compose file parsing.
+     * So do it in a fast path.
+     */
+    if (!icase) {
+        size_t pos = keysym_name_buffer_perfect_hash(name, size);
+        if (pos < ARRAY_SIZE(name_to_keysym)) {
+            const char *s = get_sized_name_by_index(name_to_keysym[pos].offset);
+            if (sized_strcmp(s, name, size))
+                return name_to_keysym[pos].keysym;
+        }
+    }
+    /*
+    * Find the correct keysym for case-insensitive match.
+    *
+    * The name_to_keysym table is sorted by istrcmp(). So the binary
+    * search may return _any_ of all possible case-insensitive duplicates. The
+    * duplicates are sorted so that the "best" case-insensitive match comes
+    * last. So the code searches the entry and all next entries that match by
+    * case-insensitive comparison and returns the "best" case-insensitive match.
+    *
+    * The "best" case-insensitive match is the lower-case keysym name. Most
+    * keysyms names that only differ by letter-case are keysyms that are
+    * available as “small” and “big” variants. For example:
+    *
+    * - Bicameral scripts: Lower-case and upper-case variants,
+    *   e.g. KEY_a and KEY_A.
+    * - Non-bicameral scripts: e.g. KEY_kana_a and KEY_kana_A.
+    *
+    * There are some exceptions, e.g. `XF86Screensaver` and `XF86ScreenSaver`.
+    */
+    else {
+        int32_t lo = 0, hi = ARRAY_SIZE(name_to_keysym) - 1;
+        while (hi >= lo) {
+            int32_t mid = (lo + hi) / 2;
+            // FIXME use faster memcmp
+            int cmp = istrcmp(name, get_name(&name_to_keysym[mid]));
+            if (cmp > 0) {
+                lo = mid + 1;
+            } else if (cmp < 0) {
+                hi = mid - 1;
+            } else {
+                entry = &name_to_keysym[mid];
+                break;
+            }
+        }
+        if (entry) {
+            const struct name_keysym *last;
+            last = name_to_keysym + ARRAY_SIZE(name_to_keysym) - 1;
+            /* Keep going until we reach end of array
+             * or non case-insensitve match */
+            while (entry < last &&
+                   // FIXME use faster memcmp
+                   istrcmp(get_name(entry + 1), get_name(entry)) == 0) {
+                entry++;
+            }
+            return entry->keysym;
+        }
+    }
+
+    if (*name == 'U' || (icase && *name == 'u')) {
+        if (!parse_keysym_hex_buffer(&name[1], size - 1, &val))
+            return XKB_KEY_NoSymbol;
+
+        if (val < 0x20 || (val > 0x7e && val < 0xa0))
+            return XKB_KEY_NoSymbol;
+        if (val < 0x100)
+            return (xkb_keysym_t) val;
+        if (val > 0x10ffff)
+            return XKB_KEY_NoSymbol;
+        return (xkb_keysym_t) val | XKB_KEYSYM_UNICODE_OFFSET;
+    }
+    else if (name[0] == '0' && size > 2 &&
+             (name[1] == 'x' || (icase && name[1] == 'X'))) {
+        if (!parse_keysym_hex_buffer(&name[2], size - 2, &val) ||
+            val > XKB_KEYSYM_MAX)
+            return XKB_KEY_NoSymbol;
+        return (xkb_keysym_t) val;
+    }
+
+    /* Stupid inconsistency between the headers and XKeysymDB: the former has
+     * no separating underscore, while some XF86* syms in the latter did.
+     * As a last ditch effort, try without. */
+    if (size > 5 && (strncmp(name, "XF86_", 5) == 0 ||
+        (icase && istrncmp(name, "XF86_", 5) == 0))) {
+        xkb_keysym_t ret;
+        tmp = strndup(name, size);
+        if (!tmp)
+            return XKB_KEY_NoSymbol;
+        memmove(&tmp[4], &tmp[5], size - 5 + 1);
+        ret = xkb_keysym_from_name_buffer(tmp, size - 1, flags);
+        free(tmp);
+        return ret;
+    }
+
+    return XKB_KEY_NoSymbol;
 }
 
 xkb_keysym_t
@@ -327,11 +465,12 @@ xkb_keysym_from_name(const char *name, enum xkb_keysym_flags flags)
 bool
 xkb_keysym_is_deprecated(xkb_keysym_t keysym,
                          const char *name,
-                         const char **reference_name)
+                         size_t size,
+                         const char **reference_name_out)
 {
     if (keysym > XKB_KEYSYM_MAX) {
         /* Invalid keysym */
-        *reference_name = NULL;
+        *reference_name_out = NULL;
         return false;
     }
     /* [WARNING] We do not check that name, if defined, is a valid for keysym */
@@ -347,11 +486,13 @@ xkb_keysym_is_deprecated(xkb_keysym_t keysym,
             /* Keysym have some deprecated names */
             if (deprecated_keysyms[mid].offset == DEPRECATED_KEYSYM) {
                 /* All names are deprecated */
-                *reference_name = NULL;
+                *reference_name_out = NULL;
                 return true;
             }
             /* There is a reference name that is not deprecated */
-            *reference_name = get_name_by_index(deprecated_keysyms[mid].offset);
+            const char * const reference_name =
+                get_sized_name_by_index(deprecated_keysyms[mid].offset);
+            *reference_name_out = &reference_name[1];
             if (name == NULL)
                 /* No name to check: indicate not deprecated */
                 return false;
@@ -363,20 +504,20 @@ xkb_keysym_is_deprecated(xkb_keysym_t keysym,
                 /* Check every deprecated alias */
                 for (; k < k_max; k++) {
                     const char *alias =
-                        get_name_by_index(explicit_deprecated_aliases[k]);
-                    if (strcmp(name, alias) == 0)
+                        get_sized_name_by_index(explicit_deprecated_aliases[k]);
+                    if (sized_strcmp(alias, name, size))
                         return true;
                 }
                 return false;
             } else {
                 /* All names but the reference one are deprecated */
-                return strcmp(name, *reference_name) != 0;
+                return !sized_strcmp(reference_name, name, size);
             }
         }
     }
 
     /* Keysym has no deprecated names */
-    *reference_name = NULL;
+    *reference_name_out = NULL;
     return false;
 }
 

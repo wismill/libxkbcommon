@@ -51,19 +51,12 @@ resolve_keysym(struct parser_param *param, struct sval name, xkb_keysym_t *sym_r
         return true;
     }
 
-    /* xkb_keysym_from_name needs a C string. */
-    char buf[XKB_KEYSYM_NAME_MAX_SIZE];
-    if (name.len >= sizeof(buf)) {
-        return false;
-    }
-    memcpy(buf, name.start, name.len);
-    buf[name.len] = '\0';
-
-    sym = xkb_keysym_from_name(buf, XKB_KEYSYM_NO_FLAGS);
+    sym = xkb_keysym_from_name_buffer(name.start, name.len, XKB_KEYSYM_NO_FLAGS);
     if (sym != XKB_KEY_NoSymbol) {
         *sym_rtrn = sym;
         check_deprecated_keysyms(parser_warn, param, param->ctx,
-                                 sym, buf, buf, "%s", "");
+                                 sym, name.start, name.len, "", "%.*s",
+                                 name.len, name.start);
         return true;
     }
 
@@ -781,7 +774,7 @@ KeySym          :       IDENT
                                     $$ = (xkb_keysym_t) $1;
                                     check_deprecated_keysyms(
                                         parser_warn, param, param->ctx,
-                                        $$, NULL, $$, "0x%"PRIx32, "");
+                                        $$, NULL, 0, "", "0x%"PRIx32, $$);
                                 } else {
                                     parser_warn(
                                         param, XKB_WARNING_UNRECOGNIZED_KEYSYM,

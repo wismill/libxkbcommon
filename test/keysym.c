@@ -157,7 +157,9 @@ test_deprecated(xkb_keysym_t keysym, const char *name,
                 bool expected_deprecated, const char *expected_reference)
 {
     const char *reference;
-    bool deprecated = xkb_keysym_is_deprecated(keysym, name, &reference);
+    bool deprecated = xkb_keysym_is_deprecated(keysym, name,
+                                               name ? strlen(name) : 0,
+                                               &reference);
 
     fprintf(stderr, "Expected keysym %#x -> deprecated: %d, reference: %s\n",
             keysym, expected_deprecated, expected_reference);

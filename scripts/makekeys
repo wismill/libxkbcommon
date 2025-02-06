@@ -151,7 +151,7 @@ for keysym in entries_isorted:
     entry_offsets[keysym.name] = offs
     assert 0 < len(keysym.name) <= 0xFF, keysym.name
     # Name length is store as a prefix
-    print(f'    "\\x{len(keysym.name):x}{keysym.name}\\0"')
+    print(f'    "\\x{len(keysym.name):0>2x}""{keysym.name}\\0"')
     offs += 1 + len(keysym.name) + 1
 print(
     """
@@ -182,6 +182,24 @@ keysym_name_perfect_hash(const char *key)
     return (
         keysym_name_G[keysym_name_hash_f(key, "$S1")] +
         keysym_name_G[keysym_name_hash_f(key, "$S2")]
+    ) % $NG;
+}
+
+static size_t
+keysym_name_buffer_hash_f(const char *key, size_t size, const char *T)
+{
+    size_t sum = 0;
+    for (size_t i = 0; i < size; i++)
+        sum += T[i % $NS] * key[i];
+    return sum % $NG;
+}
+
+static size_t
+keysym_name_buffer_perfect_hash(const char *key, size_t size)
+{
+    return (
+        keysym_name_G[keysym_name_buffer_hash_f(key, size, "$S1")] +
+        keysym_name_G[keysym_name_buffer_hash_f(key, size, "$S2")]
     ) % $NG;
 }
 """

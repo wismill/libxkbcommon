@@ -623,7 +623,8 @@ lhs_keysym_tok:
             goto error;
         }
         check_deprecated_keysyms(scanner_warn, s, s->ctx,
-                                 keysym, val.string.str, val.string.str, "%s", "");
+                                 keysym, val.string.str, val.string.len,
+                                 "", "%s", val.string.str);
         if (production.len + 1 > MAX_LHS_LEN) {
             scanner_warn(s, XKB_LOG_MESSAGE_NO_ID,
                          "too many keysyms (%d) on left-hand side; skipping line",
@@ -707,7 +708,8 @@ rhs:
             goto error;
         }
         check_deprecated_keysyms(scanner_warn, s, s->ctx,
-                                 keysym, val.string.str, val.string.str, "%s", "");
+                                 keysym, val.string.str, val.string.len,
+                                 "", "%s", val.string.str);
         if (production.has_keysym) {
             scanner_warn(s, XKB_LOG_MESSAGE_NO_ID,
                          "right-hand side can have at most one keysym; "
