@@ -32,7 +32,7 @@
 #include "src/keysym.h"
 #include "src/compose/parser.h"
 
-#ifdef _WIN32
+#ifndef S_ISFIFO
 #define S_ISFIFO(mode) 0
 #endif
 

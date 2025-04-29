@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#if HAVE_ICU
+#ifdef HAVE_ICU
 #include <unicode/uchar.h>
 #endif
 
@@ -41,7 +41,7 @@ main(int argc, char **argv)
     bool explicit = !(argc > 1 && strcmp("all", argv[1]) == 0);
     int idx = 1 + !explicit;
     bool char_names = argc > idx && strcmp("names", argv[idx]) == 0;
-#if !HAVE_ICU
+#ifdef HAVE_ICU
     if (char_names)
         fprintf(stderr, "ERROR: names argument requires ICU.\n");
 #endif

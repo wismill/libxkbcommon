@@ -25,14 +25,16 @@
 #ifdef _WIN32
 # include <direct.h>
 # include <io.h>
-# include <BaseTsd.h>
 # ifndef S_ISDIR
 #  define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 # endif
 # ifndef S_ISREG
 #  define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 # endif
+# ifdef _MSC_VER
+# include <basetsd.h>
 typedef SSIZE_T ssize_t;
+# endif
 #endif
 
 #include "darray.h"
