@@ -2211,6 +2211,13 @@ struct xkb_group_builder;
 struct xkb_group_type_builder;
 
 /**
+ * @struct xkb_type
+ *
+ * TODO
+ */
+struct xkb_group_type;
+
+/**
  * @struct xkb_level_builder
  *
  * TODO
@@ -2272,12 +2279,12 @@ xkb_group_builder_new(struct xkb_context *context);
 XKB_EXPORT void
 xkb_group_builder_destroy(struct xkb_group_builder *builder);
 
-XKB_EXPORT struct xkb_group_type_builder*
+XKB_EXPORT struct xkb_group_type*
 xkb_group_builder_get_type(struct xkb_group_builder *builder);
 
 XKB_EXPORT enum xkb_builder_result
 xkb_group_builder_set_type(struct xkb_group_builder *builder,
-                           struct xkb_group_type_builder *type);
+                           struct xkb_group_type *type);
 
 XKB_EXPORT struct xkb_level_builder*
 xkb_group_builder_get_level(struct xkb_group_builder *builder,

@@ -2094,6 +2094,24 @@ xkb_group_builder_destroy(struct xkb_group_builder *builder)
     free(builder);
 }
 
+struct xkb_group_type*
+xkb_group_builder_get_type(struct xkb_group_builder *builder)
+{
+    struct xkb_group_type* const type = calloc(1, sizeof(*type));
+    if (!type)
+        return NULL;
+
+    type->type = builder->type;
+    return type;
+}
+
+enum xkb_builder_result
+xkb_group_builder_set_type(struct xkb_group_builder *builder,
+                           struct xkb_group_type *type)
+{
+
+}
+
 struct xkb_level_builder*
 xkb_group_builder_get_level(struct xkb_group_builder *builder,
                             xkb_level_index_t level)
@@ -2155,6 +2173,7 @@ xkb_group_builder_set_level(struct xkb_group_builder *builder,
 
     struct xkb_level *current_level = &darray_item(builder->info.levels, level);
 
+    // FIXME handle override
     current_level->num_syms = darray_size(level_builder->keysyms);
     switch (current_level->num_syms) {
     case 0:
@@ -2163,9 +2182,16 @@ xkb_group_builder_set_level(struct xkb_group_builder *builder,
         current_level->s.sym = darray_item(level_builder->keysyms, 0);
         break;
     default:
-        // FIXME
+        current_level->s.syms = memdup(darray_items(level_builder->keysyms),
+                                       darray_size(level_builder->keysyms),
+                                       sizeof(*current_level->s.syms));
+        if (!current_level->s.syms) {
+            current_level->num_syms = 0;
+            return XKB_BUILDER_INVALID;
+        }
     }
 
+    // FIXME handle override
     current_level->num_actions = darray_size(level_builder->actions);
     switch (current_level->num_actions) {
     case 0:
@@ -2174,7 +2200,13 @@ xkb_group_builder_set_level(struct xkb_group_builder *builder,
         current_level->a.action = darray_item(level_builder->actions, 0);
         break;
     default:
-        // FIXME
+        current_level->a.actions = memdup(darray_items(level_builder->actions),
+                                          darray_size(level_builder->actions),
+                                          sizeof(*current_level->a.actions));
+        if (!current_level->a.actions) {
+            current_level->num_actions = 0;
+            return XKB_BUILDER_INVALID;
+        }
     }
 
     return XKB_BUILDER_OK;
