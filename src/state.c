@@ -82,8 +82,8 @@ struct xkb_state {
     struct xkb_keymap *keymap;
 };
 
-static const struct xkb_key_type_entry *
-get_entry_for_mods(const struct xkb_key_type *type, xkb_mod_mask_t mods)
+static const struct xkb_group_type_entry *
+get_entry_for_mods(const struct xkb_group_type *type, xkb_mod_mask_t mods)
 {
     for (darray_size_t i = 0; i < type->num_entries; i++)
         if (entry_is_active(&type->entries[i]) &&
@@ -92,11 +92,11 @@ get_entry_for_mods(const struct xkb_key_type *type, xkb_mod_mask_t mods)
     return NULL;
 }
 
-static const struct xkb_key_type_entry *
+static const struct xkb_group_type_entry *
 get_entry_for_key_state(struct xkb_state *state, const struct xkb_key *key,
                         xkb_layout_index_t group)
 {
-    const struct xkb_key_type* const type = key->groups[group].type;
+    const struct xkb_group_type* const type = key->groups[group].type;
     xkb_mod_mask_t active_mods = state->components.mods & type->mods.mask;
     return get_entry_for_mods(type, active_mods);
 }
@@ -109,7 +109,7 @@ state_key_get_level(struct xkb_state *state, const struct xkb_key *key,
         return XKB_LEVEL_INVALID;
 
     /* If we don't find an explicit match the default is 0. */
-    const struct xkb_key_type_entry* const entry =
+    const struct xkb_group_type_entry* const entry =
         get_entry_for_key_state(state, key, layout);
 
     return (entry) ? entry->level : 0;
@@ -906,8 +906,8 @@ xkb_state_update_key(struct xkb_state *state, xkb_keycode_t kc,
  * These keys must have at least one level in order to break latches. We need 2
  * keys with specific actions in order to update group/mod latches without
  * affecting each other. */
-static struct xkb_key_type_entry synthetic_key_level_entry = { 0 };
-static struct xkb_key_type synthetic_key_type = {
+static struct xkb_group_type_entry synthetic_key_level_entry = { 0 };
+static struct xkb_group_type synthetic_group_type = {
      .num_entries = 1,
      .num_levels = 1,
      .entries = &synthetic_key_level_entry
@@ -937,7 +937,7 @@ update_latch_modifiers(struct xkb_state *state,
         }
     };
     struct xkb_group synthetic_key_group_break_mod_latch = {
-        .type = &synthetic_key_type,
+        .type = &synthetic_group_type,
         .levels = &synthetic_key_level_break_mod_latch
     };
     const struct xkb_key synthetic_key_break_mod_latch = {
@@ -982,7 +982,7 @@ update_latch_group(struct xkb_state *state, int32_t group)
         }
     };
     static struct xkb_group synthetic_key_group_break_group_latch = {
-        .type = &synthetic_key_type,
+        .type = &synthetic_group_type,
         .levels = &synthetic_key_level_break_group_latch
     };
     static const struct xkb_key synthetic_key_break_group_latch = {
@@ -1658,19 +1658,19 @@ key_get_consumed(struct xkb_state *state, const struct xkb_key *key,
     xkb_mod_mask_t preserve = 0;
     xkb_mod_mask_t consumed = 0;
 
-    const struct xkb_key_type_entry* const matching_entry =
+    const struct xkb_group_type_entry* const matching_entry =
         get_entry_for_key_state(state, key, group);
     if (matching_entry)
         preserve = matching_entry->preserve.mask;
 
-    const struct xkb_key_type* const type = key->groups[group].type;
+    const struct xkb_group_type* const type = key->groups[group].type;
     switch (mode) {
     case XKB_CONSUMED_MODE_XKB:
         consumed = type->mods.mask;
         break;
 
     case XKB_CONSUMED_MODE_GTK: {
-        const struct xkb_key_type_entry* const no_mods_entry =
+        const struct xkb_group_type_entry* const no_mods_entry =
             get_entry_for_mods(type, 0);
         const xkb_level_index_t no_mods_leveli = no_mods_entry
                                                ? no_mods_entry->level
@@ -1679,7 +1679,7 @@ key_get_consumed(struct xkb_state *state, const struct xkb_key *key,
             &key->groups[group].levels[no_mods_leveli];
 
         for (darray_size_t i = 0; i < type->num_entries; i++) {
-            const struct xkb_key_type_entry* const entry = &type->entries[i];
+            const struct xkb_group_type_entry* const entry = &type->entries[i];
             if (!entry_is_active(entry))
                 continue;
 

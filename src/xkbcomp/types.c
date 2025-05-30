@@ -27,7 +27,7 @@ typedef struct {
     xkb_atom_t name;
     xkb_mod_mask_t mods;
     xkb_level_index_t num_levels;
-    darray(struct xkb_key_type_entry) entries;
+    darray(struct xkb_group_type_entry) entries;
     darray(xkb_atom_t) level_names;
 } KeyTypeInfo;
 
@@ -50,7 +50,7 @@ struct xkb_group_type_builder {
 /***====================================================================***/
 
 static inline const char *
-MapEntryTxt(KeyTypesInfo *info, struct xkb_key_type_entry *entry)
+MapEntryTxt(KeyTypesInfo *info, struct xkb_group_type_entry *entry)
 {
     return ModMaskText(info->ctx, MOD_BOTH, &info->mods, entry->mods.mods);
 }
@@ -280,10 +280,10 @@ SetModifiers(KeyTypesInfo *info, KeyTypeInfo *type, ExprDef *arrayNdx,
 
 /***====================================================================***/
 
-static struct xkb_key_type_entry *
+static struct xkb_group_type_entry *
 FindMatchingMapEntry(KeyTypeInfo *type, xkb_mod_mask_t mods)
 {
-    struct xkb_key_type_entry *entry;
+    struct xkb_group_type_entry *entry;
 
     darray_foreach(entry, type->entries)
         if (entry->mods.mods == mods)
@@ -294,9 +294,9 @@ FindMatchingMapEntry(KeyTypeInfo *type, xkb_mod_mask_t mods)
 
 static bool
 AddMapEntry(KeyTypesInfo *info, KeyTypeInfo *type,
-            struct xkb_key_type_entry *new, bool clobber, bool report)
+            struct xkb_group_type_entry *new, bool clobber, bool report)
 {
-    struct xkb_key_type_entry *old;
+    struct xkb_group_type_entry *old;
 
     old = FindMatchingMapEntry(type, new->mods.mods);
     if (old) {
@@ -336,7 +336,7 @@ static bool
 SetMapEntry(KeyTypesInfo *info, KeyTypeInfo *type, ExprDef *arrayNdx,
             ExprDef *value)
 {
-    struct xkb_key_type_entry entry;
+    struct xkb_group_type_entry entry;
 
     if (arrayNdx == NULL)
         return ReportTypeShouldBeArray(info, type, "map entry");
@@ -375,8 +375,8 @@ static bool
 AddPreserve(KeyTypesInfo *info, KeyTypeInfo *type,
             xkb_mod_mask_t mods, xkb_mod_mask_t preserve_mods)
 {
-    struct xkb_key_type_entry *entry;
-    struct xkb_key_type_entry new;
+    struct xkb_group_type_entry *entry;
+    struct xkb_group_type_entry new;
 
     darray_foreach(entry, type->entries) {
         if (entry->mods.mods != mods)
@@ -720,7 +720,7 @@ CopyKeyTypesToKeymap(struct xkb_keymap *keymap, KeyTypesInfo *info)
     const darray_size_t num_types = darray_empty(info->types)
                                   ? 1
                                   : darray_size(info->types);
-    struct xkb_key_type *types = calloc(num_types, sizeof(*types));
+    struct xkb_group_type *types = calloc(num_types, sizeof(*types));
     if (!types)
         return false;
 
@@ -729,7 +729,7 @@ CopyKeyTypesToKeymap(struct xkb_keymap *keymap, KeyTypesInfo *info)
      * used for all keys.
      */
     if (darray_empty(info->types)) {
-        struct xkb_key_type *type = &types[0];
+        struct xkb_group_type *type = &types[0];
 
         type->mods.mods = 0;
         type->num_levels = 1;
@@ -742,7 +742,7 @@ CopyKeyTypesToKeymap(struct xkb_keymap *keymap, KeyTypesInfo *info)
     else {
         for (darray_size_t i = 0; i < num_types; i++) {
             KeyTypeInfo *def = &darray_item(info->types, i);
-            struct xkb_key_type *type = &types[i];
+            struct xkb_group_type *type = &types[i];
 
             type->name = def->name;
             type->mods.mods = def->mods;

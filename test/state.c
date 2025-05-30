@@ -2129,7 +2129,7 @@ test_overlapping_mods(struct xkb_context *context)
 }
 
 static void
-test_inactive_key_type_entry(struct xkb_context *context)
+test_inactive_group_type_entry(struct xkb_context *context)
 {
     const char keymap_str[] =
         "xkb_keymap {\n"
@@ -2705,7 +2705,7 @@ main(void)
         xkb_keymap_unref(keymap);
     }
 
-    test_inactive_key_type_entry(context);
+    test_inactive_group_type_entry(context);
     test_overlapping_mods(context);
     test_caps_keysym_transformation(context);
     test_leds(context);

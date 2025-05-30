@@ -221,20 +221,20 @@ union xkb_action {
     struct xkb_internal_action internal;
 };
 
-struct xkb_key_type_entry {
+struct xkb_group_type_entry {
     xkb_level_index_t level;
     struct xkb_mods mods;
     struct xkb_mods preserve;
 };
 
-struct xkb_key_type {
+struct xkb_group_type {
     xkb_atom_t name;
     struct xkb_mods mods;
     xkb_level_index_t num_levels;
     xkb_level_index_t num_level_names;
     xkb_atom_t *level_names;
     darray_size_t num_entries;
-    struct xkb_key_type_entry *entries;
+    struct xkb_group_type_entry *entries;
 };
 
 typedef uint16_t xkb_action_count_t;
@@ -348,7 +348,7 @@ struct xkb_group {
     /**
      * Key type of the group. Points to an entry in keymap->types.
      */
-    const struct xkb_key_type *type;
+    const struct xkb_group_type *type;
     /**
      * Array of group levels. Use `XkbKeyNumLevels` for the number of levels.
      */
@@ -433,7 +433,7 @@ struct xkb_keymap {
     darray_size_t num_key_aliases;
     struct xkb_key_alias *key_aliases;
 
-    struct xkb_key_type *types;
+    struct xkb_group_type *types;
     darray_size_t num_types;
 
     darray_size_t num_sym_interprets;
@@ -490,7 +490,7 @@ struct xkb_keymap {
 
 struct xkb_keymap_builder {
     struct xkb_keymap keymap;
-    darray(struct xkb_key_type) types;
+    darray(struct xkb_group_type) types;
     darray(xkb_atom_t) groups;
     darray(struct xkb_key) keys;
 };
@@ -565,7 +565,7 @@ XkbKeyNumLevels(const struct xkb_key *key, xkb_layout_index_t layout)
  * xserver does this with cached entry->active field.
  */
 static inline bool
-entry_is_active(const struct xkb_key_type_entry *entry)
+entry_is_active(const struct xkb_group_type_entry *entry)
 {
     return entry->mods.mods == 0 || entry->mods.mask != 0;
 }

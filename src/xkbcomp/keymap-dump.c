@@ -283,7 +283,7 @@ write_types(struct xkb_keymap *keymap, struct buf *buf)
         return false;
 
     for (darray_size_t i = 0; i < keymap->num_types; i++) {
-        const struct xkb_key_type *type = &keymap->types[i];
+        const struct xkb_group_type *type = &keymap->types[i];
 
         copy_to_buf(buf, "\ttype ");
         write_buf_string_literal(buf, xkb_atom_text(keymap->ctx, type->name));
@@ -295,7 +295,7 @@ write_types(struct xkb_keymap *keymap, struct buf *buf)
 
         for (darray_size_t j = 0; j < type->num_entries; j++) {
             const char *str;
-            const struct xkb_key_type_entry *entry = &type->entries[j];
+            const struct xkb_group_type_entry *entry = &type->entries[j];
 
             /*
              * Printing level 1 entries is redundant, it's the default,
@@ -720,7 +720,7 @@ write_key(struct xkb_keymap *keymap, struct buf *buf, struct buf *buf2,
                 if (!key->groups[group].explicit_type)
                     continue;
 
-                const struct xkb_key_type * const type = key->groups[group].type;
+                const struct xkb_group_type * const type = key->groups[group].type;
                 /* TODO: This will require using integer indexes when > 4 */
                 write_buf(buf, "\n\t\ttype[Group%"PRIu32"]= ", group + 1);
                 write_buf_string_literal(
@@ -729,7 +729,7 @@ write_key(struct xkb_keymap *keymap, struct buf *buf, struct buf *buf2,
             }
         }
         else {
-            const struct xkb_key_type * const type = key->groups[0].type;
+            const struct xkb_group_type * const type = key->groups[0].type;
             write_buf(buf, "\n\t\ttype= ");
             write_buf_string_literal(
                 buf, xkb_atom_text(keymap->ctx, type->name));

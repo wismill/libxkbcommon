@@ -347,7 +347,7 @@ get_types(struct xkb_keymap *keymap, xcb_connection_t *conn,
 
     for (int i = 0; i < types_length; i++) {
         xcb_xkb_key_type_t *wire_type = types_iter.data;
-        struct xkb_key_type *type = &keymap->types[i];
+        struct xkb_group_type *type = &keymap->types[i];
 
         FAIL_UNLESS(wire_type->numLevels > 0);
 
@@ -367,7 +367,7 @@ get_types(struct xkb_keymap *keymap, xcb_connection_t *conn,
 
             for (int j = 0; j < entries_length; j++) {
                 xcb_xkb_kt_map_entry_t *wire_entry = entries_iter.data;
-                struct xkb_key_type_entry *entry = &type->entries[j];
+                struct xkb_group_type_entry *entry = &type->entries[j];
 
                 FAIL_UNLESS(wire_entry->level < type->num_levels);
 
@@ -389,7 +389,7 @@ get_types(struct xkb_keymap *keymap, xcb_connection_t *conn,
 
             for (int j = 0; j < preserves_length; j++) {
                 xcb_xkb_mod_def_t *wire_preserve = preserves_iter.data;
-                struct xkb_key_type_entry *entry = &type->entries[j];
+                struct xkb_group_type_entry *entry = &type->entries[j];
 
                 entry->preserve.mods = translate_mods(wire_preserve->realMods,
                                                       wire_preserve->vmods, 0);
@@ -908,7 +908,7 @@ get_type_names(struct xkb_keymap *keymap, struct x11_atom_interner *interner,
     for (int i = 0; i < key_type_names_length; i++) {
         xcb_atom_t wire_type_name = *key_type_names_iter;
         uint8_t wire_num_levels = *n_levels_per_type_iter;
-        struct xkb_key_type *type = &keymap->types[i];
+        struct xkb_group_type *type = &keymap->types[i];
 
         /* Levels must have names. */
         FAIL_UNLESS(type->num_levels == wire_num_levels);

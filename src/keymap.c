@@ -439,7 +439,7 @@ xkb_keymap_key_get_mods_for_level(struct xkb_keymap *keymap,
     if (level >= XkbKeyNumLevels(key, layout))
         return 0;
 
-    const struct xkb_key_type *type = key->groups[layout].type;
+    const struct xkb_group_type *type = key->groups[layout].type;
 
     size_t count = 0;
 

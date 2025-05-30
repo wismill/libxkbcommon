@@ -66,7 +66,7 @@ struct xkb_level_builder {
 
 struct xkb_group_builder {
     struct xkb_context *ctx;
-    const struct xkb_key_type *type;
+    const struct xkb_group_type *type;
     GroupInfo info;
 };
 
@@ -89,7 +89,7 @@ typedef struct {
 struct xkb_key_builder {
     struct xkb_context *ctx;
     xkb_keycode_t keycode;
-    darray(const struct xkb_key_type*) types;
+    darray(const struct xkb_group_type*) types;
     KeyInfo info;
 };
 
@@ -1625,7 +1625,7 @@ FindAutomaticType(struct xkb_context *ctx, GroupInfo *groupi)
 #undef GET_SYM
 }
 
-static const struct xkb_key_type *
+static const struct xkb_group_type *
 FindTypeForGroup(struct xkb_keymap *keymap, KeyInfo *keyi,
                  xkb_layout_index_t group, bool *explicit_type)
 {
@@ -1739,7 +1739,7 @@ CopySymbolsDefToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info,
 
     /* Find and assign the groups' types in the keymap. */
     darray_enumerate(i, groupi, keyi->groups) {
-        const struct xkb_key_type *type;
+        const struct xkb_group_type *type;
         bool explicit_type;
 
         type = FindTypeForGroup(keymap, keyi, i, &explicit_type);
