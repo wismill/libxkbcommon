@@ -18,6 +18,7 @@
 #pragma once
 
  /* Don't use compat names in internal code. */
+#include "atom.h"
 #define _XKBCOMMON_COMPAT_H
 
 #include <stdint.h>
@@ -485,6 +486,13 @@ struct xkb_keymap {
     char *symbols_section_name;
     char *types_section_name;
     char *compat_section_name;
+};
+
+struct xkb_keymap_builder {
+    struct xkb_keymap keymap;
+    darray(struct xkb_key_type) types;
+    darray(xkb_atom_t) groups;
+    darray(struct xkb_key) keys;
 };
 
 #define xkb_keys_foreach(iter, keymap) \

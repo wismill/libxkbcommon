@@ -2176,4 +2176,172 @@ xkb_state_led_index_is_active(struct xkb_state *state, xkb_led_index_t idx);
 } /* extern "C" */
 #endif
 
+/**
+ * @defgroup builder Keymap builder
+ * TODO
+ *
+ * @{
+ */
+
+/**
+ * @struct xkb_keymap_builder
+ *
+ * TODO
+ */
+struct xkb_keymap_builder;
+/**
+ * @struct xkb_key_builder
+ *
+ * TODO
+ */
+struct xkb_key_builder;
+
+/**
+ * @struct xkb_group_builder
+ *
+ * TODO
+ */
+struct xkb_group_builder;
+
+/**
+ * @struct xkb_group_type_builder
+ *
+ * TODO
+ */
+struct xkb_group_type_builder;
+
+/**
+ * @struct xkb_level_builder
+ *
+ * TODO
+ */
+struct xkb_level_builder;
+
+/** TODO */
+enum xkb_builder_result {
+    XKB_BUILDER_INVALID = 0,
+    XKB_BUILDER_OK = 1,
+    XKB_BUILDER_IGNORED = 2,
+};
+
+XKB_EXPORT struct xkb_keymap_builder*
+xkb_keymap_builder_new(struct xkb_context *context);
+
+XKB_EXPORT struct xkb_keymap_builder*
+xkb_keymap_builder_new_from_keymap(struct xkb_keymap *keymap);
+
+XKB_EXPORT struct xkb_keymap*
+xkb_keymap_builder_build(struct xkb_keymap_builder *builder);
+
+XKB_EXPORT void
+xkb_keymap_builder_destroy(struct xkb_keymap_builder *builder);
+XKB_EXPORT enum xkb_builder_result
+xkb_keymap_builder_set_group_name(struct xkb_keymap_builder *builder,
+                                  xkb_layout_index_t layout, const char* name);
+
+XKB_EXPORT struct xkb_group_type_builder*
+xkb_keymap_builder_get_type(struct xkb_keymap_builder *builder,
+                            const char* name);
+
+XKB_EXPORT enum xkb_builder_result
+xkb_group_type_map(struct xkb_group_type_builder *builder,
+                   xkb_mod_mask_t mods, xkb_level_index_t level,
+                   const char* name);
+
+XKB_EXPORT enum xkb_builder_result
+xkb_group_type_map_preserve(struct xkb_group_type_builder *builder,
+                            xkb_mod_mask_t mods, xkb_mod_mask_t preserve);
+
+XKB_EXPORT xkb_level_index_t
+xkb_group_type_get_level_for_mods(struct xkb_group_type_builder *builder,
+                                  xkb_mod_mask_t mods);
+
+XKB_EXPORT struct xkb_key_builder*
+xkb_key_builder_new(struct xkb_context *context, xkb_keycode_t keycode);
+
+XKB_EXPORT void
+xkb_key_builder_destroy(struct xkb_key_builder *builder);
+
+XKB_EXPORT struct xkb_group_builder*
+xkb_key_builder_get_group(struct xkb_key_builder *builder,
+                          xkb_layout_index_t layout);
+
+XKB_EXPORT struct xkb_group_builder*
+xkb_group_builder_new(struct xkb_context *context);
+
+XKB_EXPORT void
+xkb_group_builder_destroy(struct xkb_group_builder *builder);
+
+XKB_EXPORT struct xkb_group_type_builder*
+xkb_group_builder_get_type(struct xkb_group_builder *builder);
+
+XKB_EXPORT enum xkb_builder_result
+xkb_group_builder_set_type(struct xkb_group_builder *builder,
+                           struct xkb_group_type_builder *type);
+
+XKB_EXPORT struct xkb_level_builder*
+xkb_group_builder_get_level(struct xkb_group_builder *builder,
+                            xkb_level_index_t level);
+
+XKB_EXPORT struct xkb_level_builder*
+xkb_group_builder_get_level_for_mods(struct xkb_group_builder *builder,
+                                     xkb_mod_mask_t mods);
+
+XKB_EXPORT struct xkb_level_builder*
+xkb_level_builder_new(struct xkb_context *context);
+
+XKB_EXPORT void
+xkb_level_builder_destroy(struct xkb_level_builder *builder);
+
+XKB_EXPORT enum xkb_builder_result
+xkb_level_builder_set_keysyms(struct xkb_level_builder *builder,
+                              size_t count, xkb_keysym_t *keysyms);
+
+XKB_EXPORT void
+xkb_level_builder_reset_actions(struct xkb_level_builder* builder);
+
+enum xkb_modifier_action_type {
+    XKB_MODIFIER_ACTION_TYPE_SET = 0,
+    XKB_MODIFIER_ACTION_TYPE_LATCH,
+    XKB_MODIFIER_ACTION_TYPE_LOCK,
+};
+
+enum xkb_modifier_action_flags {
+    XKB_MODIFIER_ACTION_CLEAR_LOCKS = (1u << 0),
+    XKB_MODIFIER_ACTION_LATCH_TO_LOCK = (1u << 1),
+    XKB_MODIFIER_ACTION_AFFECT_LOCK = (1u << 2),
+    XKB_MODIFIER_ACTION_AFFECT_UNLOCK = (1u << 3),
+    XKB_MODIFIER_ACTION_AFFECT_BOTH = ( XKB_MODIFIER_ACTION_AFFECT_LOCK
+                                      | XKB_MODIFIER_ACTION_AFFECT_UNLOCK),
+};
+
+XKB_EXPORT enum xkb_builder_result
+xkb_level_builder_append_modifier_action(struct xkb_level_builder* builder,
+                                         enum xkb_modifier_action_type type,
+                                         xkb_mod_mask_t mods,
+                                         enum xkb_modifier_action_flags flags);
+
+enum xkb_group_action_type {
+    XKB_GROUP_ACTION_TYPE_SET = 0,
+    XKB_GROUP_ACTION_TYPE_LATCH,
+    XKB_GROUP_ACTION_TYPE_LOCK,
+};
+
+enum xkb_group_action_flags {
+    XKB_GROUP_ACTION_CLEAR_LOCKS = (1u << 0),
+    XKB_GROUP_ACTION_LATCH_TO_LOCK = (1u << 1),
+    XKB_GROUP_ACTION_AFFECT_LOCK = (1u << 2),
+    XKB_GROUP_ACTION_AFFECT_UNLOCK = (1u << 3),
+    XKB_GROUP_ACTION_AFFECT_BOTH = ( XKB_GROUP_ACTION_AFFECT_LOCK
+                                   | XKB_GROUP_ACTION_AFFECT_UNLOCK),
+};
+
+XKB_EXPORT enum xkb_builder_result
+xkb_level_builder_append_group_action(struct xkb_level_builder* builder,
+                                      enum xkb_group_action_type type,
+                                      int32_t group,
+                                      enum xkb_group_action_flags flags);
+
+/** } */
+
 #endif /* _XKBCOMMON_H_ */

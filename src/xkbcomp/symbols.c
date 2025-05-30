@@ -57,6 +57,18 @@ typedef struct {
     xkb_atom_t type;
 } GroupInfo;
 
+struct xkb_level_builder {
+    struct xkb_context *ctx;
+    darray(xkb_keysym_t) keysyms;
+    darray(union xkb_action) actions;
+};
+
+struct xkb_group_builder {
+    struct xkb_context *ctx;
+    const struct xkb_key_type *type;
+    GroupInfo info;
+};
+
 typedef struct {
     enum key_field defined;
     enum merge_mode merge;
@@ -72,6 +84,13 @@ typedef struct {
     enum xkb_range_exceed_type out_of_range_group_action;
     xkb_layout_index_t out_of_range_group_number;
 } KeyInfo;
+
+struct xkb_key_builder {
+    struct xkb_context *ctx;
+    xkb_keycode_t keycode;
+    darray(const struct xkb_key_type*) types;
+    KeyInfo info;
+};
 
 static void
 StealLevelInfo(struct xkb_level *into, struct xkb_level *from)
@@ -1921,4 +1940,214 @@ CompileSymbols(XkbFile *file, struct xkb_keymap *keymap)
 err_info:
     ClearSymbolsInfo(&info);
     return false;
+}
+
+/*******************************************************************************
+ * Builder
+ ******************************************************************************/
+
+struct xkb_level_builder*
+xkb_level_builder_new(struct xkb_context *context)
+{
+    struct xkb_level_builder* const builder = calloc(1, sizeof(*builder));
+    if (!builder)
+        return NULL;
+
+    darray_init(builder->keysyms);
+    darray_init(builder->actions);
+    return builder;
+}
+
+void
+xkb_level_builder_destroy(struct xkb_level_builder *builder)
+{
+    if (!builder)
+        return;
+
+    darray_free(builder->keysyms);
+    darray_free(builder->actions);
+    free(builder);
+}
+
+enum xkb_builder_result
+xkb_level_builder_set_keysyms(struct xkb_level_builder *builder,
+                              size_t count, xkb_keysym_t *keysyms)
+{
+    if (!keysyms)
+        darray_resize(builder->keysyms, 0);
+    darray_append_items(builder->keysyms, keysyms, count);
+    return XKB_BUILDER_OK;
+}
+
+void
+xkb_level_builder_reset_actions(struct xkb_level_builder *builder)
+{
+    darray_resize(builder->actions, 0);
+}
+
+enum xkb_builder_result
+xkb_level_builder_append_modifier_action(struct xkb_level_builder* builder,
+                                         enum xkb_modifier_action_type type,
+                                         xkb_mod_mask_t mods,
+                                         enum xkb_modifier_action_flags flags)
+{
+    enum xkb_action_type action_type;
+    switch (type) {
+    case XKB_MODIFIER_ACTION_TYPE_SET:
+        action_type = ACTION_TYPE_MOD_SET;
+        break;
+    case XKB_MODIFIER_ACTION_TYPE_LATCH:
+        action_type = ACTION_TYPE_MOD_LATCH;
+        break;
+    case XKB_MODIFIER_ACTION_TYPE_LOCK:
+        action_type = ACTION_TYPE_MOD_LOCK;
+        break;
+    default:
+        return XKB_BUILDER_INVALID;
+    }
+
+    union xkb_action action = {
+        .mods = {
+            .type = action_type,
+            .mods = { .mods = mods },
+            .flags = 0 // FIXME
+        }
+    };
+
+    // FIXME check action types mix
+
+    darray_append(builder->actions, action);
+    return XKB_BUILDER_OK;
+}
+
+enum xkb_builder_result
+xkb_level_builder_append_group_action(struct xkb_level_builder* builder,
+                                      enum xkb_group_action_type type,
+                                      int32_t group,
+                                      enum xkb_group_action_flags flags)
+{
+    enum xkb_action_type action_type;
+    switch (type) {
+    case XKB_GROUP_ACTION_TYPE_SET:
+        action_type = ACTION_TYPE_GROUP_SET;
+        break;
+    case XKB_GROUP_ACTION_TYPE_LATCH:
+        action_type = ACTION_TYPE_GROUP_LATCH;
+        break;
+    case XKB_GROUP_ACTION_TYPE_LOCK:
+        action_type = ACTION_TYPE_GROUP_LOCK;
+        break;
+    default:
+        return XKB_BUILDER_INVALID;
+    }
+
+    // FIXME check group range
+
+    union xkb_action action = {
+        .group = {
+            .type = action_type,
+            .group = group,
+            .flags = 0 // FIXME
+        }
+    };
+
+    // FIXME check action types mix
+
+    darray_append(builder->actions, action);
+    return XKB_BUILDER_OK;
+}
+
+struct xkb_group_builder*
+xkb_group_builder_new(struct xkb_context *context)
+{
+    struct xkb_group_builder* const builder = calloc(1, sizeof(*builder));
+    if (!builder)
+        return NULL;
+
+    builder->ctx = context;
+    InitGroupInfo(&builder->info);
+    return builder;
+}
+
+void
+xkb_group_builder_destroy(struct xkb_group_builder *builder)
+{
+    if (!builder)
+        return;
+
+    ClearGroupInfo(&builder->info);
+    free(builder);
+}
+
+struct xkb_level_builder*
+xkb_group_builder_get_level(struct xkb_group_builder *builder,
+                            xkb_level_index_t level)
+{
+    if (level > darray_size(builder->info.levels))
+        return NULL;
+
+    struct xkb_level_builder *level_builder =
+        xkb_level_builder_new(builder->ctx);
+    if (!level_builder)
+        return NULL;
+
+    const struct xkb_level* const current_level =
+        &darray_item(builder->info.levels, level);
+    switch (current_level->num_syms) {
+    case 0:
+        break;
+    case 1:
+        darray_append(level_builder->keysyms, current_level->s.sym);
+        break;
+    default:
+        darray_append_items(level_builder->keysyms,
+                            current_level->s.syms,
+                            current_level->num_syms);
+    }
+
+    switch (current_level->num_actions) {
+    case 0:
+        break;
+    case 1:
+        darray_append(level_builder->actions, current_level->a.action);
+        break;
+    default:
+        darray_append_items(level_builder->actions,
+                            current_level->a.actions,
+                            current_level->num_actions);
+    }
+
+    return level_builder;
+}
+
+struct xkb_level_builder*
+xkb_group_builder_get_level_for_mods(struct xkb_group_builder *builder,
+                                     xkb_mod_mask_t mods)
+{
+    // FIXME
+}
+
+struct xkb_key_builder*
+xkb_key_builder_new(struct xkb_context *context, xkb_keycode_t keycode)
+{
+    struct xkb_key_builder* const builder = calloc(1, sizeof(*builder));
+    if (!builder)
+        return NULL;
+
+    builder->ctx = context;
+    builder->keycode = keycode;
+    darray_init(builder->types);
+    InitKeyInfo(context, &builder->info);
+    return builder;
+}
+
+void
+xkb_key_builder_destroy(struct xkb_key_builder *builder)
+{
+    if (!builder)
+        return;
+
+    ClearKeyInfo(&builder->info);
+    darray_free(builder->types);
+    free(builder);
 }

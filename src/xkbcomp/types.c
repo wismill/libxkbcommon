@@ -42,6 +42,11 @@ typedef struct {
     struct xkb_context *ctx;
 } KeyTypesInfo;
 
+struct xkb_group_type_builder {
+    struct xkb_context *ctx;
+    KeyTypeInfo info;
+};
+
 /***====================================================================***/
 
 static inline const char *
