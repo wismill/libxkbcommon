@@ -2250,6 +2250,14 @@ XKB_EXPORT struct xkb_group_type_builder*
 xkb_keymap_builder_get_type(struct xkb_keymap_builder *builder,
                             const char* name);
 
+XKB_EXPORT struct xkb_key_builder*
+xkb_keymap_builder_get_key(struct xkb_keymap_builder *builder,
+                           xkb_keycode_t keycode);
+
+XKB_EXPORT enum xkb_builder_result
+xkb_keymap_builder_set_key(struct xkb_keymap_builder *builder,
+                           const struct xkb_key_builder* key_builder);
+
 XKB_EXPORT enum xkb_builder_result
 xkb_group_type_map(struct xkb_group_type_builder *builder,
                    xkb_mod_mask_t mods, xkb_level_index_t level,
@@ -2271,7 +2279,12 @@ xkb_key_builder_destroy(struct xkb_key_builder *builder);
 
 XKB_EXPORT struct xkb_group_builder*
 xkb_key_builder_get_group(struct xkb_key_builder *builder,
-                          xkb_layout_index_t layout);
+                          xkb_layout_index_t group);
+
+XKB_EXPORT enum xkb_builder_result
+xkb_key_builder_set_group(struct xkb_key_builder *builder,
+                          xkb_layout_index_t group,
+                          const struct xkb_group_builder *group_builder);
 
 XKB_EXPORT struct xkb_group_builder*
 xkb_group_builder_new(struct xkb_context *context);
@@ -2279,12 +2292,12 @@ xkb_group_builder_new(struct xkb_context *context);
 XKB_EXPORT void
 xkb_group_builder_destroy(struct xkb_group_builder *builder);
 
-XKB_EXPORT struct xkb_group_type*
+XKB_EXPORT const struct xkb_group_type*
 xkb_group_builder_get_type(struct xkb_group_builder *builder);
 
 XKB_EXPORT enum xkb_builder_result
 xkb_group_builder_set_type(struct xkb_group_builder *builder,
-                           struct xkb_group_type *type);
+                           const struct xkb_group_type *type);
 
 XKB_EXPORT struct xkb_level_builder*
 xkb_group_builder_get_level(struct xkb_group_builder *builder,
@@ -2297,7 +2310,7 @@ xkb_group_builder_get_level_for_mods(struct xkb_group_builder *builder,
 XKB_EXPORT enum xkb_builder_result
 xkb_group_builder_set_level(struct xkb_group_builder *builder,
                             xkb_level_index_t level,
-                            struct xkb_level_builder *level_builder);
+                            const struct xkb_level_builder *level_builder);
 
 XKB_EXPORT struct xkb_level_builder*
 xkb_level_builder_new(struct xkb_context *context);
@@ -2307,7 +2320,7 @@ xkb_level_builder_destroy(struct xkb_level_builder *builder);
 
 XKB_EXPORT enum xkb_builder_result
 xkb_level_builder_set_keysyms(struct xkb_level_builder *builder,
-                              size_t count, xkb_keysym_t *keysyms);
+                              size_t count, const xkb_keysym_t *keysyms);
 
 XKB_EXPORT void
 xkb_level_builder_reset_actions(struct xkb_level_builder* builder);

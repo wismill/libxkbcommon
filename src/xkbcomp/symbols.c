@@ -1972,7 +1972,7 @@ xkb_level_builder_destroy(struct xkb_level_builder *builder)
 
 enum xkb_builder_result
 xkb_level_builder_set_keysyms(struct xkb_level_builder *builder,
-                              size_t count, xkb_keysym_t *keysyms)
+                              size_t count, const xkb_keysym_t *keysyms)
 {
     if (!keysyms)
         darray_resize(builder->keysyms, 0);
@@ -2094,22 +2094,27 @@ xkb_group_builder_destroy(struct xkb_group_builder *builder)
     free(builder);
 }
 
-struct xkb_group_type*
+const struct xkb_group_type*
 xkb_group_builder_get_type(struct xkb_group_builder *builder)
 {
-    struct xkb_group_type* const type = calloc(1, sizeof(*type));
-    if (!type)
-        return NULL;
-
-    type->type = builder->type;
-    return type;
+    return builder->type;
 }
 
 enum xkb_builder_result
 xkb_group_builder_set_type(struct xkb_group_builder *builder,
-                           struct xkb_group_type *type)
+                           const struct xkb_group_type *type)
 {
-
+    const struct xkb_group_type *old_type = builder->type;
+    if (type->num_levels < old_type->num_levels &&
+        type->num_levels < darray_size(builder->info.levels)) {
+        // TODO warning
+        struct xkb_level *leveli;
+        darray_foreach_from(leveli, builder->info.levels, type->num_levels)
+            clear_level(leveli);
+        darray_resize(builder->info.levels, type->num_levels);
+    }
+    builder->type = type;
+    return XKB_BUILDER_OK;
 }
 
 struct xkb_level_builder*
@@ -2163,7 +2168,7 @@ xkb_group_builder_get_level_for_mods(struct xkb_group_builder *builder,
 enum xkb_builder_result
 xkb_group_builder_set_level(struct xkb_group_builder *builder,
                             xkb_level_index_t level,
-                            struct xkb_level_builder *level_builder)
+                            const struct xkb_level_builder *level_builder)
 {
     if (level >= builder->type->num_levels)
         return XKB_BUILDER_INVALID;
@@ -2235,4 +2240,60 @@ xkb_key_builder_destroy(struct xkb_key_builder *builder)
     ClearKeyInfo(&builder->info);
     darray_free(builder->types);
     free(builder);
+}
+
+struct xkb_group_builder*
+xkb_key_builder_get_group(struct xkb_key_builder *builder,
+                          xkb_layout_index_t group)
+{
+    if (group > darray_size(builder->info.groups))
+        return NULL;
+
+    struct xkb_group_builder* const group_builder =
+        xkb_group_builder_new(builder->ctx);
+    if (!group_builder)
+        return NULL;
+
+    group_builder->type = darray_item(builder->types, group);
+    CopyGroupInfo(&group_builder->info,
+                  &darray_item(builder->info.groups, group));
+
+    return group_builder;
+}
+
+enum xkb_builder_result
+xkb_key_builder_set_group(struct xkb_key_builder *builder,
+                          xkb_layout_index_t group,
+                          const struct xkb_group_builder *group_builder)
+{
+    if (group > XKB_MAX_GROUPS)
+        return XKB_BUILDER_INVALID;
+
+    if (group > darray_size(builder->info.groups)) {
+        darray_resize0(builder->info.groups, group + 1);
+        darray_resize0(builder->types, group + 1);
+    }
+
+    // TODO handle override
+
+    darray_item(builder->types, group) = group_builder->type;
+    ClearGroupInfo(&darray_item(builder->info.groups, group));
+    CopyGroupInfo(&darray_item(builder->info.groups, group),
+                  &group_builder->info);
+
+    return XKB_BUILDER_OK;
+}
+
+struct xkb_key_builder*
+xkb_keymap_builder_get_key(struct xkb_keymap_builder *builder,
+                           xkb_keycode_t keycode)
+{
+    // FIXME
+}
+
+enum xkb_builder_result
+xkb_keymap_builder_set_key(struct xkb_keymap_builder *builder,
+                           const struct xkb_key_builder* key_builder)
+{
+    // FIXME
 }
