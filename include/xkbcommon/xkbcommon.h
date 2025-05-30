@@ -2287,6 +2287,11 @@ XKB_EXPORT struct xkb_level_builder*
 xkb_group_builder_get_level_for_mods(struct xkb_group_builder *builder,
                                      xkb_mod_mask_t mods);
 
+XKB_EXPORT enum xkb_builder_result
+xkb_group_builder_set_level(struct xkb_group_builder *builder,
+                            xkb_level_index_t level,
+                            struct xkb_level_builder *level_builder);
+
 XKB_EXPORT struct xkb_level_builder*
 xkb_level_builder_new(struct xkb_context *context);
 

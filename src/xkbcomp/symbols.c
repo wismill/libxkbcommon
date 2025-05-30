@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include "messages-codes.h"
+#include "utils.h"
 #include "xkbcommon/xkbcommon.h"
 #include "xkbcommon/xkbcommon-keysyms.h"
 
@@ -1975,6 +1976,14 @@ xkb_level_builder_set_keysyms(struct xkb_level_builder *builder,
 {
     if (!keysyms)
         darray_resize(builder->keysyms, 0);
+
+    if (unlikely(count > MAX_KEYSYMS_PER_LEVEL))
+        return XKB_BUILDER_INVALID;
+
+    /* Drop trailing NoSymbol */
+    while (count && keysyms[count - 1] == XKB_KEY_NoSymbol)
+        count--;
+
     darray_append_items(builder->keysyms, keysyms, count);
     return XKB_BUILDER_OK;
 }
@@ -2005,6 +2014,9 @@ xkb_level_builder_append_modifier_action(struct xkb_level_builder* builder,
     default:
         return XKB_BUILDER_INVALID;
     }
+
+    if (darray_size(builder->actions) >= MAX_ACTIONS_PER_LEVEL)
+        return XKB_BUILDER_INVALID;
 
     union xkb_action action = {
         .mods = {
@@ -2040,6 +2052,9 @@ xkb_level_builder_append_group_action(struct xkb_level_builder* builder,
     default:
         return XKB_BUILDER_INVALID;
     }
+
+    if (darray_size(builder->actions) >= MAX_ACTIONS_PER_LEVEL)
+        return XKB_BUILDER_INVALID;
 
     // FIXME check group range
 
@@ -2083,7 +2098,7 @@ struct xkb_level_builder*
 xkb_group_builder_get_level(struct xkb_group_builder *builder,
                             xkb_level_index_t level)
 {
-    if (level > darray_size(builder->info.levels))
+    if (level >= darray_size(builder->info.levels))
         return NULL;
 
     struct xkb_level_builder *level_builder =
@@ -2125,6 +2140,44 @@ xkb_group_builder_get_level_for_mods(struct xkb_group_builder *builder,
                                      xkb_mod_mask_t mods)
 {
     // FIXME
+}
+
+enum xkb_builder_result
+xkb_group_builder_set_level(struct xkb_group_builder *builder,
+                            xkb_level_index_t level,
+                            struct xkb_level_builder *level_builder)
+{
+    if (level >= builder->type->num_levels)
+        return XKB_BUILDER_INVALID;
+
+    if (level >= darray_size(builder->info.levels))
+        darray_resize0(builder->info.levels, level + 1);
+
+    struct xkb_level *current_level = &darray_item(builder->info.levels, level);
+
+    current_level->num_syms = darray_size(level_builder->keysyms);
+    switch (current_level->num_syms) {
+    case 0:
+        break;
+    case 1:
+        current_level->s.sym = darray_item(level_builder->keysyms, 0);
+        break;
+    default:
+        // FIXME
+    }
+
+    current_level->num_actions = darray_size(level_builder->actions);
+    switch (current_level->num_actions) {
+    case 0:
+        break;
+    case 1:
+        current_level->a.action = darray_item(level_builder->actions, 0);
+        break;
+    default:
+        // FIXME
+    }
+
+    return XKB_BUILDER_OK;
 }
 
 struct xkb_key_builder*
