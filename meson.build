@@ -6,7 +6,7 @@ project(
         'c_std=c11',
         'warning_level=3',
     ],
-    meson_version : '>= 0.58.0', # Released on May 2021
+    meson_version : '>= 1.1.0', # Released on April 2023
 )
 
 xkbcommon_project_version = meson.project_version().split('.')
@@ -1120,7 +1120,7 @@ You can disable the documentation with -Denable-docs=false.''')
         'README.md',
         'LICENSE',
         'NEWS.md',
-        'meson_options.txt',
+        'meson.options',
         'doc/debugging.md',
         'doc/diagrams/xkb-configuration.dot',
         'doc/diagrams/xkb-keymap-components.dot',
@@ -1200,38 +1200,36 @@ if get_option('enable-xkbregistry')
   libxkbregistry_dep = dep_libxkbregistry
 endif
 
-if meson.version().version_compare('>=0.62.0')
-    summary({
-      'backend': meson.backend(),
-      'buildtype': get_option('buildtype'),
-      'id': cc.get_id(),
-      'c_args': get_option('c_args'),
-      'c_link_args': get_option('c_link_args'),
-      'yacc': yacc.full_path() + ' ' + yacc.version(),
-    }, section: 'Compiler')
-    summary({
-      'prefix': get_option('prefix'),
-      'bindir': get_option('bindir'),
-      'libdir': get_option('libdir'),
-      'datadir': get_option('datadir'),
-      'xkb-config-root': XKBCONFIGROOT,
-      'xkb-config-extra-path': XKBCONFIGEXTRAPATH,
-      'xlocaledir': XLOCALEDIR,
-    }, section: 'Directories')
-    summary({
-      'docs': get_option('enable-docs'),
-      'tools': get_option('enable-tools'),
-      'wayland': get_option('enable-wayland'),
-      'x11': get_option('enable-x11'),
-    }, section: 'Features')
-    summary({
-      'layout': get_option('default-layout'),
-      'model': get_option('default-model'),
-      'options': get_option('default-options'),
-      'rules': get_option('default-rules'),
-      'variant': get_option('default-variant'),
-    }, section: 'Defaults')
-    summary({
-      'merge-modes': has_merge_modes_tests,
-    }, section: 'Tests')
-endif
+summary({
+    'backend': meson.backend(),
+    'buildtype': get_option('buildtype'),
+    'id': cc.get_id(),
+    'c_args': get_option('c_args'),
+    'c_link_args': get_option('c_link_args'),
+    'yacc': yacc.full_path() + ' ' + yacc.version(),
+}, section: 'Compiler')
+summary({
+    'prefix': get_option('prefix'),
+    'bindir': get_option('bindir'),
+    'libdir': get_option('libdir'),
+    'datadir': get_option('datadir'),
+    'xkb-config-root': XKBCONFIGROOT,
+    'xkb-config-extra-path': XKBCONFIGEXTRAPATH,
+    'xlocaledir': XLOCALEDIR,
+}, section: 'Directories')
+summary({
+    'docs': get_option('enable-docs'),
+    'tools': get_option('enable-tools'),
+    'wayland': get_option('enable-wayland'),
+    'x11': get_option('enable-x11'),
+}, section: 'Features')
+summary({
+    'layout': get_option('default-layout'),
+    'model': get_option('default-model'),
+    'options': get_option('default-options'),
+    'rules': get_option('default-rules'),
+    'variant': get_option('default-variant'),
+}, section: 'Defaults')
+summary({
+    'merge-modes': has_merge_modes_tests,
+}, section: 'Tests')
