@@ -791,6 +791,45 @@ xkb_filter_mod_latch_func(struct xkb_state *state,
     return XKB_FILTER_CONTINUE;
 }
 
+static void
+xkb_filter_ctrls_lock_new(struct xkb_state *state, struct xkb_filter *filter)
+{
+    filter->priv = (uint32_t) (
+        state->components.locked_ctrls &
+        (enum xkb_state_controls) filter->action.ctrls.type &
+        XKB_STATE_CONTROLS_ALL
+    );
+
+    if (!(filter->action.ctrls.flags & ACTION_LOCK_NO_LOCK))
+        state->components.locked_ctrls |=
+            (enum xkb_state_controls) filter->action.ctrls.type &
+            XKB_STATE_CONTROLS_ALL;
+}
+
+static bool
+xkb_filter_ctrls_lock_func(struct xkb_state *state,
+                           struct xkb_filter *filter,
+                           const struct xkb_key *key,
+                           enum xkb_key_direction direction)
+{
+    if (key != filter->key)
+        return XKB_FILTER_CONTINUE;
+
+    if (direction == XKB_KEY_DOWN) {
+        filter->refcnt++;
+        return XKB_FILTER_CONSUME;
+    }
+    if (--filter->refcnt > 0)
+        return XKB_FILTER_CONSUME;
+
+    if (!(filter->action.ctrls.flags & ACTION_LOCK_NO_UNLOCK))
+        state->components.locked_ctrls &= (enum xkb_state_controls)
+                                          ~filter->priv;
+
+    filter->func = NULL;
+    return XKB_FILTER_CONTINUE;
+}
+
 static const struct {
     void (*new)(struct xkb_state *state, struct xkb_filter *filter);
     bool (*func)(struct xkb_state *state, struct xkb_filter *filter,
@@ -808,6 +847,8 @@ static const struct {
                                   xkb_filter_group_latch_func },
     [ACTION_TYPE_GROUP_LOCK]  = { xkb_filter_group_lock_new,
                                   xkb_filter_group_lock_func },
+    [ACTION_TYPE_CTRL_LOCK]   = { xkb_filter_ctrls_lock_new,
+                                  xkb_filter_ctrls_lock_func },
 };
 
 /**
