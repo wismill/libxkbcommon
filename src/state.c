@@ -54,6 +54,8 @@ struct state_components {
     xkb_mod_mask_t mods; /**< effective */
 
     xkb_led_mask_t leds;
+
+    enum xkb_state_controls locked_ctrls;
 };
 
 struct xkb_state {
@@ -876,6 +878,8 @@ xkb_state_new(struct xkb_keymap *keymap)
 
     state->refcnt = 1;
     state->keymap = xkb_keymap_ref(keymap);
+    state->components.locked_ctrls =
+        (enum xkb_state_controls) (keymap->enabled_ctrls & CONTROL_PUBLIC_API);
 
     return state;
 }
@@ -902,6 +906,31 @@ struct xkb_keymap *
 xkb_state_get_keymap(struct xkb_state *state)
 {
     return state->keymap;
+}
+
+enum xkb_state_component
+xkb_state_update_locked_controls(struct xkb_state *state,
+                                 enum xkb_state_controls affect,
+                                 enum xkb_state_controls controls)
+{
+    const enum xkb_state_controls previous = state->components.locked_ctrls;
+    affect &= affect & XKB_STATE_CONTROLS_ALL;
+    state->components.locked_ctrls &= ~affect;
+    state->components.locked_ctrls |= controls & affect;
+
+    return (previous == state->components.locked_ctrls)
+        ? 0
+        : (XKB_STATE_CONTROLS_LOCKED | XKB_STATE_CONTROLS_EFFECTIVE);
+}
+
+enum xkb_state_controls
+xkb_state_serialize_controls(struct xkb_state *state,
+                             enum xkb_state_component components)
+{
+    return (components &
+            (XKB_STATE_CONTROLS_LOCKED | XKB_STATE_CONTROLS_EFFECTIVE))
+        ? state->components.locked_ctrls
+        : 0;
 }
 
 /**
@@ -1036,6 +1065,8 @@ get_state_component_changes(const struct state_components *a,
         mask |= XKB_STATE_MODS_LOCKED;
     if (a->leds != b->leds)
         mask |= XKB_STATE_LEDS;
+    if (a->locked_ctrls != b->locked_ctrls)
+        mask |= XKB_STATE_CONTROLS_LOCKED | XKB_STATE_CONTROLS_EFFECTIVE;
 
     return mask;
 }
