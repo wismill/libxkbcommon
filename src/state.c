@@ -706,11 +706,16 @@ xkb_filter_mod_latch_func(struct xkb_state *state,
              * keypress, then either break the latch if any random key is pressed,
              * or promote it to a lock or plain base set if it's the same
              * modifier. */
+            const bool sticky_keys = state->components.locked_ctrls &
+                                     XKB_CONTROL_STICKY_KEYS;
+            const enum xkb_action_flags flags = filter->action.mods.flags &
+                                                ~ACTION_LATCH_TO_LOCK;
             for (xkb_action_count_t k = 0; k < count; k++) {
-                if (actions[k].type == ACTION_TYPE_MOD_LATCH &&
-                    actions[k].mods.flags == filter->action.mods.flags &&
+                if (((actions[k].type == ACTION_TYPE_MOD_LATCH &&
+                      actions[k].mods.flags == filter->action.mods.flags) ||
+                     (actions[k].type == ACTION_TYPE_MOD_SET && sticky_keys &&
+                      actions[k].mods.flags == flags)) &&
                     actions[k].mods.mods.mask == filter->action.mods.mods.mask) {
-                    filter->action = actions[k];
                     if (filter->action.mods.flags & ACTION_LATCH_TO_LOCK) {
                         /* Mutate the action to LockMods() */
                         filter->action.type = ACTION_TYPE_MOD_LOCK;
@@ -825,6 +830,7 @@ xkb_filter_ctrls_lock_func(struct xkb_state *state,
     if (!(filter->action.ctrls.flags & ACTION_LOCK_NO_UNLOCK))
         state->components.locked_ctrls &= (enum xkb_state_controls)
                                           ~filter->priv;
+    /* TODO: break pending latches? */
 
     filter->func = NULL;
     return XKB_FILTER_CONTINUE;
@@ -904,9 +910,19 @@ xkb_filter_apply_all(struct xkb_state *state,
         /* Add a new filter and run the corresponding initial action */
         filter = xkb_filter_new(state);
         filter->key = key;
-        filter->func = filter_action_funcs[actions[k].type].func;
         filter->action = actions[k];
-        filter_action_funcs[actions[k].type].new(state, filter);
+        if (state->components.locked_ctrls & XKB_CONTROL_STICKY_KEYS) {
+            if (filter->action.type == ACTION_TYPE_MOD_SET) {
+                /* Convert modifier set action to a latch */
+                filter->action.type = ACTION_TYPE_MOD_LATCH;
+                if (state->components.locked_ctrls & XKB_CONTROL_LATCH_TO_LOCK) {
+                    filter->action.mods.flags |= ACTION_LATCH_TO_LOCK;
+                }
+            }
+            /* TODO: set group action ? */
+        }
+        filter->func = filter_action_funcs[filter->action.type].func;
+        filter_action_funcs[filter->action.type].new(state, filter);
     }
 }
 
@@ -921,6 +937,11 @@ xkb_state_new(struct xkb_keymap *keymap)
     state->keymap = xkb_keymap_ref(keymap);
     state->components.locked_ctrls =
         (enum xkb_state_controls) (keymap->enabled_ctrls & CONTROL_PUBLIC_API);
+
+    /* Enable XKB_CONTROL_LATCH_TO_LOCK by default, unless
+     * XKB_CONTROL_STICKY_KEYS is already enabled. */
+    if (!(state->components.locked_ctrls & XKB_CONTROL_STICKY_KEYS))
+        state->components.locked_ctrls |= XKB_CONTROL_LATCH_TO_LOCK;
 
     return state;
 }
@@ -958,6 +979,11 @@ xkb_state_update_locked_controls(struct xkb_state *state,
     affect &= affect & XKB_STATE_CONTROLS_ALL;
     state->components.locked_ctrls &= ~affect;
     state->components.locked_ctrls |= controls & affect;
+
+    if ((previous & XKB_CONTROL_STICKY_KEYS) &&
+        !(state->components.locked_ctrls & XKB_CONTROL_STICKY_KEYS)) {
+        /* TODO: break pending latches? */
+    }
 
     return (previous == state->components.locked_ctrls)
         ? 0
