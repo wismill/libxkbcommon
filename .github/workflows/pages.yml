@@ -26,12 +26,11 @@ jobs:
 
     steps:
       - name: Download doxygen from Linux build
-        uses: dawidd6/action-download-artifact@v10
+        uses: actions/download-artifact@v4
         with:
-          workflow: linux.yml
-          workflow_conclusion: success
           name: doxygen-docs
           path: doxygen/
+          github-token: ${{ secrets.GH_PAT }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
