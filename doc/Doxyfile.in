@@ -31,8 +31,8 @@ INPUT                  = @INPUT@
 FILE_PATTERNS          = *.c \
                          *.h
 
-# These are included in other file but we do not want them as standalone
-EXCLUDE                = LICENSE NEWS.md meson_options.txt
+# These are included in some files but we do not want them as standalone
+EXCLUDE                = LICENSE NEWS.md meson.options
 
 RECURSIVE              = YES
 
