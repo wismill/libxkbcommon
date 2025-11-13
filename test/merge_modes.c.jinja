@@ -36,9 +36,10 @@ enum update_files {
 /* xkbcommon buffer compiler */
 static struct xkb_keymap *
 compile_buffer(struct xkb_context *context, enum xkb_keymap_format format,
+               enum xkb_keymap_compile_flags flags,
                const char *buf, size_t len, void *private)
 {
-    return test_compile_buffer(context, format, buf, len);
+    return test_compile_buffer2(context, format, flags, buf, len);
 }
 
 static bool

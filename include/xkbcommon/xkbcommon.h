@@ -1101,7 +1101,14 @@ xkb_context_set_log_fn(struct xkb_context *context,
  */
 enum xkb_keymap_compile_flags {
     /** Do not apply any flags. */
-    XKB_KEYMAP_COMPILE_NO_FLAGS = 0
+    XKB_KEYMAP_COMPILE_NO_FLAGS = 0,
+    /**
+     * Parse *strictly* according to the keymap format version: do not
+     * accept features from later versions.
+     *
+     * @since 1.14.0
+     */
+    XKB_KEYMAP_COMPILE_STRICT = (1 << 0),
 };
 
 /**

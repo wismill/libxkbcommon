@@ -1039,7 +1039,7 @@ xkb_state_new2(struct xkb_keymap *keymap,
         return NULL;
 
     state->flags = options->a11y_flags;
-    if (keymap->format != XKB_KEYMAP_FORMAT_TEXT_V1 &&
+    if (keymap->format >= XKB_KEYMAP_FORMAT_TEXT_V2 &&
         !(options->a11y_affect & XKB_STATE_A11Y_FLAG_LATCH_SIMULTANEOUS_KEYS)) {
             /* Keymap v2+: enable extension to XKB if not manually disabled */
             state->flags |= XKB_STATE_A11Y_FLAG_LATCH_SIMULTANEOUS_KEYS;

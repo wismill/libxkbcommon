@@ -132,9 +132,10 @@ test_explicit_actions(struct xkb_context *ctx)
 
 static struct xkb_keymap*
 compile_string(struct xkb_context *context, enum xkb_keymap_format format,
+               enum xkb_keymap_compile_flags flags,
                const char *buf, size_t len, void *private)
 {
-    return test_compile_string(context, format, buf);
+    return test_compile_string2(context, format, flags, buf);
 }
 
 int
@@ -200,6 +201,7 @@ main(int argc, char *argv[])
 
         /* Check round-trip with same serialize flags */
         assert(test_compile_output2(ctx, data[k].format,
+                                    XKB_KEYMAP_COMPILE_NO_FLAGS,
                                     XKB_KEYMAP_USE_ORIGINAL_FORMAT,
                                     data[k].serialize_flags,
                                     compile_string, NULL,
@@ -258,6 +260,7 @@ main(int argc, char *argv[])
         xkb_keymap_unref(keymap2);
 
         assert(test_compile_output2(ctx, data[k].format,
+                                    XKB_KEYMAP_COMPILE_NO_FLAGS,
                                     XKB_KEYMAP_USE_ORIGINAL_FORMAT,
                                     data[k].serialize_flags,
                                     compile_string, NULL,

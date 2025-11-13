@@ -42,9 +42,9 @@
 #define XKB_MAX_GROUPS_X11 4
 
 static inline xkb_layout_index_t
-format_max_groups(enum xkb_keymap_format format)
+format_max_groups(enum xkb_keymap_format format, bool strict)
 {
-    return (format == XKB_KEYMAP_FORMAT_TEXT_V1)
+    return (format == XKB_KEYMAP_FORMAT_TEXT_V1 && strict)
         ? XKB_MAX_GROUPS_X11
         : XKB_MAX_GROUPS;
 }

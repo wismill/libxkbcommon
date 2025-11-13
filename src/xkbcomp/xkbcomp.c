@@ -110,7 +110,9 @@ text_v1_keymap_new_from_rmlvo(struct xkb_keymap *keymap,
         return false;
     }
 
-    const xkb_layout_index_t max_groups = format_max_groups(keymap->format);
+    const xkb_layout_index_t max_groups = format_max_groups(
+        keymap->format, (keymap->flags & XKB_KEYMAP_COMPILE_STRICT)
+    );
     if (keymap->num_groups > max_groups)
         keymap->num_groups = max_groups;
 
@@ -165,7 +167,9 @@ text_v1_keymap_new_from_names(struct xkb_keymap *keymap,
         return false;
     }
 
-    const xkb_layout_index_t max_groups = format_max_groups(keymap->format);
+    const xkb_layout_index_t max_groups = format_max_groups(
+        keymap->format, (keymap->flags & XKB_KEYMAP_COMPILE_STRICT)
+    );
     if (keymap->num_groups > max_groups)
         keymap->num_groups = max_groups;
 

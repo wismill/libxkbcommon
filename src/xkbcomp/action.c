@@ -195,7 +195,7 @@ ReportActionNotArray(struct xkb_context *ctx, enum xkb_action_type action,
 
 static bool
 HandleNoAction(struct xkb_context *ctx, enum xkb_keymap_format format,
-               const struct xkb_mod_set *mods,
+               bool strict, const struct xkb_mod_set *mods,
                union xkb_action *action, enum action_field field,
                const ExprDef *array_ndx, const ExprDef *value)
 
@@ -287,7 +287,7 @@ CheckAffectField(struct xkb_context *ctx, enum xkb_action_type action,
 
 static bool
 HandleSetLatchLockMods(struct xkb_context *ctx, enum xkb_keymap_format format,
-                       const struct xkb_mod_set *mods,
+                       bool strict, const struct xkb_mod_set *mods,
                        union xkb_action *action, enum action_field field,
                        const ExprDef *array_ndx, const ExprDef *value)
 {
@@ -301,7 +301,7 @@ HandleSetLatchLockMods(struct xkb_context *ctx, enum xkb_keymap_format format,
         /* Ensure to update if a new modifier action is introduced. */
         assert(type == ACTION_TYPE_MOD_SET || type == ACTION_TYPE_MOD_LATCH ||
                type == ACTION_TYPE_MOD_LOCK);
-        if (isModsUnLockOnPressSupported(format)) {
+        if (isModsUnLockOnPressSupported(format, strict)) {
             return CheckBooleanFlag(ctx, action->type, field,
                                     ACTION_UNLOCK_ON_PRESS, array_ndx,
                                     value, &act->flags);
@@ -321,7 +321,7 @@ HandleSetLatchLockMods(struct xkb_context *ctx, enum xkb_keymap_format format,
                                     ACTION_LATCH_TO_LOCK, array_ndx, value,
                                     &act->flags);
         if (field == ACTION_FIELD_LATCH_ON_PRESS) {
-            if (isModsLatchOnPressSupported(format)) {
+            if (isModsLatchOnPressSupported(format, strict)) {
                 return CheckBooleanFlag(ctx, action->type, field,
                                         ACTION_LATCH_ON_PRESS, array_ndx, value,
                                         &act->flags);
@@ -379,7 +379,7 @@ CheckGroupField(struct xkb_context *ctx, enum xkb_action_type action,
 
 static bool
 HandleSetLatchLockGroup(struct xkb_context *ctx, enum xkb_keymap_format format,
-                        const struct xkb_mod_set *mods,
+                        bool strict, const struct xkb_mod_set *mods,
                         union xkb_action *action, enum action_field field,
                         const ExprDef *array_ndx, const ExprDef *value)
 {
@@ -387,7 +387,7 @@ HandleSetLatchLockGroup(struct xkb_context *ctx, enum xkb_keymap_format format,
     const enum xkb_action_type type = action->type;
 
     if (field == ACTION_FIELD_GROUP) {
-        const xkb_layout_index_t max_groups = format_max_groups(format);
+        const xkb_layout_index_t max_groups = format_max_groups(format, strict);
         return CheckGroupField(ctx, action->type, max_groups, array_ndx, value,
                                &act->flags, &act->group);
     }
@@ -404,7 +404,7 @@ HandleSetLatchLockGroup(struct xkb_context *ctx, enum xkb_keymap_format format,
     if (type == ACTION_TYPE_GROUP_LOCK &&
         field == ACTION_FIELD_LOCK_ON_RELEASE) {
         /* TODO: support this for `ACTION_TYPE_MOD_LOCK` too? */
-        if (isGroupLockOnReleaseSupported(format)) {
+        if (isGroupLockOnReleaseSupported(format, strict)) {
             return CheckBooleanFlag(ctx, action->type, field,
                                     ACTION_LOCK_ON_RELEASE, array_ndx, value,
                                     &act->flags);
@@ -419,7 +419,7 @@ HandleSetLatchLockGroup(struct xkb_context *ctx, enum xkb_keymap_format format,
 
 static bool
 HandleMovePtr(struct xkb_context *ctx, enum xkb_keymap_format format,
-              const struct xkb_mod_set *mods,
+              bool strict, const struct xkb_mod_set *mods,
               union xkb_action *action, enum action_field field,
               const ExprDef *array_ndx, const ExprDef *value)
 {
@@ -469,7 +469,7 @@ HandleMovePtr(struct xkb_context *ctx, enum xkb_keymap_format format,
 
 static bool
 HandlePtrBtn(struct xkb_context *ctx, enum xkb_keymap_format format,
-             const struct xkb_mod_set *mods,
+             bool strict, const struct xkb_mod_set *mods,
              union xkb_action *action, enum action_field field,
              const ExprDef *array_ndx, const ExprDef *value)
 {
@@ -533,7 +533,7 @@ static const LookupEntry ptrDflts[] = {
 
 static bool
 HandleSetPtrDflt(struct xkb_context *ctx, enum xkb_keymap_format format,
-                 const struct xkb_mod_set *mods,
+                 bool strict, const struct xkb_mod_set *mods,
                  union xkb_action *action, enum action_field field,
                  const ExprDef *array_ndx, const ExprDef *value)
 {
@@ -593,7 +593,7 @@ HandleSetPtrDflt(struct xkb_context *ctx, enum xkb_keymap_format format,
 
 static bool
 HandleSwitchScreen(struct xkb_context *ctx, enum xkb_keymap_format format,
-                   const struct xkb_mod_set *mods,
+                   bool strict, const struct xkb_mod_set *mods,
                    union xkb_action *action, enum action_field field,
                    const ExprDef *array_ndx, const ExprDef *value)
 {
@@ -643,7 +643,7 @@ HandleSwitchScreen(struct xkb_context *ctx, enum xkb_keymap_format format,
 
 static bool
 HandleSetLockControls(struct xkb_context *ctx, enum xkb_keymap_format format,
-                      const struct xkb_mod_set *mods,
+                      bool strict, const struct xkb_mod_set *mods,
                       union xkb_action *action, enum action_field field,
                       const ExprDef *array_ndx, const ExprDef *value)
 {
@@ -672,7 +672,7 @@ HandleSetLockControls(struct xkb_context *ctx, enum xkb_keymap_format format,
 
 static bool
 HandleUnsupportedLegacy(struct xkb_context *ctx, enum xkb_keymap_format format,
-                        const struct xkb_mod_set *mods,
+                        bool strict, const struct xkb_mod_set *mods,
                         union xkb_action *action, enum action_field field,
                         const ExprDef *array_ndx, const ExprDef *value)
 
@@ -683,7 +683,7 @@ HandleUnsupportedLegacy(struct xkb_context *ctx, enum xkb_keymap_format format,
 
 static bool
 HandlePrivate(struct xkb_context *ctx, enum xkb_keymap_format format,
-              const struct xkb_mod_set *mods,
+              bool strict, const struct xkb_mod_set *mods,
               union xkb_action *action, enum action_field field,
               const ExprDef *array_ndx, const ExprDef *value)
 {
@@ -788,7 +788,7 @@ HandlePrivate(struct xkb_context *ctx, enum xkb_keymap_format format,
 }
 
 typedef bool (*actionHandler)(struct xkb_context *ctx,
-                              enum xkb_keymap_format format,
+                              enum xkb_keymap_format format, bool strict,
                               const struct xkb_mod_set *mods,
                               union xkb_action *action,
                               enum action_field field,
@@ -825,8 +825,8 @@ static_assert(ACTION_TYPE_INTERNAL == 18 &&
 
 bool
 HandleActionDef(struct xkb_context *ctx, enum xkb_keymap_format format,
-                ActionsInfo *info, const struct xkb_mod_set *mods, ExprDef *def,
-                union xkb_action *action)
+                bool strict, ActionsInfo *info, const struct xkb_mod_set *mods,
+                ExprDef *def, union xkb_action *action)
 {
     if (def->common.type != STMT_EXPR_ACTION_DECL) {
         log_err(ctx, XKB_ERROR_WRONG_FIELD_TYPE,
@@ -905,8 +905,8 @@ HandleActionDef(struct xkb_context *ctx, enum xkb_keymap_format format,
             return false;
         }
 
-        if (!handleAction[handler_type](ctx, format, mods, action, fieldNdx,
-                                        arrayRtrn, value))
+        if (!handleAction[handler_type](ctx, format, strict, mods, action,
+                                        fieldNdx, arrayRtrn, value))
             return false;
     }
 
@@ -915,7 +915,7 @@ HandleActionDef(struct xkb_context *ctx, enum xkb_keymap_format format,
 
 bool
 SetDefaultActionField(struct xkb_context *ctx, enum xkb_keymap_format format,
-                      ActionsInfo *info, struct xkb_mod_set *mods,
+                      bool strict, ActionsInfo *info, struct xkb_mod_set *mods,
                       const char *elem, const char *field, ExprDef *array_ndx,
                       ExprDef *value, enum merge_mode merge)
 {
@@ -937,7 +937,8 @@ SetDefaultActionField(struct xkb_context *ctx, enum xkb_keymap_format format,
     union xkb_action from = *into;
 
     /* Parse action */
-    if (!handleAction[action](ctx, format, mods, &from, action_field, array_ndx, value))
+    if (!handleAction[action](ctx, format, strict, mods, &from, action_field,
+                              array_ndx, value))
         return false;
 
     /*

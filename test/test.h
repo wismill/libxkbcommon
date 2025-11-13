@@ -95,35 +95,63 @@ test_compile_file(struct xkb_context *context, enum xkb_keymap_format format,
                   const char *path_rel);
 
 struct xkb_keymap *
+test_compile_string2(struct xkb_context *context, enum xkb_keymap_format format,
+                     enum xkb_keymap_compile_flags compile_flags,
+                     const char *string);
+
+static inline struct xkb_keymap *
 test_compile_string(struct xkb_context *context, enum xkb_keymap_format format,
-                    const char *string);
+                    const char *string)
+{
+    return test_compile_string2(context, format, XKB_KEYMAP_COMPILE_NO_FLAGS,
+                                string);
+}
 
 struct xkb_keymap *
+test_compile_buffer2(struct xkb_context *context, enum xkb_keymap_format format,
+                     enum xkb_keymap_compile_flags flags,
+                     const char *buf, size_t len);
+
+static inline struct xkb_keymap *
 test_compile_buffer(struct xkb_context *context, enum xkb_keymap_format format,
-                    const char *buf, size_t len);
+                    const char *buf, size_t len)
+{
+    return test_compile_buffer2(context, format, XKB_KEYMAP_COMPILE_NO_FLAGS,
+                                buf, len);
+}
 
-typedef struct xkb_keymap * (*test_compile_buffer_t)(struct xkb_context *context,
-                                                     enum xkb_keymap_format format,
-                                                     const char *buf, size_t len,
-                                                     void *private);
-
-bool
-test_compile_output(struct xkb_context *ctx, enum xkb_keymap_format input_format,
-                    enum xkb_keymap_format output_format,
-                    test_compile_buffer_t compile_buffer,
-                    void *compile_buffer_private, const char *test_title,
-                    const char *keymap_str, size_t keymap_len,
-                    const char *rel_path, bool update_output_files);
+typedef struct xkb_keymap * (*test_compile_buffer_t)(
+                                struct xkb_context *context,
+                                enum xkb_keymap_format format,
+                                enum xkb_keymap_compile_flags flags,
+                                const char *buf, size_t len,
+                                void *private);
 
 bool
 test_compile_output2(struct xkb_context *ctx,
                      enum xkb_keymap_format input_format,
+                     enum xkb_keymap_compile_flags compile_flags,
                      enum xkb_keymap_format output_format,
                      enum xkb_keymap_serialize_flags serialize_flags,
                      test_compile_buffer_t compile_buffer,
                      void *compile_buffer_private, const char *test_title,
                      const char *keymap_str, size_t keymap_len,
                      const char *rel_path, bool update_output_files);
+
+static inline bool
+test_compile_output(struct xkb_context *ctx, enum xkb_keymap_format input_format,
+                    enum xkb_keymap_format output_format,
+                    test_compile_buffer_t compile_buffer,
+                    void *compile_buffer_private, const char *test_title,
+                    const char *keymap_str, size_t keymap_len,
+                    const char *rel_path, bool update_output_files)
+{
+    return test_compile_output2(ctx, input_format, XKB_KEYMAP_COMPILE_NO_FLAGS,
+                                output_format, TEST_KEYMAP_SERIALIZE_FLAGS,
+                                compile_buffer, compile_buffer_private,
+                                test_title, keymap_str, keymap_len, rel_path,
+                                update_output_files);
+}
 
 typedef int (*test_third_party_compile_buffer_t)(const char *buf, size_t len,
                                                  void *private,
@@ -142,9 +170,19 @@ test_compile_rmlvo(struct xkb_context *context, enum xkb_keymap_format format,
                    const char *variant, const char *options);
 
 struct xkb_keymap *
+test_compile_rules2(struct xkb_context *context, enum xkb_keymap_format format,
+                    enum xkb_keymap_compile_flags flags,
+                    const char *rules, const char *model, const char *layout,
+                    const char *variant, const char *options);
+
+static inline struct xkb_keymap *
 test_compile_rules(struct xkb_context *context, enum xkb_keymap_format format,
                    const char *rules, const char *model, const char *layout,
-                   const char *variant, const char *options);
+                   const char *variant, const char *options)
+{
+    return test_compile_rules2(context, format, XKB_KEYMAP_COMPILE_NO_FLAGS,
+                               rules, model, layout, variant, options);
+}
 
 static inline void
 xkb_enable_quiet_logging(struct xkb_context *ctx)

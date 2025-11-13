@@ -23,32 +23,35 @@ InitActionsInfo(ActionsInfo *info);
 
 bool
 HandleActionDef(struct xkb_context *ctx, enum xkb_keymap_format format,
-                ActionsInfo *info, const struct xkb_mod_set *mods, ExprDef *def,
-                union xkb_action *action);
+                bool strict, ActionsInfo *info, const struct xkb_mod_set *mods,
+                ExprDef *def, union xkb_action *action);
 
 bool
 SetDefaultActionField(struct xkb_context *ctx, enum xkb_keymap_format format,
-                      ActionsInfo *info, struct xkb_mod_set *mods,
+                      bool strict, ActionsInfo *info, struct xkb_mod_set *mods,
                       const char *elem, const char *field, ExprDef *array_ndx,
                       ExprDef *value, enum merge_mode merge);
 
 static inline bool
-isModsUnLockOnPressSupported(enum xkb_keymap_format format)
+isModsUnLockOnPressSupported(enum xkb_keymap_format format, bool strict)
 {
     /* Lax bound */
-    return format >= XKB_KEYMAP_FORMAT_TEXT_V2;
+    return (format == XKB_KEYMAP_FORMAT_TEXT_V1 && !strict) ||
+            format >= XKB_KEYMAP_FORMAT_TEXT_V2;
 }
 
 static inline bool
-isGroupLockOnReleaseSupported(enum xkb_keymap_format format)
+isGroupLockOnReleaseSupported(enum xkb_keymap_format format, bool strict)
 {
     /* Lax bound */
-    return format >= XKB_KEYMAP_FORMAT_TEXT_V2;
+    return (format == XKB_KEYMAP_FORMAT_TEXT_V1 && !strict) ||
+            format >= XKB_KEYMAP_FORMAT_TEXT_V2;
 }
 
 static inline bool
-isModsLatchOnPressSupported(enum xkb_keymap_format format)
+isModsLatchOnPressSupported(enum xkb_keymap_format format, bool strict)
 {
     /* Lax bound */
-    return format >= XKB_KEYMAP_FORMAT_TEXT_V2;
+    return (format == XKB_KEYMAP_FORMAT_TEXT_V1 && !strict) ||
+            format >= XKB_KEYMAP_FORMAT_TEXT_V2;
 }

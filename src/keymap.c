@@ -104,6 +104,10 @@ get_keymap_format_ops(enum xkb_keymap_format format)
     return keymap_format_ops[(int) format];
 }
 
+enum {
+    XKB_KEYMAP_COMPILE_ALL_FLAGS = (XKB_KEYMAP_COMPILE_STRICT),
+};
+
 struct xkb_keymap *
 xkb_keymap_new_from_rmlvo(const struct xkb_rmlvo_builder *rmlvo,
                           enum xkb_keymap_format format,
@@ -119,7 +123,7 @@ xkb_keymap_new_from_rmlvo(const struct xkb_rmlvo_builder *rmlvo,
         return NULL;
     }
 
-    if (flags & ~(XKB_KEYMAP_COMPILE_NO_FLAGS)) {
+    if (flags & ~(enum xkb_keymap_compile_flags) XKB_KEYMAP_COMPILE_ALL_FLAGS) {
         log_err_func(rmlvo->ctx, XKB_LOG_MESSAGE_NO_ID,
                      "unrecognized keymap compilation flags: %#x\n", flags);
         return NULL;
@@ -154,7 +158,7 @@ xkb_keymap_new_from_names2(struct xkb_context *ctx,
         return NULL;
     }
 
-    if (flags & ~(XKB_KEYMAP_COMPILE_NO_FLAGS)) {
+    if (flags & ~(enum xkb_keymap_compile_flags) XKB_KEYMAP_COMPILE_ALL_FLAGS) {
         log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
                      "unrecognized keymap compilation flags: %#x\n", flags);
         return NULL;
@@ -214,7 +218,7 @@ xkb_keymap_new_from_buffer(struct xkb_context *ctx,
         return NULL;
     }
 
-    if (flags & ~(XKB_KEYMAP_COMPILE_NO_FLAGS)) {
+    if (flags & ~(enum xkb_keymap_compile_flags) XKB_KEYMAP_COMPILE_ALL_FLAGS) {
         log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
                      "unrecognized keymap compilation flags: %#x\n", flags);
         return NULL;
@@ -258,7 +262,7 @@ xkb_keymap_new_from_file(struct xkb_context *ctx,
         return NULL;
     }
 
-    if (flags & ~(XKB_KEYMAP_COMPILE_NO_FLAGS)) {
+    if (flags & ~(enum xkb_keymap_compile_flags) XKB_KEYMAP_COMPILE_ALL_FLAGS) {
         log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
                      "unrecognized keymap compilation flags: %#x\n", flags);
         return NULL;

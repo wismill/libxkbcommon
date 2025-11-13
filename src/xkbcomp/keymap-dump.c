@@ -456,7 +456,7 @@ write_action(struct xkb_keymap *keymap, enum xkb_keymap_format format,
             args = ModMaskText(keymap->ctx, MOD_BOTH, &keymap->mods,
                                action->mods.mods.mods);
         bool unlockOnPress = (action->mods.flags & ACTION_UNLOCK_ON_PRESS);
-        if (unlockOnPress && !isModsUnLockOnPressSupported(format)) {
+        if (unlockOnPress && !isModsUnLockOnPressSupported(format, true)) {
             log_err(keymap->ctx, XKB_ERROR_INCOMPATIBLE_KEYMAP_TEXT_FORMAT,
                     "Cannot use \"%s(unlockOnPress=true)\" in keymap format %d\n",
                     ActionTypeText(action->type), format);
@@ -464,7 +464,7 @@ write_action(struct xkb_keymap *keymap, enum xkb_keymap_format format,
         }
         bool latchOnPress = action->type == ACTION_TYPE_MOD_LATCH &&
                             (action->group.flags & ACTION_LATCH_ON_PRESS);
-        if (latchOnPress && !isModsLatchOnPressSupported(format)) {
+        if (latchOnPress && !isModsLatchOnPressSupported(format, true)) {
             log_err(keymap->ctx, XKB_ERROR_INCOMPATIBLE_KEYMAP_TEXT_FORMAT,
                     "Cannot use \"LatchMods(latchOnPress=true)\" "
                     "in keymap format %d\n", format);
@@ -486,7 +486,7 @@ write_action(struct xkb_keymap *keymap, enum xkb_keymap_format format,
             (max_groups + !(action->group.flags & ACTION_ABSOLUTE_SWITCH))) {
             bool lockOnRelease = action->type == ACTION_TYPE_GROUP_LOCK &&
                                  (action->group.flags & ACTION_LOCK_ON_RELEASE);
-            if (lockOnRelease && !isGroupLockOnReleaseSupported(format)) {
+            if (lockOnRelease && !isGroupLockOnReleaseSupported(format, true)) {
                 log_err(keymap->ctx, XKB_ERROR_INCOMPATIBLE_KEYMAP_TEXT_FORMAT,
                         "Cannot use \"GroupLock(lockOnRelease=true)\" "
                         "in keymap format %d\n", format);
@@ -1045,7 +1045,7 @@ static bool
 write_keymap(struct xkb_keymap *keymap, enum xkb_keymap_format format,
              enum xkb_keymap_serialize_flags flags, struct buf *buf)
 {
-    const xkb_layout_index_t max_groups = format_max_groups(format);
+    const xkb_layout_index_t max_groups = format_max_groups(format, true);
     if (keymap->num_groups > max_groups) {
         log_err(keymap->ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
                 "Cannot serialize %"PRIu32" groups in keymap format %d: "

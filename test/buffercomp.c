@@ -34,9 +34,10 @@ struct keymap_test_data {
 /* Our keymap compiler is the xkbcommon buffer compiler */
 static struct xkb_keymap *
 compile_buffer(struct xkb_context *context, enum xkb_keymap_format format,
+               enum xkb_keymap_compile_flags flags,
                const char *buf, size_t len, void *private)
 {
-    return test_compile_buffer(context, format, buf, len);
+    return test_compile_buffer2(context, format, flags, buf, len);
 }
 
 static void
@@ -1458,16 +1459,20 @@ test_group_indices_names(struct xkb_context *ctx, bool update_output_files)
 
     for (unsigned int k = 0; k < ARRAY_SIZE(keymaps); k++) {
         fprintf(stderr, "------\n*** %s: #%u ***\n", __func__, k);
-        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
-                                   XKB_KEYMAP_USE_ORIGINAL_FORMAT,
-                                   compile_buffer, NULL, __func__,
-                                   keymaps[k].keymap, strlen(keymaps[k].keymap),
-                                   keymaps[k].expected_v1, update_output_files));
-        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
-                                   XKB_KEYMAP_USE_ORIGINAL_FORMAT,
-                                   compile_buffer, NULL, __func__,
-                                   keymaps[k].keymap, strlen(keymaps[k].keymap),
-                                   keymaps[k].expected_v2, update_output_files));
+        assert(test_compile_output2(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                    XKB_KEYMAP_COMPILE_STRICT,
+                                    XKB_KEYMAP_USE_ORIGINAL_FORMAT,
+                                    TEST_KEYMAP_SERIALIZE_FLAGS,
+                                    compile_buffer, NULL, __func__,
+                                    keymaps[k].keymap, strlen(keymaps[k].keymap),
+                                    keymaps[k].expected_v1, update_output_files));
+        assert(test_compile_output2(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
+                                    XKB_KEYMAP_COMPILE_STRICT,
+                                    XKB_KEYMAP_USE_ORIGINAL_FORMAT,
+                                    TEST_KEYMAP_SERIALIZE_FLAGS,
+                                    compile_buffer, NULL, __func__,
+                                    keymaps[k].keymap, strlen(keymaps[k].keymap),
+                                    keymaps[k].expected_v2, update_output_files));
     }
 }
 
@@ -2344,6 +2349,7 @@ test_prebuilt_keymap_roundtrip(struct xkb_context *ctx, bool update_output_files
         /* Load a prebuild keymap, once without, once with the trailing \0 */
         for (unsigned int i = 0; i <= 1; i++) {
             assert(test_compile_output2(ctx, data[k].format,
+                                        XKB_KEYMAP_COMPILE_NO_FLAGS,
                                         XKB_KEYMAP_USE_ORIGINAL_FORMAT,
                                         data[k].serialize_flags,
                                         compile_buffer, NULL, "Round-trip",
@@ -2508,41 +2514,51 @@ test_extended_layout_indices(struct xkb_context *ctx,
         fprintf(stderr, "------\n*** %s: #%u ***\n", __func__, k);
         if (tests[k].no_output) {
             struct xkb_keymap *keymap =
-                test_compile_buffer(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
-                                    tests[k].keymap, strlen(tests[k].keymap));
+                test_compile_buffer2(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                     XKB_KEYMAP_COMPILE_STRICT,
+                                     tests[k].keymap, strlen(tests[k].keymap));
             assert(!!keymap == tests[k].compiles_v1);
             xkb_keymap_unref(keymap);
             keymap =
-                test_compile_buffer(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
-                                    tests[k].keymap, strlen(tests[k].keymap));
+                test_compile_buffer2(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
+                                     XKB_KEYMAP_COMPILE_STRICT,
+                                     tests[k].keymap, strlen(tests[k].keymap));
             assert(!!keymap == tests[k].compiles_v2);
             xkb_keymap_unref(keymap);
             continue;
         }
         /* v1 → v1 */
-        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
-                                   XKB_KEYMAP_USE_ORIGINAL_FORMAT,
-                                   compile_buffer, NULL, __func__,
-                                   tests[k].keymap, strlen(tests[k].keymap),
-                                   tests[k].expected_v1, update_output_files));
+        assert(test_compile_output2(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                    XKB_KEYMAP_COMPILE_STRICT,
+                                    XKB_KEYMAP_USE_ORIGINAL_FORMAT,
+                                    TEST_KEYMAP_SERIALIZE_FLAGS,
+                                    compile_buffer, NULL, __func__,
+                                    tests[k].keymap, strlen(tests[k].keymap),
+                                    tests[k].expected_v1, update_output_files));
         /* v1 → v2 */
-        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
-                                   XKB_KEYMAP_FORMAT_TEXT_V2,
-                                   compile_buffer, NULL, __func__,
-                                   tests[k].keymap, strlen(tests[k].keymap),
-                                   tests[k].expected_v1_2, update_output_files));
+        assert(test_compile_output2(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                    XKB_KEYMAP_COMPILE_STRICT,
+                                    XKB_KEYMAP_FORMAT_TEXT_V2,
+                                    TEST_KEYMAP_SERIALIZE_FLAGS,
+                                    compile_buffer, NULL, __func__,
+                                    tests[k].keymap, strlen(tests[k].keymap),
+                                    tests[k].expected_v1_2, update_output_files));
         /* v2 → v2 */
-        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
-                                   XKB_KEYMAP_USE_ORIGINAL_FORMAT,
-                                   compile_buffer, NULL, __func__,
-                                   tests[k].keymap, strlen(tests[k].keymap),
-                                   tests[k].expected_v2, update_output_files));
+        assert(test_compile_output2(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
+                                    XKB_KEYMAP_COMPILE_STRICT,
+                                    XKB_KEYMAP_USE_ORIGINAL_FORMAT,
+                                    TEST_KEYMAP_SERIALIZE_FLAGS,
+                                    compile_buffer, NULL, __func__,
+                                    tests[k].keymap, strlen(tests[k].keymap),
+                                    tests[k].expected_v2, update_output_files));
         /* v2 → v1 */
-        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
-                                   XKB_KEYMAP_FORMAT_TEXT_V1,
-                                   compile_buffer, NULL, __func__,
-                                   tests[k].keymap, strlen(tests[k].keymap),
-                                   tests[k].expected_v2_1, update_output_files));
+        assert(test_compile_output2(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
+                                    XKB_KEYMAP_COMPILE_STRICT,
+                                    XKB_KEYMAP_FORMAT_TEXT_V1,
+                                    TEST_KEYMAP_SERIALIZE_FLAGS,
+                                    compile_buffer, NULL, __func__,
+                                    tests[k].keymap, strlen(tests[k].keymap),
+                                    tests[k].expected_v2_1, update_output_files));
     }
 }
 

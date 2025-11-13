@@ -177,6 +177,7 @@ typedef struct {
     darray(ModMapEntry) modmaps;
     struct xkb_mod_set mods;
 
+    bool strict;
     xkb_layout_index_t max_groups;
     struct xkb_context *ctx;
     /* Needed for AddKeySymbols. */
@@ -191,7 +192,8 @@ InitSymbolsInfo(SymbolsInfo *info, const struct xkb_keymap *keymap,
     info->ctx = keymap->ctx;
     info->include_depth = include_depth;
     info->keymap = keymap;
-    info->max_groups = format_max_groups(keymap->format);
+    info->strict = (keymap->flags & XKB_KEYMAP_COMPILE_STRICT);
+    info->max_groups = format_max_groups(keymap->format, info->strict);
     InitKeyInfo(keymap->ctx, &info->default_key);
     InitActionsInfo(&info->default_actions);
     InitVMods(&info->mods, mods, include_depth > 0);
@@ -958,7 +960,7 @@ AddActionsToKey(SymbolsInfo *info, KeyInfo *keyi, ExprDef *arrayNdx,
         for (ExprDef *act = actionList->actions;
              act; act = (ExprDef *) act->common.next) {
             union xkb_action toAct = { 0 };
-            if (!HandleActionDef(info->ctx, info->keymap->format,
+            if (!HandleActionDef(info->ctx, info->keymap->format, info->strict,
                                  &info->default_actions, &info->mods,
                                  act, &toAct)) {
                 log_err(info->ctx, XKB_ERROR_INVALID_VALUE,
@@ -1310,7 +1312,7 @@ HandleGlobalVar(SymbolsInfo *info, VarDef *stmt)
     }
     else if (elem) {
         ret = SetDefaultActionField(info->ctx, info->keymap->format,
-                                    &info->default_actions,
+                                    info->strict, &info->default_actions,
                                     &info->mods, elem, field, arrayNdx,
                                     stmt->value, stmt->merge);
     } else {

@@ -412,13 +412,13 @@ test_compile_file(struct xkb_context *context, enum xkb_keymap_format format,
 }
 
 struct xkb_keymap *
-test_compile_string(struct xkb_context *context, enum xkb_keymap_format format,
-                    const char *string)
+test_compile_string2(struct xkb_context *context, enum xkb_keymap_format format,
+                     enum xkb_keymap_compile_flags flags,
+                     const char *string)
 {
     struct xkb_keymap *keymap;
 
-    keymap = xkb_keymap_new_from_string(context, string, format,
-                                        XKB_KEYMAP_COMPILE_NO_FLAGS);
+    keymap = xkb_keymap_new_from_string(context, string, format, flags);
     if (!keymap) {
         fprintf(stderr, "Failed to compile string\n");
         return NULL;
@@ -428,13 +428,13 @@ test_compile_string(struct xkb_context *context, enum xkb_keymap_format format,
 }
 
 struct xkb_keymap *
-test_compile_buffer(struct xkb_context *context, enum xkb_keymap_format format,
-                    const char *buf, size_t len)
+test_compile_buffer2(struct xkb_context *context, enum xkb_keymap_format format,
+                     enum xkb_keymap_compile_flags flags,
+                     const char *buf, size_t len)
 {
     struct xkb_keymap *keymap;
 
-    keymap = xkb_keymap_new_from_buffer(context, buf, len, format,
-                                        XKB_KEYMAP_COMPILE_NO_FLAGS);
+    keymap = xkb_keymap_new_from_buffer(context, buf, len, format, flags);
     if (!keymap) {
         fprintf(stderr, "Failed to compile keymap from memory buffer\n");
         return NULL;
@@ -444,9 +444,10 @@ test_compile_buffer(struct xkb_context *context, enum xkb_keymap_format format,
 }
 
 struct xkb_keymap *
-test_compile_rules(struct xkb_context *context, enum xkb_keymap_format format,
-                   const char *rules, const char *model, const char *layout,
-                   const char *variant, const char *options)
+test_compile_rules2(struct xkb_context *context, enum xkb_keymap_format format,
+                    enum xkb_keymap_compile_flags flags,
+                    const char *rules, const char *model, const char *layout,
+                    const char *variant, const char *options)
 {
     struct xkb_keymap *keymap;
     struct xkb_rule_names rmlvo = {
@@ -458,11 +459,9 @@ test_compile_rules(struct xkb_context *context, enum xkb_keymap_format format,
     };
 
     if (!rules && !model && !layout && !variant && !options)
-        keymap = xkb_keymap_new_from_names2(context, NULL, format,
-                                            XKB_KEYMAP_COMPILE_NO_FLAGS);
+        keymap = xkb_keymap_new_from_names2(context, NULL, format, flags);
     else
-        keymap = xkb_keymap_new_from_names2(context, &rmlvo, format,
-                                            XKB_KEYMAP_COMPILE_NO_FLAGS);
+        keymap = xkb_keymap_new_from_names2(context, &rmlvo, format, flags);
 
     if (!keymap) {
         fprintf(stderr,
@@ -656,23 +655,9 @@ test_compile_rmlvo(struct xkb_context *context, enum xkb_keymap_format format,
 }
 
 bool
-test_compile_output(struct xkb_context *ctx, enum xkb_keymap_format input_format,
-                    enum xkb_keymap_format output_format,
-                    test_compile_buffer_t compile_buffer,
-                    void *compile_buffer_private, const char *test_title,
-                    const char *keymap_str, size_t keymap_len,
-                    const char *rel_path, bool update_output_files)
-{
-    return test_compile_output2(ctx, input_format, output_format,
-                                TEST_KEYMAP_SERIALIZE_FLAGS,
-                                compile_buffer, compile_buffer_private,
-                                test_title, keymap_str, keymap_len, rel_path,
-                                update_output_files);
-}
-
-bool
 test_compile_output2(struct xkb_context *ctx,
                      enum xkb_keymap_format input_format,
+                     enum xkb_keymap_compile_flags compile_flags,
                      enum xkb_keymap_format output_format,
                      enum xkb_keymap_serialize_flags serialize_flags,
                      test_compile_buffer_t compile_buffer,
@@ -684,7 +669,8 @@ test_compile_output2(struct xkb_context *ctx,
     fprintf(stderr, "*** %s ***\n", test_title);
 
     struct xkb_keymap *keymap = compile_buffer(
-        ctx, input_format, keymap_str, keymap_len, compile_buffer_private
+        ctx, input_format, compile_flags, keymap_str, keymap_len,
+        compile_buffer_private
     );
 
     if (!rel_path) {
@@ -738,7 +724,7 @@ test_compile_output2(struct xkb_context *ctx,
                 if (!test_round_trip)
                     break;
                 /* Test round trip */
-                keymap = compile_buffer(ctx, input_format,
+                keymap = compile_buffer(ctx, input_format, compile_flags,
                                         expected, strlen(expected),
                                         compile_buffer_private);
                 if (!keymap) {

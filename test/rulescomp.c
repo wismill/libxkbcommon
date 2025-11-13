@@ -169,8 +169,9 @@ test_extended_groups(struct xkb_context *ctx)
     for (size_t k = 0; k < ARRAY_SIZE(tests); k++) {
         fprintf(stderr, "------\n*** %s: #%zu ***\n", __func__, k);
         struct xkb_keymap *keymap =
-            test_compile_rules(ctx, tests[k].format, "evdev-modern",
-                               "pc105", tests[k].layouts, NULL, NULL);
+            test_compile_rules2(ctx, tests[k].format, XKB_KEYMAP_COMPILE_STRICT,
+                                "evdev-modern", "pc105", tests[k].layouts, NULL,
+                                NULL);
         assert(keymap);
         assert(xkb_keymap_num_layouts(keymap) == tests[k].num_layouts);
         xkb_keymap_unref(keymap);
