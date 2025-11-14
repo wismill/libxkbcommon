@@ -242,6 +242,52 @@ test_optional_components(struct xkb_context *ctx, bool update_output_files)
     }
 }
 
+/** Test optional trailing semicolon */
+static void
+test_optional_trailing_separator(struct xkb_context *ctx, bool update_output_files)
+{
+    const struct keymap_test_data keymaps[] = {
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_compat { indicator \"XXX\" { modifiers=Lock; } }\n"
+                "}",
+            .expected = GOLDEN_TESTS_OUTPUTS "optional-components-no-real-led.xkb"
+        },
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_symbols { key <> { [a] } }\n"
+                "}",
+            .expected = GOLDEN_TESTS_OUTPUTS "optional-components-none.xkb"
+        },
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes { <> = 1; }"
+                "  xkb_symbols { key <> { [a], type=\"XXX\" } }\n"
+                "};",
+            .expected = GOLDEN_TESTS_OUTPUTS "optional-components-basic.xkb"
+        },
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes { <> = 1; }"
+                "  xkb_symbols { key <> { vmods=XXX, [a] } }\n"
+                "}",
+            .expected = NULL
+        },
+    };
+    for (unsigned int k = 0; k < ARRAY_SIZE(keymaps); k++) {
+        fprintf(stderr, "------\n*** %s: #%u ***\n", __func__, k);
+        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                   XKB_KEYMAP_USE_ORIGINAL_FORMAT,
+                                   compile_buffer, NULL, __func__,
+                                   keymaps[k].keymap, strlen(keymaps[k].keymap),
+                                   keymaps[k].expected, update_output_files));
+    }
+}
+
 static void
 test_bidi_chars(struct xkb_context *ctx, bool update_output_files)
 {
@@ -2585,6 +2631,7 @@ main(int argc, char *argv[])
     test_floats(ctx);
     test_component_syntax_error(ctx);
     test_optional_components(ctx, update_output_files);
+    test_optional_trailing_separator(ctx, update_output_files);
     test_bidi_chars(ctx, update_output_files);
     test_recursive_includes(ctx);
     test_include_paths(ctx);

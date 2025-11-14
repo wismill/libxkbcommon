@@ -620,6 +620,17 @@ Keymap components are no longer mandatory, e.g. a keymap without a
 </td>
 </tr>
 <tr>
+<th>Optional semicolon after closing braces `}`</th>
+<td>❌️ All components are mandatory</td>
+<td colspan="2">
+<details>
+<summary>✅ Full support (since 1.14)</summary>
+Semicolons will always be added at *serializing* to ensure maximum
+compatibility.
+</details>
+</td>
+</tr>
+<tr>
 <th>Strong type check</th>
 <td>❌️ Weak type check</td>
 <td colspan="2">

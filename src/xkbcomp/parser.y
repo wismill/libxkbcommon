@@ -273,7 +273,7 @@ XkbFile         :       XkbCompositeMap
 
 XkbCompositeMap :       OptFlags XkbCompositeType OptMapName OBRACE
                             XkbMapConfigList
-                        CBRACE SEMI
+                        CBRACE OptSemicolon
                         { $$ = XkbFileCreate($2, $3, (ParseCommon *) $5.head, $1); }
                 ;
 
@@ -302,7 +302,7 @@ XkbMapConfigList :      XkbMapConfigList XkbMapConfig
 
 XkbMapConfig    :       OptFlags FileType OptMapName OBRACE
                             DeclList
-                        CBRACE SEMI
+                        CBRACE OptSemicolon
                         {
                             $$ = XkbFileCreate($2, $3, $5.head, $1);
                         }
@@ -456,7 +456,7 @@ VModDef         :       Ident
 
 InterpretDecl   :       INTERPRET InterpretMatch OBRACE
                             VarDeclList
-                        CBRACE SEMI
+                        CBRACE OptSemicolon
                         { $2->def = $4.head; $$ = $2; }
                 ;
 
@@ -483,13 +483,13 @@ VarDeclList     :       VarDeclList VarDecl
 
 KeyTypeDecl     :       TYPE String OBRACE
                             VarDeclList
-                        CBRACE SEMI
+                        CBRACE OptSemicolon
                         { $$ = KeyTypeCreate($2, $4.head); }
                 ;
 
 SymbolsDecl     :       KEY KEYNAME OBRACE
                             OptSymbolsBody
-                        CBRACE SEMI
+                        CBRACE OptSemicolon
                         { $$ = SymbolsCreate($2, $4.head); }
                 ;
 
@@ -583,7 +583,7 @@ GroupCompatDecl :       GROUP Integer EQUALS Expr SEMI
                         { $$ = GroupCompatCreate($2, $4); }
                 ;
 
-ModMapDecl      :       MODIFIER_MAP Ident OBRACE KeyOrKeySymList CBRACE SEMI
+ModMapDecl      :       MODIFIER_MAP Ident OBRACE KeyOrKeySymList CBRACE OptSemicolon
                         { $$ = ModMapCreate($2, $4.head); }
                 ;
 
@@ -599,7 +599,7 @@ KeyOrKeySym     :       KEYNAME
                         { $$ = ExprCreateKeySym($1); }
                 ;
 
-LedMapDecl:             INDICATOR String OBRACE VarDeclList CBRACE SEMI
+LedMapDecl:             INDICATOR String OBRACE VarDeclList CBRACE OptSemicolon
                         { $$ = LedMapCreate($2, $4.head); }
                 ;
 
@@ -609,13 +609,13 @@ LedNameDecl:            INDICATOR Integer EQUALS Expr SEMI
                         { $$ = LedNameCreate($3, $5, true); }
                 ;
 
-ShapeDecl       :       SHAPE String OBRACE OutlineList CBRACE SEMI
+ShapeDecl       :       SHAPE String OBRACE OutlineList CBRACE OptSemicolon
                         { $$ = NULL; }
-                |       SHAPE String OBRACE CoordList CBRACE SEMI
+                |       SHAPE String OBRACE CoordList CBRACE OptSemicolon
                         { (void) $4; $$ = NULL; }
                 ;
 
-SectionDecl     :       SECTION String OBRACE SectionBody CBRACE SEMI
+SectionDecl     :       SECTION String OBRACE SectionBody CBRACE OptSemicolon
                         { $$ = NULL; }
                 ;
 
@@ -623,7 +623,7 @@ SectionBody     :       SectionBody SectionBodyItem     { $$ = NULL;}
                 |       SectionBodyItem                 { $$ = NULL; }
                 ;
 
-SectionBodyItem :       ROW OBRACE RowBody CBRACE SEMI
+SectionBodyItem :       ROW OBRACE RowBody CBRACE OptSemicolon
                         { $$ = NULL; }
                 |       VarDecl
                         { FreeStmt((ParseCommon *) $1); $$ = NULL; }
@@ -639,7 +639,8 @@ RowBody         :       RowBody RowBodyItem     { $$ = NULL;}
                 |       RowBodyItem             { $$ = NULL; }
                 ;
 
-RowBodyItem     :       KEYS OBRACE Keys CBRACE SEMI { $$ = NULL; }
+RowBodyItem     :       KEYS OBRACE Keys CBRACE OptSemicolon
+                        { $$ = NULL; }
                 |       VarDecl
                         { FreeStmt((ParseCommon *) $1); $$ = NULL; }
                 ;
@@ -654,7 +655,7 @@ Key             :       KEYNAME
                         { FreeStmt((ParseCommon *) $2.head); $$ = NULL; }
                 ;
 
-OverlayDecl     :       OVERLAY String OBRACE OverlayKeyList CBRACE SEMI
+OverlayDecl     :       OVERLAY String OBRACE OverlayKeyList CBRACE OptSemicolon
                         { $$ = NULL; }
                 ;
 
@@ -689,7 +690,7 @@ Coord           :       OBRACKET SignedNumber COMMA SignedNumber CBRACKET
                         { $$ = NULL; }
                 ;
 
-DoodadDecl      :       DoodadType String OBRACE VarDeclList CBRACE SEMI
+DoodadDecl      :       DoodadType String OBRACE VarDeclList CBRACE OptSemicolon
                         { FreeStmt((ParseCommon *) $4.head); $$ = NULL; }
                 ;
 
@@ -1039,6 +1040,10 @@ OptMapName      :       MapName { $$ = $1; }
                 ;
 
 MapName         :       STRING  { $$ = $1; }
+                ;
+
+OptSemicolon    :       SEMI
+                |       /* Empty */
                 ;
 
 %%
