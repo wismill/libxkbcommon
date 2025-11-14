@@ -242,7 +242,7 @@ test_optional_components(struct xkb_context *ctx, bool update_output_files)
     }
 }
 
-/** Test optional trailing semicolon */
+/** Test optional trailing comma and semicolon */
 static void
 test_optional_trailing_separator(struct xkb_context *ctx, bool update_output_files)
 {
@@ -257,7 +257,7 @@ test_optional_trailing_separator(struct xkb_context *ctx, bool update_output_fil
         {
             .keymap =
                 "xkb_keymap {\n"
-                "  xkb_symbols { key <> { [a] } }\n"
+                "  xkb_symbols { key <> { [a], } }\n"
                 "}",
             .expected = GOLDEN_TESTS_OUTPUTS "optional-components-none.xkb"
         },
@@ -265,7 +265,7 @@ test_optional_trailing_separator(struct xkb_context *ctx, bool update_output_fil
             .keymap =
                 "xkb_keymap {\n"
                 "  xkb_keycodes { <> = 1; }"
-                "  xkb_symbols { key <> { [a], type=\"XXX\" } }\n"
+                "  xkb_symbols { key <> { [a], type=\"XXX\", } }\n"
                 "};",
             .expected = GOLDEN_TESTS_OUTPUTS "optional-components-basic.xkb"
         },
@@ -273,7 +273,7 @@ test_optional_trailing_separator(struct xkb_context *ctx, bool update_output_fil
             .keymap =
                 "xkb_keymap {\n"
                 "  xkb_keycodes { <> = 1; }"
-                "  xkb_symbols { key <> { vmods=XXX, [a] } }\n"
+                "  xkb_symbols { key <> { vmods=XXX, [a], } }\n"
                 "}",
             .expected = NULL
         },

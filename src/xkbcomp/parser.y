@@ -493,8 +493,9 @@ SymbolsDecl     :       KEY KEYNAME OBRACE
                         { $$ = SymbolsCreate($2, $4.head); }
                 ;
 
-OptSymbolsBody  :       SymbolsBody { $$ = $1; }
-                |                   { $$.head = $$.last = NULL; }
+OptSymbolsBody  :       SymbolsBody OptComma
+                        { $$ = $1; }
+                |       { $$.head = $$.last = NULL; }
                 ;
 
 SymbolsBody     :       SymbolsBody COMMA SymbolsVarDecl
@@ -583,7 +584,8 @@ GroupCompatDecl :       GROUP Integer EQUALS Expr SEMI
                         { $$ = GroupCompatCreate($2, $4); }
                 ;
 
-ModMapDecl      :       MODIFIER_MAP Ident OBRACE KeyOrKeySymList CBRACE OptSemicolon
+ModMapDecl      :       MODIFIER_MAP Ident OBRACE KeyOrKeySymList OptComma CBRACE
+                        OptSemicolon
                         { $$ = ModMapCreate($2, $4.head); }
                 ;
 
@@ -1043,6 +1045,10 @@ MapName         :       STRING  { $$ = $1; }
                 ;
 
 OptSemicolon    :       SEMI
+                |       /* Empty */
+                ;
+
+OptComma        :       COMMA
                 |       /* Empty */
                 ;
 
