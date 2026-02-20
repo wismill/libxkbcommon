@@ -22,7 +22,8 @@
 
 enum {
     DEFAULT_KEYMAP_SERIALIZE_FLAGS = XKB_KEYMAP_SERIALIZE_PRETTY |
-                                     XKB_KEYMAP_SERIALIZE_KEEP_UNUSED
+                                     XKB_KEYMAP_SERIALIZE_KEEP_UNUSED |
+                                     XKB_KEYMAP_SERIALIZE_KEEP_INTERPRETS
 };
 
 /* Fields that are printed in the interactive tools. */
