@@ -195,6 +195,11 @@ main(int argc, char *argv[])
             .serialize_flags = XKB_KEYMAP_SERIALIZE_NO_FLAGS
         },
         {
+            .path = "keymaps/stringcomp-v1-prettyfied.xkb",
+            .format = XKB_KEYMAP_FORMAT_TEXT_V1,
+            .serialize_flags = XKB_KEYMAP_SERIALIZE_PRETTY
+        },
+        {
             .path = "keymaps/stringcomp-v2.xkb",
             .format = XKB_KEYMAP_FORMAT_TEXT_V2,
             .serialize_flags = TEST_KEYMAP_SERIALIZE_FLAGS

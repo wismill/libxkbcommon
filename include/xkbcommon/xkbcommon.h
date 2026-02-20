@@ -1420,12 +1420,31 @@ xkb_keymap_unref(struct xkb_keymap *keymap);
  * @since 1.12.0
  */
 enum xkb_keymap_serialize_flags {
-    /** Do not apply any flags. */
+    /**
+     * Do not apply any flags
+     *
+     * @since 1.12.0
+     */
     XKB_KEYMAP_SERIALIZE_NO_FLAGS = 0,
-    /** Enable pretty-printing */
+    /**
+     * Enable pretty-printing
+     *
+     * @since 1.12.0
+     */
     XKB_KEYMAP_SERIALIZE_PRETTY = (1 << 0),
-    /** Do not drop unused bits (key types, compatibility entries) */
+    /**
+     * Do not drop unused bits (key types, compatibility entries)
+     *
+     * @since 1.12.0
+     */
     XKB_KEYMAP_SERIALIZE_KEEP_UNUSED = (1 << 1),
+    /**
+     * Do not drop compatibility interpretations, except the unused ones if
+     * `::XKB_KEYMAP_SERIALIZE_KEEP_UNUSED` is *not* set (default).
+     *
+     * @since 1.14.0
+     */
+    XKB_KEYMAP_SERIALIZE_KEEP_INTERPRETS = (1 << 2)
 };
 
 /**
@@ -1436,6 +1455,7 @@ enum xkb_keymap_serialize_flags {
  *
  * @since 1.12.0: Drop unused types and compatibility entries and do not
  * pretty-print.
+ * @since 1.14.0: Drop compatibility entries.
  *
  * @sa `xkb_keymap::xkb_keymap_get_as_string2()`
  * @memberof xkb_keymap

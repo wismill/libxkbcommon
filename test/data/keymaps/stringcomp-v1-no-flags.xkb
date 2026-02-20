@@ -296,7 +296,7 @@ xkb_keycodes "evdev_aliases(qwerty)" {
 };
 
 xkb_types "complete" {
-	virtual_modifiers NumLock,Alt,LevelThree,LAlt=Mod1,RAlt=0x100,RControl=0x210001,LControl,ScrollLock,LevelFive,AltGr,Meta,Super,Hyper;
+	virtual_modifiers NumLock=Mod2,Alt=Mod1,LevelThree=Mod5,LAlt=Mod1,RAlt=0x100,RControl=0x210001,LControl,ScrollLock,LevelFive,AltGr=Mod5,Meta=Mod1,Super=Mod4,Hyper=Mod4;
 
 	type "ONE_LEVEL" {
 		modifiers= none;
@@ -423,244 +423,12 @@ xkb_types "complete" {
 };
 
 xkb_compatibility "complete_caps(caps_lock)_4_misc(assign_shift_left_action)_4_level5(level5_lock)_4" {
-	virtual_modifiers NumLock,Alt,LevelThree,LAlt=Mod1,RAlt=0x100,RControl=0x210001,LControl,ScrollLock,LevelFive,AltGr,Meta,Super,Hyper;
+	virtual_modifiers NumLock=Mod2,Alt=Mod1,LevelThree=Mod5,LAlt=Mod1,RAlt=0x100,RControl=0x210001,LControl,ScrollLock,LevelFive,AltGr=Mod5,Meta=Mod1,Super=Mod4,Hyper=Mod4;
 
 	interpret.useModMapMods= AnyLevel;
 	interpret.repeat= False;
-	interpret 0xff7f+AnyOf(all) {
-		virtualModifier= NumLock;
-		action= LockMods(modifiers=NumLock);
-	};
-	interpret 0xfe03+AnyOf(all) {
-		virtualModifier= LevelThree;
-		useModMapMods=level1;
-		action= SetMods(modifiers=LevelThree,clearLocks);
-	};
-	interpret 0xffe9+AnyOf(all) {
-		virtualModifier= Alt;
-		action= SetMods(modifiers=modMapMods,clearLocks);
-	};
-	interpret 0xffea+AnyOf(all) {
-		virtualModifier= Alt;
-		action= SetMods(modifiers=modMapMods,clearLocks);
-	};
-	interpret 0xffe7+AnyOf(all) {
-		virtualModifier= Meta;
-		action= SetMods(modifiers=modMapMods,clearLocks);
-	};
-	interpret 0xffe8+AnyOf(all) {
-		virtualModifier= Meta;
-		action= SetMods(modifiers=modMapMods,clearLocks);
-	};
-	interpret 0xffeb+AnyOf(all) {
-		virtualModifier= Super;
-		action= SetMods(modifiers=modMapMods,clearLocks);
-	};
-	interpret 0xffec+AnyOf(all) {
-		virtualModifier= Super;
-		action= SetMods(modifiers=modMapMods,clearLocks);
-	};
-	interpret 0xffed+AnyOf(all) {
-		virtualModifier= Hyper;
-		action= SetMods(modifiers=modMapMods,clearLocks);
-	};
-	interpret 0xfe11+AnyOf(all) {
-		virtualModifier= LevelFive;
-		useModMapMods=level1;
-		action= SetMods(modifiers=LevelFive,clearLocks);
-	};
-	interpret 0xff7e+AnyOfOrNone(all) {
-		virtualModifier= AltGr;
-		useModMapMods=level1;
-		action= SetGroup(group=+1);
-	};
-	interpret 0xfe03+AnyOfOrNone(all) {
-		action= SetMods(modifiers=LevelThree,clearLocks);
-	};
-	interpret 0xffb1+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=-1,y=+1);
-	};
-	interpret 0xff9c+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=-1,y=+1);
-	};
-	interpret 0xffb2+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+0,y=+1);
-	};
-	interpret 0xff99+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+0,y=+1);
-	};
-	interpret 0xffb3+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+1,y=+1);
-	};
-	interpret 0xff9b+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+1,y=+1);
-	};
-	interpret 0xffb4+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=-1,y=+0);
-	};
-	interpret 0xff96+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=-1,y=+0);
-	};
-	interpret 0xffb6+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+1,y=+0);
-	};
-	interpret 0xff98+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+1,y=+0);
-	};
-	interpret 0xffb7+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=-1,y=-1);
-	};
-	interpret 0xff95+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=-1,y=-1);
-	};
-	interpret 0xffb8+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+0,y=-1);
-	};
-	interpret 0xff97+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+0,y=-1);
-	};
-	interpret 0xffb9+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+1,y=-1);
-	};
-	interpret 0xff9a+AnyOfOrNone(all) {
-		repeat= True;
-		action= MovePtr(x=+1,y=-1);
-	};
-	interpret 0xffb5+AnyOfOrNone(all) {
-		repeat= True;
-		action= PtrBtn(button=default);
-	};
-	interpret 0xff9d+AnyOfOrNone(all) {
-		repeat= True;
-		action= PtrBtn(button=default);
-	};
-	interpret 0xffaf+AnyOfOrNone(all) {
-		repeat= True;
-		action= SetPtrDflt(affect=button,button=1);
-	};
-	interpret 0xffaa+AnyOfOrNone(all) {
-		repeat= True;
-		action= SetPtrDflt(affect=button,button=2);
-	};
-	interpret 0xffad+AnyOfOrNone(all) {
-		repeat= True;
-		action= SetPtrDflt(affect=button,button=3);
-	};
-	interpret 0xffac+AnyOfOrNone(all) {
-		repeat= True;
-		action= PtrBtn(button=default,count=2);
-	};
-	interpret 0xffab+AnyOfOrNone(all) {
-		repeat= True;
-		action= PtrBtn(button=default,count=2);
-	};
-	interpret 0xffb0+AnyOfOrNone(all) {
-		repeat= True;
-		action= LockPtrBtn(button=default,affect=lock);
-	};
-	interpret 0xff9e+AnyOfOrNone(all) {
-		repeat= True;
-		action= LockPtrBtn(button=default,affect=lock);
-	};
-	interpret 0xffae+AnyOfOrNone(all) {
-		repeat= True;
-		action= LockPtrBtn(button=default,affect=unlock);
-	};
-	interpret 0xff9f+AnyOfOrNone(all) {
-		repeat= True;
-		action= LockPtrBtn(button=default,affect=unlock);
-	};
-	interpret 0xfef9+AnyOfOrNone(all) {
-		action= LockControls(controls=MouseKeys);
-	};
-	interpret 0xffe9+AnyOfOrNone(all) {
-		action= SetMods(modifiers=Alt,clearLocks);
-	};
-	interpret 0xffe1+AnyOfOrNone(all) {
-		action= SetMods(modifiers=Shift);
-	};
-	interpret 0x1008fe01+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=1,!same);
-	};
-	interpret 0x1008fe02+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=2,!same);
-	};
-	interpret 0x1008fe03+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=3,!same);
-	};
-	interpret 0x1008fe04+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=4,!same);
-	};
-	interpret 0x1008fe05+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=5,!same);
-	};
-	interpret 0x1008fe06+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=6,!same);
-	};
-	interpret 0x1008fe07+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=7,!same);
-	};
-	interpret 0x1008fe08+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=8,!same);
-	};
-	interpret 0x1008fe09+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=9,!same);
-	};
-	interpret 0x1008fe0a+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=10,!same);
-	};
-	interpret 0x1008fe0b+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=11,!same);
-	};
-	interpret 0x1008fe0c+AnyOfOrNone(all) {
-		repeat= True;
-		action= SwitchScreen(screen=12,!same);
-	};
-	interpret 0x1008fe22+AnyOfOrNone(all) {
-		repeat= True;
-		action= Private(type=0x86,data[0]=0x2b,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00);
-	};
-	interpret 0x1008fe23+AnyOfOrNone(all) {
-		repeat= True;
-		action= Private(type=0x86,data[0]=0x2d,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00);
-	};
-	interpret 0xfe11+AnyOfOrNone(all) {
-		action= SetMods(modifiers=LevelFive,clearLocks);
-	};
-	interpret 0xfe13+AnyOfOrNone(all) {
-		action= LockMods(modifiers=NumLock);
-	};
-	interpret 0xffe5+AnyOfOrNone(all) {
-		action= LockMods(modifiers=Lock);
-	};
-	interpret Any+AnyOf(all) {
-		action= SetMods(modifiers=modMapMods,clearLocks);
+	interpret 0xffffff+AnyOfOrNone(none) {
+		action= NoAction();
 	};
 	indicator "Caps Lock" {
 		whichModState= locked;
@@ -692,10 +460,14 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	name[3]="Canadian Multilingual";
 	name[4]="German (Neo 2)";
 
-	key <ESC> {	[ 0xff1b ] };
+	key <ESC> {
+		repeat= Yes,
+		symbols[1]= [ 0xff1b ]
+	};
 	key <AE01> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x31, 0x21 ],
 		symbols[2]= [ 0x31, 0x21 ],
 		symbols[3]= [ 0x31, 0x21, 0xb1, NoSymbol, 0xb9, 0xa1, NoSymbol, NoSymbol ],
@@ -704,6 +476,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	key <AE02> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x32, 0x40 ],
 		symbols[2]= [ 0x32, 0x22 ],
 		symbols[3]= [ 0x32, 0x40, 0x40, NoSymbol, 0xb2, NoSymbol, NoSymbol, NoSymbol ],
@@ -712,6 +485,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	key <AE03> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x33, 0x23 ],
 		symbols[2]= [ 0x33, 0x6b0 ],
 		symbols[3]= [ 0x33, 0x23, 0xa3, NoSymbol, 0xb3, 0xa3, NoSymbol, NoSymbol ],
@@ -720,6 +494,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	key <AE04> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x34, 0x24 ],
 		symbols[2]= [ 0x34, 0x3b ],
 		symbols[3]= [ 0x34, 0x24, 0xa2, NoSymbol, 0xbc, 0xa4, NoSymbol, NoSymbol ],
@@ -728,6 +503,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	key <AE05> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x35, 0x25 ],
 		symbols[2]= [ 0x35, 0x25 ],
 		symbols[3]= [ 0x35, 0x25, 0xa4, NoSymbol, 0xbd, 0xac4, NoSymbol, NoSymbol ],
@@ -736,6 +512,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	key <AE06> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ {0x48,0x45,0x4c,0x4c,0x4f}, 0x5e ],
 		symbols[2]= [ 0x36, 0x3a ],
 		symbols[3]= [ 0x36, 0x3f, 0xac, NoSymbol, 0xbe, 0xac5, NoSymbol, NoSymbol ],
@@ -744,6 +521,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	key <AE07> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ {0x59,0x45,0x53,0x20,0x54,0x48,0x49,0x53,0x20,0x49,0x53,0x20,0x44,0x4f,0x47}, 0x26 ],
 		symbols[2]= [ 0x37, 0x3f ],
 		symbols[3]= [ 0x37, 0x26, 0x7b, NoSymbol, NoSymbol, 0xac6, NoSymbol, NoSymbol ],
@@ -752,6 +530,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	key <AE08> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x38, 0x2a ],
 		symbols[2]= [ 0x38, 0x2a ],
 		symbols[3]= [ 0x38, 0x2a, 0x7d, NoSymbol, NoSymbol, 0xac9, NoSymbol, NoSymbol ],
@@ -760,48 +539,61 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	key <AE09> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x39, 0x28 ],
 		symbols[2]= [ 0x39, 0x28 ],
 		symbols[3]= [ 0x39, 0x28, 0x5b, NoSymbol, NoSymbol, 0xb1, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x39, 0xad2, 0xad0, 0x10027e9, 0xffaf, 0xffaf, 0x8c1, NoSymbol ]
+		symbols[4]= [ 0x39, 0xad2, 0xad0, 0x10027e9, 0xffaf, 0xffaf, 0x8c1, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(), SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1),                     NoAction(),                     NoAction() ]
 	};
 	key <AE10> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x30, 0x29 ],
 		symbols[2]= [ 0x30, 0x29 ],
 		symbols[3]= [ 0x30, 0x29, 0x5d, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x30, 0xad3, 0xad1, 0x1002080, 0xffaa, 0xffaa, 0x1002205, NoSymbol ]
+		symbols[4]= [ 0x30, 0xad3, 0xad1, 0x1002080, 0xffaa, 0xffaa, 0x1002205, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(), SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2),                     NoAction(),                     NoAction() ]
 	};
 	key <AE11> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x2d, 0x5f ],
 		symbols[2]= [ 0x2d, 0x5f ],
 		symbols[3]= [ 0x2d, 0x5f, 0xbd, NoSymbol, NoSymbol, 0xbf, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x2d, 0xaa9, NoSymbol, 0x1002011, 0xffad, 0xffad, 0xad, NoSymbol ]
+		symbols[4]= [ 0x2d, 0xaa9, NoSymbol, 0x1002011, 0xffad, 0xffad, 0xad, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(), SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3),                     NoAction(),                     NoAction() ]
 	};
 	key <AE12> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x3d, 0x2b ],
 		symbols[2]= [ 0x3d, 0x2b ],
 		symbols[3]= [ 0x3d, 0x2b, 0xac, NoSymbol, 0xfe5b, 0xfe5c, NoSymbol, NoSymbol ],
 		symbols[4]= [ 0xfe50, 0xfe5b, 0xfe58, 0xfe65, 0xfe57, NoSymbol, 0xfe54, NoSymbol ]
 	};
-	key <BKSP> {	[ 0xff08, 0xff08 ] };
+	key <BKSP> {
+		repeat= Yes,
+		symbols[1]= [ 0xff08, 0xff08 ]
+	};
 	key <TAB> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0xff09, 0xfe20 ],
 		symbols[2]= [ 0xff09, 0xfe20 ],
 		symbols[3]= [ 0xff09, 0xfe20 ],
-		symbols[4]= [ 0xff09, 0xfe20, 0xff20, 0xfe13, NoSymbol, NoSymbol, NoSymbol, 0xfe13 ]
+		symbols[4]= [ 0xff09, 0xfe20, 0xff20, 0xfe13, NoSymbol, NoSymbol, NoSymbol, 0xfe13 ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),    LockMods(modifiers=NumLock),                     NoAction(),                     NoAction(),                     NoAction(),    LockMods(modifiers=NumLock) ]
 	};
 	key <AD01> {
 		type[1]= "ALPHABETIC",
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x71, 0x51 ],
 		symbols[2]= [ 0x6ca, 0x6ea ],
 		symbols[3]= [ 0x71, 0x51, NoSymbol, NoSymbol, NoSymbol, 0x7d9, NoSymbol, NoSymbol ],
@@ -812,6 +604,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x77, 0x57 ],
 		symbols[2]= [ 0x6c3, 0x6e3 ],
 		symbols[3]= [ 0x77, 0x57, NoSymbol, NoSymbol, 0x1b3, 0x1a3, NoSymbol, NoSymbol ],
@@ -822,6 +615,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x65, 0x45 ],
 		symbols[2]= [ 0x6d5, 0x6f5 ],
 		symbols[3]= [ 0x65, 0x45, NoSymbol, NoSymbol, 0x13bd, 0x13bc, NoSymbol, NoSymbol ],
@@ -832,6 +626,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x72, 0x52 ],
 		symbols[2]= [ 0x6cb, 0x6eb ],
 		symbols[3]= [ 0x72, 0x52, NoSymbol, NoSymbol, 0xb6, 0xae, NoSymbol, NoSymbol ],
@@ -842,6 +637,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x74, 0x54 ],
 		symbols[2]= [ 0x6c5, 0x6e5 ],
 		symbols[3]= [ 0x74, 0x54, NoSymbol, NoSymbol, 0x3bc, 0x3ac, NoSymbol, NoSymbol ],
@@ -852,6 +648,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x79, 0x59 ],
 		symbols[2]= [ 0x6ce, 0x6ee ],
 		symbols[3]= [ 0x79, 0x59, NoSymbol, NoSymbol, 0x8fb, 0xa5, NoSymbol, NoSymbol ],
@@ -862,45 +659,54 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x75, 0x55 ],
 		symbols[2]= [ 0x6c7, 0x6e7 ],
 		symbols[3]= [ 0x75, 0x55, NoSymbol, NoSymbol, 0x8fe, 0x8fc, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x68, 0x48, 0x3c, 0x7f8, 0xffb7, 0xffb7, 0x7d8, NoSymbol ]
+		symbols[4]= [ 0x68, 0x48, 0x3c, 0x7f8, 0xffb7, 0xffb7, 0x7d8, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=-1,y=-1),             MovePtr(x=-1,y=-1),                     NoAction(),                     NoAction() ]
 	};
 	key <AD08> {
 		type[1]= "ALPHABETIC",
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x69, 0x49 ],
 		symbols[2]= [ 0x6db, 0x6fb ],
 		symbols[3]= [ 0x69, 0x49, NoSymbol, NoSymbol, 0x8fd, 0x2b9, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x67, 0x47, 0x3e, 0x7e3, 0xffb8, 0xffb8, 0x7c3, NoSymbol ]
+		symbols[4]= [ 0x67, 0x47, 0x3e, 0x7e3, 0xffb8, 0xffb8, 0x7c3, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+0,y=-1),             MovePtr(x=+0,y=-1),                     NoAction(),                     NoAction() ]
 	};
 	key <AD09> {
 		type[1]= "ALPHABETIC",
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x6f, 0x4f ],
 		symbols[2]= [ 0x6dd, 0x6fd ],
 		symbols[3]= [ 0x6f, 0x4f, 0xa7, NoSymbol, 0xf8, 0xd8, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x66, 0x46, 0x3d, 0x7f6, 0xffb9, 0xffb9, 0x7d6, NoSymbol ]
+		symbols[4]= [ 0x66, 0x46, 0x3d, 0x7f6, 0xffb9, 0xffb9, 0x7d6, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+1,y=-1),             MovePtr(x=+1,y=-1),                     NoAction(),                     NoAction() ]
 	};
 	key <AD10> {
 		type[1]= "ALPHABETIC",
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x70, 0x50 ],
 		symbols[2]= [ 0x6da, 0x6fa ],
 		symbols[3]= [ 0x70, 0x50, 0xb6, NoSymbol, 0xfe, 0xde, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x71, 0x51, 0x26, 0x10003d5, 0xffab, 0xffab, 0x100211a, NoSymbol ]
+		symbols[4]= [ 0x71, 0x51, 0x26, 0x10003d5, 0xffab, 0xffab, 0x100211a, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(), PtrBtn(button=default,count=2), PtrBtn(button=default,count=2),                     NoAction(),                     NoAction() ]
 	};
 	key <AD11> {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x5b, 0x7b ],
 		symbols[2]= [ 0x6c8, 0x6e8 ],
 		symbols[3]= [ 0xfe52, 0xfe57, 0xfe50, NoSymbol, NoSymbol, 0xfe58, NoSymbol, NoSymbol ],
@@ -910,18 +716,26 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x5d, 0x7d ],
 		symbols[2]= [ 0x6df, 0x6ff ],
 		symbols[3]= [ 0xe7, 0xc7, 0x7e, NoSymbol, 0xfe53, 0xfe54, NoSymbol, NoSymbol ],
 		symbols[4]= [ 0xfe51, 0xfe53, 0xfe63, 0xfe64, 0xfe59, NoSymbol, 0xfe55, NoSymbol ]
 	};
-	key <RTRN> {	[ 0xff0d ] };
-	key <LCTL> {	[ 0xffe3 ] };
+	key <RTRN> {
+		repeat= Yes,
+		symbols[1]= [ 0xff0d ]
+	};
+	key <LCTL> {
+		repeat= Yes,
+		symbols[1]= [ 0xffe3 ]
+	};
 	key <AC01> {
 		type[1]= "ALPHABETIC",
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x61, 0x41 ],
 		symbols[2]= [ 0x6c6, 0x6e6 ],
 		symbols[3]= [ 0x61, 0x41, NoSymbol, NoSymbol, 0xe6, 0xc6, NoSymbol, NoSymbol ],
@@ -932,6 +746,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x73, 0x53 ],
 		symbols[2]= [ 0x6d9, 0x6f9 ],
 		symbols[3]= [ 0x73, 0x53, NoSymbol, NoSymbol, 0xdf, 0xa7, NoSymbol, NoSymbol ],
@@ -942,6 +757,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x64, 0x44 ],
 		symbols[2]= [ 0x6d7, 0x6f7 ],
 		symbols[3]= [ 0x64, 0x44, NoSymbol, NoSymbol, 0xf0, 0xd0, NoSymbol, NoSymbol ],
@@ -952,6 +768,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x66, 0x46 ],
 		symbols[2]= [ 0x6c1, 0x6e1 ],
 		symbols[3]= [ 0x66, 0x46, NoSymbol, NoSymbol, NoSymbol, 0xaa, NoSymbol, NoSymbol ],
@@ -962,6 +779,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x67, 0x47 ],
 		symbols[2]= [ 0x6d0, 0x6f0 ],
 		symbols[3]= [ 0x67, 0x47, NoSymbol, NoSymbol, 0x3bf, 0x3bd, NoSymbol, NoSymbol ],
@@ -972,6 +790,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x68, 0x48 ],
 		symbols[2]= [ 0x6d2, 0x6f2 ],
 		symbols[3]= [ 0x68, 0x48, NoSymbol, NoSymbol, 0x2b1, 0x2a1, NoSymbol, NoSymbol ],
@@ -982,78 +801,98 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x6a, 0x4a ],
 		symbols[2]= [ 0x6cf, 0x6ef ],
 		symbols[3]= [ 0x6a, 0x4a, NoSymbol, NoSymbol, 0x1000133, 0x1000132, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x6e, 0x4e, 0x28, 0x7ed, 0xffb4, 0xffb4, 0x1002115, NoSymbol ]
+		symbols[4]= [ 0x6e, 0x4e, 0x28, 0x7ed, 0xffb4, 0xffb4, 0x1002115, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=-1,y=+0),             MovePtr(x=-1,y=+0),                     NoAction(),                     NoAction() ]
 	};
 	key <AC08> {
 		type[1]= "ALPHABETIC",
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x6b, 0x4b ],
 		symbols[2]= [ 0x6cc, 0x6ec ],
 		symbols[3]= [ 0x6b, 0x4b, NoSymbol, NoSymbol, 0x3a2, NoSymbol, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x72, 0x52, 0x29, 0x7f1, 0xffb5, 0xffb5, 0x100211d, NoSymbol ]
+		symbols[4]= [ 0x72, 0x52, 0x29, 0x7f1, 0xffb5, 0xffb5, 0x100211d, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),         PtrBtn(button=default),         PtrBtn(button=default),                     NoAction(),                     NoAction() ]
 	};
 	key <AC09> {
 		type[1]= "ALPHABETIC",
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x6c, 0x4c ],
 		symbols[2]= [ 0x6c4, 0x6e4 ],
 		symbols[3]= [ 0x6c, 0x4c, NoSymbol, NoSymbol, 0x1000140, 0x100013f, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x74, 0x54, 0x2d, 0x7f4, 0xffb6, 0xffb6, 0x8ef, NoSymbol ]
+		symbols[4]= [ 0x74, 0x54, 0x2d, 0x7f4, 0xffb6, 0xffb6, 0x8ef, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+1,y=+0),             MovePtr(x=+1,y=+0),                     NoAction(),                     NoAction() ]
 	};
 	key <AC10> {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x3b, 0x3a ],
 		symbols[2]= [ 0x6d6, 0x6f6 ],
 		symbols[3]= [ 0x3b, 0x3a, 0xb0, NoSymbol, 0xfe51, 0xfe59, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x64, 0x44, 0x3a, 0x7e4, 0xffac, 0x2c, 0x7c4, NoSymbol ]
+		symbols[4]= [ 0x64, 0x44, 0x3a, 0x7e4, 0xffac, 0x2c, 0x7c4, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(), PtrBtn(button=default,count=2),                     NoAction(),                     NoAction(),                     NoAction() ]
 	};
 	key <AC11> {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x27, 0x22 ],
 		symbols[2]= [ 0x6dc, 0x6fc ],
 		symbols[3]= [ 0xe8, 0xc8, 0x7b, NoSymbol, NoSymbol, 0xfe5a, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x79, 0x59, 0x40, 0x7f5, 0x2e, 0xffae, 0x8c5, NoSymbol ]
+		symbols[4]= [ 0x79, 0x59, 0x40, 0x7f5, 0x2e, 0xffae, 0x8c5, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(), LockPtrBtn(button=default,affect=unlock),                     NoAction(),                     NoAction() ]
 	};
 	key <TLDE> {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x60, 0x7e ],
 		symbols[2]= [ 0x6a3, 0x6b3 ],
 		symbols[3]= [ 0x2f, 0x5c, 0x7c, NoSymbol, NoSymbol, 0xad, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0xfe52, 0xfe5a, 0x10021bb, 0x10002de, 0xfe56, 0xfef9, 0xfe60, NoSymbol ]
+		symbols[4]= [ 0xfe52, 0xfe5a, 0x10021bb, 0x10002de, 0xfe56, 0xfef9, 0xfe60, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(), LockControls(controls=MouseKeys),                     NoAction(),                     NoAction() ]
 	};
 	key <LFSH> {
 		type[4]= "TWO_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xffe1 ],
+		actions[1]= [       SetMods(modifiers=Shift) ],
 		symbols[2]= [ 0xffe1 ],
+		actions[2]= [       SetMods(modifiers=Shift) ],
 		symbols[3]= [ 0xffe1 ],
-		symbols[4]= [ 0xffe1, 0xffe5 ]
+		actions[3]= [       SetMods(modifiers=Shift) ],
+		symbols[4]= [ 0xffe1, 0xffe5 ],
+		actions[4]= [       SetMods(modifiers=Shift),       LockMods(modifiers=Lock) ]
 	};
 	key <BKSL> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "ONE_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x5c, 0x7c ],
 		symbols[2]= [ 0x5c, 0x2f ],
 		symbols[3]= [ 0xe0, 0xc0, 0x7d, NoSymbol, NoSymbol, 0xfe55, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0xfe03 ]
+		symbols[4]= [ 0xfe03 ],
+		actions[4]= [ SetMods(modifiers=LevelThree,clearLocks) ]
 	};
 	key <AB01> {
 		type[1]= "ALPHABETIC",
 		type[2]= "ALPHABETIC",
 		type[3]= "FOUR_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x7a, 0x5a ],
 		symbols[2]= [ 0x6d1, 0x6f1 ],
 		symbols[3]= [ 0x7a, 0x5a, 0xab, NoSymbol ],
@@ -1064,6 +903,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "FOUR_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x78, 0x58 ],
 		symbols[2]= [ 0x6de, 0x6fe ],
 		symbols[3]= [ 0x78, 0x58, 0xbb, NoSymbol ],
@@ -1074,6 +914,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x63, 0x43 ],
 		symbols[2]= [ 0x6d3, 0x6f3 ],
 		symbols[3]= [ 0x63, 0x43, NoSymbol, NoSymbol, 0xa2, 0xa9, NoSymbol, NoSymbol ],
@@ -1084,6 +925,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x76, 0x56 ],
 		symbols[2]= [ 0x6cd, 0x6ed ],
 		symbols[3]= [ 0x76, 0x56, NoSymbol, NoSymbol, 0xad2, 0xad0, NoSymbol, NoSymbol ],
@@ -1094,6 +936,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x62, 0x42 ],
 		symbols[2]= [ 0x6c9, 0x6e9 ],
 		symbols[3]= [ 0x62, 0x42, NoSymbol, NoSymbol, 0xad3, 0xad1, NoSymbol, NoSymbol ],
@@ -1104,6 +947,7 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x6e, 0x4e ],
 		symbols[2]= [ 0x6d4, 0x6f4 ],
 		symbols[3]= [ 0x6e, 0x4e, NoSymbol, NoSymbol, 0x1000149, 0x100266a, NoSymbol, NoSymbol ],
@@ -1114,32 +958,39 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x6d, 0x4d ],
 		symbols[2]= [ 0x6d8, 0x6f8 ],
 		symbols[3]= [ 0x6d, 0x4d, 0xb5, NoSymbol, 0xb5, 0xba, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x6d, 0x4d, 0x25, 0x7ec, 0xffb1, 0xffb1, 0x8cd, NoSymbol ]
+		symbols[4]= [ 0x6d, 0x4d, 0x25, 0x7ec, 0xffb1, 0xffb1, 0x8cd, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=-1,y=+1),             MovePtr(x=-1,y=+1),                     NoAction(),                     NoAction() ]
 	};
 	key <AB08> {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x2c, 0x3c ],
 		symbols[2]= [ 0x6c2, 0x6e2 ],
 		symbols[3]= [ 0x2c, 0x27, 0x3c, NoSymbol, 0x7af, 0xd7, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x2c, 0xaaa, 0x22, 0x10003f1, 0xffb2, 0xffb2, 0x10021d2, NoSymbol ]
+		symbols[4]= [ 0x2c, 0xaaa, 0x22, 0x10003f1, 0xffb2, 0xffb2, 0x10021d2, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+0,y=+1),             MovePtr(x=+0,y=+1),                     NoAction(),                     NoAction() ]
 	};
 	key <AB09> {
 		type[2]= "ALPHABETIC",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x2e, 0x3e ],
 		symbols[2]= [ 0x6c0, 0x6e0 ],
 		symbols[3]= [ 0x2e, 0x22, 0x3e, NoSymbol, 0xb7, 0xf7, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0x2e, 0xae6, 0x27, 0x10003d1, 0xffb3, 0xffb3, 0x10021a6, NoSymbol ]
+		symbols[4]= [ 0x2e, 0xae6, 0x27, 0x10003d1, 0xffb3, 0xffb3, 0x10021a6, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+1,y=+1),             MovePtr(x=+1,y=+1),                     NoAction(),                     NoAction() ]
 	};
 	key <AB10> {
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "EIGHT_LEVEL_SEMIALPHABETIC",
+		repeat= Yes,
 		symbols[1]= [ 0x2f, 0x3f ],
 		symbols[2]= [ 0x2e, 0x2c ],
 		symbols[3]= [ 0xe9, 0xc9, 0xfe51, NoSymbol, NoSymbol, 0xfe56, NoSymbol, NoSymbol ],
@@ -1147,208 +998,351 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	};
 	key <RTSH> {
 		type[4]= "TWO_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xffe2 ],
+		actions[1]= [ SetMods(modifiers=modMapMods,clearLocks) ],
 		symbols[2]= [ 0xffe2 ],
+		actions[2]= [ SetMods(modifiers=modMapMods,clearLocks) ],
 		symbols[3]= [ 0xffe2 ],
-		symbols[4]= [ 0xffe2, 0xffe5 ]
+		actions[3]= [ SetMods(modifiers=modMapMods,clearLocks) ],
+		symbols[4]= [ 0xffe2, 0xffe5 ],
+		actions[4]= [ SetMods(modifiers=modMapMods,clearLocks),       LockMods(modifiers=Lock) ]
 	};
 	key <KPMU> {
 		type[1]= "CTRL+ALT",
 		type[2]= "CTRL+ALT",
 		type[3]= "CTRL+ALT",
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xffaa, 0xffaa, 0xffaa, 0xffaa, 0x1008fe21 ],
+		actions[1]= [ SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2),                     NoAction() ],
 		symbols[2]= [ 0xffaa, 0xffaa, 0xffaa, 0xffaa, 0x1008fe21 ],
+		actions[2]= [ SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2),                     NoAction() ],
 		symbols[3]= [ 0xffaa, 0xffaa, 0xffaa, 0xffaa, 0x1008fe21 ],
-		symbols[4]= [ 0xffaa, 0xffaa, 0x1002219, 0x1002299, 0xd7, NoSymbol, 0x1002297, NoSymbol ]
+		actions[3]= [ SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2),                     NoAction() ],
+		symbols[4]= [ 0xffaa, 0xffaa, 0x1002219, 0x1002299, 0xd7, NoSymbol, 0x1002297, NoSymbol ],
+		actions[4]= [ SetPtrDflt(affect=button,button=2), SetPtrDflt(affect=button,button=2),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction() ]
 	};
-	key <LALT> {	[ 0xffe9, 0xffe7 ] };
+	key <LALT> {
+		repeat= No,
+		virtualMods= Alt+Meta,
+		symbols[1]= [ 0xffe9, 0xffe7 ],
+		actions[1]= [ SetMods(modifiers=modMapMods,clearLocks), SetMods(modifiers=modMapMods,clearLocks) ]
+	};
 	key <SPCE> {
 		type[3]= "FOUR_LEVEL",
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x20 ],
 		symbols[2]= [ 0x20 ],
 		symbols[3]= [ 0x20, 0x20, 0xa0, NoSymbol ],
-		symbols[4]= [ 0x20, 0x20, 0x20, 0xa0, 0xffb0, 0xffb0, 0x100202f, NoSymbol ]
+		symbols[4]= [ 0x20, 0x20, 0x20, 0xa0, 0xffb0, 0xffb0, 0x100202f, NoSymbol ],
+		actions[4]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(), LockPtrBtn(button=default,affect=lock), LockPtrBtn(button=default,affect=lock),                     NoAction(),                     NoAction() ]
 	};
 	key <CAPS> {
 		type= "ONE_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xffe5 ],
+		actions[1]= [       LockMods(modifiers=Lock) ],
 		symbols[2]= [ 0xffe5 ],
+		actions[2]= [       LockMods(modifiers=Lock) ],
 		symbols[3]= [ 0xffe5 ],
-		symbols[4]= [ 0xfe03 ]
+		actions[3]= [       LockMods(modifiers=Lock) ],
+		symbols[4]= [ 0xfe03 ],
+		actions[4]= [ SetMods(modifiers=LevelThree,clearLocks) ]
 	};
 	key <FK01> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffbe, 0xffbe, 0xffbe, 0xffbe, 0x1008fe01 ]
+		repeat= No,
+		symbols[1]= [ 0xffbe, 0xffbe, 0xffbe, 0xffbe, 0x1008fe01 ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),   SwitchScreen(screen=1,!same) ]
 	};
 	key <FK02> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffbf, 0xffbf, 0xffbf, 0xffbf, 0x1008fe02 ]
+		repeat= No,
+		symbols[1]= [ 0xffbf, 0xffbf, 0xffbf, 0xffbf, 0x1008fe02 ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),   SwitchScreen(screen=2,!same) ]
 	};
 	key <FK03> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc0, 0xffc0, 0xffc0, 0xffc0, 0x1008fe03 ]
+		repeat= No,
+		symbols[1]= [ 0xffc0, 0xffc0, 0xffc0, 0xffc0, 0x1008fe03 ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),   SwitchScreen(screen=3,!same) ]
 	};
 	key <FK04> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc1, 0xffc1, 0xffc1, 0xffc1, 0x1008fe04 ]
+		repeat= No,
+		symbols[1]= [ 0xffc1, 0xffc1, 0xffc1, 0xffc1, 0x1008fe04 ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),   SwitchScreen(screen=4,!same) ]
 	};
 	key <FK05> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc2, 0xffc2, 0xffc2, 0xffc2, 0x1008fe05 ]
+		repeat= No,
+		symbols[1]= [ 0xffc2, 0xffc2, 0xffc2, 0xffc2, 0x1008fe05 ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),   SwitchScreen(screen=5,!same) ]
 	};
 	key <FK06> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc3, 0xffc3, 0xffc3, 0xffc3, 0x1008fe06 ]
+		repeat= No,
+		symbols[1]= [ 0xffc3, 0xffc3, 0xffc3, 0xffc3, 0x1008fe06 ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),   SwitchScreen(screen=6,!same) ]
 	};
 	key <FK07> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc4, 0xffc4, 0xffc4, 0xffc4, 0x1008fe07 ]
+		repeat= No,
+		symbols[1]= [ 0xffc4, 0xffc4, 0xffc4, 0xffc4, 0x1008fe07 ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),   SwitchScreen(screen=7,!same) ]
 	};
 	key <FK08> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc5, 0xffc5, 0xffc5, 0xffc5, 0x1008fe08 ]
+		repeat= No,
+		symbols[1]= [ 0xffc5, 0xffc5, 0xffc5, 0xffc5, 0x1008fe08 ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),   SwitchScreen(screen=8,!same) ]
 	};
 	key <FK09> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc6, 0xffc6, 0xffc6, 0xffc6, 0x1008fe09 ]
+		repeat= No,
+		symbols[1]= [ 0xffc6, 0xffc6, 0xffc6, 0xffc6, 0x1008fe09 ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),   SwitchScreen(screen=9,!same) ]
 	};
 	key <FK10> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc7, 0xffc7, 0xffc7, 0xffc7, 0x1008fe0a ]
+		repeat= No,
+		symbols[1]= [ 0xffc7, 0xffc7, 0xffc7, 0xffc7, 0x1008fe0a ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),  SwitchScreen(screen=10,!same) ]
 	};
 	key <NMLK> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
+		virtualMods= NumLock,
 		symbols[1]= [ 0xff7f ],
+		actions[1]= [    LockMods(modifiers=NumLock) ],
 		symbols[2]= [ 0xff7f ],
+		actions[2]= [    LockMods(modifiers=NumLock) ],
 		symbols[3]= [ 0xff7f ],
-		symbols[4]= [ 0xff09, 0xfe20, 0x3d, 0x1002248, 0x8bd, 0xfef9, 0x8cf, NoSymbol ]
+		actions[3]= [    LockMods(modifiers=NumLock) ],
+		symbols[4]= [ 0xff09, 0xfe20, 0x3d, 0x1002248, 0x8bd, 0xfef9, 0x8cf, NoSymbol ],
+		actions[4]= [ SetMods(modifiers=modMapMods,clearLocks), SetMods(modifiers=modMapMods,clearLocks), SetMods(modifiers=modMapMods,clearLocks), SetMods(modifiers=modMapMods,clearLocks), SetMods(modifiers=modMapMods,clearLocks), LockControls(controls=MouseKeys), SetMods(modifiers=modMapMods,clearLocks),                     NoAction() ]
 	};
-	key <SCLK> {	[ 0xff14 ] };
+	key <SCLK> {
+		repeat= Yes,
+		symbols[1]= [ 0xff14 ]
+	};
 	key <KP7> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff95, 0xffb7 ],
+		actions[1]= [             MovePtr(x=-1,y=-1),             MovePtr(x=-1,y=-1) ],
 		symbols[2]= [ 0xff95, 0xffb7 ],
+		actions[2]= [             MovePtr(x=-1,y=-1),             MovePtr(x=-1,y=-1) ],
 		symbols[3]= [ 0xff95, 0xffb7 ],
-		symbols[4]= [ 0xffb7, 0x1002714, 0x1002195, 0x100226a, 0xff95, 0xff95, 0xbd3, NoSymbol ]
+		actions[3]= [             MovePtr(x=-1,y=-1),             MovePtr(x=-1,y=-1) ],
+		symbols[4]= [ 0xffb7, 0x1002714, 0x1002195, 0x100226a, 0xff95, 0xff95, 0xbd3, NoSymbol ],
+		actions[4]= [             MovePtr(x=-1,y=-1),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=-1,y=-1),             MovePtr(x=-1,y=-1),                     NoAction(),                     NoAction() ]
 	};
 	key <KP8> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff97, 0xffb8 ],
+		actions[1]= [             MovePtr(x=+0,y=-1),             MovePtr(x=+0,y=-1) ],
 		symbols[2]= [ 0xff97, 0xffb8 ],
+		actions[2]= [             MovePtr(x=+0,y=-1),             MovePtr(x=+0,y=-1) ],
 		symbols[3]= [ 0xff97, 0xffb8 ],
-		symbols[4]= [ 0xffb8, 0x1002718, 0x8fc, 0x8dc, 0xff97, 0xff97, 0x10022c2, NoSymbol ]
+		actions[3]= [             MovePtr(x=+0,y=-1),             MovePtr(x=+0,y=-1) ],
+		symbols[4]= [ 0xffb8, 0x1002718, 0x8fc, 0x8dc, 0xff97, 0xff97, 0x10022c2, NoSymbol ],
+		actions[4]= [             MovePtr(x=+0,y=-1),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+0,y=-1),             MovePtr(x=+0,y=-1),                     NoAction(),                     NoAction() ]
 	};
 	key <KP9> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff9a, 0xffb9 ],
+		actions[1]= [             MovePtr(x=+1,y=-1),             MovePtr(x=+1,y=-1) ],
 		symbols[2]= [ 0xff9a, 0xffb9 ],
+		actions[2]= [             MovePtr(x=+1,y=-1),             MovePtr(x=+1,y=-1) ],
 		symbols[3]= [ 0xff9a, 0xffb9 ],
-		symbols[4]= [ 0xffb9, 0xaf1, 0x10020d7, 0x100226b, 0xff9a, 0xff9a, 0x1002309, NoSymbol ]
+		actions[3]= [             MovePtr(x=+1,y=-1),             MovePtr(x=+1,y=-1) ],
+		symbols[4]= [ 0xffb9, 0xaf1, 0x10020d7, 0x100226b, 0xff9a, 0xff9a, 0x1002309, NoSymbol ],
+		actions[4]= [             MovePtr(x=+1,y=-1),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+1,y=-1),             MovePtr(x=+1,y=-1),                     NoAction(),                     NoAction() ]
 	};
 	key <KPSU> {
 		type[1]= "CTRL+ALT",
 		type[2]= "CTRL+ALT",
 		type[3]= "CTRL+ALT",
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xffad, 0xffad, 0xffad, 0xffad, 0x1008fe23 ],
+		actions[1]= [ SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3), Private(type=0x86,data[0]=0x2d,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00) ],
 		symbols[2]= [ 0xffad, 0xffad, 0xffad, 0xffad, 0x1008fe23 ],
+		actions[2]= [ SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3), Private(type=0x86,data[0]=0x2d,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00) ],
 		symbols[3]= [ 0xffad, 0xffad, 0xffad, 0xffad, 0x1008fe23 ],
-		symbols[4]= [ 0xffad, 0xffad, 0x1002212, 0x1002296, 0x1002216, NoSymbol, 0x1002238, NoSymbol ]
+		actions[3]= [ SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3), Private(type=0x86,data[0]=0x2d,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00) ],
+		symbols[4]= [ 0xffad, 0xffad, 0x1002212, 0x1002296, 0x1002216, NoSymbol, 0x1002238, NoSymbol ],
+		actions[4]= [ SetPtrDflt(affect=button,button=3), SetPtrDflt(affect=button,button=3),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction() ]
 	};
 	key <KP4> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff96, 0xffb4 ],
+		actions[1]= [             MovePtr(x=-1,y=+0),             MovePtr(x=-1,y=+0) ],
 		symbols[2]= [ 0xff96, 0xffb4 ],
+		actions[2]= [             MovePtr(x=-1,y=+0),             MovePtr(x=-1,y=+0) ],
 		symbols[3]= [ 0xff96, 0xffb4 ],
-		symbols[4]= [ 0xffb4, 0xaec, 0x8fb, 0x8da, 0xff96, 0xff96, 0x1002286, NoSymbol ]
+		actions[3]= [             MovePtr(x=-1,y=+0),             MovePtr(x=-1,y=+0) ],
+		symbols[4]= [ 0xffb4, 0xaec, 0x8fb, 0x8da, 0xff96, 0xff96, 0x1002286, NoSymbol ],
+		actions[4]= [             MovePtr(x=-1,y=+0),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=-1,y=+0),             MovePtr(x=-1,y=+0),                     NoAction(),                     NoAction() ]
 	};
 	key <KP5> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff9d, 0xffb5 ],
+		actions[1]= [         PtrBtn(button=default),         PtrBtn(button=default) ],
 		symbols[2]= [ 0xff9d, 0xffb5 ],
+		actions[2]= [         PtrBtn(button=default),         PtrBtn(button=default) ],
 		symbols[3]= [ 0xff9d, 0xffb5 ],
-		symbols[4]= [ 0xffb5, 0x20ac, 0x3a, 0x10022b6, 0xff9d, 0xff9d, 0x10022b7, NoSymbol ]
+		actions[3]= [         PtrBtn(button=default),         PtrBtn(button=default) ],
+		symbols[4]= [ 0xffb5, 0x20ac, 0x3a, 0x10022b6, 0xff9d, 0xff9d, 0x10022b7, NoSymbol ],
+		actions[4]= [         PtrBtn(button=default),                     NoAction(),                     NoAction(),                     NoAction(),         PtrBtn(button=default),         PtrBtn(button=default),                     NoAction(),                     NoAction() ]
 	};
 	key <KP6> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff98, 0xffb6 ],
+		actions[1]= [             MovePtr(x=+1,y=+0),             MovePtr(x=+1,y=+0) ],
 		symbols[2]= [ 0xff98, 0xffb6 ],
+		actions[2]= [             MovePtr(x=+1,y=+0),             MovePtr(x=+1,y=+0) ],
 		symbols[3]= [ 0xff98, 0xffb6 ],
-		symbols[4]= [ 0xffb6, 0x1002023, 0x8fd, 0x8db, 0xff98, 0xff98, 0x1002287, NoSymbol ]
+		actions[3]= [             MovePtr(x=+1,y=+0),             MovePtr(x=+1,y=+0) ],
+		symbols[4]= [ 0xffb6, 0x1002023, 0x8fd, 0x8db, 0xff98, 0xff98, 0x1002287, NoSymbol ],
+		actions[4]= [             MovePtr(x=+1,y=+0),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+1,y=+0),             MovePtr(x=+1,y=+0),                     NoAction(),                     NoAction() ]
 	};
 	key <KPAD> {
 		type[1]= "CTRL+ALT",
 		type[2]= "CTRL+ALT",
 		type[3]= "CTRL+ALT",
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xffab, 0xffab, 0xffab, 0xffab, 0x1008fe22 ],
+		actions[1]= [ PtrBtn(button=default,count=2), PtrBtn(button=default,count=2), PtrBtn(button=default,count=2), PtrBtn(button=default,count=2), Private(type=0x86,data[0]=0x2b,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00) ],
 		symbols[2]= [ 0xffab, 0xffab, 0xffab, 0xffab, 0x1008fe22 ],
+		actions[2]= [ PtrBtn(button=default,count=2), PtrBtn(button=default,count=2), PtrBtn(button=default,count=2), PtrBtn(button=default,count=2), Private(type=0x86,data[0]=0x2b,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00) ],
 		symbols[3]= [ 0xffab, 0xffab, 0xffab, 0xffab, 0x1008fe22 ],
-		symbols[4]= [ 0xffab, 0xffab, 0xb1, 0x1002295, 0x1002213, NoSymbol, 0x1002214, NoSymbol ]
+		actions[3]= [ PtrBtn(button=default,count=2), PtrBtn(button=default,count=2), PtrBtn(button=default,count=2), PtrBtn(button=default,count=2), Private(type=0x86,data[0]=0x2b,data[1]=0x56,data[2]=0x4d,data[3]=0x6f,data[4]=0x64,data[5]=0x65,data[6]=0x00) ],
+		symbols[4]= [ 0xffab, 0xffab, 0xb1, 0x1002295, 0x1002213, NoSymbol, 0x1002214, NoSymbol ],
+		actions[4]= [ PtrBtn(button=default,count=2), PtrBtn(button=default,count=2),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction() ]
 	};
 	key <KP1> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff9c, 0xffb1 ],
+		actions[1]= [             MovePtr(x=-1,y=+1),             MovePtr(x=-1,y=+1) ],
 		symbols[2]= [ 0xff9c, 0xffb1 ],
+		actions[2]= [             MovePtr(x=-1,y=+1),             MovePtr(x=-1,y=+1) ],
 		symbols[3]= [ 0xff9c, 0xffb1 ],
-		symbols[4]= [ 0xffb1, 0xaed, 0x1002194, 0x8bc, 0xff9c, 0xff9c, 0xbc4, NoSymbol ]
+		actions[3]= [             MovePtr(x=-1,y=+1),             MovePtr(x=-1,y=+1) ],
+		symbols[4]= [ 0xffb1, 0xaed, 0x1002194, 0x8bc, 0xff9c, 0xff9c, 0xbc4, NoSymbol ],
+		actions[4]= [             MovePtr(x=-1,y=+1),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=-1,y=+1),             MovePtr(x=-1,y=+1),                     NoAction(),                     NoAction() ]
 	};
 	key <KP2> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff99, 0xffb2 ],
+		actions[1]= [             MovePtr(x=+0,y=+1),             MovePtr(x=+0,y=+1) ],
 		symbols[2]= [ 0xff99, 0xffb2 ],
+		actions[2]= [             MovePtr(x=+0,y=+1),             MovePtr(x=+0,y=+1) ],
 		symbols[3]= [ 0xff99, 0xffb2 ],
-		symbols[4]= [ 0xffb2, 0xaee, 0x8fe, 0x8dd, 0xff99, 0xff99, 0x10022c3, NoSymbol ]
+		actions[3]= [             MovePtr(x=+0,y=+1),             MovePtr(x=+0,y=+1) ],
+		symbols[4]= [ 0xffb2, 0xaee, 0x8fe, 0x8dd, 0xff99, 0xff99, 0x10022c3, NoSymbol ],
+		actions[4]= [             MovePtr(x=+0,y=+1),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+0,y=+1),             MovePtr(x=+0,y=+1),                     NoAction(),                     NoAction() ]
 	};
 	key <KP3> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff9b, 0xffb3 ],
+		actions[1]= [             MovePtr(x=+1,y=+1),             MovePtr(x=+1,y=+1) ],
 		symbols[2]= [ 0xff9b, 0xffb3 ],
+		actions[2]= [             MovePtr(x=+1,y=+1),             MovePtr(x=+1,y=+1) ],
 		symbols[3]= [ 0xff9b, 0xffb3 ],
-		symbols[4]= [ 0xffb3, 0x1002660, 0x10021cc, 0x8be, 0xff9b, 0xff9b, 0x100230b, NoSymbol ]
+		actions[3]= [             MovePtr(x=+1,y=+1),             MovePtr(x=+1,y=+1) ],
+		symbols[4]= [ 0xffb3, 0x1002660, 0x10021cc, 0x8be, 0xff9b, 0xff9b, 0x100230b, NoSymbol ],
+		actions[4]= [             MovePtr(x=+1,y=+1),                     NoAction(),                     NoAction(),                     NoAction(),             MovePtr(x=+1,y=+1),             MovePtr(x=+1,y=+1),                     NoAction(),                     NoAction() ]
 	};
 	key <KP0> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff9e, 0xffb0 ],
+		actions[1]= [ LockPtrBtn(button=default,affect=lock), LockPtrBtn(button=default,affect=lock) ],
 		symbols[2]= [ 0xff9e, 0xffb0 ],
+		actions[2]= [ LockPtrBtn(button=default,affect=lock), LockPtrBtn(button=default,affect=lock) ],
 		symbols[3]= [ 0xff9e, 0xffb0 ],
-		symbols[4]= [ 0xffb0, 0x1002423, 0x25, 0x1002030, 0xff9e, 0xff9e, 0x10025a1, NoSymbol ]
+		actions[3]= [ LockPtrBtn(button=default,affect=lock), LockPtrBtn(button=default,affect=lock) ],
+		symbols[4]= [ 0xffb0, 0x1002423, 0x25, 0x1002030, 0xff9e, 0xff9e, 0x10025a1, NoSymbol ],
+		actions[4]= [ LockPtrBtn(button=default,affect=lock),                     NoAction(),                     NoAction(),                     NoAction(), LockPtrBtn(button=default,affect=lock), LockPtrBtn(button=default,affect=lock),                     NoAction(),                     NoAction() ]
 	};
 	key <KPDL> {
 		type[2]= "KEYPAD",
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xff9f, 0xffae ],
+		actions[1]= [ LockPtrBtn(button=default,affect=unlock), LockPtrBtn(button=default,affect=unlock) ],
 		symbols[2]= [ 0xff9f, 0xffac ],
+		actions[2]= [ LockPtrBtn(button=default,affect=unlock), PtrBtn(button=default,count=2) ],
 		symbols[3]= [ 0xff9f, 0xffae ],
-		symbols[4]= [ 0xffac, 0x2e, 0x2c, 0xad6, 0xff9f, 0xff9f, 0xad7, NoSymbol ]
+		actions[3]= [ LockPtrBtn(button=default,affect=unlock), LockPtrBtn(button=default,affect=unlock) ],
+		symbols[4]= [ 0xffac, 0x2e, 0x2c, 0xad6, 0xff9f, 0xff9f, 0xad7, NoSymbol ],
+		actions[4]= [ PtrBtn(button=default,count=2),                     NoAction(),                     NoAction(),                     NoAction(), LockPtrBtn(button=default,affect=unlock), LockPtrBtn(button=default,affect=unlock),                     NoAction(),                     NoAction() ]
 	};
-	key <LVL3> {	[ 0xfe03 ] };
+	key <LVL3> {
+		repeat= No,
+		virtualMods= LevelThree,
+		symbols[1]= [ 0xfe03 ],
+		actions[1]= [ SetMods(modifiers=LevelThree,clearLocks) ]
+	};
 	key <LSGT> {
 		type[1]= "FOUR_LEVEL",
 		type[3]= "EIGHT_LEVEL_SEMIALPHABETIC",
 		type[4]= "ONE_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0x3c, 0x3e, 0x7c, 0xa6 ],
 		symbols[2]= [ 0x2f, 0x7c ],
 		symbols[3]= [ 0xf9, 0xd9, 0xb0, NoSymbol, NoSymbol, 0xa6, NoSymbol, NoSymbol ],
-		symbols[4]= [ 0xfe11 ]
+		symbols[4]= [ 0xfe11 ],
+		actions[4]= [ SetMods(modifiers=LevelFive,clearLocks) ]
 	};
 	key <FK11> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc8, 0xffc8, 0xffc8, 0xffc8, 0x1008fe0b ]
+		repeat= No,
+		symbols[1]= [ 0xffc8, 0xffc8, 0xffc8, 0xffc8, 0x1008fe0b ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),  SwitchScreen(screen=11,!same) ]
 	};
 	key <FK12> {
 		type= "CTRL+ALT",
-		symbols[1]= [ 0xffc9, 0xffc9, 0xffc9, 0xffc9, 0x1008fe0c ]
+		repeat= No,
+		symbols[1]= [ 0xffc9, 0xffc9, 0xffc9, 0xffc9, 0x1008fe0c ],
+		actions[1]= [                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),  SwitchScreen(screen=12,!same) ]
 	};
-	key <KATA> {	[ 0xff26 ] };
-	key <HIRA> {	[ 0xff25 ] };
-	key <HENK> {	[ 0xff23 ] };
-	key <HKTG> {	[ 0xff27 ] };
-	key <MUHE> {	[ 0xff22 ] };
+	key <KATA> {
+		repeat= Yes,
+		symbols[1]= [ 0xff26 ]
+	};
+	key <HIRA> {
+		repeat= Yes,
+		symbols[1]= [ 0xff25 ]
+	};
+	key <HENK> {
+		repeat= Yes,
+		symbols[1]= [ 0xff23 ]
+	};
+	key <HKTG> {
+		repeat= Yes,
+		symbols[1]= [ 0xff27 ]
+	};
+	key <MUHE> {
+		repeat= Yes,
+		symbols[1]= [ 0xff22 ]
+	};
 	key <KPEN> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0xff8d ],
 		symbols[2]= [ 0xff8d ],
 		symbols[3]= [ 0xff8d ],
@@ -1356,22 +1350,32 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 	};
 	key <RCTL> {
 		type= "ONE_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xffe4 ],
+		actions[1]= [ SetMods(modifiers=modMapMods,clearLocks) ],
 		symbols[2]= [ 0xffe4 ],
-		symbols[3]= [ 0xfe11 ]
+		actions[2]= [ SetMods(modifiers=modMapMods,clearLocks) ],
+		symbols[3]= [ 0xfe11 ],
+		actions[3]= [ SetMods(modifiers=LevelFive,clearLocks) ]
 	};
 	key <KPDV> {
 		type[1]= "CTRL+ALT",
 		type[2]= "CTRL+ALT",
 		type[3]= "CTRL+ALT",
 		type[4]= "EIGHT_LEVEL",
+		repeat= No,
 		symbols[1]= [ 0xffaf, 0xffaf, 0xffaf, 0xffaf, 0x1008fe20 ],
+		actions[1]= [ SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1),                     NoAction() ],
 		symbols[2]= [ 0xffaf, 0xffaf, 0xffaf, 0xffaf, 0x1008fe20 ],
+		actions[2]= [ SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1),                     NoAction() ],
 		symbols[3]= [ 0xffaf, 0xffaf, 0xffaf, 0xffaf, 0x1008fe20 ],
-		symbols[4]= [ 0xffaf, 0xffaf, 0xf7, 0x1002300, 0x1002215, NoSymbol, 0x1002223, NoSymbol ]
+		actions[3]= [ SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1),                     NoAction() ],
+		symbols[4]= [ 0xffaf, 0xffaf, 0xf7, 0x1002300, 0x1002215, NoSymbol, 0x1002223, NoSymbol ],
+		actions[4]= [ SetPtrDflt(affect=button,button=1), SetPtrDflt(affect=button,button=1),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction(),                     NoAction() ]
 	};
 	key <PRSC> {
 		type= "PC_ALT_LEVEL2",
+		repeat= Yes,
 		symbols[1]= [ 0xff61, 0xff15 ]
 	};
 	key <RALT> {
@@ -1379,141 +1383,518 @@ xkb_symbols "pc_us_ru_2_ca(multix)_3_de(neo)_4_inet(evdev)" {
 		type[2]= "TWO_LEVEL",
 		type[3]= "ONE_LEVEL",
 		type[4]= "ONE_LEVEL",
+		repeat= No,
+		virtualMods= Alt+Meta,
 		symbols[1]= [ 0xffea, 0xffe8 ],
+		actions[1]= [ SetMods(modifiers=modMapMods,clearLocks), SetMods(modifiers=modMapMods,clearLocks) ],
 		symbols[2]= [ 0xffea, 0xffe8 ],
+		actions[2]= [ SetMods(modifiers=modMapMods,clearLocks), SetMods(modifiers=modMapMods,clearLocks) ],
 		symbols[3]= [ 0xfe03 ],
-		symbols[4]= [ 0xfe11 ]
+		actions[3]= [ SetMods(modifiers=LevelThree,clearLocks) ],
+		symbols[4]= [ 0xfe11 ],
+		actions[4]= [ SetMods(modifiers=LevelFive,clearLocks) ]
 	};
-	key <LNFD> {	[ 0xff0a ] };
-	key <HOME> {	[ 0xff50 ] };
-	key <UP> {	[ 0xff52 ] };
-	key <PGUP> {	[ 0xff55 ] };
-	key <LEFT> {	[ 0xff51 ] };
-	key <RGHT> {	[ 0xff53 ] };
-	key <END> {	[ 0xff57 ] };
-	key <DOWN> {	[ 0xff54 ] };
-	key <PGDN> {	[ 0xff56 ] };
-	key <INS> {	[ 0xff63 ] };
-	key <DELE> {	[ 0xffff ] };
-	key <MUTE> {	[ 0x1008ff12 ] };
-	key <VOL-> {	[ 0x1008ff11 ] };
-	key <VOL+> {	[ 0x1008ff13 ] };
-	key <POWR> {	[ 0x1008ff2a ] };
+	key <LNFD> {
+		repeat= Yes,
+		symbols[1]= [ 0xff0a ]
+	};
+	key <HOME> {
+		repeat= Yes,
+		symbols[1]= [ 0xff50 ]
+	};
+	key <UP> {
+		repeat= Yes,
+		symbols[1]= [ 0xff52 ]
+	};
+	key <PGUP> {
+		repeat= Yes,
+		symbols[1]= [ 0xff55 ]
+	};
+	key <LEFT> {
+		repeat= Yes,
+		symbols[1]= [ 0xff51 ]
+	};
+	key <RGHT> {
+		repeat= Yes,
+		symbols[1]= [ 0xff53 ]
+	};
+	key <END> {
+		repeat= Yes,
+		symbols[1]= [ 0xff57 ]
+	};
+	key <DOWN> {
+		repeat= Yes,
+		symbols[1]= [ 0xff54 ]
+	};
+	key <PGDN> {
+		repeat= Yes,
+		symbols[1]= [ 0xff56 ]
+	};
+	key <INS> {
+		repeat= Yes,
+		symbols[1]= [ 0xff63 ]
+	};
+	key <DELE> {
+		repeat= Yes,
+		symbols[1]= [ 0xffff ]
+	};
+	key <MUTE> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff12 ]
+	};
+	key <VOL-> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff11 ]
+	};
+	key <VOL+> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff13 ]
+	};
+	key <POWR> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff2a ]
+	};
 	key <KPEQ> {
 		type[4]= "EIGHT_LEVEL",
+		repeat= Yes,
 		symbols[1]= [ 0xffbd ],
 		symbols[2]= [ 0xffbd ],
 		symbols[3]= [ 0xffbd ],
 		symbols[4]= [ 0xffbd, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol, NoSymbol ]
 	};
-	key <I126> {	[ 0xb1 ] };
+	key <I126> {
+		repeat= Yes,
+		symbols[1]= [ 0xb1 ]
+	};
 	key <PAUS> {
 		type= "PC_CONTROL_LEVEL2",
+		repeat= Yes,
 		symbols[1]= [ 0xff13, 0xff6b ]
 	};
-	key <I128> {	[ 0x1008ff4a ] };
-	key <I129> {	[ 0xffae, 0xffae ] };
-	key <HNGL> {	[ 0xff31 ] };
-	key <HJCV> {	[ 0xff34 ] };
-	key <LWIN> {	[ 0xffeb ] };
-	key <RWIN> {	[ 0xffec ] };
-	key <COMP> {	[ 0xff67 ] };
-	key <STOP> {	[ 0xff69 ] };
-	key <AGAI> {	[ 0xff66 ] };
-	key <PROP> {	[ 0x1005ff70 ] };
-	key <UNDO> {	[ 0xff65 ] };
-	key <FRNT> {	[ 0x1005ff71 ] };
-	key <COPY> {	[ 0x1008ff57 ] };
-	key <OPEN> {	[ 0x1005ff73 ] };
-	key <PAST> {	[ 0x1008ff6d ] };
-	key <FIND> {	[ 0xff68 ] };
-	key <CUT> {	[ 0x1008ff58 ] };
-	key <HELP> {	[ 0xff6a ] };
-	key <I147> {	[ 0x1008ff65 ] };
-	key <I148> {	[ 0x1008ff1d ] };
-	key <I150> {	[ 0x1008ff2f ] };
-	key <I151> {	[ 0x1008ff2b ] };
-	key <I152> {	[ 0x1008ff5d ] };
-	key <I153> {	[ 0x1008ff7b ] };
-	key <I155> {	[ 0x1008ff8a ] };
-	key <I156> {	[ 0x1008ff41 ] };
-	key <I157> {	[ 0x1008ff42 ] };
-	key <I158> {	[ 0x1008ff2e ] };
-	key <I159> {	[ 0x1008ff5a ] };
-	key <I160> {	[ 0x1008ff2d ] };
-	key <I162> {	[ 0x1008ff74 ] };
-	key <I163> {	[ 0x1008ff19 ] };
-	key <I164> {	[ 0x1008ff30 ] };
-	key <I165> {	[ 0x1008ff33 ] };
-	key <I166> {	[ 0x1008ff26 ] };
-	key <I167> {	[ 0x1008ff27 ] };
-	key <I169> {	[ 0x1008ff2c ] };
-	key <I170> {	[ 0x1008ff2c, 0x1008ff2c ] };
-	key <I171> {	[ 0x1008ff17 ] };
-	key <I172> {	[ 0x1008ff14, 0x1008ff31 ] };
-	key <I173> {	[ 0x1008ff16 ] };
-	key <I174> {	[ 0x1008ff15, 0x1008ff2c ] };
-	key <I175> {	[ 0x1008ff1c ] };
-	key <I176> {	[ 0x1008ff3e ] };
-	key <I177> {	[ 0x1008ff6e ] };
-	key <I179> {	[ 0x1008ff81 ] };
-	key <I180> {	[ 0x1008ff18 ] };
-	key <I181> {	[ 0x1008ff73 ] };
-	key <I182> {	[ 0x1008ff56 ] };
-	key <I185> {	[ 0x1008ff78 ] };
-	key <I186> {	[ 0x1008ff79 ] };
-	key <I187> {	[ 0x28 ] };
-	key <I188> {	[ 0x29 ] };
-	key <I189> {	[ 0x1008ff68 ] };
-	key <I190> {	[ 0xff66 ] };
-	key <FK13> {	[ 0x1008ff81 ] };
-	key <FK14> {	[ 0x1008ff45 ] };
-	key <FK15> {	[ 0x1008ff46 ] };
-	key <FK16> {	[ 0x1008ff47 ] };
-	key <FK17> {	[ 0x1008ff48 ] };
-	key <FK18> {	[ 0x1008ff49 ] };
-	key <FK21> {	[ 0x1008ffa9 ] };
-	key <FK22> {	[ 0x1008ffb0 ] };
-	key <FK23> {	[ 0x1008ffb1 ] };
-	key <MDSW> {	[ 0xff7e ] };
-	key <ALT> {	[ NoSymbol, 0xffe9 ] };
-	key <META> {	[ NoSymbol, 0xffe7 ] };
-	key <SUPR> {	[ NoSymbol, 0xffeb ] };
-	key <HYPR> {	[ NoSymbol, 0xffed ] };
-	key <I208> {	[ 0x1008ff14 ] };
-	key <I209> {	[ 0x1008ff31 ] };
-	key <I210> {	[ 0x1008ff43 ] };
-	key <I211> {	[ 0x1008ff44 ] };
-	key <I212> {	[ 0x1008ff4b ] };
-	key <I213> {	[ 0x1008ffa7 ] };
-	key <I214> {	[ 0x1008ff56 ] };
-	key <I215> {	[ 0x1008ff14 ] };
-	key <I216> {	[ 0x1008ff97 ] };
-	key <I218> {	[ 0xff61 ] };
-	key <I220> {	[ 0x1008ff8f ] };
-	key <I223> {	[ 0x1008ff19 ] };
-	key <I224> {	[ 0x1008ff8e ] };
-	key <I225> {	[ 0x1008ff1b ] };
-	key <I226> {	[ 0x1008ff5f ] };
-	key <I227> {	[ 0x1008ff3c ] };
-	key <I228> {	[ 0x1008ff5e ] };
-	key <I229> {	[ 0x1008ff36 ] };
-	key <I231> {	[ 0xff69 ] };
-	key <I232> {	[ 0x1008ff03 ] };
-	key <I233> {	[ 0x1008ff02 ] };
-	key <I234> {	[ 0x1008ff32 ] };
-	key <I235> {	[ 0x1008ff59 ] };
-	key <I236> {	[ 0x1008ff04 ] };
-	key <I237> {	[ 0x1008ff06 ] };
-	key <I238> {	[ 0x1008ff05 ] };
-	key <I239> {	[ 0x1008ff7b ] };
-	key <I240> {	[ 0x1008ff72 ] };
-	key <I241> {	[ 0x1008ff90 ] };
-	key <I242> {	[ 0x1008ff77 ] };
-	key <I243> {	[ 0x1008ff5b ] };
-	key <I244> {	[ 0x1008ff93 ] };
-	key <I245> {	[ 0x1008ff94 ] };
-	key <I246> {	[ 0x1008ff95 ] };
+	key <I128> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff4a ]
+	};
+	key <I129> {
+		repeat= Yes,
+		symbols[1]= [ 0xffae, 0xffae ]
+	};
+	key <HNGL> {
+		repeat= Yes,
+		symbols[1]= [ 0xff31 ]
+	};
+	key <HJCV> {
+		repeat= Yes,
+		symbols[1]= [ 0xff34 ]
+	};
+	key <LWIN> {
+		repeat= No,
+		virtualMods= Super,
+		symbols[1]= [ 0xffeb ],
+		actions[1]= [ SetMods(modifiers=modMapMods,clearLocks) ]
+	};
+	key <RWIN> {
+		repeat= No,
+		virtualMods= Super,
+		symbols[1]= [ 0xffec ],
+		actions[1]= [ SetMods(modifiers=modMapMods,clearLocks) ]
+	};
+	key <COMP> {
+		repeat= Yes,
+		symbols[1]= [ 0xff67 ]
+	};
+	key <STOP> {
+		repeat= Yes,
+		symbols[1]= [ 0xff69 ]
+	};
+	key <AGAI> {
+		repeat= Yes,
+		symbols[1]= [ 0xff66 ]
+	};
+	key <PROP> {
+		repeat= Yes,
+		symbols[1]= [ 0x1005ff70 ]
+	};
+	key <UNDO> {
+		repeat= Yes,
+		symbols[1]= [ 0xff65 ]
+	};
+	key <FRNT> {
+		repeat= Yes,
+		symbols[1]= [ 0x1005ff71 ]
+	};
+	key <COPY> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff57 ]
+	};
+	key <OPEN> {
+		repeat= Yes,
+		symbols[1]= [ 0x1005ff73 ]
+	};
+	key <PAST> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff6d ]
+	};
+	key <FIND> {
+		repeat= Yes,
+		symbols[1]= [ 0xff68 ]
+	};
+	key <CUT> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff58 ]
+	};
+	key <HELP> {
+		repeat= Yes,
+		symbols[1]= [ 0xff6a ]
+	};
+	key <I147> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff65 ]
+	};
+	key <I148> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff1d ]
+	};
+	key <I150> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff2f ]
+	};
+	key <I151> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff2b ]
+	};
+	key <I152> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff5d ]
+	};
+	key <I153> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff7b ]
+	};
+	key <I155> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff8a ]
+	};
+	key <I156> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff41 ]
+	};
+	key <I157> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff42 ]
+	};
+	key <I158> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff2e ]
+	};
+	key <I159> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff5a ]
+	};
+	key <I160> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff2d ]
+	};
+	key <I162> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff74 ]
+	};
+	key <I163> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff19 ]
+	};
+	key <I164> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff30 ]
+	};
+	key <I165> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff33 ]
+	};
+	key <I166> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff26 ]
+	};
+	key <I167> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff27 ]
+	};
+	key <I169> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff2c ]
+	};
+	key <I170> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff2c, 0x1008ff2c ]
+	};
+	key <I171> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff17 ]
+	};
+	key <I172> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff14, 0x1008ff31 ]
+	};
+	key <I173> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff16 ]
+	};
+	key <I174> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff15, 0x1008ff2c ]
+	};
+	key <I175> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff1c ]
+	};
+	key <I176> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff3e ]
+	};
+	key <I177> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff6e ]
+	};
+	key <I179> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff81 ]
+	};
+	key <I180> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff18 ]
+	};
+	key <I181> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff73 ]
+	};
+	key <I182> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff56 ]
+	};
+	key <I185> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff78 ]
+	};
+	key <I186> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff79 ]
+	};
+	key <I187> {
+		repeat= Yes,
+		symbols[1]= [ 0x28 ]
+	};
+	key <I188> {
+		repeat= Yes,
+		symbols[1]= [ 0x29 ]
+	};
+	key <I189> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff68 ]
+	};
+	key <I190> {
+		repeat= Yes,
+		symbols[1]= [ 0xff66 ]
+	};
+	key <FK13> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff81 ]
+	};
+	key <FK14> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff45 ]
+	};
+	key <FK15> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff46 ]
+	};
+	key <FK16> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff47 ]
+	};
+	key <FK17> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff48 ]
+	};
+	key <FK18> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff49 ]
+	};
+	key <FK21> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ffa9 ]
+	};
+	key <FK22> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ffb0 ]
+	};
+	key <FK23> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ffb1 ]
+	};
+	key <MDSW> {
+		repeat= No,
+		virtualMods= AltGr,
+		symbols[1]= [ 0xff7e ],
+		actions[1]= [             SetGroup(group=+1) ]
+	};
+	key <ALT> {
+		repeat= No,
+		symbols[1]= [ NoSymbol, 0xffe9 ]
+	};
+	key <META> {
+		repeat= No,
+		virtualMods= Meta,
+		symbols[1]= [ NoSymbol, 0xffe7 ],
+		actions[1]= [                     NoAction(), SetMods(modifiers=modMapMods,clearLocks) ]
+	};
+	key <SUPR> {
+		repeat= No,
+		virtualMods= Super,
+		symbols[1]= [ NoSymbol, 0xffeb ],
+		actions[1]= [                     NoAction(), SetMods(modifiers=modMapMods,clearLocks) ]
+	};
+	key <HYPR> {
+		repeat= No,
+		virtualMods= Hyper,
+		symbols[1]= [ NoSymbol, 0xffed ],
+		actions[1]= [                     NoAction(), SetMods(modifiers=modMapMods,clearLocks) ]
+	};
+	key <I208> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff14 ]
+	};
+	key <I209> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff31 ]
+	};
+	key <I210> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff43 ]
+	};
+	key <I211> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff44 ]
+	};
+	key <I212> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff4b ]
+	};
+	key <I213> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ffa7 ]
+	};
+	key <I214> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff56 ]
+	};
+	key <I215> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff14 ]
+	};
+	key <I216> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff97 ]
+	};
+	key <I218> {
+		repeat= Yes,
+		symbols[1]= [ 0xff61 ]
+	};
+	key <I220> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff8f ]
+	};
+	key <I223> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff19 ]
+	};
+	key <I224> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff8e ]
+	};
+	key <I225> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff1b ]
+	};
+	key <I226> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff5f ]
+	};
+	key <I227> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff3c ]
+	};
+	key <I228> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff5e ]
+	};
+	key <I229> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff36 ]
+	};
+	key <I231> {
+		repeat= Yes,
+		symbols[1]= [ 0xff69 ]
+	};
+	key <I232> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff03 ]
+	};
+	key <I233> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff02 ]
+	};
+	key <I234> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff32 ]
+	};
+	key <I235> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff59 ]
+	};
+	key <I236> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff04 ]
+	};
+	key <I237> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff06 ]
+	};
+	key <I238> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff05 ]
+	};
+	key <I239> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff7b ]
+	};
+	key <I240> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff72 ]
+	};
+	key <I241> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff90 ]
+	};
+	key <I242> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff77 ]
+	};
+	key <I243> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff5b ]
+	};
+	key <I244> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff93 ]
+	};
+	key <I245> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff94 ]
+	};
+	key <I246> {
+		repeat= Yes,
+		symbols[1]= [ 0x1008ff95 ]
+	};
 	modifier_map Shift { <LFSH>, <RTSH> };
 	modifier_map Lock { <CAPS> };
 	modifier_map Control { <LCTL> };
