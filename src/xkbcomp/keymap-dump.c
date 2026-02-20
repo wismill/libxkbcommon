@@ -870,7 +870,8 @@ static const union xkb_action void_actions[] = {
 
 static bool
 write_actions(struct xkb_keymap *keymap, enum xkb_keymap_format format,
-              xkb_layout_index_t max_groups, struct buf *buf, struct buf *buf2,
+              xkb_layout_index_t max_groups, bool pretty,
+              struct buf *buf, struct buf *buf2,
               const struct xkb_key *key, xkb_layout_index_t group)
 {
     static const union xkb_action noAction = { .type = ACTION_TYPE_NONE };
@@ -898,38 +899,44 @@ write_actions(struct xkb_keymap *keymap, enum xkb_keymap_format format,
         buf2->size = 0;
         if (count == 0) {
             if (!write_action(keymap, format, max_groups,
-                              buf2, &noAction, NULL, NULL))
+                              (pretty ? buf2 : buf), &noAction, NULL, NULL))
                 return false;
-            write_buf(buf, "%*s", ACTION_PADDING, buf2->buf);
+            if (pretty)
+                write_buf(buf, "%*s", ACTION_PADDING, buf2->buf);
         }
         else if (count == 1) {
             if (!write_action(keymap, format, max_groups,
-                              buf2, &(actions[0]), NULL, NULL))
+                              (pretty ? buf2 : buf), &(actions[0]), NULL, NULL))
                 return false;
-            write_buf(buf, "%*s", ACTION_PADDING, buf2->buf);
+            if (pretty)
+                write_buf(buf, "%*s", ACTION_PADDING, buf2->buf);
         }
         else {
-            copy_to_buf(buf2, "{ ");
+            struct buf * const buf3 = (pretty) ? buf2 : buf;
+            copy_to_buf(buf3, "{ ");
             for (xkb_action_count_t k = 0; k < count; k++) {
                 if (k != 0)
-                    copy_to_buf(buf2, ", ");
-                size_t old_size = buf2->size;
+                    copy_to_buf(buf3, ", ");
+                const size_t old_size = buf2->size;
                 if (!write_action(keymap, format, max_groups,
-                                  buf2, &(actions[k]), NULL, NULL))
+                                  buf3, &(actions[k]), NULL, NULL))
                     return false;
-                /* Check if padding is necessary */
-                if (buf2->size >= old_size + ACTION_PADDING)
-                    continue;
-                /* Compute and write padding, then write the action again */
-                const int padding = (int)(old_size + ACTION_PADDING - buf2->size);
-                buf2->size = old_size;
-                write_buf(buf2, "%*s", padding, "");
+                if (pretty) {
+                    /* Check if padding is necessary */
+                    if (buf2->size >= old_size + ACTION_PADDING)
+                        continue; // FIXME: error handling
+                    /* Compute and write padding, then write the action again */
+                    const int padding = (int)(old_size + ACTION_PADDING - buf2->size);
+                    buf2->size = old_size;
+                    write_buf(buf2, "%*s", padding, "");
+                }
                 if (!write_action(keymap, format, max_groups,
-                                  buf2, &(actions[k]), NULL, NULL))
+                                  buf3, &(actions[k]), NULL, NULL))
                     return false;
             }
-            copy_to_buf(buf2, " }");
-            write_buf(buf, "%*s", ACTION_PADDING, buf2->buf);
+            copy_to_buf(buf3, " }");
+            if (pretty)
+                write_buf(buf, "%*s", ACTION_PADDING, buf2->buf);
         }
     }
 
@@ -1317,7 +1324,7 @@ write_key(struct xkb_keymap *keymap, enum xkb_keymap_format format,
             copy_to_buf(buf, " ]");
             if (print_actions) {
                 write_buf(buf, ",\n\t\tactions[%"PRIu32"]= [ ", group + 1);
-                if (!write_actions(keymap, format, max_groups,
+                if (!write_actions(keymap, format, max_groups, pretty,
                                    buf, buf2, key, group))
                     return false;
                 copy_to_buf(buf, " ]");
