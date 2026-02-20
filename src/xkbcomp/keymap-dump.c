@@ -956,7 +956,8 @@ write_compat(struct xkb_keymap * restrict keymap,
     const bool pretty = !!(flags & XKB_KEYMAP_SERIALIZE_PRETTY);
     const bool drop_unused = !(flags & XKB_KEYMAP_SERIALIZE_KEEP_UNUSED);
     const bool drop_interprets =
-        !(flags & XKB_KEYMAP_SERIALIZE_KEEP_INTERPRETS);
+        !(flags & XKB_KEYMAP_SERIALIZE_KEEP_INTERPRETS) ||
+        ((flags & XKB_KEYMAP_SERIALIZE_EXPLICIT) && drop_unused);
 
     if (keymap->compat_section_name)
         write_buf(buf, "xkb_compatibility \"%s\" {\n",
@@ -1148,10 +1149,11 @@ static bool
 write_key(struct xkb_keymap *keymap, enum xkb_keymap_format format,
           const key_name_substitutions *substitutions,
           xkb_layout_index_t max_groups, bool some_interprets,
-          bool drop_interprets, bool pretty,
+          bool drop_interprets, bool explicit, bool pretty,
           struct buf *buf, struct buf *buf2, const struct xkb_key *key)
 {
     bool simple = true;
+
     const xkb_layout_index_t num_groups = MIN(key->num_groups, max_groups);
 
     const xkb_atom_t name = (substitutions == NULL)
@@ -1163,7 +1165,7 @@ write_key(struct xkb_keymap *keymap, enum xkb_keymap_format format,
     else
         write_buf(buf, "\tkey %s {", KeyNameText(keymap->ctx, name));
 
-    if (key->explicit & EXPLICIT_TYPES) {
+    if (key->explicit & EXPLICIT_TYPES || explicit) {
         simple = false;
 
         bool multi_type = false;
@@ -1176,7 +1178,7 @@ write_key(struct xkb_keymap *keymap, enum xkb_keymap_format format,
 
         if (multi_type) {
             for (xkb_layout_index_t group = 0; group < num_groups; group++) {
-                if (!key->groups[group].explicit_type)
+                if (!key->groups[group].explicit_type && !explicit)
                     continue;
 
                 const struct xkb_key_type * const type = key->groups[group].type;
@@ -1211,6 +1213,8 @@ write_key(struct xkb_keymap *keymap, enum xkb_keymap_format format,
                              value, initial_value, default_interpret_value) ( \
         /* Explicit value in the source */                                    \
         ((key)->explicit & (prop)) ||                                         \
+        /* Explicit serialization flag */                                     \
+        explicit ||                                                           \
         (                                                                     \
             (                                                                 \
                 /* Value is not set by interprets due to explicit actions */  \
@@ -1268,7 +1272,7 @@ write_key(struct xkb_keymap *keymap, enum xkb_keymap_format format,
         break;
     }
 
-    if (num_groups > 1 || explicit_actions)
+    if (num_groups > 1 || explicit_actions || explicit)
         simple = false;
 
     if (simple) {
@@ -1292,6 +1296,8 @@ write_key(struct xkb_keymap *keymap, enum xkb_keymap_format format,
             const bool print_actions =
                 /* Group has explicit actions */
                 key->groups[group].explicit_actions ||
+                /* Explicit values are required */
+                explicit ||
                 /* Group has symbols but no explicit actions and key has explicit
                  * actions in another group: ensure compatibility with xkbcomp
                  * and all libxkbcommon versions */
@@ -1334,6 +1340,7 @@ write_symbols(struct xkb_keymap *keymap, enum xkb_keymap_format format,
 {
     const bool pretty = !!(flags & XKB_KEYMAP_SERIALIZE_PRETTY);
     const bool drop_interprets = !(flags & XKB_KEYMAP_SERIALIZE_KEEP_INTERPRETS);
+    const bool explicit = !!(flags & XKB_KEYMAP_SERIALIZE_EXPLICIT);
 
     if (keymap->symbols_section_name)
         write_buf(buf, "xkb_symbols \"%s\" {\n", keymap->symbols_section_name);
@@ -1360,8 +1367,8 @@ write_symbols(struct xkb_keymap *keymap, enum xkb_keymap_format format,
         /* Skip keys with no explicit values */
         if (key->explicit) {
             if (!write_key(keymap, format, substitutions, max_groups,
-                           some_interp, drop_interprets, pretty,
-                           buf, &buf2, key)) {
+                           some_interp, drop_interprets, explicit,
+                           pretty, buf, &buf2, key)) {
                 free(buf2.buf);
                 return false;
             }

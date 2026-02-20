@@ -45,6 +45,8 @@ xkb_keymap_serialize_flags:
     value: 2
   - name: XKB_KEYMAP_SERIALIZE_KEEP_INTERPRETS
     value: 4
+  - name: XKB_KEYMAP_SERIALIZE_EXPLICIT
+    value: 8
 xkb_keymap_key_iterator_flags:
   - name: XKB_KEYMAP_KEY_ITERATOR_NO_FLAGS
     value: 0

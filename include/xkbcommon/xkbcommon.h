@@ -1444,7 +1444,13 @@ enum xkb_keymap_serialize_flags {
      *
      * @since 1.14.0
      */
-    XKB_KEYMAP_SERIALIZE_KEEP_INTERPRETS = (1 << 2)
+    XKB_KEYMAP_SERIALIZE_KEEP_INTERPRETS = (1 << 2),
+    /**
+     * Make all values explicit
+     *
+     * @since 1.14.0
+     */
+    XKB_KEYMAP_SERIALIZE_EXPLICIT = (1 << 3),
 };
 
 /**
