@@ -103,6 +103,8 @@ usage(FILE *file, const char *progname)
            "    Disable unused bits serialization\n"
            " --drop-interprets\n"
            "    Disable compatibility interpretations serialization\n"
+           " --explicit\n"
+           "    Use explicit values\n"
            " --kccgst\n"
            "    Print a keymap which only includes the KcCGST component names instead of the full keymap\n"
            " --kccgst-yaml\n"
@@ -159,6 +161,7 @@ parse_options(int argc, char **argv,
         OPT_KEYMAP_NO_PRETTY,
         OPT_KEYMAP_DROP_UNUSED,
         OPT_KEYMAP_DROP_INTERPRETS,
+        OPT_KEYMAP_EXPLICIT,
         OPT_RULES,
         OPT_MODEL,
         OPT_LAYOUT,
@@ -200,6 +203,7 @@ parse_options(int argc, char **argv,
         {"no-pretty",        no_argument,            0, OPT_KEYMAP_NO_PRETTY},
         {"drop-unused",      no_argument,            0, OPT_KEYMAP_DROP_UNUSED},
         {"drop-interprets",  no_argument,            0, OPT_KEYMAP_DROP_INTERPRETS},
+        {"explicit",         no_argument,            0, OPT_KEYMAP_EXPLICIT},
         {"kccgst",           no_argument,            0, OPT_KCCGST},
         {"kccgst-yaml",      no_argument,            0, OPT_KCCGST_YAML},
         {"rmlvo",            no_argument,            0, OPT_RMLVO},
@@ -294,6 +298,9 @@ parse_options(int argc, char **argv,
             break;
         case OPT_KEYMAP_DROP_INTERPRETS:
             *serialize_flags &= ~XKB_KEYMAP_SERIALIZE_KEEP_INTERPRETS;
+            break;
+        case OPT_KEYMAP_EXPLICIT:
+            *serialize_flags |= XKB_KEYMAP_SERIALIZE_EXPLICIT;
             break;
         case OPT_RULES:
             if (input_format == INPUT_FORMAT_KEYMAP)
