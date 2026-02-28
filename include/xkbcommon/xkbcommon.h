@@ -2307,6 +2307,24 @@ enum xkb_event_type {
      * @since 1.14.0
      */
     XKB_EVENT_TYPE_COMPONENTS_CHANGE,
+    /**
+     * **Pointer _move_** event
+     *
+     * @since 1.14.0
+     */
+    XKB_EVENT_TYPE_POINTER_MOVE,
+    /**
+     * **Pointer button _down_** event
+     *
+     * @since 1.14.0
+     */
+    XKB_EVENT_TYPE_POINTER_BUTTON_DOWN,
+    /**
+     * **Pointer button _up_** event
+     *
+     * @since 1.14.0
+     */
+    XKB_EVENT_TYPE_POINTER_BUTTON_UP,
 };
 
 /**
@@ -2492,6 +2510,19 @@ enum xkb_keyboard_controls {
      * [latch]: @ref latched-mod-def
      */
     XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS = (1 << 3),
+    /**
+     * The **pointer emulation** control lets a user control all the pointing
+     * devices function from the keyboard. When this control is enabled, all
+     * keys with <em>[pointer emulation actions]</em> bound to them generate
+     * pointer events instead of normal key press and release events.
+     *
+     * Use `::XKB_KEYBOARD_CONTROL_POINTER_DEFAULT_BUTTON` to set the default
+     * pointer button.
+     *
+     * @since 1.14.0
+     * [pointer emulation actions]: @ref pointer-emulation-actions
+     */
+    XKB_KEYBOARD_CONTROL_POINTER_EMULATION = (1 << 4)
 };
 
 /**
@@ -2732,6 +2763,14 @@ xkb_state_machine_update_controls(struct xkb_state_machine *sm,
  * @since 1.14.0
  */
 enum xkb_keyboard_controls_parameter {
+    /**
+     * *Default* pointer button to be used by [pointer emulation actions] that
+     * do not explicitly specify a button.
+     *
+     * @since 1.14.0
+     * [pointer emulation actions]: @ref pointer-emulation-actions
+     */
+    XKB_KEYBOARD_CONTROL_POINTER_DEFAULT_BUTTON = 0
 };
 
 /**

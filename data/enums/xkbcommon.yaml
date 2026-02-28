@@ -96,11 +96,13 @@ xkb_keyboard_controls:
     value: 0
   - name: XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS
     value: 8
+  - name: XKB_KEYBOARD_CONTROL_POINTER_EMULATION
+    value: 16
 xkb_event_iterator_flags:
   - name: XKB_EVENT_ITERATOR_NO_FLAGS
     value: 0
 xkb_keyboard_controls_parameter:
-  - name: TODO
+  - name: XKB_KEYBOARD_CONTROL_POINTER_DEFAULT_BUTTON
     value: 0
 xkb_key_direction:
   - name: XKB_KEY_UP

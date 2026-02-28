@@ -3141,31 +3141,31 @@ In order to define and use a modifier, one must:
 
 The following table provide an overview of the available actions:
 
-| Category | Action name         | Alias            | Description                        |
-|----------|---------------------|------------------|------------------------------------|
-| [Ineffectual action] | [`NoAction`][NoAction] |   | **Default action**: *implicitly* do nothing |
-| ^        | [`VoidAction`][VoidAction] |           | *Explicitly* do nothing            |
-| [Modifier action] | [`SetMods`][SetMods] |        | Modifies the <em>[depressed]</em> modifiers |
-| ^        | [`LatchMods`][Latchmods] |             | Modifies the <em>[latched]</em> modifiers   |
-| ^        | [`LockMods`][LockMods] |               | Modifies the <em>[locked]</em> modifiers    |
-| [Group action] | [`SetGroup`][SetGroup] |         | Modifies the _base_ group          |
-| ^        | [`LatchGroup`][LatchGroup] |           | Modifies the _latched_ group       |
-| ^        | [`LockGroup`][LockGroup] |             | Modifies the _locked_ group        |
-| [Keyboard controls action] | [`SetControls`][SetControls] |         | Set the standard XKB controls      |
-| ^        | [`LockControls`][LockControls] |       | Lock the standard XKB controls     |
-| [Keyboard emulation action] | [`RedirectKey`][redirectkey] | `Redirect` | Emulate pressing a key with a different key code |
-| [Legacy action] | `MovePointer`| `MovePtr`        | Move the mouse pointer             |
-| ^        | `PointerButton`     | `PtrBtn`         | Simulate a mouse button press      |
-| ^        | `LockPointerButton` | `LockPtrBtn`     | Simulate a mouse button press, locked until the action’s key is pressed again. |
-| ^        | `SetPointerDefault` | `SetPtrDflt`     | Set the default select button (???)|
-| ^        | [`TerminateServer`][TerminateServer] | `Terminate` | Shut down the X server |
-| ^        | `SwitchScreen`      |                  | Switch virtual X screen            |
-| ^        | [`Private`][Private]|                  | Raw encoding of an action          |
-| [Unsupported legacy action] | `ISOLock`           |                  | Convert ordinary modifier key actions into lock actions while this action is active |
-| ^        | `DeviceButton`      | `DevBtn`         | Emulate an event from an arbitrary input device such as a joystick |
-| ^        | `LockDeviceButton`  | `LockDevBtn`     | Emulate an event from an arbitrary input device such as a joystick |
-| ^        | `DeviceValuator`    | `DevVal`         | <span class="todo">TODO</span> |
-| ^        | `MessageAction`     | `Message`        | Generate an arbitrary special-purpose XKB event |
+| Category                    | Action name                              | Alias            | Description                        |
+|-----------------------------|------------------------------------------|------------------|------------------------------------|
+| [Ineffectual action]        | [`NoAction`][NoAction]                   |                  | **Default action**: *implicitly* do nothing |
+| ^                           | [`VoidAction`][VoidAction]               |                  | *Explicitly* do nothing            |
+| [Modifier action]           | [`SetMods`][SetMods]                     |                  | Modifies the <em>[depressed]</em> modifiers |
+| ^                           | [`LatchMods`][Latchmods]                 |                  | Modifies the <em>[latched]</em> modifiers   |
+| ^                           | [`LockMods`][LockMods]                   |                  | Modifies the <em>[locked]</em> modifiers    |
+| [Group action]              | [`SetGroup`][SetGroup]                   |                  | Modifies the _base_ group          |
+| ^                           | [`LatchGroup`][LatchGroup]               |                  | Modifies the _latched_ group       |
+| ^                           | [`LockGroup`][LockGroup]                 |                  | Modifies the _locked_ group        |
+| [Keyboard controls action]  | [`SetControls`][SetControls]             |                  | Set the standard XKB controls      |
+| ^                           | [`LockControls`][LockControls]           |                  | Lock the standard XKB controls     |
+| [Keyboard emulation action] | [`RedirectKey`][RedirectKey]             | `Redirect`       | Emulate pressing a key with a different key code |
+| [Pointer emulation actions] | [`MovePointer`][MovePointer]             | `MovePtr`        | Move the pointer                   |
+| ^                           | [`PointerButton`][PointerButton]         | `PtrBtn`         | Simulate a pointing device button press |
+| ^                           | [`LockPointerButton`][LockPointerButton] | `LockPtrBtn`     | Simulate a pointing device button press, locked until the action’s key is pressed again. |
+| ^                           | [`SetPointerDefault`][SetPointerDefault] | `SetPtrDflt`     | Set the default select button (???) |
+| [Legacy action]             | [`TerminateServer`][TerminateServer]     | `Terminate`      | Shut down the X server |
+| ^                           | `SwitchScreen`                           |                  | Switch virtual X screen            |
+| ^                           | [`Private`][Private]                     |                  | Raw encoding of an action          |
+| [Unsupported legacy action] | `ISOLock`                                |                  | Convert ordinary modifier key actions into lock actions while this action is active |
+| ^                           | `DeviceButton`                           | `DevBtn`         | Emulate an event from an arbitrary input device such as a joystick |
+| ^                           | `LockDeviceButton`                       | `LockDevBtn`     | Emulate an event from an arbitrary input device such as a joystick |
+| ^                           | `DeviceValuator`                         | `DevVal`         | <span class="todo">TODO</span> |
+| ^                           | `MessageAction`                          | `Message`        | Generate an arbitrary special-purpose XKB event |
 
 Common syntax:
 - Boolean values:
@@ -3846,7 +3846,7 @@ press.
 #### RedirectKey {#redirect-key-action}
 
 [Keyboard emulation action]: @ref kbd-emulation-actions
-[redirectkey]: @ref redirect-key-action
+[RedirectKey]: @ref redirect-key-action
 
 `RedirectKey` emulates pressing a key with a different key code.
 
@@ -3935,6 +3935,263 @@ modifiers at the time of the release, changed as described on the key press.
 </tbody>
 </table>
 
+### Pointer emulation actions {#pointer-emulation-actions}
+
+[Pointer emulation actions]: @ref pointer-emulation-actions
+
+[MovePointer]: @ref MovePointer
+[PointerButton]: @ref PointerButton
+[LockPointerButton]: @ref LockPointerButton
+[SetPointerDefault]: @ref SetPointerDefault
+
+<dl>
+<dt>`MovePointer` @anchor MovePointer<dt>
+<dt>`MovePtr`</dt>
+<dd>
+Move the mouse pointer
+
+<table>
+<caption>Parameters</caption>
+<thead>
+<tr>
+<th>Name</th>
+<th>Alias</th>
+<th>Data type</th>
+<th>Default value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>`x`</th>
+<td></td>
+<td>
+integer coordinate, either *absolute* (no sign) or *relative* (`+`/`-` sign)
+</td>
+<td>0</td>
+<td>Pointer *horizontal* position</td>
+</tr>
+<tr>
+<th>`y`</th>
+<td></td>
+<td>
+See `x`
+</td>
+<td>0</td>
+<td>Pointer *vertical* position</td>
+</tr>
+<tr>
+<th>`accelerate`</th>
+<td>`accel`, `repeat`</td>
+<td>
+boolean
+</td>
+<td>true</td>
+<td>Allow accelerated pointer movement</td>
+</tr>
+</tbody>
+</table>
+<!-- blank required by Doxgen -->
+
+</dd>
+
+
+<dt>`PointerButton` @anchor PointerButton</dt>
+<dt>`PtrBtn`</dt>
+<dd>
+Simulate a pointing device button press
+
+<table>
+<caption>Parameters</caption>
+<thead>
+<tr>
+<th>Name</th>
+<th>Alias</th>
+<th>Data type</th>
+<th>Default value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>`button`</th>
+<td></td>
+<td>
+integer 0..5 or `default` (same as 0)
+</td>
+<td>`default`</td>
+<td>Pointing device button number</td>
+</tr>
+<tr>
+<th>`count`</th>
+<td></td>
+<td>
+integer 0..255
+</td>
+<td>0</td>
+<td>Repeat counter; see its use [hereinafter](@ref pointer-button-effects)</td>
+</tr>
+</tbody>
+</table>
+<!-- blank required by Doxgen -->
+
+</dd>
+
+
+<dt>`LockPointerButton` @anchor LockPointerButton</dt>
+<dt>`LockPointerBtn`</dt>
+<dt>`LockPtrButton`</dt>
+<dt>`LockPtrBtn`</dt>
+<dd>
+Simulate a pointer device button press, locked until this action’s key is
+pressed again.
+
+<table>
+<caption>Parameters</caption>
+<thead>
+<tr>
+<th>Name</th>
+<th>Alias</th>
+<th>Data type</th>
+<th>Default value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>`button`</th>
+<td></td>
+<td>
+integer 0..5 or `default` (same as 0)
+</td>
+<td>`default`</td>
+<td>Pointing device button number</td>
+</tr>
+<tr>
+<th>`count`</th>
+<td></td>
+<td>
+integer 0..255
+</td>
+<td>0</td>
+<td>
+@deprecated ineffectual parameter, kept for compatibility with X11
+</td>
+</tr>
+<tr>
+<th>`affect`</th>
+<td></td>
+<td>
+enumeration:
+- `lock`
+- `unlock`
+- `both`
+- `neither`
+</td>
+<td>`both`</td>
+<td>
+- `lock`: the action only locks the button, but cannot unlock it.
+- `unlock`: the action only unlocks button, but cannot lock it.
+- `both`: the first key press locks the button and the first key
+  release unlocks the button.
+- `neither`: do not lock nor unlock, i.e. do nothing.
+</td>
+</tr>
+</tbody>
+</table>
+<!-- blank required by Doxgen -->
+
+</dd>
+
+
+<dt>`SetPointerDefault` @anchor SetPointerDefault</dt>
+<dt>`SetPtrDflt`</dt>
+<dd>
+Set the default pointing device button
+
+<table>
+<caption>Parameters</caption>
+<thead>
+<tr>
+<th>Name</th>
+<th>Alias</th>
+<th>Data type</th>
+<th>Default value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>`button`</th>
+<td></td>
+<td>
+integer 1..5, either *absolute* (no signe) or *relative* (`+`/`-` sign)
+</td>
+<td>1</td>
+<td>Pointing device button number or increment</td>
+</tr>
+<tr>
+<th>`affect`</th>
+<td></td>
+<td>
+enumeration (1 value):
+
+- `defaultbutton`, `dfltbtn` or `button`
+</td>
+<td>`defaultbutton`</td>
+<td>
+@deprecated Ineffectual parameter; kept for X11 compatibility
+</td>
+</tr>
+</tbody>
+</table>
+<!-- blank required by Doxgen -->
+
+<dd>
+</dl>
+
+
+<table>
+<caption>Effects of pointer actions</caption>
+<thead>
+<tr>
+<th>Action</th>
+<th>On key press</th>
+<th>On key release</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<th>`PointerMove` @anchor pointer-move-effects</th>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<th>`PointerButton` @anchor pointer-button-effects</th>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<th>`LockPointerButton` @anchor pointer-lock-button-effects</th>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<th>`SetPointerDefault` @anchor pointer-set-default-effects</th>
+<td>
+</td>
+<td>
+</td>
+</tr>
+</tbody>
+</table>
 
 ### Legacy X11 actions {#legacy-x11-actions}
 
@@ -3943,53 +4200,6 @@ modifiers at the time of the release, changed as described on the key press.
 @attention The following legacy actions are kept for compatibility only: they are parsed
 and validated but have no effect. This allows to use keymaps defined in
 <code>[xkeyboard-config]</code> for both X11 and Wayland.
-
-#### Pointer actions
-
-<dl>
-<dt>`MovePointer`<dt>
-<dt>`MovePtr`</dt>
-<dd>
-Move the mouse pointer
-
-@todo MovePointer parameters
-<!-- blank required by Doxgen -->
-
-</dd>
-
-<dt>`PointerButton`</dt>
-<dt>`PtrBtn`</dt>
-<dd>
-Simulate a mouse button press
-
-@todo PointerButton parameters
-<!-- blank required by Doxgen -->
-
-</dd>
-
-<dt>`LockPointerButton`</dt>
-<dt>`LockPointerBtn`</dt>
-<dt>`LockPtrButton`</dt>
-<dt>`LockPtrBtn`</dt>
-<dd>
-Simulate a mouse button press, locked until this actiion’s key is pressed again
-
-@todo LockPointerButton parameters
-<!-- blank required by Doxgen -->
-
-</dd>
-
-<dt>`SetPointerDefault`</dt>
-<dt>`SetPtrDflt`</dt>
-<dd>
-Set the default select button (???)
-
-@todo SetPointerDefault parameters
-<!-- blank required by Doxgen -->
-
-<dd>
-</dl>
-
 
 #### Server actions
 

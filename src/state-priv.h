@@ -34,6 +34,16 @@ struct xkb_event {
             struct state_components components;
             enum xkb_state_component changed;
         } components;
+        struct {
+            enum xkb_action_flags flags;
+            int16_t x;
+            int16_t y;
+        } pointer_move;
+        struct {
+            enum xkb_action_flags flags;
+            uint8_t count;
+            xkb_pointer_button_t button;
+        } pointer_button;
     };
 };
 

@@ -163,6 +163,11 @@ static_assert(
     (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS,
     "Private value should match public API"
 );
+static_assert(
+    CONTROL_MOUSE_KEYS ==
+    (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_POINTER_EMULATION,
+    "Private value should match public API"
+);
 
 enum xkb_match_operation {
     MATCH_NONE,
@@ -214,11 +219,18 @@ struct xkb_pointer_action {
     int16_t y;
 };
 
+#define XKB_POINTER_BUTTON_DEFAULT 0
+/* Explicit pointer buttons */
+#define XKB_POINTER_BUTTON_MIN 1
+#define XKB_POINTER_BUTTON_MAX 5
+
+typedef uint8_t xkb_pointer_button_t;
+
 struct xkb_pointer_button_action {
     enum xkb_action_type type;
     enum xkb_action_flags flags;
     uint8_t count;
-    uint8_t button;
+    xkb_pointer_button_t button;
 };
 
 struct xkb_redirect_key_action {

@@ -2403,6 +2403,9 @@ struct xkb_state_machine {
 
     /** Extra event API-specific state data */
     struct state_machine_controls {
+        struct {
+            xkb_pointer_button_t default_button;
+        } pointer;
     } controls;
 
     // TODO: remove the `extra` layer and use directly config.
@@ -2844,6 +2847,16 @@ xkb_state_machine_update_control_parameter(
 )
 {
     switch (control) {
+    case XKB_KEYBOARD_CONTROL_POINTER_EMULATION:
+        if (param == XKB_KEYBOARD_CONTROL_POINTER_DEFAULT_BUTTON) {
+            if (value >= XKB_POINTER_BUTTON_MIN ||
+                value <= XKB_POINTER_BUTTON_MAX) {
+                sm->controls.pointer.default_button =
+                    (xkb_pointer_button_t) value;
+                return 0;
+            }
+        }
+        break;
     default:
         ;
     }
