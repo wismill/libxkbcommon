@@ -42,6 +42,8 @@ static_assert(XKB_EVENT_TYPE_KEY_UP >= 0 &&
               XKB_EVENT_TYPE_KEY_UP < INT_WIDTH, "");
 static_assert(XKB_EVENT_TYPE_COMPONENTS_CHANGE >= 0 &&
               XKB_EVENT_TYPE_COMPONENTS_CHANGE < INT_WIDTH, "");
+static_assert(TODO >= 0 &&
+              TODO < INT_WIDTH, "");
 static_assert(XKB_KEY_UP >= 0 &&
               XKB_KEY_UP < INT_WIDTH, "");
 static_assert(XKB_KEY_DOWN >= 0 &&
@@ -129,6 +131,9 @@ enum xkb_enumerations_values {
     ,
     XKB_EVENT_ITERATOR_FLAGS_VALUES
         = XKB_EVENT_ITERATOR_NO_FLAGS
+    ,
+    XKB_KEYBOARD_CONTROLS_PARAMETER_VALUES
+        = (1u << TODO)
     ,
     XKB_KEY_DIRECTION_VALUES
         = (1u << XKB_KEY_UP)
@@ -275,6 +280,11 @@ static const int xkb_event_iterator_flags_values[] = {
 };
 #endif
 
+#ifdef ENABLE_PRIVATE_APIS
+static const int xkb_keyboard_controls_parameter_values[] = {
+    TODO,
+};
+#endif
 #ifdef ENABLE_PRIVATE_APIS
 static const int xkb_key_direction_values[] = {
     XKB_KEY_UP,

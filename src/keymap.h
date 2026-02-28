@@ -553,6 +553,7 @@ struct xkb_keymap {
     enum xkb_keymap_compile_flags flags;
     enum xkb_keymap_format format;
 
+    // FIXME: this should be moved to the state
     enum xkb_action_controls enabled_ctrls;
 
     xkb_keycode_t min_key_code;

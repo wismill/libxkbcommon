@@ -1189,9 +1189,11 @@ xkb_state_init(struct xkb_state *state, struct xkb_keymap *keymap,
              state->flags |= XKB_STATE_A11Y_LATCH_SIMULTANEOUS_KEYS;
      }
 
+    state->components.controls = keymap->enabled_ctrls;
+    // TODO: default controls parameters
+
     state->refcnt = 1;
     state->keymap = xkb_keymap_ref(keymap);
-    state->components.controls = keymap->enabled_ctrls;
     /* Ensure that derived state is correctly initialized */
     xkb_state_update_derived(state);
 }
@@ -2400,6 +2402,11 @@ struct xkb_state_machine {
     struct xkb_state state;
 
     /** Extra event API-specific state data */
+    struct state_machine_controls {
+    } controls;
+
+    // TODO: remove the `extra` layer and use directly config.
+    /** Extra event API-specific state data */
     struct state_machine_data {
         /** Configuration */
         struct state_machine_config {
@@ -2826,6 +2833,23 @@ xkb_state_machine_update_controls(struct xkb_state_machine *sm,
     }
 
     return 0;
+}
+
+int
+xkb_state_machine_update_control_parameter(
+    struct xkb_state_machine *sm,
+    enum xkb_keyboard_controls control,
+    enum xkb_keyboard_controls_parameter param,
+    int32_t value
+)
+{
+    switch (control) {
+    default:
+        ;
+    }
+    log_warn_func(sm->state.keymap->ctx, XKB_LOG_MESSAGE_NO_ID,
+                  "Unsupported control 0x%x parameter %d\n", control, param);
+    return -1;
 }
 
 int

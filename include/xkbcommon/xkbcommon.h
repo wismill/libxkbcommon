@@ -2726,8 +2726,39 @@ xkb_state_machine_update_controls(struct xkb_state_machine *sm,
                                   enum xkb_keyboard_controls controls);
 
 /**
+ * @enum xkb_keyboard_controls_parameter
+ * Specifies a [keyboard control](@ref xkb_keyboard_controls) parameter.
+ *
+ * @since 1.14.0
+ */
+enum xkb_keyboard_controls_parameter {
+};
+
+/**
+ * Set the value of control parameter.
+ *
+ * @param sm      The keyboard state machine object.
+ * @param control Global keyboard control to modify.
+ * @param param   Parameter of the keyboard control to modify.
+ * @param value   Value to set.
+ *
+ * @returns 0 on success, otherwise an error code.
+ *
+ * @since 1.14.0
+ *
+ * @memberof xkb_state_machine
+ */
+XKB_EXPORT int
+xkb_state_machine_update_control_parameter(
+    struct xkb_state_machine *sm,
+    enum xkb_keyboard_controls control,
+    enum xkb_keyboard_controls_parameter param,
+    int32_t value
+);
+
+/**
  * @enum xkb_key_direction
- * Specifies the direction of the key (press / release).
+ * Specifies the direction of the key (press / release) or a repetition.
  */
 enum xkb_key_direction {
     /** The key was *released*. */
