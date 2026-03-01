@@ -4165,20 +4165,83 @@ enumeration (1 value):
 <tr>
 <th>`PointerMove` @anchor pointer-move-effects</th>
 <td>
+- If `::XKB_KEYBOARD_CONTROL_POINTER_EMULATION` is not enabled, this action
+  behaves like `NoAction()`.
+- Otherwise:
+  <!-- TODO: this action cancels any pending repeat key timers for this key and
+       has the following additional effects: -->
+  - It generates a core pointer `::XKB_EVENT_TYPE_POINTER_MOVE` event instead of
+    the usual `::XKB_EVENT_TYPE_KEY_DOWN`.
+
+    For each `x` and `y` coordinates, it specifies
+    either new *absolute* coordinates or an *increment*.
+  <!-- TODO:
+  - If `accel` is `true`, and the MouseKeysAccel keyboard control is enabled,
+    key press also initiates the mouse keys timer for this key; every time this
+    timer expires, the cursor moves again. The distance the cursor moves in
+    these subsequent events is determined by the mouse keys acceleration as
+    described in The MouseKeysAccel Control.
+  -->
 </td>
 <td>
+- If `::XKB_KEYBOARD_CONTROL_POINTER_EMULATION` are not enabled, this action
+  behaves like `NoAction()`.
+<!-- TODO:
+Key release disables the mouse keys timer (if it was initiated by the
+corresponding key press) but has no other effect and is ignored (does not
+generate an event of any type).
+-->
 </td>
 </tr>
 <tr>
 <th>`PointerButton` @anchor pointer-button-effects</th>
 <td>
+- If `::XKB_KEYBOARD_CONTROL_POINTER_EMULATION` is not enabled, this action
+  behaves like `NoAction()`.
+- Otherwise this action may generate synthetic pointing device button events,
+  but *never* `::XKB_EVENT_TYPE_KEY_DOWN` nor `::XKB_EVENT_TYPE_KEY_REPEATED`
+  events.
+
+  `button` specifies either the *current* default button or a specific button.
+
+  - If the button specified for this action is logically down, the key press
+    is ignored and has no effect.
+
+  - Otherwise, key press causes one or more core pointer button events instead of
+    the usual key press. If `count` is 0 , key press generates a single
+    `::XKB_EVENT_TYPE_POINTER_BUTTON_DOWN` event; if `count` is greater than 0,
+    key press generates `count` *pairs* of `::XKB_EVENT_TYPE_POINTER_BUTTON_DOWN`
+    `::XKB_EVENT_TYPE_POINTER_BUTTON_UP` events.
+
+  <!-- TODO -->
+  @todo libxkbcommon does not know about the button state! It is up to the
+  compositor to ignore the event.
+
 </td>
 <td>
+- If `::XKB_KEYBOARD_CONTROL_POINTER_EMULATION` is not enabled, this action
+  behaves like `NoAction()`.
+- Otherwise this action may generate synthetic pointing device button events,
+  but *never* `::XKB_EVENT_TYPE_KEY_UP` events.
+  - If the button specified for this action is logically down, the key
+    release is ignored and has no effect.
+  - Otherwise
+    - If `count` is 0, key release generates a core pointer
+        `::XKB_EVENT_TYPE_POINTER_BUTTON_UP` event which matches the
+        `::XKB_EVENT_TYPE_POINTER_BUTTON_DOWN` event generated
+        by the corresponding key press.
+    - If `count` is non-zero, key release does *not*
+      cause a `::XKB_EVENT_TYPE_POINTER_BUTTON_UP` event.
 </td>
 </tr>
 <tr>
 <th>`LockPointerButton` @anchor pointer-lock-button-effects</th>
 <td>
+If MouseKeys are not enabled, this action behaves like SA_NoAction .
+
+Otherwise, if the button specified by useDfltBtn and button is not locked, key press causes a ButtonPress instead of a key press and locks the button. If the button is already locked or if noLock is True , key press is ignored and has no effect.
+
+If the corresponding key press was ignored, and if noUnlock is False , key release generates a ButtonRelease event instead of a key release event and unlocks the specified button. If the corresponding key press locked a button, key release is ignored and has no effect.
 </td>
 <td>
 </td>
@@ -4186,6 +4249,11 @@ enumeration (1 value):
 <tr>
 <th>`SetPointerDefault` @anchor pointer-set-default-effects</th>
 <td>
+If MouseKeys are not enabled, this action behaves like SA_NoAction .
+
+Otherwise, both key press and key release are ignored, but key press changes the pointer value specified by affect to value , as follows:
+
+If which is SA_AffectDfltBtn , value and dfltBtnAbs specify the default pointer button used by the various pointer actions as follow: If dfltBtnAbs is True, value specifies the button to be used, otherwise, value specifies the amount to be added to the current default button. In either case, illegal button choices are wrapped back into range.
 </td>
 <td>
 </td>
