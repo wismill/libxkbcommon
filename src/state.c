@@ -375,7 +375,8 @@ xkb_filter_group_lock_func(struct xkb_state *state,
 static bool
 xkb_action_breaks_latch(const union xkb_action *action,
                         enum xkb_internal_action_flags flag,
-                        xkb_mod_mask_t mask)
+                        xkb_mod_mask_t mask,
+                        enum xkb_action_controls controls)
 {
     switch (action->type) {
     case ACTION_TYPE_NONE:
@@ -388,6 +389,13 @@ xkb_action_breaks_latch(const union xkb_action *action,
     case ACTION_TYPE_TERMINATE:
     case ACTION_TYPE_REDIRECT_KEY:
         return true;
+    case ACTION_TYPE_PTR_MOVE:
+    case ACTION_TYPE_PTR_DEFAULT:
+        /*
+         * If pointer emulation is disabled, then these actions are
+         * converted to NoAction(), which break latches.
+         */
+        return !(controls & CONTROL_MOUSE_KEYS);
     case ACTION_TYPE_INTERNAL:
         return (action->internal.flags & flag) &&
                ((action->internal.clear_latched_mods & mask) == mask);
@@ -483,7 +491,7 @@ xkb_filter_group_latch_func(struct xkb_state *state,
                 for (xkb_action_count_t k = 0; k < count; k++) {
                     if (xkb_action_breaks_latch(&(actions[k]),
                                                 INTERNAL_BREAKS_GROUP_LATCH,
-                                                0)) {
+                                                0, state->components.controls)) {
                         latch = NO_LATCH;
                         break;
                     }
@@ -527,7 +535,7 @@ xkb_filter_group_latch_func(struct xkb_state *state,
                 }
                 else if (xkb_action_breaks_latch(&(actions[k]),
                                                  INTERNAL_BREAKS_GROUP_LATCH,
-                                                 0)) {
+                                                 0, state->components.controls)) {
                     /* Breaks the latch */
                     state->components.latched_group -= priv.group_delta;
                     filter->func = NULL;
@@ -769,7 +777,8 @@ xkb_filter_mod_latch_func(struct xkb_state *state,
                 for (xkb_action_count_t k = 0; k < count; k++) {
                     if (xkb_action_breaks_latch(&(actions[k]),
                                                 INTERNAL_BREAKS_MOD_LATCH,
-                                                filter->action.mods.mods.mask)) {
+                                                filter->action.mods.mods.mask,
+                                                state->components.controls)) {
                         latch = NO_LATCH;
                         break;
                     }
@@ -813,7 +822,8 @@ xkb_filter_mod_latch_func(struct xkb_state *state,
                 }
                 else if (xkb_action_breaks_latch(&(actions[k]),
                                                  INTERNAL_BREAKS_MOD_LATCH,
-                                                 filter->action.mods.mods.mask)) {
+                                                 filter->action.mods.mods.mask,
+                                                 state->components.controls)) {
                     /* XXX: This may be totally broken, we might need to break the
                      *      latch in the next run after this press? */
                     state->components.latched_mods &= ~filter->action.mods.mods.mask;
@@ -1020,6 +1030,14 @@ xkb_filter_redirect_key_new(struct xkb_state *state,
         filter->func = NULL;
         return;
     }
+    /* Compute effective mod masks */
+    // FIXME: this is not efficient to resolve mods here each time
+    filter->action.redirect.affect = mod_mask_get_effective(
+        state->keymap, filter->action.redirect.affect
+    );
+    filter->action.redirect.mods = mod_mask_get_effective(
+        state->keymap, filter->action.redirect.mods
+    );
     append_redirect_key_events(state, events, &filter->action.redirect,
                                XKB_KEY_DOWN);
 }
@@ -1061,6 +1079,60 @@ xkb_filter_redirect_key_func(struct xkb_state *state,
     return XKB_FILTER_CONSUME;
 }
 
+static void
+xkb_filter_pointer_move_new(struct xkb_state *state,
+                            struct xkb_event_iterator *events,
+                            struct xkb_filter *filter)
+{
+    /* Action effectual only with the state event API and pointer emulation */
+    if (!events || !(state->components.controls &
+                     XKB_KEYBOARD_CONTROL_POINTER_EMULATION)) {
+        filter->func = NULL;
+        return;
+    }
+    // FIXME
+    // append_redirect_key_events(state, events, &filter->action.redirect,
+    //                            XKB_KEY_DOWN);
+}
+
+static bool
+xkb_filter_pointer_move_func(struct xkb_state *state,
+                             struct xkb_event_iterator *events,
+                             struct xkb_filter *filter,
+                             const struct xkb_key *key,
+                             enum xkb_key_direction direction)
+{
+    if (key != filter->key)
+        return XKB_FILTER_CONTINUE;
+
+    // FIXME
+    // if (direction == XKB_KEY_UP) {
+    //     append_redirect_key_events(state, events, &filter->action.redirect,
+    //                                XKB_KEY_UP);
+    //     filter->func = NULL;
+    //     return XKB_FILTER_CONSUME;
+    //  } else if (direction == XKB_KEY_DOWN) {
+    //     const union xkb_action *actions = NULL;
+    //     const xkb_action_count_t count = xkb_key_get_actions(state, key, &actions);
+
+    //     for (xkb_action_count_t a = 0; a < count; a++) {
+    //         if (actions[a].type == ACTION_TYPE_REDIRECT_KEY &&
+    //             actions[a].redirect.keycode != filter->action.redirect.keycode) {
+    //                 /* One action redirects to a different key: release first */
+    //                 append_redirect_key_events(state, events,
+    //                                            &filter->action.redirect,
+    //                                            XKB_KEY_UP);
+    //             filter->func = NULL;
+    //             return XKB_FILTER_CONTINUE;
+    //         }
+    //     }
+    // }
+
+    // append_redirect_key_events(state, events, &filter->action.redirect,
+    //                            direction);
+    return XKB_FILTER_CONSUME;
+}
+
 static const struct {
     void (*new)(struct xkb_state *state,
                 struct xkb_event_iterator *events,
@@ -1088,6 +1160,14 @@ static const struct {
                                   xkb_filter_ctrls_func },
     [ACTION_TYPE_REDIRECT_KEY] = { xkb_filter_redirect_key_new,
                                    xkb_filter_redirect_key_func },
+    [ACTION_TYPE_PTR_MOVE] = { xkb_filter_pointer_move_new,
+                               xkb_filter_pointer_move_func },
+    // [ACTION_TYPE_PTR_BUTTON] = { xkb_filter_redirect_key_new,
+    //                              xkb_filter_redirect_key_func },
+    // [ACTION_TYPE_PTR_LOCK] = { xkb_filter_redirect_key_new,
+    //                            xkb_filter_redirect_key_func },
+    // [ACTION_TYPE_PTR_DEFAULT] = { xkb_filter_redirect_key_new,
+    //                               xkb_filter_redirect_key_func },
 };
 
 /**
@@ -1160,15 +1240,7 @@ xkb_filter_apply_all(struct xkb_state *state,
                 }
             }
         }
-        if (filter->action.type == ACTION_TYPE_REDIRECT_KEY) {
-            // FIXME: this is not efficient to resolve mods here each time
-            filter->action.redirect.affect = mod_mask_get_effective(
-                state->keymap, filter->action.redirect.affect
-            );
-            filter->action.redirect.mods = mod_mask_get_effective(
-                state->keymap, filter->action.redirect.mods
-            );
-        }
+
         filter->func = filter_action_funcs[filter->action.type].func;
         filter_action_funcs[filter->action.type].new(state, events, filter);
     }

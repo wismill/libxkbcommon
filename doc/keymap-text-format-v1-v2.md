@@ -4237,11 +4237,12 @@ generate an event of any type).
 <tr>
 <th>`LockPointerButton` @anchor pointer-lock-button-effects</th>
 <td>
-If MouseKeys are not enabled, this action behaves like SA_NoAction .
+<!-- TODO -->
+@todo If MouseKeys are not enabled, this action behaves like SA_NoAction .
 
-Otherwise, if the button specified by useDfltBtn and button is not locked, key press causes a ButtonPress instead of a key press and locks the button. If the button is already locked or if noLock is True , key press is ignored and has no effect.
+@todo Otherwise, if the button specified by useDfltBtn and button is not locked, key press causes a ButtonPress instead of a key press and locks the button. If the button is already locked or if noLock is True , key press is ignored and has no effect.
 
-If the corresponding key press was ignored, and if noUnlock is False , key release generates a ButtonRelease event instead of a key release event and unlocks the specified button. If the corresponding key press locked a button, key release is ignored and has no effect.
+@todo If the corresponding key press was ignored, and if noUnlock is False , key release generates a ButtonRelease event instead of a key release event and unlocks the specified button. If the corresponding key press locked a button, key release is ignored and has no effect.
 </td>
 <td>
 </td>
@@ -4249,11 +4250,12 @@ If the corresponding key press was ignored, and if noUnlock is False , key relea
 <tr>
 <th>`SetPointerDefault` @anchor pointer-set-default-effects</th>
 <td>
-If MouseKeys are not enabled, this action behaves like SA_NoAction .
+<!-- TODO -->
+@todo If MouseKeys are not enabled, this action behaves like SA_NoAction .
 
-Otherwise, both key press and key release are ignored, but key press changes the pointer value specified by affect to value , as follows:
+@todo Otherwise, both key press and key release are ignored, but key press changes the pointer value specified by affect to value , as follows:
 
-If which is SA_AffectDfltBtn , value and dfltBtnAbs specify the default pointer button used by the various pointer actions as follow: If dfltBtnAbs is True, value specifies the button to be used, otherwise, value specifies the amount to be added to the current default button. In either case, illegal button choices are wrapped back into range.
+@todo If which is SA_AffectDfltBtn , value and dfltBtnAbs specify the default pointer button used by the various pointer actions as follow: If dfltBtnAbs is True, value specifies the button to be used, otherwise, value specifies the amount to be added to the current default button. In either case, illegal button choices are wrapped back into range.
 </td>
 <td>
 </td>
