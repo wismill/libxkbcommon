@@ -2800,6 +2800,28 @@ xkb_state_machine_update_control(struct xkb_state_machine *sm,
                                  uint32_t value);
 
 /**
+ * Update the mask of a keyboard control parameter.
+ *
+ * @param sm      The keyboard state machine object.
+ * @param control Global keyboard control bitmask to modify.
+ * @param affect
+       Mask of the bits to modify. @p bits contains the actual values.
+ * @param bits
+ *     Bits to set or unset. Only bits in @p affect are considered.
+ *
+ * @returns 0 on success, otherwise an error code.
+ *
+ * @since 1.14.0
+ *
+ * @memberof xkb_state_machine
+ */
+XKB_EXPORT int
+xkb_state_machine_update_control_mask(struct xkb_state_machine *sm,
+                                      enum xkb_keyboard_control_param control,
+                                      uint32_t affect,
+                                      uint32_t bits);
+
+/**
  * @enum xkb_key_direction
  * Specifies the direction of the key (press / release) or a repetition.
  */

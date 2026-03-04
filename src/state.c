@@ -2867,6 +2867,22 @@ xkb_state_machine_update_control(struct xkb_state_machine *sm,
 }
 
 int
+xkb_state_machine_update_control_mask(struct xkb_state_machine *sm,
+                                      enum xkb_keyboard_control_param control,
+                                      uint32_t affect,
+                                      uint32_t bits)
+{
+    switch (control) {
+        default:
+            ;
+    }
+    log_warn_func(sm->state.keymap->ctx, XKB_LOG_MESSAGE_NO_ID,
+                  "Unsupported control parameter %d with mask 0x%"PRIx32"\n",
+                  control, bits);
+    return -1;
+}
+
+int
 xkb_state_machine_update_latched_locked(struct xkb_state_machine *sm,
                                         struct xkb_event_iterator *events,
                                         xkb_mod_mask_t affect_latched_mods,
