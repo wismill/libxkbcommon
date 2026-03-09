@@ -391,6 +391,7 @@ libxkbcommon_sources = [
     'src/context.h',
     'src/context-priv.c',
     'src/darray.h',
+    'src/dsparse-array.h',
     'src/features.c',
     'src/features/enums.h',
     'src/keysym.c',
@@ -1296,6 +1297,17 @@ test(
         'test/utils-text.c',
         'test/utils-text.h',
         dependencies: test_dep
+    ),
+    env: test_env,
+)
+test(
+    'dsparse-array',
+    executable(
+        'test-dsparse-array',
+        'src/dsparse-array.h',
+        'test/dsparse-array.c',
+        # dependencies: test_dep,
+        include_directories: ['src', 'test'],
     ),
     env: test_env,
 )
