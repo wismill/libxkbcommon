@@ -452,15 +452,17 @@ struct xkb_key {
     xkb_mod_mask_t modmap;
     xkb_mod_mask_t vmodmap;
 
+    uint8_t __padding;
+
     bool repeats:1;
     /** Flag that indicates whether some group has implicit actions */
     bool implicit_actions:1;
 
     bool out_of_range_pending_group:1;
-    enum xkb_out_of_range_layout_policy out_of_range_group_policy;
-    xkb_layout_index_t out_of_range_group_number;
+    enum xkb_out_of_range_layout_policy out_of_range_group_policy:5;
+    xkb_layout_index_t out_of_range_group_number:8;
 
-    xkb_layout_index_t num_groups;
+    xkb_layout_index_t num_groups:8;
     struct xkb_group *groups ATTR_COUNTED_BY(num_groups);
 };
 
