@@ -241,6 +241,12 @@
   added: 1.14.0
   type: error
   description: "Overlapping overlays are not supported"
+  details: |
+    [Overlays] must be *disjoint* in target keymap format: a key can have
+    *at most one* overlay. See “[overlapping overlay]” for further information.
+
+    [Overlays]: @ref key-behavior-overlay
+    [overlapping overlay]: @ref overlapping-overlays
 - id: "unsupported-legacy-action"
   code: 362
   added: 1.10.0

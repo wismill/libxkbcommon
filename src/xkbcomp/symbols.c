@@ -16,6 +16,7 @@
 
 #include <limits.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "xkbcommon/xkbcommon.h"
 #include "xkbcommon/xkbcommon-keysyms.h"
@@ -78,12 +79,16 @@ typedef struct {
 
     darray(GroupInfo) groups;
 
-    const struct xkb_key *overlay_key;
-    xkb_overlay_mask_t overlay:2;
-    bool overlay_clear:1;
+    union {
+        const struct xkb_key *overlay_key;
+        const struct xkb_key **overlays_keys;
+    };
+    xkb_overlay_index_t overlays_alloc:2;
+    xkb_overlay_mask_t overlays:2;
+    bool overlays_clear:1;
 
     enum xkb_out_of_range_layout_policy
-        out_of_range_group_policy:(XKB_OUT_OF_RANGE_LAYOUT_POLICY_WIDTH - 4);
+        out_of_range_group_policy:(XKB_OUT_OF_RANGE_LAYOUT_POLICY_WIDTH - 6);
     bool out_of_range_pending_group:1;
     xkb_layout_index_t out_of_range_group_number;
 } KeyInfo;
@@ -167,6 +172,8 @@ ClearKeyInfo(KeyInfo *keyi)
     darray_foreach(groupi, keyi->groups)
         ClearGroupInfo(groupi);
     darray_free(keyi->groups);
+    if (keyi->overlays_alloc)
+        free(keyi->overlays_keys);
 }
 
 /***====================================================================***/
@@ -479,42 +486,256 @@ UseNewKeyField(enum key_field field, enum key_field old, enum key_field new,
 }
 
 static bool
-merge_overlays(SymbolsInfo *info, KeyInfo *into, KeyInfo *from,
-               bool clobber, bool report, enum key_field * collide)
+overlays_get(const KeyInfo *info, xkb_overlay_index_t bit,
+             const struct xkb_key **key_out)
 {
-    if (!(from->defined & KEY_FIELD_OVERLAY) ||
-        (into->overlay == from->overlay &&
-         into->overlay_clear == from->overlay_clear &&
-         into->overlay_key == from->overlay_key)) {
-        /* Either `from` is empty or identical to `into`: do nothing */
-    } else if (!(into->defined & KEY_FIELD_OVERLAY)) {
-        /* `into` is empty: copy `into` */
-        into->overlay = from->overlay;
-        into->overlay_key = from->overlay_key;
-        into->defined |= KEY_FIELD_OVERLAY;
-    } else if (into->overlay_clear && from->overlay_clear) {
-        /* Only cleared overlays: combine them */
-        into->overlay |= from->overlay;
+    if (bit >= (xkb_overlay_index_t)(sizeof(xkb_overlay_mask_t) * CHAR_BIT))
+        return false;
+    const xkb_overlay_mask_t mask = (xkb_overlay_mask_t)(1u << bit);
+    if (!(info->overlays & mask)) return false;
+    if (key_out) {
+        if (!info->overlays_alloc) {
+            *key_out = info->overlay_key;
+        } else {
+            const xkb_overlay_mask_t low = (xkb_overlay_mask_t)(
+                info->overlays & (mask - 1u)
+            );
+            const xkb_overlay_index_t index = (xkb_overlay_index_t)popcount32(low);
+            *key_out = info->overlays_keys[index];
+        }
+    }
+    return true;
+}
+
+static bool
+overlays_insert(KeyInfo *keyi, xkb_overlay_index_t bit,
+                const struct xkb_key *key)
+{
+    if (bit >= (xkb_overlay_index_t)(sizeof(xkb_overlay_mask_t) * CHAR_BIT))
+        return false;
+
+    const xkb_overlay_mask_t mask = (xkb_overlay_mask_t)(1u << bit);
+
+    if ((keyi->overlays & mask) && !keyi->overlays_clear) {
+        /* Overwrite existing slot */
+        if (!keyi->overlays_alloc) {
+            keyi->overlay_key = key;
+            if (!key)
+                keyi->overlays_clear = true;
+        } else {
+            const xkb_overlay_mask_t low = (xkb_overlay_mask_t)(
+                keyi->overlays & (xkb_overlay_mask_t)(mask - 1)
+            );
+            /* index = number of set bits strictly below bit */
+            const xkb_overlay_index_t index =
+                (xkb_overlay_index_t)popcount32(low);
+            keyi->overlays_keys[index] = key;
+        }
+        return true;
+    }
+
+    /* Insert new element */
+    if (!keyi->overlays || (keyi->overlays_clear && !key)) {
+        /* 0 → 1 : use inline storage, no alloc */
+        keyi->overlay_key = key;
+        keyi->overlays |= mask;
+        keyi->overlays_clear = !key;
+    } else if (!keyi->overlays_alloc) {
+        /* 1 → 2 : promote inline element to heap */
+        const xkb_overlay_index_t alloc = 2;
+        const struct xkb_key ** const tmp =
+            malloc(alloc * sizeof(const struct xkb_key *));
+        if (!tmp) return false;
+        const struct xkb_key * old = keyi->overlay_key;
+        if (mask < keyi->overlays) {
+            tmp[0] = key;
+            tmp[1] = old;
+        } else {
+            tmp[0] = old;
+            tmp[1] = key;
+        }
+        keyi->overlays_keys = tmp;
+        keyi->overlays_alloc = alloc;
+        keyi->overlays = (keyi->overlays | mask);
+        keyi->overlays_clear = false;
     } else {
-        if (!(into->overlay & from->overlay)) {
-            if (into->overlay_clear) {
-                /* `into` clears and `from` sets distinct overlays: use `from` */
-                into->overlay = from->overlay;
-                into->overlay_clear = from->overlay_clear;
-                into->overlay_key = from->overlay_key;
-                return true;
-            } else if (from->overlay_clear) {
-                /* `into` sets and `from` clears distinct overlays: use `into` */
+        /* Allocated items: grow heap and shift if relevant */
+        const xkb_overlay_index_t count = popcount32(keyi->overlays);
+        if (count + 1u > keyi->overlays_alloc) {
+            const xkb_overlay_index_t alloc = next_pow2(count + 1u);
+            const struct xkb_key ** const tmp = realloc(
+                keyi->overlays_keys,
+                (size_t)alloc * sizeof(*keyi->overlays_keys)
+            );
+            if (!tmp) return false;
+            keyi->overlays_keys = tmp;
+            keyi->overlays_alloc = alloc;
+        }
+        const xkb_overlay_mask_t low = (xkb_overlay_mask_t)(
+            keyi->overlays & (xkb_overlay_mask_t)(mask - 1)
+        );
+        const xkb_overlay_index_t index = (xkb_overlay_index_t)popcount32(low);
+        if (index < count) {
+            /* insert between 2 previous items: move items from greater bits */
+            assert(index + 1 < keyi->overlays_alloc);
+            memmove(keyi->overlays_keys + index + 1, keyi->overlays_keys + index,
+                    (size_t)(count - index) * sizeof(const struct xkb_key *));
+        }
+        keyi->overlays_keys[index] = key;
+        keyi->overlays = (keyi->overlays | mask);
+    }
+
+    return true;
+}
+
+static bool
+merge_overlays(SymbolsInfo *info, KeyInfo *into, KeyInfo *from,
+               bool clobber, bool report, enum key_field *collide)
+{
+    if (!(from->defined & KEY_FIELD_OVERLAY)) {
+        /* `from` is empty: do nothing */
+    } else if (!(into->defined & KEY_FIELD_OVERLAY)) {
+        /* `into` is empty: steal `from` */
+        into->overlays = from->overlays;
+        into->overlays_keys = from->overlays_keys;
+        from->overlays_keys = NULL;
+        into->overlays_alloc = from->overlays_alloc;
+        from->overlays_alloc = 0;
+        into->defined |= KEY_FIELD_OVERLAY;
+    } else if (into->overlays_clear && from->overlays_clear) {
+        /* Only cleared overlays: combine them */
+        into->overlays |= from->overlays;
+    } else {
+        if (info->keymap_info->features.overlapping_overlays) {
+            const xkb_overlay_mask_t result_mask =
+                (into->overlays | from->overlays);
+            const xkb_overlay_index_t count =
+                (xkb_overlay_index_t)popcount32(result_mask);
+
+            if (count == 0)
+                PANIC_UNREACHABLE();
+
+            /*
+             * Pick the best buffer to write. Prefer the larger one to avoid
+             * future realloc; only realloc if both are too small. The unchosen
+             * buffer will be freed.
+             */
+
+            KeyInfo *dest = into;
+            KeyInfo *src = from;
+            if (into->overlays_alloc >= count &&
+                into->overlays_alloc >= from->overlays_alloc) {
+                /* Do nothing */
+            } else if (from->overlays_alloc >= count) {
+                dest = from;
+                src = into;
+                clobber = !clobber;
+            } else if (count > 1) {
+                /* Neither is sufficient: realloc the larger one if possible */
+                if (into->overlays_alloc < from->overlays_alloc) {
+                    dest = from;
+                    src = into;
+                    clobber = !clobber;
+                }
+
+                if (!dest->overlays_alloc) {
+                    const struct xkb_key **tmp = calloc(count, sizeof(*tmp));
+                    if (!tmp)
+                        return false;
+                    if (dest->overlay_key)
+                        tmp[0] = dest->overlay_key;
+                    dest->overlays_keys = tmp;
+                    dest->overlays_alloc = count;
+                } else {
+                    const struct xkb_key **tmp =
+                        realloc(dest->overlays_keys, count * sizeof(*tmp));
+                    if (!tmp)
+                        return false;
+                    dest->overlays_keys = tmp;
+                    dest->overlays_alloc = count;
+                }
+            }
+
+            xkb_overlay_mask_t remaining = src->overlays;
+            const struct xkb_key **src_keys = (src->overlays_clear)
+                ? NULL
+                : (src->overlays_alloc)
+                    ? src->overlays_keys
+                    : &src->overlay_key;
+            while (remaining) {
+                /* isolate lowest set bit */
+                const xkb_overlay_mask_t lsb = (xkb_overlay_mask_t)(
+                    remaining &
+                    (xkb_overlay_mask_t)(~remaining + 1u)
+                );
+                /* get its index */
+                const xkb_overlay_index_t bit =
+                    (xkb_overlay_index_t)popcount32(lsb - 1u);
+                remaining = (remaining & ~lsb);
+
+                /* pop current value */
+                const struct xkb_key *src_key = (src_keys)
+                    ? *(src_keys++)
+                    : NULL;
+
+                /* check dest */
+                const struct xkb_key *dest_key = NULL;
+                const bool conflict = overlays_get(dest, bit, &dest_key);
+                if (conflict) {
+                    if (dest_key == src_key)
+                       continue;
+                    else if (report)
+                        *collide |= KEY_FIELD_OVERLAY;
+                }
+
+                if ((!conflict || clobber) && !overlays_insert(dest, bit, src_key))
+                    return false;
+            }
+
+            if (into != dest) {
+                if (into->overlays_alloc)
+                    free(into->overlays_keys);
+                into->overlays = from->overlays;
+                into->overlays_clear = from->overlays_clear;
+                into->overlays_alloc = from->overlays_alloc;
+                if (from->overlays_alloc) {
+                    /* Steal */
+                    into->overlays_keys = from->overlays_keys;
+                    from->overlays_keys = NULL;
+                    from->overlays_alloc = 0;
+                } else {
+                    into->overlay_key = from->overlay_key;
+                }
+            }
+        } else {
+            if (into->overlays == from->overlays &&
+                into->overlays_clear == from->overlays_clear &&
+                into->overlay_key == from->overlay_key) {
+                /* Indentical: do nothing */
                 return true;
             }
-        }
-        /* Conflict */
-        if (report)
-            *collide |= KEY_FIELD_OVERLAY;
-        if (clobber) {
-            into->overlay = from->overlay;
-            into->overlay_clear = from->overlay_clear;
-            into->overlay_key = from->overlay_key;
+            if (!(into->overlays & from->overlays)) {
+                if (into->overlays_clear) {
+                    /* `into` clears and `from` sets distinct overlays: use `from` */
+                    into->overlays = from->overlays;
+                    into->overlays_clear = from->overlays_clear;
+                    into->overlays_alloc = from->overlays_alloc;
+                    into->overlay_key = from->overlay_key;
+                    return true;
+                } else if (from->overlays_clear) {
+                    /* `into` sets and `from` clears distinct overlays: use `into` */
+                    return true;
+                }
+            }
+            /* Conflict */
+            if (report)
+                *collide |= KEY_FIELD_OVERLAY;
+            if (clobber) {
+                into->overlays = from->overlays;
+                into->overlays_clear = from->overlays_clear;
+                into->overlays_alloc = from->overlays_alloc;
+                into->overlay_key = from->overlay_key;
+            }
         }
     }
     return true;
@@ -1257,26 +1478,29 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
                     "Ignoring overlay %u specification for key %s\n",
                     overlay + 1, KeyInfoText(info, keyi));
         } else {
-            if (!keyi->overlay ||
-                (keyi->overlay_clear && !(keyi->overlay & (1u << overlay)))) {
-                /* No overlay previously defined or conflicting entry */
+            if (!keyi->overlays ||
+                (keyi->overlays_clear && !(keyi->overlays & (1u << overlay)))) {
+                /* No overlay previously defined or different overlay cleared */
                 if (key) {
                     /* Replace any explicitly cleared overlay */
-                    keyi->overlay = (xkb_overlay_mask_t)(1u << overlay);
-                    keyi->overlay_clear = false;
+                    keyi->overlays = (xkb_overlay_mask_t)(1u << overlay);
+                    keyi->overlays_clear = false;
                     keyi->overlay_key = key;
                 } else {
                     /* Explicitly no overlay (clear) */
-                    keyi->overlay |= (xkb_overlay_mask_t)(1u << overlay);
-                    keyi->overlay_clear = true;
+                    keyi->overlays |= (xkb_overlay_mask_t)(1u << overlay);
+                    keyi->overlays_clear = true;
                 }
                 keyi->defined |= KEY_FIELD_OVERLAY;
-            } else if (!(keyi->overlay & (1u << overlay))) {
-                if (key) {
+            } else if (!(keyi->overlays & (1u << overlay))) {
+                if (info->keymap_info->features.overlapping_overlays) {
+                    if (!overlays_insert(keyi, overlay, key))
+                        return false;
+                } else if (key) {
                     log_err(info->ctx, XKB_ERROR_OVERLAPPING_OVERLAY,
                             "Overlapping overlays are not allowed in %s; "
                             "use overlay%d=%s, ignore overlay%u=%s\n",
-                            KeyInfoText(info, keyi), keyi->overlay,
+                            KeyInfoText(info, keyi), keyi->overlays,
                             (keyi->overlay_key
                                 ? KeyNameText(info->ctx, keyi->overlay_key->name)
                                 : "none"),
@@ -1291,7 +1515,7 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
                 log_warn(info->ctx, XKB_LOG_MESSAGE_NO_ID,
                          "Conflicting overlays defined in key %s; "
                          "use overlay%d=%s, ignore overlay%u=%s\n",
-                         KeyInfoText(info, keyi), keyi->overlay,
+                         KeyInfoText(info, keyi), keyi->overlays,
                          (keyi->overlay_key
                              ? KeyNameText(info->ctx, keyi->overlay_key->name)
                              : "none"),
@@ -2087,10 +2311,42 @@ key_fields:
     }
 
     if ((keyi->defined & KEY_FIELD_OVERLAY) &&
-        keyi->overlay && !keyi->overlay_clear) {
-        key->overlays = keyi->overlay;
-        key->overlay_keys = keyi->overlay_key;
-        key->explicit |= EXPLICIT_OVERLAY;
+        keyi->overlays && !keyi->overlays_clear) {
+        key->overlays = keyi->overlays;
+        if (keyi->overlays_alloc) {
+            /* Remove empty entries */
+
+            xkb_overlay_mask_t remaining = key->overlays;
+            const struct xkb_key **overlays_keys = keyi->overlays_keys;
+            while (remaining) {
+                /* isolate lowest set bit */
+                const xkb_overlay_mask_t lsb = (xkb_overlay_mask_t)(
+                    remaining &
+                    (xkb_overlay_mask_t)(~remaining + 1u)
+                );
+                remaining = (remaining & ~lsb);
+                if (*overlays_keys) {
+                    overlays_keys++;
+                } else {
+                    /* drop current null value (overlayN=none) */
+                    key->overlays &= ~lsb;
+                }
+            }
+
+            if (key->overlays) {
+                /* Steal */
+                key->overlays_keys = keyi->overlays_keys;
+                keyi->overlays_keys = NULL;
+                keyi->overlays_alloc = 0;
+
+                key->overlays_inline = false;
+                key->explicit |= EXPLICIT_OVERLAY;
+            }
+        } else {
+            key->overlay_key = keyi->overlay_key;
+            key->overlays_inline = true;
+            key->explicit |= EXPLICIT_OVERLAY;
+        }
     }
 
     return true;

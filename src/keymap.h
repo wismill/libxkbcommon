@@ -471,18 +471,24 @@ struct xkb_key {
     xkb_mod_mask_t vmodmap;
 
     xkb_overlay_mask_t overlays;
+    bool overlays_inline:1;
 
     bool repeats:1;
     /** Flag that indicates whether some group has implicit actions */
     bool implicit_actions:1;
 
     bool out_of_range_pending_group:1;
-    enum xkb_out_of_range_layout_policy out_of_range_group_policy:5;
+    enum xkb_out_of_range_layout_policy out_of_range_group_policy:4;
     xkb_layout_index_t out_of_range_group_number:8;
 
     xkb_layout_index_t num_groups:8;
     struct xkb_group *groups ATTR_COUNTED_BY(num_groups);
-    const struct xkb_key *overlay_keys;
+    union {
+        /** Inline if overlays_inline = true */
+        const struct xkb_key *overlay_key;
+        /** Allocated if overlays_inline = false */
+        const struct xkb_key **overlays_keys;
+    };
 };
 
 struct xkb_mod {
@@ -877,6 +883,13 @@ isGroupLockOnReleaseSupported(enum xkb_keymap_format format)
 
 static inline bool
 isModsLatchOnPressSupported(enum xkb_keymap_format format)
+{
+    /* Lax bound */
+    return format >= XKB_KEYMAP_FORMAT_TEXT_V2;
+}
+
+static inline bool
+areOverlappingOverlaysSupported(enum xkb_keymap_format format)
 {
     /* Lax bound */
     return format >= XKB_KEYMAP_FORMAT_TEXT_V2;

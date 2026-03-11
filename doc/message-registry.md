@@ -435,6 +435,13 @@ as numbers and as identifiers `LevelN`, where `N` is in the range (1..8).
   <dt>Summary</dt><dd>Overlapping overlays are not supported</dd>
 </dl>
 
+[Overlays] must be *disjoint* in target keymap format: a key can have
+*at most one* overlay. See “[overlapping overlay]” for further information.
+
+[Overlays]: @ref key-behavior-overlay
+[overlapping overlay]: @ref overlapping-overlays
+
+
 ### XKB-362 – Unsupported legacy action {#XKB-362}
 
 <dl>

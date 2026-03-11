@@ -1421,12 +1421,46 @@ write_key(struct xkb_keymap *keymap, enum xkb_keymap_format format,
     }
 
     if (key->overlays) {
-        const xkb_overlay_index_t overlay = popcount32(key->overlays - 1u);
-        const xkb_atom_t overlay_key_name = (substitutions == NULL)
-            ? key->overlay_keys[0].name
-            : substitute_name(substitutions, key->overlay_keys[0].name);
-        write_buf(buf, "\n\t\toverlay%u= %s,",
-                  overlay + 1, KeyNameText(keymap->ctx, overlay_key_name));
+        xkb_overlay_mask_t remaining = key->overlays;
+        const struct xkb_key * const *overlays_keys = (key->overlays_inline)
+                                                    ? &key->overlay_key
+                                                    : key->overlays_keys;
+        if (!key->overlays_inline && !areOverlappingOverlaysSupported(format)) {
+            /* isolate lowest set bit */
+            const xkb_overlay_mask_t lsb = (xkb_overlay_mask_t)(
+                remaining &
+                (xkb_overlay_mask_t)(~remaining + 1u)
+            );
+            /* get its index */
+            const xkb_overlay_index_t overlay =
+                (xkb_overlay_index_t)popcount32(lsb - 1u);
+            log_warn(keymap->ctx, XKB_ERROR_OVERLAPPING_OVERLAY,
+                     "Overlapping overlays in %s require using "
+                     "keymap format >= v2; "
+                     "keep overlay %u and discard overlays 0x%x\n",
+                     KeyNameText(keymap->ctx, name), overlay, remaining & ~lsb);
+            remaining = lsb;
+        }
+        while (remaining) {
+            /* isolate lowest set bit */
+            const xkb_overlay_mask_t lsb = (xkb_overlay_mask_t)(
+                remaining &
+                (xkb_overlay_mask_t)(~remaining + 1u)
+            );
+            /* get its index */
+            const xkb_overlay_index_t overlay =
+                (xkb_overlay_index_t)popcount32(lsb - 1u);
+            remaining = (remaining & ~lsb);
+
+            /* pop current value */
+            const struct xkb_key *overlay_key = *(overlays_keys++);
+
+            const xkb_atom_t overlay_key_name = (substitutions == NULL)
+                ? overlay_key->name
+                : substitute_name(substitutions, overlay_key->name);
+            write_buf(buf, "\n\t\toverlay%u= %s,",
+                      overlay + 1, KeyNameText(keymap->ctx, overlay_key_name));
+        }
         simple = false;
     }
 
