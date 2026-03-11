@@ -29,9 +29,10 @@
 
 #include "xkbcommon/xkbcommon.h"
 
+#include "atom.h"
+#include "context.h"
 #include "darray.h"
 #include "rmlvo.h"
-#include "context.h"
 #include "utils.h"
 
 /* Note: imposed by the size of the xkb_layout_mask_t type (32).
@@ -200,6 +201,14 @@ struct xkb_group_action {
     int32_t group;
 };
 
+typedef uint8_t xkb_overlay_index_t;
+#define XKB_OVERLAY_INVALID (UINT8_MAX)
+/** 1-indexed */
+#define XKB_OVERLAY_MAX 2
+
+typedef uint8_t xkb_overlay_mask_t;
+#define XKB_OVERLAY_ALL (0x3)
+
 struct xkb_controls_action {
     enum xkb_action_type type;
     enum xkb_action_flags flags;
@@ -365,6 +374,7 @@ enum xkb_explicit_components {
     EXPLICIT_TYPES = (1 << 2),
     EXPLICIT_VMODMAP = (1 << 3),
     EXPLICIT_REPEAT = (1 << 4),
+    EXPLICIT_OVERLAY = (1 << 5),
 };
 
 typedef uint16_t xkb_keysym_count_t;
@@ -452,7 +462,7 @@ struct xkb_key {
     xkb_mod_mask_t modmap;
     xkb_mod_mask_t vmodmap;
 
-    uint8_t __padding;
+    xkb_overlay_mask_t overlays;
 
     bool repeats:1;
     /** Flag that indicates whether some group has implicit actions */
@@ -464,6 +474,7 @@ struct xkb_key {
 
     xkb_layout_index_t num_groups:8;
     struct xkb_group *groups ATTR_COUNTED_BY(num_groups);
+    const struct xkb_key *overlay_keys;
 };
 
 struct xkb_mod {

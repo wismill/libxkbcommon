@@ -15,23 +15,26 @@
 #include "config.h"
 
 #include <limits.h>
+#include <stdint.h>
 
 #include "xkbcommon/xkbcommon.h"
 #include "xkbcommon/xkbcommon-keysyms.h"
 
 #include "action.h"
-#include "expr.h"
+#include "context.h"
 #include "darray.h"
+#include "expr.h"
 #include "include.h"
 #include "keymap.h"
 #include "keysym.h"
 #include "messages-codes.h"
 #include "text.h"
+#include "utils.h"
+#include "utils-numbers.h"
 #include "util-mem.h"
 #include "vmod.h"
 #include "xkbcomp-priv.h"
 #include "xkbcomp/ast.h"
-
 
 enum key_repeat {
     KEY_REPEAT_UNDEFINED = 0,
@@ -50,6 +53,7 @@ enum key_field {
     KEY_FIELD_DEFAULT_TYPE = (1 << 1),
     KEY_FIELD_GROUPINFO = (1 << 2),
     KEY_FIELD_VMODMAP = (1 << 3),
+    KEY_FIELD_OVERLAY = (1 << 4),
 };
 
 typedef struct {
@@ -68,15 +72,18 @@ typedef struct {
     enum merge_mode merge;
 
     xkb_atom_t name;
-
-    darray(GroupInfo) groups;
-
     enum key_repeat repeat;
     xkb_mod_mask_t vmodmap;
     xkb_atom_t default_type;
 
+    darray(GroupInfo) groups;
+
+    const struct xkb_key *overlay_key;
+    xkb_overlay_mask_t overlay:2;
+    bool overlay_clear:1;
+
     enum xkb_out_of_range_layout_policy
-        out_of_range_group_policy:(XKB_OUT_OF_RANGE_LAYOUT_POLICY_WIDTH - 1);
+        out_of_range_group_policy:(XKB_OUT_OF_RANGE_LAYOUT_POLICY_WIDTH - 4);
     bool out_of_range_pending_group:1;
     xkb_layout_index_t out_of_range_group_number;
 } KeyInfo;
@@ -149,6 +156,8 @@ InitKeyInfo(struct xkb_context *ctx, KeyInfo *keyi)
     static_assert(!DEFAULT_KEY_VMODMAP, "key vmodmap not initialized properly");
     keyi->name = xkb_atom_intern_literal(ctx, "*");
     keyi->out_of_range_group_policy = XKB_OUT_OF_RANGE_LAYOUT_WRAP;
+    darray_init(keyi->groups);
+    keyi->overlay_key = NULL;
 }
 
 static void
@@ -470,6 +479,48 @@ UseNewKeyField(enum key_field field, enum key_field old, enum key_field new,
 }
 
 static bool
+merge_overlays(SymbolsInfo *info, KeyInfo *into, KeyInfo *from,
+               bool clobber, bool report, enum key_field * collide)
+{
+    if (!(from->defined & KEY_FIELD_OVERLAY) ||
+        (into->overlay == from->overlay &&
+         into->overlay_clear == from->overlay_clear &&
+         into->overlay_key == from->overlay_key)) {
+        /* Either `from` is empty or identical to `into`: do nothing */
+    } else if (!(into->defined & KEY_FIELD_OVERLAY)) {
+        /* `into` is empty: copy `into` */
+        into->overlay = from->overlay;
+        into->overlay_key = from->overlay_key;
+        into->defined |= KEY_FIELD_OVERLAY;
+    } else if (into->overlay_clear && from->overlay_clear) {
+        /* Only cleared overlays: combine them */
+        into->overlay |= from->overlay;
+    } else {
+        if (!(into->overlay & from->overlay)) {
+            if (into->overlay_clear) {
+                /* `into` clears and `from` sets distinct overlays: use `from` */
+                into->overlay = from->overlay;
+                into->overlay_clear = from->overlay_clear;
+                into->overlay_key = from->overlay_key;
+                return true;
+            } else if (from->overlay_clear) {
+                /* `into` sets and `from` clears distinct overlays: use `into` */
+                return true;
+            }
+        }
+        /* Conflict */
+        if (report)
+            *collide |= KEY_FIELD_OVERLAY;
+        if (clobber) {
+            into->overlay = from->overlay;
+            into->overlay_clear = from->overlay_clear;
+            into->overlay_key = from->overlay_key;
+        }
+    }
+    return true;
+}
+
+static bool
 MergeKeys(SymbolsInfo *info, KeyInfo *into, KeyInfo *from, bool same_file)
 {
     xkb_layout_index_t i;
@@ -520,6 +571,9 @@ MergeKeys(SymbolsInfo *info, KeyInfo *into, KeyInfo *from, bool same_file)
         into->out_of_range_group_number = from->out_of_range_group_number;
         into->defined |= KEY_FIELD_GROUPINFO;
     }
+
+    if (!merge_overlays(info, into, from, clobber, report, &collide))
+        return false;
 
     if (collide) {
         log_warn(info->ctx, XKB_WARNING_CONFLICTING_KEY_FIELDS,
@@ -1037,6 +1091,71 @@ static const LookupEntry repeatEntries[] = {
 };
 
 static bool
+ExprResolveOverlayEntry(const struct xkb_keymap_info *keymap_info,
+                        const char *field, const ExprDef *arrayNdx,
+                        const ExprDef *expr, KeyInfo *keyi,
+                        xkb_overlay_index_t *overlay_rtrn,
+                        const struct xkb_key **key_rtrn)
+{
+    /* Overlay index */
+    if (arrayNdx) {
+        log_err(keymap_info->keymap.ctx, XKB_ERROR_WRONG_FIELD_TYPE,
+                "Overlay field \"%s\" in %s does not support array index; "
+                "ignored\n",
+                field, KeyNameText(keymap_info->keymap.ctx, keyi->name));
+        return false;
+    }
+    static_assert(sizeof(xkb_overlay_index_t) == sizeof(uint8_t), "");
+    const size_t prefix = sizeof("overlay") - 1;
+    const size_t len = strlen(field + prefix);
+    int64_t raw_overlay = XKB_OVERLAY_INVALID;
+    if (parse_dec_to_uint64_t(field + prefix, len, (uint64_t *)&raw_overlay)
+        != (int)len || raw_overlay < 1 || raw_overlay > XKB_OVERLAY_MAX) {
+        log_err(keymap_info->keymap.ctx, XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX,
+                "Unsupported overlay index \"%s\" field for %s: "
+                "expected 1..%u, got: %"PRId64"; ignored\n",
+                field, KeyNameText(keymap_info->keymap.ctx, keyi->name),
+                XKB_OVERLAY_MAX, raw_overlay);
+        return false;
+    }
+    *overlay_rtrn = (xkb_overlay_index_t)raw_overlay - 1;
+
+    /* Overlay key */
+    switch (expr->common.type) {
+    case STMT_EXPR_KEYNAME_LITERAL:
+        *key_rtrn = XkbKeyByName(&keymap_info->keymap, expr->key_name.key_name,
+                                 false);
+        if (!*key_rtrn) {
+            log_err(keymap_info->keymap.ctx, XKB_WARNING_UNDEFINED_KEYCODE,
+                    "Unknown key \"%s\" for field %s in %s\n",
+                    xkb_atom_text(keymap_info->keymap.ctx, expr->key_name.key_name),
+                    field, KeyNameText(keymap_info->keymap.ctx, keyi->name));
+            return false;
+        }
+        return true;
+    case STMT_EXPR_IDENT: {
+        const char * const id =
+            xkb_atom_text(keymap_info->keymap.ctx, expr->ident.ident);
+        if (id && istreq(id, "none")) {
+            *key_rtrn = NULL;
+            return true;
+        }
+        log_err(keymap_info->keymap.ctx, XKB_ERROR_INVALID_VALUE,
+                "Unsupported overlay value \"%s\" for field %s in %s\n",
+                id, field, KeyNameText(keymap_info->keymap.ctx, keyi->name));
+        return false;
+    }
+    default:
+        log_err(keymap_info->keymap.ctx, XKB_ERROR_INVALID_VALUE,
+                "Expected %s for field \"%s\" in %s, got: %s\n",
+                stmt_type_to_string(STMT_EXPR_KEYNAME_LITERAL),
+                field, KeyNameText(keymap_info->keymap.ctx, keyi->name),
+                stmt_type_to_string(expr->common.type));
+        return false;
+    }
+}
+
+static bool
 SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
                 ExprDef *arrayNdx, ExprDef **value_ptr)
 {
@@ -1117,13 +1236,71 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
                 "Ignoring radio group specification for key %s\n",
                 KeyInfoText(info, keyi));
     }
-    else if (istreq_prefix("overlay", field) ||
-             istreq_prefix("permanentoverlay", field)) {
+    else if (istreq_prefix("permanentoverlay", field)) {
         log_vrb(info->ctx, XKB_LOG_VERBOSITY_BRIEF,
                 XKB_WARNING_UNSUPPORTED_SYMBOLS_FIELD,
-                "Overlays not supported; "
+                "Permanent overlays not supported; "
                 "Ignoring overlay specification for key %s\n",
                 KeyInfoText(info, keyi));
+    }
+    else if (istreq_prefix("overlay", field)) {
+        xkb_overlay_index_t overlay = XKB_OVERLAY_INVALID;
+        const struct xkb_key *key = NULL;
+        if (!ExprResolveOverlayEntry(info->keymap_info, field, arrayNdx,
+                                     *value_ptr, keyi, &overlay, &key))
+            return false;
+        if (key && key->name == keyi->name) {
+            /* Do not overlay to the same key! */
+            log_vrb(info->ctx, XKB_LOG_VERBOSITY_BRIEF,
+                    XKB_LOG_MESSAGE_NO_ID,
+                    "Cannot overlay a key to itself; "
+                    "Ignoring overlay %u specification for key %s\n",
+                    overlay + 1, KeyInfoText(info, keyi));
+        } else {
+            if (!keyi->overlay ||
+                (keyi->overlay_clear && !(keyi->overlay & (1u << overlay)))) {
+                /* No overlay previously defined or conflicting entry */
+                if (key) {
+                    /* Replace any explicitly cleared overlay */
+                    keyi->overlay = (xkb_overlay_mask_t)(1u << overlay);
+                    keyi->overlay_clear = false;
+                    keyi->overlay_key = key;
+                } else {
+                    /* Explicitly no overlay (clear) */
+                    keyi->overlay |= (xkb_overlay_mask_t)(1u << overlay);
+                    keyi->overlay_clear = true;
+                }
+                keyi->defined |= KEY_FIELD_OVERLAY;
+            } else if (!(keyi->overlay & (1u << overlay))) {
+                if (key) {
+                    log_err(info->ctx, XKB_ERROR_OVERLAPPING_OVERLAY,
+                            "Overlapping overlays are not allowed in %s; "
+                            "use overlay%d=%s, ignore overlay%u=%s\n",
+                            KeyInfoText(info, keyi), keyi->overlay,
+                            (keyi->overlay_key
+                                ? KeyNameText(info->ctx, keyi->overlay_key->name)
+                                : "none"),
+                            overlay + 1, KeyNameText(info->ctx, key->name));
+                    return !(info->keymap_info->strict &
+                             PARSER_NO_FIELD_VALUE_MISMATCH);
+                } else {
+                    /* Ignore: the other overlay is explicitly defined */
+                }
+            } else if (keyi->overlay_key != key) {
+                /* Conflicting fields */
+                log_warn(info->ctx, XKB_LOG_MESSAGE_NO_ID,
+                         "Conflicting overlays defined in key %s; "
+                         "use overlay%d=%s, ignore overlay%u=%s\n",
+                         KeyInfoText(info, keyi), keyi->overlay,
+                         (keyi->overlay_key
+                             ? KeyNameText(info->ctx, keyi->overlay_key->name)
+                             : "none"),
+                         overlay + 1,
+                         (key ? KeyNameText(info->ctx, key->name) : "none"));
+            } else {
+                /* Ignore identical entry */
+            }
+        }
     }
     else if (istreq(field, "repeating") ||
              istreq(field, "repeats") ||
@@ -1907,6 +2084,13 @@ key_fields:
     if (keyi->repeat != KEY_REPEAT_UNDEFINED) {
         key->repeats = (keyi->repeat == KEY_REPEAT_YES);
         key->explicit |= EXPLICIT_REPEAT;
+    }
+
+    if ((keyi->defined & KEY_FIELD_OVERLAY) &&
+        keyi->overlay && !keyi->overlay_clear) {
+        key->overlays = keyi->overlay;
+        key->overlay_keys = keyi->overlay_key;
+        key->explicit |= EXPLICIT_OVERLAY;
     }
 
     return true;
