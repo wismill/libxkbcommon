@@ -2759,7 +2759,7 @@ test_overlays(struct xkb_context *ctx, bool update_output_files)
             .lenient = false,
             .no_output = true,
             .compiles_v1 = false,
-            .compiles_v2 = false,
+            .compiles_v2 = true,
         },
         {
             .keymap =
@@ -2776,7 +2776,7 @@ test_overlays(struct xkb_context *ctx, bool update_output_files)
             .lenient = false,
             .no_output = true,
             .compiles_v1 = false,
-            .compiles_v2 = false,
+            .compiles_v2 = true,
         },
         {
             .keymap =
@@ -2917,8 +2917,9 @@ test_overlays(struct xkb_context *ctx, bool update_output_files)
             .lenient = true,
             .expected_v1_1 = NULL,
             .expected_v1_2 = NULL,
-            .expected_v2_2 = NULL,
-            .expected_v2_1 = NULL,
+            .expected_v2_2 = GOLDEN_TESTS_OUTPUTS "overlays-v2-2.xkb",
+            /* Drop overlays 2-8 */
+            .expected_v2_1 = GOLDEN_TESTS_OUTPUTS "overlays-v1-2.xkb",
         },
     };
 

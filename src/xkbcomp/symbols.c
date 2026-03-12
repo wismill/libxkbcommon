@@ -64,6 +64,7 @@ typedef struct {
 } GroupInfo;
 
 enum {
+    XKB_KEY_REPEAT_WIDTH = sizeof(enum key_repeat) * CHAR_BIT,
     XKB_OUT_OF_RANGE_LAYOUT_POLICY_WIDTH =
         sizeof(enum xkb_out_of_range_layout_policy) * CHAR_BIT
 };
@@ -73,24 +74,23 @@ typedef struct {
     enum merge_mode merge;
 
     xkb_atom_t name;
-    enum key_repeat repeat;
     xkb_mod_mask_t vmodmap;
     xkb_atom_t default_type;
+    enum key_repeat repeat:(XKB_KEY_REPEAT_WIDTH - 13);
 
-    darray(GroupInfo) groups;
-
+    bool overlays_clear:1;
+    xkb_overlay_index_t overlays_alloc:4;
+    xkb_overlay_mask_t overlays:8;
     union {
         const struct xkb_key *overlay_key;
         const struct xkb_key **overlays_keys;
     };
-    xkb_overlay_index_t overlays_alloc:2;
-    xkb_overlay_mask_t overlays:2;
-    bool overlays_clear:1;
 
-    enum xkb_out_of_range_layout_policy
-        out_of_range_group_policy:(XKB_OUT_OF_RANGE_LAYOUT_POLICY_WIDTH - 6);
     bool out_of_range_pending_group:1;
+    enum xkb_out_of_range_layout_policy
+        out_of_range_group_policy:(XKB_OUT_OF_RANGE_LAYOUT_POLICY_WIDTH - 1);
     xkb_layout_index_t out_of_range_group_number;
+    darray(GroupInfo) groups;
 } KeyInfo;
 
 static void
@@ -1331,12 +1331,13 @@ ExprResolveOverlayEntry(const struct xkb_keymap_info *keymap_info,
     const size_t len = strlen(field + prefix);
     int64_t raw_overlay = XKB_OVERLAY_INVALID;
     if (parse_dec_to_uint64_t(field + prefix, len, (uint64_t *)&raw_overlay)
-        != (int)len || raw_overlay < 1 || raw_overlay > XKB_OVERLAY_MAX) {
+        != (int)len || raw_overlay < 1 ||
+        raw_overlay > (int64_t)keymap_info->features.max_overlays) {
         log_err(keymap_info->keymap.ctx, XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX,
                 "Unsupported overlay index \"%s\" field for %s: "
                 "expected 1..%u, got: %"PRId64"; ignored\n",
                 field, KeyNameText(keymap_info->keymap.ctx, keyi->name),
-                XKB_OVERLAY_MAX, raw_overlay);
+                keymap_info->features.max_overlays, raw_overlay);
         return false;
     }
     *overlay_rtrn = (xkb_overlay_index_t)raw_overlay - 1;
