@@ -640,15 +640,23 @@ icu_dep = dependency('icu-uc', required: false)
 build_tools = get_option('enable-tools') and cc.has_header_symbol('getopt.h', 'getopt_long', prefix: '#define _GNU_SOURCE')
 if build_tools
     # Common resources
-    tools_dep = declare_dependency(
+    tools_support_lib = static_library(
+        'xkbcommon-tools-support',
         sources: [
             'tools/tools-common.h',
             'tools/tools-common.c',
             'src/compose/constants.h',
+            'src/keymap-formats.c',
+            'src/keymap-formats.h',
             'src/utf8-decoding.c',
             'src/utf8-decoding.h',
         ],
+        include_directories: [include_directories('src', 'tools', 'include')],
+        dependencies: dep_libxkbcommon,
+    )
+    tools_dep = declare_dependency(
         include_directories: [include_directories('tools', 'include')],
+        link_with: tools_support_lib,
         dependencies: dep_libxkbcommon,
     )
     configh_data.set10('HAVE_TOOLS', true)
@@ -732,8 +740,6 @@ if build_tools
     # Tool: compile-keymap
     xkbcli_compile_keymap = executable('xkbcli-compile-keymap',
                                        'tools/compile-keymap.c',
-                                       'src/keymap-formats.c',
-                                       'src/keymap-formats.h',
                                        dependencies: tools_dep,
                                        install: true,
                                        install_dir: dir_libexec)
@@ -755,8 +761,6 @@ if build_tools
     # Tool: how-to-type
     executable('xkbcli-how-to-type',
                'tools/how-to-type.c',
-               'src/keymap-formats.c',
-               'src/keymap-formats.h',
                dependencies: tools_dep,
                install: true,
                install_dir: dir_libexec)
@@ -767,8 +771,6 @@ if build_tools
     if cc.has_header('linux/input.h')
         executable('xkbcli-interactive-evdev',
                    'tools/interactive-evdev.c',
-                   'src/keymap-formats.c',
-                   'src/keymap-formats.h',
                    dependencies: tools_dep,
                    install: true,
                    install_dir: dir_libexec)
@@ -788,8 +790,6 @@ if build_tools
         )
         executable('xkbcli-interactive-x11',
                    'tools/interactive-x11.c',
-                   'src/keymap-formats.c',
-                   'src/keymap-formats.h',
                    'src/utils.h',
                    dependencies: x11_tools_dep,
                    install: true,
@@ -799,8 +799,6 @@ if build_tools
 
         executable('xkbcli-dump-keymap-x11',
                    'tools/interactive-x11.c',
-                   'src/keymap-formats.c',
-                   'src/keymap-formats.h',
                    'src/utils.h',
                    dependencies: x11_tools_dep,
                    c_args: ['-DKEYMAP_DUMP'],
@@ -850,8 +848,6 @@ You can disable the Wayland xkbcli programs with -Denable-wayland=false.''')
         ]
         executable('xkbcli-interactive-wayland',
                    'tools/interactive-wayland.c',
-                   'src/keymap-formats.c',
-                   'src/keymap-formats.h',
                    'src/utils.h',
                    xdg_shell_sources,
                    xdg_decoration_sources,
@@ -863,8 +859,6 @@ You can disable the Wayland xkbcli programs with -Denable-wayland=false.''')
 
         executable('xkbcli-dump-keymap-wayland',
                    'tools/interactive-wayland.c',
-                   'src/keymap-formats.c',
-                   'src/keymap-formats.h',
                    'src/utils.h',
                    xdg_shell_sources,
                    xdg_decoration_sources,
@@ -994,6 +988,8 @@ test_support_lib = static_library(
     sources: [
         'bench/bench.c',
         'bench/bench.h',
+        'src/keymap-formats.c',
+        'src/keymap-formats.h',
         'src/utils-numbers.h',
         'src/utf8-decoding.c',
         'src/utf8-decoding.h',
@@ -1021,8 +1017,6 @@ if build_tools
         'tools/introspection.c',
         'src/utils.c',
         'src/utils.h',
-        'src/keymap-formats.c',
-        'src/keymap-formats.h',
         'src/xkbcomp/keymap-file-iterator.h',
         dependencies: test_dep,
         include_directories: include_directories('src', 'src/xkbcomp', 'include'),
@@ -1110,8 +1104,6 @@ test(
         'test/keymap.c',
         'test/keysym.h',
         'test/keysym-case-mapping.h',
-        'src/keymap-formats.c',
-        'src/keymap-formats.h',
         dependencies: test_dep),
     env: test_env,
 )
@@ -1458,8 +1450,6 @@ if cc.has_header_symbol('getopt.h', 'getopt_long', prefix: '#define _GNU_SOURCE'
         executable(
             'bench-compile-keymap',
             'bench/compile-keymap.c',
-            'src/keymap-formats.c',
-            'src/keymap-formats.h',
             'src/utils.c',
             'src/utils.h',
             dependencies: test_dep
@@ -1471,8 +1461,6 @@ if cc.has_header_symbol('getopt.h', 'getopt_long', prefix: '#define _GNU_SOURCE'
         executable(
             'bench-dump-keymap',
             'bench/compile-keymap.c',
-            'src/keymap-formats.c',
-            'src/keymap-formats.h',
             dependencies: test_dep,
             c_args: ['-DKEYMAP_DUMP'],
         ),
