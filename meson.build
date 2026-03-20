@@ -988,7 +988,9 @@ libxkbcommon_test_internal = library(
     c_args: ['-DENABLE_PRIVATE_APIS'],
     gnu_symbol_visibility: 'hidden',
 )
-test_dep = declare_dependency(
+
+test_support_lib = static_library(
+    'xkbcommon-test-support',
     sources: [
         'bench/bench.c',
         'bench/bench.h',
@@ -1001,8 +1003,14 @@ test_dep = declare_dependency(
         'tools/tools-common.c',
         'tools/tools-common.h',
     ],
-    include_directories: include_directories('src', 'include'),
+    include_directories: include_directories('src', 'include', 'tools', 'test', 'bench'),
     link_with: libxkbcommon_test_internal,
+    dependencies: [m_dep],
+)
+
+test_dep = declare_dependency(
+    include_directories: include_directories('src', 'include'),
+    link_with: [libxkbcommon_test_internal, test_support_lib],
     dependencies: [m_dep],
 )
 
