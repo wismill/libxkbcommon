@@ -654,13 +654,23 @@ if build_tools
     configh_data.set10('HAVE_TOOLS', true)
 
     # Tool: export-keysyms
-    export_keysym_dep = [tools_dep]
+    export_keysym_dep = []
     if icu_dep.found()
         export_keysym_dep += [icu_dep]
     endif
     executable('export-keysyms',
                'tools/export-keysyms.c',
-               libxkbcommon_sources,
+               'src/keysym.c',
+               'src/keysym.h',
+               'src/keysym-case-mappings.c',
+               'src/keysym-names.h',
+               'src/keysym-utf.c',
+               'src/utf8.c',
+               'src/utf8.h',
+               'src/utf8-decoding.c',
+               'src/utf8-decoding.h',
+               'src/utils.c',
+               'src/utils.h',
                dependencies: export_keysym_dep,
                c_args: ['-DENABLE_PRIVATE_APIS'],
                include_directories: [include_directories('src', 'include')],
