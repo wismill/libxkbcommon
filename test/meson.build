@@ -116,6 +116,8 @@ test(
         dependencies: keysyms_test_dep,
         c_args: keysyms_test_c_args,
     ),
+    depends: [libxkbcommon_test_internal],
+    # This tells Meson the test needs these targets to run
     env: test_env,
 )
 test(

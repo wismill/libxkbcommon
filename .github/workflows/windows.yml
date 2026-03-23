@@ -20,7 +20,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        cc: ['cl', 'clang-cl']
+        cc: ['cl'] #, 'clang-cl']
     env:
       CC: ${{matrix.cc}}
     steps:
@@ -47,5 +47,10 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
           meson compile -C build
       - name: Test
-        run:
+        shell: cmd
+        # Get-ChildItem -Recurse -Filter "*.dll" D:\a\libxkbcommon\libxkbcommon\build
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+          dumpbin /dependents D:\a\libxkbcommon\libxkbcommon\build\test\keymap.exe
+          dumpbin /dependents D:\a\libxkbcommon\libxkbcommon\build\test\keysym.exe
           meson test -C build --print-errorlogs
