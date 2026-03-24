@@ -3031,6 +3031,12 @@ enum xkb_machine_builder_update_type {
      * @since 1.14.0
      */
     XKB_MACHINE_BUILDER_UPDATE_A11Y = 1,
+    /**
+     * The update type is `xkb_machine_builder_mods_remap_update`.
+     *
+     * @since 1.14.0
+     */
+    XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP,
 };
 
 /**
@@ -3043,6 +3049,7 @@ enum xkb_machine_builder_update_type {
  * @since 1.14.0
  * @sa `xkb_machine_builder_update_generic()`
  * @sa `xkb_machine_builder_a11y_update`
+ * @sa `xkb_machine_builder_mods_remap_update`
  * @todo other updates
  *
  * @memberof xkb_machine_builder
@@ -3058,7 +3065,11 @@ xkb_machine_builder_update(struct xkb_machine_builder *builder,
     struct xkb_machine_builder_a11y_update*:                     \
         XKB_MACHINE_BUILDER_UPDATE_A11Y,                         \
     const struct xkb_machine_builder_a11y_update* :              \
-        XKB_MACHINE_BUILDER_UPDATE_A11Y                          \
+        XKB_MACHINE_BUILDER_UPDATE_A11Y,                         \
+    struct xkb_machine_builder_mods_remap_update* :              \
+        XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP,                   \
+    const struct xkb_machine_builder_mods_remap_update* :        \
+        XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP                    \
 )
 
 /**
@@ -3203,6 +3214,11 @@ struct xkb_machine_builder_a11y_update {
 };
 
 /**
+ * @struct xkb_machine_builder_mods_remap_update
+ *
+ * Modifiers remapping update for
+ * `xkb_machine_builder::xkb_machine_builder_update()`
+ *
  * Remap a modifier combination, e.g. to make `Control+Alt` act as
  * `LevelThree` (`AltGr`). This helps improve *compatibility* across platforms.
  *
@@ -3216,43 +3232,50 @@ struct xkb_machine_builder_a11y_update {
  * - There is no other remapping entry with the source modifiers being a
  *   superset of this entry. E.g. `Control+Alt` has priority over `Control`.
  *
- * @param[in,out] builder The `xkb_machine` builder object to modify.
- * @param[in]     source  Modifier combination to remap, using their [encoding].
- *                        Must be non-zero, unless both @p source and @p target
- *                        are 0 to clear all entries.
- * @param[in]     target  Modifier combination to remap to, using their
- *                        [encoding], or 0 to remove the entry for @p source.
- *                        If both @p source and @p target are 0, all entries are
- *                        cleared.
+ * @figure@figcaption
+ * Example of `xkb_machine_builder_mods_remap_update` to remap `Control+Alt` to `LevelThree`.
+ * @endfigcaption
+ * @snippet "test/server-state.c" xkb_machine_builder_mods_remap_update_example
+ * @endfigure
  *
- * @returns `::XKB_SUCCESS` on success, otherwise an error code.
- *
- * Example:
- *
- * ```c
- * struct xkb_keymap *keymap = xkb_machine_builder_get_keymap(builder);
- * // Remap Control+Alt to LevelThree (AltGr)
- * const xkb_mod_mask_t ctrl = xkb_keymap_mod_get_mask(keymap, XKB_MOD_NAME_CTRL);
- * const xkb_mod_mask_t alt = xkb_keymap_mod_get_mask(keymap, XKB_VMOD_NAME_ALT);
- * const xkb_mod_mask_t level3 = xkb_keymap_mod_get_mask(keymap, XKB_VMOD_NAME_LEVEL3);
- * if (xkb_machine_builder_remap_mods(builder, ctrl | alt, level3)) {
- *     // handle error
- *     …
- * }
- * ```
+ * @sa `::XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP`
+ * @sa `xkb_keymap::xkb_keymap_mod_get_mask()`
+ * @sa `xkb_machine_builder::xkb_machine_builder_update()`
  *
  * @since 1.14.0
- *
- * @memberof xkb_machine_builder
- *
- * [encoding]: @ref modifiers-encoding
  */
-XKB_EXPORT enum xkb_error_code
-xkb_machine_builder_remap_mods(
-    struct xkb_machine_builder *builder,
-    xkb_mod_mask_t source,
-    xkb_mod_mask_t target
-);
+struct xkb_machine_builder_mods_remap_update {
+    /**
+     * Size of this structure, for forward-compatibility.
+     *
+     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
+     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
+     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Modifier combination to remap, using their [encoding].
+     * Must be non-zero, unless both #source and #target are 0 to clear all
+     * entries.
+     *
+     * @since 1.14.0
+     *
+     * [encoding]: @ref modifiers-encoding
+     */
+    xkb_mod_mask_t source;
+    /**
+     * Modifier combination to remap to, using their [encoding], or 0 to remove
+     * the entry for #source. If both #source and #target are 0, all
+     * entries are cleared.
+     *
+     * @since 1.14.0
+     *
+     * [encoding]: @ref modifiers-encoding
+     */
+    xkb_mod_mask_t target;
+};
 
 /**
  * Set the modifiers that trigger the keyboard shortcut overrides.

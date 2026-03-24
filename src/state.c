@@ -2901,15 +2901,15 @@ machine_builder_update_a11y(
     return XKB_SUCCESS;
 }
 
-enum xkb_error_code
-xkb_machine_builder_remap_mods(
-    struct xkb_machine_builder *builder,
-    xkb_mod_mask_t source,
-    xkb_mod_mask_t target
+static enum xkb_error_code
+machine_builder_remap_mods(
+    register struct xkb_machine_builder *builder,
+    register const char *func,
+    register const struct xkb_machine_builder_mods_remap_update *update
 )
 {
-    if (!source) {
-        if (!target) {
+    if (!update->source) {
+        if (!update->target) {
             /* Reset mappings */
             darray_resize(builder->mods, 0);
             return XKB_SUCCESS;
@@ -2920,41 +2920,41 @@ xkb_machine_builder_remap_mods(
 
     /* Check the modifiers against the keymap */
     const xkb_mod_mask_t invalid = ~builder->keymap->canonical_state_mask;
-    if ((source & invalid)) {
+    if ((update->source & invalid)) {
         log_err(builder->keymap->ctx, XKB_ERROR_UNSUPPORTED_MODIFIER_MASK,
                 "%s: Invalid source modifiers: 0x%"PRIx32"\n",
-                __func__, source);
+                func, update->source);
         return XKB_ERROR_UNSUPPORTED_MODIFIER_MASK;
     }
-    if ((target & invalid)) {
+    if ((update->target & invalid)) {
         log_err(builder->keymap->ctx, XKB_ERROR_UNSUPPORTED_MODIFIER_MASK,
                 "%s: Invalid target modifiers: 0x%"PRIx32"\n",
-                __func__, target);
+                func, update->target);
         return XKB_ERROR_UNSUPPORTED_MODIFIER_MASK;
     }
 
     struct machine_mods_mapping *mapping = NULL;
     darray_size_t m = 0;
     darray_enumerate(m, mapping, builder->mods) {
-        if (mapping->source == source) {
-            if (!target) {
+        if (mapping->source == update->source) {
+            if (!update->target) {
                 /* Remove mapping */
                 darray_remove(builder->mods, m);
             } else {
                 /* Update mapping */
-                mapping->target = target;
+                mapping->target = update->target;
             }
             return XKB_SUCCESS;
         }
     }
 
-    if (target) {
+    if (update->target) {
         /* Append new mapping */
         darray_append(
             builder->mods,
             (struct machine_mods_mapping) {
-                .source = source,
-                .target = target
+                .source = update->source,
+                .target = update->target
             }
         );
     } else {
@@ -3171,6 +3171,8 @@ xkb_machine_builder_update(struct xkb_machine_builder *builder,
     switch (type) {
     case XKB_MACHINE_BUILDER_UPDATE_A11Y:
         return machine_builder_update_a11y(builder, __func__, update);
+    case XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP:
+        return machine_builder_remap_mods(builder, __func__, update);
     default:
         log_err_func(builder->keymap->ctx,
                      XKB_ERROR_UNSUPPORTED_MACHINE_BUILDER_UPDATE_,
