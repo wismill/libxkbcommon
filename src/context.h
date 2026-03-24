@@ -6,6 +6,9 @@
  */
 #pragma once
 
+#include "config.h"
+
+#include <stdbool.h>
 #include <stddef.h>
 
 #include "xkbcommon/xkbcommon.h"
@@ -39,8 +42,9 @@ struct xkb_context {
     char text_buffer[2048];
     size_t text_next;
 
-    unsigned int use_environment_names : 1;
-    unsigned int use_secure_getenv : 1;
+    bool use_environment_names : 1;
+    bool use_secure_getenv : 1;
+    bool pending_default_includes : 1;
 };
 
 char *
@@ -48,6 +52,9 @@ xkb_context_getenv(struct xkb_context *ctx, const char *name);
 
 darray_size_t
 xkb_context_num_failed_include_paths(struct xkb_context *ctx);
+
+bool
+xkb_context_init_includes(struct xkb_context *ctx);
 
 const char *
 xkb_context_failed_include_path_get(struct xkb_context *ctx,
@@ -57,7 +64,16 @@ const char *
 xkb_context_include_path_get_extra_path(struct xkb_context *ctx);
 
 const char *
+xkb_context_include_path_get_unversioned_extensions_path(struct xkb_context *ctx);
+
+const char *
+xkb_context_include_path_get_versioned_extensions_path(struct xkb_context *ctx);
+
+const char *
 xkb_context_include_path_get_system_path(struct xkb_context *ctx);
+
+XKB_EXPORT_PRIVATE darray_size_t
+xkb_atom_table_size(struct xkb_context *ctx);
 
 /*
  * Returns XKB_ATOM_NONE if @string was not previously interned,
@@ -104,23 +120,25 @@ xkb_context_sanitize_rule_names(struct xkb_context *ctx,
 #define xkb_log_with_code(ctx, level, verbosity, msg_id, fmt, ...) \
     xkb_log(ctx, level, verbosity, PREPEND_MESSAGE_ID(msg_id, fmt), ##__VA_ARGS__)
 #define log_dbg(ctx, id, ...) \
-    xkb_log_with_code((ctx), XKB_LOG_LEVEL_DEBUG, 0, id, __VA_ARGS__)
+    xkb_log_with_code((ctx), XKB_LOG_LEVEL_DEBUG, XKB_LOG_VERBOSITY_MINIMAL, id, __VA_ARGS__)
 #define log_info(ctx, id, ...) \
-    xkb_log_with_code((ctx), XKB_LOG_LEVEL_INFO, 0, id, __VA_ARGS__)
+    xkb_log_with_code((ctx), XKB_LOG_LEVEL_INFO, XKB_LOG_VERBOSITY_MINIMAL, id, __VA_ARGS__)
 #define log_warn(ctx, id, ...) \
-    xkb_log_with_code((ctx), XKB_LOG_LEVEL_WARNING, 0, id, __VA_ARGS__)
+    xkb_log_with_code((ctx), XKB_LOG_LEVEL_WARNING, XKB_LOG_VERBOSITY_MINIMAL, id, __VA_ARGS__)
 #define log_vrb(ctx, vrb, id, ...) \
     xkb_log_with_code((ctx), XKB_LOG_LEVEL_WARNING, (vrb), id, __VA_ARGS__)
 #define log_err(ctx, id, ...) \
-    xkb_log_with_code((ctx), XKB_LOG_LEVEL_ERROR, 0, id, __VA_ARGS__)
+    xkb_log_with_code((ctx), XKB_LOG_LEVEL_ERROR, XKB_LOG_VERBOSITY_MINIMAL, id, __VA_ARGS__)
 #define log_wsgo(ctx, id, ...) \
-    xkb_log_with_code((ctx), XKB_LOG_LEVEL_CRITICAL, 0, id, __VA_ARGS__)
+    xkb_log_with_code((ctx), XKB_LOG_LEVEL_CRITICAL, XKB_LOG_VERBOSITY_MINIMAL, id, __VA_ARGS__)
 
 /*
  * Variants which are prefixed by the name of the function they're
  * called from.
  * Here we must have the silly 1 variant.
  */
+#define log_warn_func(ctx, id, fmt, ...) \
+    log_warn(ctx, id, "%s: " fmt, __func__, __VA_ARGS__)
 #define log_err_func(ctx, id, fmt, ...) \
     log_err(ctx, id, "%s: " fmt, __func__, __VA_ARGS__)
 #define log_err_func1(ctx, id, fmt) \

@@ -5,6 +5,7 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include "xkbcommon/xkbcommon.h"
@@ -21,6 +22,16 @@ xkb_rmlvo_builder_new(struct xkb_context *context,
                       const char *rules, const char *model,
                       enum xkb_rmlvo_builder_flags flags)
 {
+    static const enum xkb_rmlvo_builder_flags XKB_RMLVO_BUILDER_FLAGS =
+        XKB_RMLVO_BUILDER_NO_FLAGS;
+
+    if (flags & ~XKB_RMLVO_BUILDER_FLAGS) {
+        log_err(context, XKB_LOG_MESSAGE_NO_ID,
+                "Unsupported RMLVO flags: 0x%x\n",
+                (flags & ~XKB_RMLVO_BUILDER_FLAGS));
+        return NULL;
+    }
+
     struct xkb_rmlvo_builder * const builder = calloc(1, sizeof(*builder));
     if (!builder)
         goto error;
@@ -57,11 +68,10 @@ xkb_rmlvo_builder_append_layout(struct xkb_rmlvo_builder *rmlvo,
                                    darray_size(rmlvo->layouts);
 
     if (idx >= XKB_MAX_GROUPS) {
-        log_err(rmlvo->ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
-                "Maximum layout count reached: %"PRIu32"; "
+        log_err(rmlvo->ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
+                "Maximum layout count reached: %u; "
                 "cannot add layout \"%s(%s)\" to the RMLVO builder.\n",
-                XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
-                layout, (variant) ? variant : "");
+                XKB_MAX_GROUPS, layout, (variant) ? variant : "");
         return false;
     }
 
@@ -136,9 +146,18 @@ xkb_rmlvo_builder_append_option(struct xkb_rmlvo_builder *rmlvo,
     return true;
 }
 
+struct xkb_rmlvo_builder *
+xkb_rmlvo_builder_ref(struct xkb_rmlvo_builder *rmlvo)
+{
+    assert(rmlvo->refcnt > 0);
+    rmlvo->refcnt++;
+    return rmlvo;
+}
+
 void
 xkb_rmlvo_builder_unref(struct xkb_rmlvo_builder *rmlvo)
 {
+    assert(!rmlvo || rmlvo->refcnt > 0);
     if (!rmlvo || --rmlvo->refcnt > 0)
         return;
 

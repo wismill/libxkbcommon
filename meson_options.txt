@@ -4,6 +4,16 @@ option(
     description: 'The XKB config root [default=xkeyboard-config install path]',
 )
 option(
+    'xkb-config-versioned-extensions-path',
+    type: 'string',
+    description: 'Lookup path for system-wide XKB versioned data extensions [default=xkeyboard-config install path + .d]',
+)
+option(
+    'xkb-config-unversioned-extensions-path',
+    type: 'string',
+    description: 'Lookup path for system-wide XKB unversioned data extensions [default=xkeyboard-config install path - version + .d]',
+)
+option(
     'xkb-config-extra-path',
     type: 'string',
     description: 'Extra lookup path for system-wide XKB data [default=$sysconfdir/xkb]',
@@ -17,6 +27,11 @@ option(
     'bash-completion-path',
     type: 'string',
     description: 'Directory for bash completion scripts'
+)
+option(
+    'zsh-completion-path',
+    type: 'string',
+    description: 'Directory for zsh completion scripts'
 )
 option(
     'default-rules',
@@ -89,4 +104,10 @@ option(
     type: 'boolean',
     value: true,
     description: 'Enable installing bash completion scripts',
+)
+option(
+    'enable-zsh-completion',
+    type: 'boolean',
+    value: true,
+    description: 'Enable installing zsh completion scripts',
 )

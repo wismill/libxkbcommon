@@ -2,6 +2,8 @@
 //       Do not edit manually!
 #pragma once
 
+#include "config.h"
+
 #include <stdint.h>
 
 /*
@@ -34,6 +36,19 @@
 #define PREPEND_MESSAGE_ID(id, fmt) JOIN(FORMAT_MESSAGE_, CHECK_ID(id))(id, fmt)
 
 /**
+ * Set of verbosity levels
+ */
+enum xkb_log_verbosity {
+    XKB_LOG_VERBOSITY_SILENT = -1,
+    XKB_LOG_VERBOSITY_MINIMAL = 0,
+    XKB_LOG_VERBOSITY_BRIEF = 1,
+    XKB_LOG_VERBOSITY_DETAILED = 5,
+    XKB_LOG_VERBOSITY_VERBOSE = 10,
+    XKB_LOG_VERBOSITY_COMPREHENSIVE = 11,
+    XKB_LOG_VERBOSITY_DEFAULT = XKB_LOG_VERBOSITY_MINIMAL,
+};
+
+/**
  * Special case when no message identifier is defined.
  */
 #define XKB_LOG_MESSAGE_NO_ID 0
@@ -49,8 +64,8 @@ enum xkb_message_code {
     XKB_WARNING_CONFLICTING_KEY_TYPE_PRESERVE_ENTRIES = 43,
     /** The result of the operation is not mathematically correct */
     XKB_ERROR_INTEGER_OVERFLOW = 52,
-    /** Warn on unsupported modifier mask */
-    XKB_ERROR_UNSUPPORTED_MODIFIER_MASK = 60,
+    /** Unsupported modifier mask */
+    XKB_ERROR_UNSUPPORTED_MODIFIER_MASK_ = 60,
     /** Expected an array entry, but the index is missing */
     XKB_ERROR_EXPECTED_ARRAY_ENTRY = 77,
     /** Invalid numeric keysym */
@@ -79,8 +94,12 @@ enum xkb_message_code {
     XKB_ERROR_INVALID_INCLUDE_STATEMENT = 203,
     /** A modmap entry is invalid */
     XKB_ERROR_INVALID_MODMAP_ENTRY = 206,
-    /** Warn when a group index is not supported */
-    XKB_ERROR_UNSUPPORTED_GROUP_INDEX = 237,
+    /** The given layout out-of-range policy is not supported */
+    XKB_ERROR_UNSUPPORTED_LAYOUT_OUT_OF_RANGE_POLICY_ = 214,
+    /** The statement is unknown */
+    XKB_ERROR_UNKNOWN_STATEMENT = 222,
+    /** Layout index is not supported */
+    XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX_ = 237,
     /** The name of a key type level is defined multiple times. */
     XKB_WARNING_CONFLICTING_KEY_TYPE_LEVEL_NAMES = 239,
     /** Invalid statement setting default values */
@@ -101,8 +120,12 @@ enum xkb_message_code {
     XKB_ERROR_INCLUDED_FILE_NOT_FOUND = 338,
     /** Use of an operator that is unknown and thus unsupported */
     XKB_ERROR_UNKNOWN_OPERATOR = 345,
+    /** Overlapping overlays are not supported */
+    XKB_ERROR_OVERLAPPING_OVERLAY = 355,
     /** Use of a legacy X11 action that is not supported */
     XKB_WARNING_UNSUPPORTED_LEGACY_ACTION = 362,
+    /** Unsupported `xkb_a11y_flags` value */
+    XKB_ERROR_UNSUPPORTED_A11Y_FLAGS_ = 371,
     /** An entry is duplicated and will be ignored */
     XKB_WARNING_DUPLICATE_ENTRY = 378,
     /** Included files form cycle */
@@ -113,6 +136,8 @@ enum xkb_message_code {
     XKB_ERROR_GLOBAL_DEFAULTS_WRONG_SCOPE = 428,
     /** Missing default section in included file */
     XKB_WARNING_MISSING_DEFAULT_SECTION = 433,
+    /** ABI struct size check failed */
+    XKB_ERROR_ABI_INVALID_STRUCT_SIZE_ = 450,
     /** Warn if there are conflicting keysyms while merging keys */
     XKB_WARNING_CONFLICTING_KEY_SYMBOL = 461,
     /** The operation is invalid in the context */
@@ -131,18 +156,24 @@ enum xkb_message_code {
     XKB_ERROR_INVALID_ACTION_FIELD = 563,
     /** Warn when a field has not the expected type */
     XKB_ERROR_WRONG_FIELD_TYPE = 578,
+    /** Overlay index is not in the supported range */
+    XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX = 588,
     /** Cannot resolve a given (Rules, Model, Layout, Variant, Options) configuration */
     XKB_ERROR_CANNOT_RESOLVE_RMLVO = 595,
     /** Invalid Unicode escape sequence */
     XKB_WARNING_INVALID_UNICODE_ESCAPE_SEQUENCE = 607,
     /** Invalid _real_ modifier */
     XKB_ERROR_INVALID_REAL_MODIFIER = 623,
+    /** Unable to add any default include path */
+    XKB_ERROR_NO_VALID_DEFAULT_INCLUDE_PATH = 632,
     /** Cannot set default value to a an unknown field */
     XKB_ERROR_UNKNOWN_DEFAULT_FIELD = 639,
     /** Warn on unknown escape sequence in string literal */
     XKB_WARNING_UNKNOWN_CHAR_ESCAPE_SEQUENCE = 645,
     /** The target file of an include statement could not be processed */
     XKB_ERROR_INVALID_INCLUDED_FILE = 661,
+    /** Invalid locale for Compose */
+    XKB_ERROR_INVALID_COMPOSE_LOCALE = 679,
     /** The Compose file syntax is invalid and the entry cannot be parsed */
     XKB_ERROR_INVALID_COMPOSE_SYNTAX = 685,
     /** A level has a different number of keysyms and actions */
@@ -171,6 +202,8 @@ enum xkb_message_code {
     XKB_ERROR_KEYMAP_COMPILATION_FAILED = 822,
     /** Unknown action type */
     XKB_ERROR_UNKNOWN_ACTION_TYPE = 844,
+    /** ABI forward-compatibility check failed */
+    XKB_ERROR_ABI_FORWARD_COMPAT_ = 876,
     /** Warn if there are conflicting actions while merging keys */
     XKB_WARNING_CONFLICTING_KEY_ACTION = 883,
     /** Warn if there are conflicting key types while merging groups */
@@ -179,7 +212,9 @@ enum xkb_message_code {
     XKB_ERROR_CONFLICTING_KEY_SYMBOLS_ENTRY = 901,
     /** Missing group index in a group name entry */
     XKB_WARNING_MISSING_SYMBOLS_GROUP_NAME_INDEX = 903,
-    /** Warn if there are conflicting fields while merging keys */
+    /** ABI backward-compatibility check failed */
+    XKB_ERROR_ABI_BACKWARD_COMPAT_ = 914,
+    /** Warn if there are conflicting fields in the key definition or while merging keys */
     XKB_WARNING_CONFLICTING_KEY_FIELDS = 935,
     /** An identifier is used but is not built-in */
     XKB_ERROR_INVALID_IDENTIFIER = 949,
@@ -191,5 +226,3 @@ enum xkb_message_code {
     XKB_WARNING_UNDECLARED_MODIFIERS_IN_KEY_TYPE = 971,
     _XKB_LOG_MESSAGE_MAX_CODE = 971
 };
-
-typedef uint32_t xkb_message_code_t;

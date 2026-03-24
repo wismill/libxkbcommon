@@ -4,9 +4,12 @@
  */
 
 #include "config.h"
+#include "test-config.h"
+
 #include <stdlib.h>
 #include <time.h>
 #include <errno.h>
+#include <locale.h>
 #include <stdio.h>
 
 #include "xkbcommon/xkbcommon-compose.h"
@@ -15,6 +18,7 @@
 #include "test.h"
 #include "src/utf8.h"
 #include "src/keysym.h"
+#include "src/compose/constants.h"
 #include "src/compose/parser.h"
 #include "src/compose/escape.h"
 #include "src/compose/dump.h"
@@ -170,6 +174,17 @@ static void
 test_compose_utf8_bom(struct xkb_context *ctx)
 {
     const char buffer[] = "\xef\xbb\xbf<A> : X";
+
+    /* Reject invalid flags */
+    assert(!xkb_compose_table_new_from_buffer(ctx,
+                                              buffer, sizeof(buffer), "",
+                                              XKB_COMPOSE_FORMAT_TEXT_V1,
+                                              -1));
+    assert(!xkb_compose_table_new_from_buffer(ctx,
+                                              buffer, sizeof(buffer), "",
+                                              XKB_COMPOSE_FORMAT_TEXT_V1,
+                                              0xffff));
+
     assert(test_compose_seq_buffer(ctx, buffer,
         XKB_KEY_A, XKB_COMPOSE_FEED_ACCEPTED, XKB_COMPOSE_COMPOSED, "X", XKB_KEY_X,
         XKB_KEY_NoSymbol));
@@ -460,11 +475,21 @@ test_state(struct xkb_context *ctx)
     assert(file);
     free(path);
 
+    /* Reject invalid flags */
+    assert(!xkb_compose_table_new_from_file(ctx, file, "",
+                                            XKB_COMPOSE_FORMAT_TEXT_V1, -1));
+    assert(!xkb_compose_table_new_from_file(ctx, file, "",
+                                            XKB_COMPOSE_FORMAT_TEXT_V1, 0xffff));
+
     table = xkb_compose_table_new_from_file(ctx, file, "",
                                             XKB_COMPOSE_FORMAT_TEXT_V1,
                                             XKB_COMPOSE_COMPILE_NO_FLAGS);
     assert(table);
     fclose(file);
+
+    /* Reject unsupported flags */
+    assert(!xkb_compose_state_new(table, -1));
+    assert(!xkb_compose_state_new(table, 0xffff));
 
     state = xkb_compose_state_new(table, XKB_COMPOSE_STATE_NO_FLAGS);
     assert(state);
@@ -552,6 +577,10 @@ test_from_locale(struct xkb_context *ctx)
     setenv("XLOCALEDIR", path, 1);
     free(path);
 
+    /* Reject invalid flags */
+    assert(!xkb_compose_table_new_from_locale(ctx, "en_US.UTF-8", -1));
+    assert(!xkb_compose_table_new_from_locale(ctx, "en_US.UTF-8", 0xffff));
+
     /* Direct directory name match. */
     table = xkb_compose_table_new_from_locale(ctx, "en_US.UTF-8",
                                               XKB_COMPOSE_COMPILE_NO_FLAGS);
@@ -575,6 +604,24 @@ test_from_locale(struct xkb_context *ctx)
                                               XKB_COMPOSE_COMPILE_NO_FLAGS);
     assert(table);
     xkb_compose_table_unref(table);
+
+#ifdef HAVE_NEWLOCALE
+    /* Test custom locale. Require installing it system-wide */
+    /* NOTE: Keep the locale name in sync with the localedef call in our CI */
+    static const char * const custom_locale = "xx_YY.UTF-8";
+    locale_t loc = newlocale(LC_ALL, custom_locale, (locale_t) 0);
+    table = xkb_compose_table_new_from_locale(ctx, custom_locale,
+                                              XKB_COMPOSE_COMPILE_NO_FLAGS);
+    if (loc == (locale_t) 0) {
+        /* Locale is not installed: no fallback */
+        assert(!table);
+    } else {
+        /* Locale is installed */
+        freelocale(loc);
+        assert(table);
+        xkb_compose_table_unref(table);
+    }
+#endif
 
     /* Bogus - not found. */
     table = xkb_compose_table_new_from_locale(ctx, "blabla",

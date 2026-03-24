@@ -680,7 +680,7 @@ xkb_compatibility "complete" {
 		useModMapMods=level1;
 		action= LockMods(modifiers=LevelFive);
 	};
-	interpret Mode_switch+AnyOfOrNone(all) {
+	interpret ISO_Group_Shift+AnyOfOrNone(all) {
 		virtualModifier= AltGr;
 		useModMapMods=level1;
 		action= SetGroup(group=+1);
@@ -1049,6 +1049,9 @@ xkb_compatibility "complete" {
 	};
 	interpret Caps_Lock+AnyOfOrNone(all) {
 		action= LockMods(modifiers=Lock);
+	};
+	interpret 0x00010001+AnyOfOrNone(all) {
+		action= RedirectKey(keycode=<AE01>,modifiers=Mod5,clearMods=Control+Mod1);
 	};
 	interpret Any+Exactly(Lock) {
 		action= LockMods(modifiers=Lock);
@@ -1619,7 +1622,7 @@ xkb_symbols "pc_us_pt_2_us_3_inet(evdev)_group(shift_caps_toggle)_compose(ralt)"
 	key <FK21>               {	[ XF86TouchpadToggle ] };
 	key <FK22>               {	[  XF86TouchpadOn ] };
 	key <FK23>               {	[ XF86TouchpadOff ] };
-	key <MDSW>               {	[     Mode_switch ] };
+	key <MDSW>               {	[ ISO_Group_Shift ] };
 	key <ALT>                {	[        NoSymbol,           Alt_L ] };
 	key <META>               {	[        NoSymbol,          Meta_L ] };
 	key <SUPR>               {	[        NoSymbol,         Super_L ] };

@@ -4,12 +4,15 @@
  */
 #pragma once
 
+#include "config.h"
+
 #include <stdbool.h>
 
 #include "xkbcommon/xkbcommon.h"
 #include "atom.h"
 #include "keymap.h"
 
+/** LUT entry */
 typedef struct {
     const char *name;
     uint32_t value;
@@ -21,6 +24,20 @@ LookupString(const LookupEntry tab[], const char *string,
 
 const char *
 LookupValue(const LookupEntry tab[], unsigned int value);
+
+#define GROUP_LAST_INDEX_NAME "last"
+enum {
+    CONTROL_NAMES_MIN_V1_INDEX = 7,
+    CONTROL_NAMES_MIN_V2_INDEX = 0,
+};
+
+static inline uint8_t
+format_control_names_offset(enum xkb_keymap_format format)
+{
+    return (format == XKB_KEYMAP_FORMAT_TEXT_V1)
+        ? CONTROL_NAMES_MIN_V1_INDEX
+        : CONTROL_NAMES_MIN_V2_INDEX;
+}
 
 extern const LookupEntry ctrlMaskNames[];
 extern const LookupEntry modComponentMaskNames[];
@@ -56,4 +73,5 @@ LedStateMaskText(struct xkb_context *ctx, const LookupEntry *lookup,
                  enum xkb_state_component mask);
 
 const char *
-ControlMaskText(struct xkb_context *ctx, enum xkb_action_controls mask);
+ControlMaskText(struct xkb_context *ctx, enum xkb_keymap_format format,
+                enum xkb_action_controls mask);

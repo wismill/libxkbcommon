@@ -7,6 +7,7 @@
 
 #include <assert.h>
 
+#include "xkbcommon/xkbcommon.h"
 #include "keymap.h"
 #include "keysym.h"
 #include "text.h"
@@ -38,24 +39,33 @@ LookupValue(const LookupEntry tab[], unsigned int value)
     return NULL;
 }
 
-const LookupEntry ctrlMaskNames[] = {
-    { "RepeatKeys", CONTROL_REPEAT },
+const LookupEntry ctrlMaskNames[25] = {
+    /* v2 keymap format only */
+    { "Overlay3", CONTROL_OVERLAY3 },
+    { "Overlay4", CONTROL_OVERLAY4 },
+    { "Overlay5", CONTROL_OVERLAY5 },
+    { "Overlay6", CONTROL_OVERLAY6 },
+    { "Overlay7", CONTROL_OVERLAY7 },
+    { "Overlay8", CONTROL_OVERLAY8 },
+    { "all", CONTROL_ALL_BOOLEAN },
+    /* v1 + v2 keymap formats */
+    [CONTROL_NAMES_MIN_V1_INDEX] = { "RepeatKeys", CONTROL_REPEAT },
     { "Repeat", CONTROL_REPEAT },
     { "AutoRepeat", CONTROL_REPEAT },
     { "SlowKeys", CONTROL_SLOW },
     { "BounceKeys", CONTROL_DEBOUNCE },
-    { "StickyKeys", CONTROL_STICKY },
-    { "MouseKeys", CONTROL_MOUSEKEYS },
-    { "MouseKeysAccel", CONTROL_MOUSEKEYS_ACCEL },
+    { "StickyKeys", CONTROL_STICKY_KEYS },
+    { "MouseKeys", CONTROL_MOUSE_KEYS },
+    { "MouseKeysAccel", CONTROL_MOUSE_KEYS_ACCEL },
     { "AccessXKeys", CONTROL_AX },
     { "AccessXTimeout", CONTROL_AX_TIMEOUT },
     { "AccessXFeedback", CONTROL_AX_FEEDBACK },
     { "AudibleBell", CONTROL_BELL },
     { "IgnoreGroupLock", CONTROL_IGNORE_GROUP_LOCK },
-    { "all", CONTROL_ALL },
+    { "Overlay1", CONTROL_OVERLAY1 },
+    { "Overlay2", CONTROL_OVERLAY2 },
+    { "all", CONTROL_ALL_BOOLEAN_V1 }, /* duplicate, matches only v1 */
     { "none", 0 },
-    { "Overlay1", 0 },
-    { "Overlay2", 0 },
     { NULL, 0 }
 };
 
@@ -82,6 +92,7 @@ const LookupEntry groupComponentMaskNames[] = {
 
 const LookupEntry groupMaskNames[] = {
     { "none", 0x00 },
+    /* "first" is omitted for compatibility reasons */
     { "all", XKB_ALL_GROUPS },
     { NULL, 0 }
 };
@@ -128,10 +139,10 @@ const LookupEntry actionTypeNames[] = {
     { "SwitchScreen", ACTION_TYPE_SWITCH_VT },
     { "SetControls", ACTION_TYPE_CTRL_SET },
     { "LockControls", ACTION_TYPE_CTRL_LOCK },
+    { "RedirectKey", ACTION_TYPE_REDIRECT_KEY },
+    { "Redirect", ACTION_TYPE_REDIRECT_KEY },
     { "Private", ACTION_TYPE_PRIVATE },
     /* deprecated actions below here - unused */
-    { "RedirectKey", ACTION_TYPE_UNSUPPORTED_LEGACY },
-    { "Redirect", ACTION_TYPE_UNSUPPORTED_LEGACY },
     { "ISOLock", ACTION_TYPE_UNSUPPORTED_LEGACY },
     { "ActionMessage", ACTION_TYPE_UNSUPPORTED_LEGACY },
     { "MessageAction", ACTION_TYPE_UNSUPPORTED_LEGACY },
@@ -283,17 +294,22 @@ LedStateMaskText(struct xkb_context *ctx, const LookupEntry *lookup,
 }
 
 const char *
-ControlMaskText(struct xkb_context *ctx, enum xkb_action_controls mask)
+ControlMaskText(struct xkb_context *ctx, enum xkb_keymap_format format,
+                enum xkb_action_controls mask)
 {
     char buf[1024];
     size_t pos = 0;
 
+    const enum xkb_action_controls all_ctrls = format_boolean_controls(format);
+    mask &= all_ctrls;
+
     if (mask == 0)
         return "none";
 
-    if (mask == CONTROL_ALL)
+    if (mask == all_ctrls)
         return "all";
 
+    const uint8_t control_names_offset = format_control_names_offset(format);
     for (unsigned int i = 0; mask; i++) {
         int ret;
 
@@ -302,8 +318,9 @@ ControlMaskText(struct xkb_context *ctx, enum xkb_action_controls mask)
 
         mask &= ~(1u << i);
 
-        const char* const maskText = LookupValue(ctrlMaskNames, 1u << i);
-        assert(maskText != NULL);
+        const char* const maskText =
+            LookupValue(ctrlMaskNames + control_names_offset, 1u << i);
+        assert(maskText);
         ret = snprintf(buf + pos, sizeof(buf) - pos, "%s%s",
                        pos == 0 ? "" : "+", maskText);
         if (ret <= 0 || pos + ret >= sizeof(buf))

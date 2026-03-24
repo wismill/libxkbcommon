@@ -1,4 +1,4 @@
-.Dd September 20, 2024
+.Dd February 27, 2026
 .Dt XKBCLI\-DUMP\-KEYMAP\-WAYLAND 1
 .Os
 .
@@ -24,6 +24,9 @@ This is a debugging tool, its behavior or output is not guaranteed to be stable.
 .It Fl \-help
 Print help and exit
 .
+.It Fl \-verbose
+Enable verbose debugging output
+.
 .It Fl \-input\-format Ar keymap_format
 The keymap format (numeric or label, e.g.\&
 .Dq v1 )
@@ -38,6 +41,18 @@ for serializing
 The keymap format (numeric or label, e.g.\&
 .Dq v1 )
 for both parsing and serializing
+.
+.It Fl \-strict
+Parse using the strict mode.
+.
+.It Fl \-no\-pretty
+Disable pretty-printing for keymap serialization.
+.
+.It Fl \-drop\-unused
+Disable unused bits serialization.
+.
+.It Fl \-explicit\-values
+Force serializing all values.
 .
 .It Fl \-raw
 Print the raw keymap, without parsing it.

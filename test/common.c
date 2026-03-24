@@ -10,8 +10,7 @@
  */
 
 #include "config.h"
-#include "darray.h"
-#include "keymap.h"
+#include "test-config.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -21,16 +20,11 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef _WIN32
-#include <io.h>
-#include <windows.h>
-#else
-#include <unistd.h>
-#include <termios.h>
-#endif
 
 #include "xkbcommon/xkbcommon.h"
 
+#include "darray.h"
+#include "keymap.h"
 #include "test.h"
 #include "utils.h"
 #include "utils-paths.h"
@@ -78,7 +72,46 @@ print_detailed_state(struct xkb_state *state)
         if (xkb_state_led_index_is_active(state, led) > 0)
             leds |= UINT32_C(1) << led;
     }
-    fprintf(stderr, "  LEDs: 0x%x\n", leds);
+    fprintf(stderr, "  LEDs: 0x%"PRIx32"\n", leds);
+}
+
+enum events_consume_flags {
+    ALL_EVENTS = 0,
+    UNTIL_KEY_EVENT = (1 << 0)
+};
+
+static bool
+consume_events(struct xkb_machine *sm,
+               struct xkb_events *events,
+               struct xkb_state *state,
+               enum events_consume_flags flags,
+               xkb_keycode_t *kc)
+{
+    const struct xkb_event *event;
+    while ((event = xkb_events_next(events))) {
+        switch (xkb_event_get_type(event)) {
+        case XKB_EVENT_TYPE_KEY_DOWN:
+        case XKB_EVENT_TYPE_KEY_REPEATED:
+        case XKB_EVENT_TYPE_KEY_UP:
+            *kc = xkb_event_get_keycode(event);
+            if (flags & UNTIL_KEY_EVENT) {
+                /* Stop on key event */
+                return true;
+            }
+            break;
+        case XKB_EVENT_TYPE_COMPONENTS_CHANGE:
+            xkb_state_update_event(state, event);
+            break;
+        default:
+            {} /* Label followed by declaration requires C23 */
+            static_assert(XKB_EVENT_TYPE_COMPONENTS_CHANGE == 4 &&
+                          XKB_EVENT_TYPE_COMPONENTS_CHANGE ==
+                          (enum xkb_event_type) _LAST_XKB_EVENT_TYPE,
+                          "Missing state event type");
+            /* ignore */
+        }
+    }
+    return true;
 }
 
 /*
@@ -98,27 +131,22 @@ print_detailed_state(struct xkb_state *state)
  * See below for examples.
  */
 int
-test_key_seq_va(struct xkb_keymap *keymap, va_list ap)
+test_key_seq_va(struct xkb_keymap *keymap, struct xkb_machine *sm,
+                struct xkb_events *events, va_list ap)
 {
-    struct xkb_state *state;
-
-    xkb_keycode_t kc;
-    int op;
-    xkb_keysym_t keysym;
-
-    const xkb_keysym_t *syms;
-    xkb_keysym_t sym;
-    char ksbuf[XKB_KEYSYM_NAME_MAX_SIZE];
-    const char *opstr = NULL;
+    assert(!(!sm ^ !events));
 
     fprintf(stderr, "----\n");
 
-    state = xkb_state_new(keymap);
+    struct xkb_state * const state = xkb_state_new(keymap);
     assert(state);
 
+    unsigned int count = 0;
+    char ksbuf[XKB_KEYSYM_NAME_MAX_SIZE];
     for (;;) {
-        kc = va_arg(ap, int) + EVDEV_OFFSET;
-        op = va_arg(ap, int);
+        const xkb_keycode_t kc = va_arg(ap, int) + EVDEV_OFFSET;
+        const int op = va_arg(ap, int);
+        const char *opstr = NULL;
 
         switch (op) {
             case DOWN: opstr = "DOWN"; break;
@@ -132,22 +160,68 @@ test_key_seq_va(struct xkb_keymap *keymap, va_list ap)
                 goto fail;
         }
 
-        const int nsyms = xkb_state_key_get_syms(state, kc, &syms);
-        if (nsyms == 1) {
-            sym = xkb_state_key_get_one_sym(state, kc);
-            syms = &sym;
+        /*
+         * WARNING: the following assumes there is always exactly 1 key event in
+         *          the events queue.
+         */
+
+        xkb_keycode_t kc_new = kc;
+        if (events) {
+            /* xkb_machine API: consume until the first key event */
+            if (op == DOWN || op == REPEAT || op == BOTH) {
+                assert(!xkb_machine_process_key(
+                    sm, kc, (op == REPEAT ? XKB_KEY_REPEATED : XKB_KEY_DOWN), events
+                ));
+                assert(consume_events(sm, events, state, UNTIL_KEY_EVENT, &kc_new));
+            }
+            if (op == UP || op == BOTH) {
+                if (op == BOTH) {
+                    /* Consume pending events */
+                    assert(consume_events(sm, events, state, ALL_EVENTS, &kc_new));
+                }
+                assert(xkb_machine_process_key(sm, kc, XKB_KEY_UP, events)
+                       == 0);
+                assert(consume_events(sm, events, state, UNTIL_KEY_EVENT, &kc_new));
+            }
         }
 
-        if (op == DOWN || op == BOTH)
-            xkb_state_update_key(state, kc, XKB_KEY_DOWN);
-        if (op == UP || op == BOTH)
-            xkb_state_update_key(state, kc, XKB_KEY_UP);
+        const xkb_keysym_t *syms;
+        const int nsyms = xkb_state_key_get_syms(state, kc_new, &syms);
+
+        if (events) {
+            /* xkb_machine API: consume the rest of events */
+            assert(consume_events(sm, events, state, ALL_EVENTS, &kc_new));
+        } else {
+            /* Legacy state API */
+            if (op == DOWN || op == REPEAT || op == BOTH)
+                xkb_state_update_key(
+                    state, kc, (op == REPEAT ? XKB_KEY_REPEATED : XKB_KEY_DOWN)
+                );
+            if (op == UP || op == BOTH)
+                xkb_state_update_key(state, kc, XKB_KEY_UP);
+        }
 
 #if HAVE_TOOLS
-        tools_print_keycode_state("", state, NULL, kc, XKB_CONSUMED_MODE_XKB, PRINT_ALL_FIELDS);
+        const enum xkb_key_direction direction
+            = (op == DOWN)
+                ? XKB_KEY_DOWN
+                : (op == REPEAT)
+                    ? XKB_KEY_REPEATED
+                    : XKB_KEY_UP;
+        tools_print_keycode_state("", state, NULL, kc, direction,
+                                  XKB_CONSUMED_MODE_XKB,
+                                  PRINT_ALL_FIELDS | PRINT_UNILINE);
 #endif
-        fprintf(stderr, "op %-6s got %d syms for keycode %3"PRIu32": [", opstr, nsyms, kc);
+        fprintf(stderr, "#%02u op %-6s got %d syms for keycode %3"PRIu32,
+                ++count, opstr, nsyms, kc);
 
+        if (kc_new != kc) {
+            fprintf(stderr, " (redirected to %3"PRIu32")", kc_new);
+        }
+
+        fprintf(stderr, ": [");
+
+        xkb_keysym_t keysym;
         for (int i = 0; i < nsyms; i++) {
             keysym = va_arg(ap, int);
             xkb_keysym_get_name(syms[i], ksbuf, sizeof(ksbuf));
@@ -207,7 +281,21 @@ test_key_seq(struct xkb_keymap *keymap, ...)
     int ret;
 
     va_start(ap, keymap);
-    ret = test_key_seq_va(keymap, ap);
+    ret = test_key_seq_va(keymap, NULL, NULL, ap);
+    va_end(ap);
+
+    return ret;
+}
+
+int
+test_key_seq2(struct xkb_keymap *keymap, struct xkb_machine *sm,
+              struct xkb_events *events, ...)
+{
+    va_list ap;
+    int ret;
+
+    va_start(ap, events);
+    ret = test_key_seq_va(keymap, sm, events, ap);
     va_end(ap);
 
     return ret;
@@ -282,6 +370,59 @@ test_get_path(const char *path_rel)
 }
 
 char *
+read_file(const char *path, FILE *file)
+{
+    enum { MAX_FILE_SIZE = 1u << 20 }; /* 1 MiB */
+
+    if (!file)
+        return NULL;
+
+    errno = 0;
+    const int fd = fileno(file);
+    if (fd < 0) {
+        fprintf(stderr, "Error getting file descriptor for %s: %s\n",
+                path, strerror(errno));
+        return NULL;
+    }
+
+    errno = 0;
+    struct stat info;
+    if (fstat(fd, &info) != 0) {
+        fprintf(stderr, "Error getting file stats for %s: %s\n",
+                path, strerror(errno));
+        return NULL;
+    }
+
+    const size_t size = (size_t)info.st_size;
+    if (size > MAX_FILE_SIZE) {
+        fprintf(stderr, "Error: file %s exceeds maximum size\n", path);
+        return NULL;
+    }
+    char *ret = malloc(size + 1);
+    if (!ret)
+        return NULL;
+
+    /*
+     * Null-terminated string.
+     * Write here to avoid clang-tidy warning about tainted index due to fread.
+     */
+    ret[size] = '\0';
+
+    errno = 0;
+    const size_t count = fread(ret, sizeof(*ret), size, file);
+    if (count != size) {
+        if (!feof(file))
+            printf("Error reading file %s: unexpected end of file\n", path);
+        else if (ferror(file))
+            fprintf(stderr, "Error reading file %s: %s\n", path, strerror(errno));
+        free(ret);
+        return NULL;
+    }
+
+    return ret;
+}
+
+char *
 test_read_file(const char *path_rel)
 {
     char *path = test_get_path(path_rel);
@@ -289,52 +430,24 @@ test_read_file(const char *path_rel)
         return NULL;
 
     FILE* file = fopen(path, "rb");
-    free(path);
+    char *ret = NULL;
 
     if (!file)
-        return NULL;
+        goto out;
 
-    const int fd = fileno(file);
-    if (fd < 0)
-        return NULL;
+    ret = read_file(path, file);
 
-    struct stat info;
-    if (fstat(fd, &info) != 0) {
+out:
+    if (file)
         fclose(file);
-        return NULL;
-    }
-
-    char* ret = malloc(info.st_size + 1);
-    if (!ret) {
-        fclose(file);
-        return NULL;
-    }
-
-    const size_t size = info.st_size;
-    const size_t count = fread(ret, sizeof(*ret), size, file);
-    if (count != size) {
-        if (!feof(file))
-            printf("Error reading file %s: unexpected end of file\n", path_rel);
-        else if (ferror(file))
-            perror("Error reading file");
-        fclose(file);
-        free(ret);
-        return NULL;
-    }
-    fclose(file);
-    ret[count] = '\0';
-
+    free(path);
     return ret;
 }
 
 struct xkb_context *
 test_get_context(enum test_context_flags test_flags)
 {
-    enum xkb_context_flags ctx_flags;
-    struct xkb_context *ctx;
-    char *path;
-
-    ctx_flags = XKB_CONTEXT_NO_DEFAULT_INCLUDES;
+    enum xkb_context_flags ctx_flags = XKB_CONTEXT_NO_DEFAULT_INCLUDES;
     if (test_flags & CONTEXT_ALLOW_ENVIRONMENT_NAMES) {
         unsetenv("XKB_DEFAULT_RULES");
         unsetenv("XKB_DEFAULT_MODEL");
@@ -346,11 +459,11 @@ test_get_context(enum test_context_flags test_flags)
         ctx_flags |= XKB_CONTEXT_NO_ENVIRONMENT_NAMES;
     }
 
-    ctx = xkb_context_new(ctx_flags);
+    struct xkb_context * const ctx = xkb_context_new(ctx_flags);
     if (!ctx)
         return NULL;
 
-    path = test_get_path("");
+    char * const path = test_get_path("");
     if (!path) {
         xkb_context_unref(ctx);
         return NULL;
@@ -383,7 +496,7 @@ test_compile_file(struct xkb_context *context, enum xkb_keymap_format format,
     assert(file != NULL);
 
     keymap = xkb_keymap_new_from_file(context, file, format,
-                                      XKB_KEYMAP_COMPILE_NO_FLAGS);
+                                      TEST_KEYMAP_COMPILE_FLAGS);
     fclose(file);
 
     if (!keymap) {
@@ -405,7 +518,7 @@ test_compile_string(struct xkb_context *context, enum xkb_keymap_format format,
     struct xkb_keymap *keymap;
 
     keymap = xkb_keymap_new_from_string(context, string, format,
-                                        XKB_KEYMAP_COMPILE_NO_FLAGS);
+                                        TEST_KEYMAP_COMPILE_FLAGS);
     if (!keymap) {
         fprintf(stderr, "Failed to compile string\n");
         return NULL;
@@ -418,10 +531,18 @@ struct xkb_keymap *
 test_compile_buffer(struct xkb_context *context, enum xkb_keymap_format format,
                     const char *buf, size_t len)
 {
+    return test_compile_buffer2(context, format, TEST_KEYMAP_COMPILE_FLAGS,
+                                buf, len);
+}
+
+struct xkb_keymap *
+test_compile_buffer2(struct xkb_context *context, enum xkb_keymap_format format,
+                     enum xkb_keymap_compile_flags flags,
+                     const char *buf, size_t len)
+{
     struct xkb_keymap *keymap;
 
-    keymap = xkb_keymap_new_from_buffer(context, buf, len, format,
-                                        XKB_KEYMAP_COMPILE_NO_FLAGS);
+    keymap = xkb_keymap_new_from_buffer(context, buf, len, format, flags);
     if (!keymap) {
         fprintf(stderr, "Failed to compile keymap from memory buffer\n");
         return NULL;
@@ -446,10 +567,10 @@ test_compile_rules(struct xkb_context *context, enum xkb_keymap_format format,
 
     if (!rules && !model && !layout && !variant && !options)
         keymap = xkb_keymap_new_from_names2(context, NULL, format,
-                                            XKB_KEYMAP_COMPILE_NO_FLAGS);
+                                            TEST_KEYMAP_COMPILE_FLAGS);
     else
         keymap = xkb_keymap_new_from_names2(context, &rmlvo, format,
-                                            XKB_KEYMAP_COMPILE_NO_FLAGS);
+                                            TEST_KEYMAP_COMPILE_FLAGS);
 
     if (!keymap) {
         fprintf(stderr,
@@ -477,7 +598,6 @@ xkb_rules_names_to_rmlvo_builder(struct xkb_context *context,
 
     /* First parse options, and gather the layout-specific ones and
      * append the others to the builder */
-    typedef darray(char *) darray_string;
     darray(darray_string) loptions = darray_new();
     if (!isempty(names->options)) {
         const char *o = names->options;
@@ -628,8 +748,12 @@ test_compile_rmlvo(struct xkb_context *context, enum xkb_keymap_format format,
         return NULL;
     }
 
+    /* Invalid flags */
+    assert(!xkb_keymap_new_from_rmlvo(rmlvo, format, -1));
+    assert(!xkb_keymap_new_from_rmlvo(rmlvo, format, 0xffff));
+
     keymap = xkb_keymap_new_from_rmlvo(rmlvo, format,
-                                       XKB_KEYMAP_COMPILE_NO_FLAGS);
+                                       TEST_KEYMAP_COMPILE_FLAGS);
 
     xkb_rmlvo_builder_unref(rmlvo);
 
@@ -651,8 +775,27 @@ test_compile_output(struct xkb_context *ctx, enum xkb_keymap_format input_format
                     const char *keymap_str, size_t keymap_len,
                     const char *rel_path, bool update_output_files)
 {
+    return test_compile_output2(ctx, input_format, output_format,
+                                TEST_KEYMAP_SERIALIZE_FLAGS,
+                                compile_buffer, compile_buffer_private,
+                                test_title, keymap_str, keymap_len, rel_path,
+                                update_output_files);
+}
+
+bool
+test_compile_output2(struct xkb_context *ctx,
+                     enum xkb_keymap_format input_format,
+                     enum xkb_keymap_format output_format,
+                     enum xkb_keymap_serialize_flags serialize_flags,
+                     test_compile_buffer_t compile_buffer,
+                     void *compile_buffer_private, const char *test_title,
+                     const char *keymap_str, size_t keymap_len,
+                     const char *rel_path, bool update_output_files)
+{
     int success = true;
-    fprintf(stderr, "*** %s ***\n", test_title);
+
+    if (test_title)
+        fprintf(stderr, "*** %s ***\n", test_title);
 
     struct xkb_keymap *keymap = compile_buffer(
         ctx, input_format, keymap_str, keymap_len, compile_buffer_private
@@ -661,7 +804,8 @@ test_compile_output(struct xkb_context *ctx, enum xkb_keymap_format input_format
     if (!rel_path) {
         /* No path given: expect compilation failure */
         if (keymap) {
-            char *got = xkb_keymap_get_as_string(keymap, output_format);
+            char *got = xkb_keymap_get_as_string2(keymap, output_format,
+                                                  serialize_flags);
             xkb_keymap_unref(keymap);
             assert(got);
             fprintf(stderr,
@@ -676,7 +820,8 @@ test_compile_output(struct xkb_context *ctx, enum xkb_keymap_format input_format
         return false;
     }
 
-    char *got = xkb_keymap_get_as_string(keymap, output_format);
+    char *got = xkb_keymap_get_as_string2(keymap, output_format,
+                                          serialize_flags);
     if (!got) {
         fprintf(stderr, "Unexpected keymap serialization failure\n");
         return false;
@@ -717,7 +862,8 @@ test_compile_output(struct xkb_context *ctx, enum xkb_keymap_format input_format
                     break;
                 }
                 free(got);
-                got = xkb_keymap_get_as_string(keymap, output_format);
+                got = xkb_keymap_get_as_string2(keymap, output_format,
+                                                serialize_flags);
                 if (!got) {
                     fprintf(stderr,
                             "Unexpected keymap roundtrip serialization failure\n");

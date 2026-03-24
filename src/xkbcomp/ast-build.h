@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "config.h"
+
 #include "ast.h"
 #include "scanner-utils.h"
 
@@ -97,6 +99,9 @@ LedMapCreate(xkb_atom_t name, VarDef *body);
 
 LedNameDef *
 LedNameCreate(int64_t ndx, ExprDef *name, bool virtual);
+
+UnknownStatement *
+UnknownStatementCreate(enum stmt_type, struct sval name);
 
 IncludeStmt *
 IncludeCreate(struct xkb_context *ctx, char *str, enum merge_mode merge);

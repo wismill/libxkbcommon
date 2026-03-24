@@ -11,9 +11,12 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <limits.h>
 #include <fcntl.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -24,17 +27,23 @@
 #include <process.h>
 #else
 #include <unistd.h>
+#if defined(HAVE_TERMIOS)
 #include <termios.h>
+#endif
 #endif
 
 #include "xkbcommon/xkbcommon.h"
+#include "xkbcommon/xkbcommon-compose.h"
 #include "tools-common.h"
-#include "src/utils.h"
+#include "src/compose/constants.h"
 #include "src/keysym.h"
-#include "src/compose/parser.h"
 #include "src/keymap.h"
+#include "src/messages-codes.h"
+#include "src/utils.h"
+#include "src/utils-numbers.h"
+#include "src/utf8-decoding.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(S_ISFIFO)
 #define S_ISFIFO(mode) 0
 #endif
 
@@ -45,7 +54,7 @@ print_keycode(struct xkb_keymap *keymap, const char* prefix,
     if (keyname) {
         printf("%s%-4s%s", prefix, keyname, suffix);
     } else {
-        printf("%s%-4d%s", prefix, keycode, suffix);
+        printf("%s%-4"PRIu32"%s", prefix, keycode, suffix);
     }
 }
 
@@ -106,8 +115,8 @@ print_modifiers_encodings(struct xkb_keymap *keymap) {
             printf("%s# Real modifiers (predefined)", indent);
         else if (mod == _XKB_MOD_INDEX_NUM_ENTRIES)
             printf("\n%s# Virtual modifiers (keymap-dependent)", indent);
+        const xkb_mod_mask_t encoding = xkb_keymap_mod_get_mask2(keymap, mod);
         const char* name = xkb_keymap_mod_get_name(keymap, mod);
-        const xkb_mod_mask_t encoding = xkb_keymap_mod_get_mask(keymap, name);
         const int count = printf("%s%s", indent, name);
         printf(":%*s 0x%08"PRIx32,
                MAX(0, padding - count + (int)sizeof(indent) - 1), "", encoding);
@@ -154,54 +163,400 @@ print_keys_modmaps(struct xkb_keymap *keymap) {
     printf("\n");
 }
 
-void
-tools_print_keycode_state(const char *prefix,
-                          struct xkb_state *state,
-                          struct xkb_compose_state *compose_state,
-                          xkb_keycode_t keycode,
-                          enum xkb_consumed_mode consumed_mode,
-                          print_state_fields_mask_t fields)
+static void
+print_modifiers_names(struct xkb_state *state,
+                      enum xkb_state_component components,
+                      xkb_keycode_t keycode,
+                      enum xkb_consumed_mode consumed_mode)
 {
-    struct xkb_keymap *keymap;
+    struct xkb_keymap * const keymap = xkb_state_get_keymap(state);
+    for (xkb_mod_index_t mod = 0; mod < xkb_keymap_num_mods(keymap); mod++) {
+        if (xkb_state_mod_index_is_active(state, mod, components) <= 0)
+            continue;
+        const bool consumed =
+            keycode != XKB_KEYCODE_INVALID &&
+            xkb_state_mod_index_is_consumed2(state, keycode, mod, consumed_mode);
+        printf(" %s%s",
+               (consumed ? "-" : ""), xkb_keymap_mod_get_name(keymap, mod));
+    }
+}
 
-    xkb_keysym_t sym;
-    const xkb_keysym_t *syms;
-    int nsyms;
+#define INDENT "    "
+
+static void
+print_modifiers(struct xkb_state *state, enum xkb_state_component changed,
+                xkb_keycode_t keycode, bool show_consumed,
+                enum xkb_consumed_mode consumed_mode, bool verbose)
+{
+    static const struct {
+        enum xkb_state_component component;
+        unsigned int padding;
+        const char *label;
+    } types[] = {
+        { XKB_STATE_MODS_DEPRESSED, 0, "depressed" },
+        { XKB_STATE_MODS_LATCHED,   2, "latched"   },
+        { XKB_STATE_MODS_LOCKED,    3, "locked"    },
+        { XKB_STATE_MODS_EFFECTIVE, 0, "effective" },
+    };
+    if (verbose) {
+        static const char label[] = INDENT "modifiers: ";
+        printf("%s", label);
+        for (unsigned int k = 0; k < ARRAY_SIZE(types); k++) {
+            const xkb_mod_mask_t mods =
+                xkb_state_serialize_mods(state, types[k].component);
+            const char * const changed_indicator = (changed)
+                ? (changed & types[k].component ? "*" : " ")
+                : "";
+            printf("%*s%s%s: %*s0x%08"PRIx32,
+                   (k == 0) ? 0 : (unsigned int) sizeof(label) - 1, "",
+                   changed_indicator, types[k].label,
+                   types[k].padding, "", mods);
+            print_modifiers_names(
+                state, types[k].component,
+                (show_consumed ? keycode : XKB_KEYCODE_INVALID), consumed_mode
+            );
+            printf("\n");
+        }
+    } else {
+        if (changed) {
+            for (unsigned int k = 0; k < ARRAY_SIZE(types); k++) {
+                if (!(changed & types[k].component))
+                    continue;
+                const xkb_mod_mask_t mods =
+                    xkb_state_serialize_mods(state, types[k].component);
+                printf("%s-mods: 0x%08"PRIx32"; ", types[k].label, mods);
+            }
+        } else {
+            const xkb_mod_mask_t mods =
+                xkb_state_serialize_mods(state, XKB_STATE_MODS_EFFECTIVE);
+            printf("modifiers: 0x%08"PRIx32, mods);
+            print_modifiers_names(state, XKB_STATE_MODS_EFFECTIVE, keycode,
+                                  consumed_mode);
+            printf("\n");
+        }
+    }
+}
+
+static void
+print_layouts(struct xkb_state *state, enum xkb_state_component changed,
+              xkb_keycode_t keycode, bool verbose)
+{
+    struct xkb_keymap * const keymap = xkb_state_get_keymap(state);
+    static const char label[] = INDENT "layout: ";
+    static const struct {
+        enum xkb_state_component component;
+        unsigned int padding;
+        const char *label;
+    } types[] = {
+        { XKB_STATE_LAYOUT_DEPRESSED, 0, "depressed" },
+        { XKB_STATE_LAYOUT_LATCHED,   2, "latched"   },
+        { XKB_STATE_LAYOUT_LOCKED,    3, "locked"    },
+        { XKB_STATE_LAYOUT_EFFECTIVE, 0, "effective" },
+    };
+    if (verbose) {
+        printf("%s", label);
+        for (unsigned int k = 0; k < ARRAY_SIZE(types); k++) {
+            const xkb_layout_index_t layout =
+                xkb_state_serialize_layout(state, types[k].component);
+            const char * const changed_indicator = (changed)
+                ? (changed & types[k].component ? "*" : " ")
+                : "";
+            printf("%*s%s%s: %*s%"PRId32,
+                   (k == 0) ? 0 : (unsigned int) sizeof(label) - 1, "",
+                   changed_indicator, types[k].label,
+                   types[k].padding, "", layout);
+            const char * const layout_name =
+                xkb_keymap_layout_get_name(keymap, layout);
+            if (layout_name &&
+                (types[k].component == XKB_STATE_LAYOUT_LOCKED ||
+                 types[k].component == XKB_STATE_LAYOUT_EFFECTIVE)) {
+                printf(" \"%s\"\n", layout_name);
+            } else {
+                printf("\n");
+            }
+        }
+    } else if (changed) {
+        for (unsigned int k = 0; k < ARRAY_SIZE(types); k++) {
+            if (!(changed & types[k].component))
+                continue;
+            const xkb_layout_index_t layout =
+                xkb_state_serialize_layout(state, types[k].component);
+            printf("%s-layout: %"PRId32"; ", types[k].label, layout);
+        }
+    }
+    if (keycode != XKB_KEYCODE_INVALID) {
+        const xkb_layout_index_t layout =
+            xkb_state_key_get_layout(state, keycode);
+        const char * const layout_name =
+            xkb_keymap_layout_get_name(keymap, layout);
+        if (verbose) {
+            printf("%*s%skey:       %"PRIu32" \"%s\"\n",
+                   (unsigned int) sizeof(label) - 1, "",
+                   (changed ? " " : ""),
+                   layout, (layout_name ? layout_name : "(no name)"));
+        } else {
+            printf(INDENT "layout: %"PRIu32"  \"%s\"\n",
+                   layout, (layout_name ? layout_name : "(no name)"));
+        }
+    }
+}
+
+static void
+print_leds(struct xkb_state *state, bool verbose) {
+    struct xkb_keymap * const keymap = xkb_state_get_keymap(state);
+    unsigned int count = 0;
+    for (xkb_led_index_t led = 0; led < xkb_keymap_num_leds(keymap); led++) {
+        if (xkb_state_led_index_is_active(state, led) <= 0)
+            continue;
+        if (count > 0)
+            printf(", ");
+        if (verbose) {
+            printf("%"PRIu32" \"%s\"",
+                   led, xkb_keymap_led_get_name(keymap, led));
+        } else {
+            printf("%s", xkb_keymap_led_get_name(keymap, led));
+        }
+        count++;
+    }
+}
+
+static void
+print_controls(struct xkb_state *state, bool verbose) {
+    static const struct {
+        enum xkb_action_controls control;
+        const char *name;
+    } controls[] = {
+        { CONTROL_REPEAT, "repeat" },
+        { CONTROL_SLOW, "slow" },
+        { CONTROL_DEBOUNCE, "debounce" },
+        { CONTROL_STICKY_KEYS, "sticky-keys" },
+        { CONTROL_MOUSE_KEYS, "mouse-keys" },
+        { CONTROL_MOUSE_KEYS_ACCEL, "mouse-keys-accel" },
+        { CONTROL_AX, "ax" },
+        { CONTROL_AX_TIMEOUT, "ax-timeout" },
+        { CONTROL_AX_FEEDBACK, "ax-feedback" },
+        { CONTROL_BELL, "bell" },
+        { CONTROL_OVERLAY1, "overlay1" },
+        { CONTROL_OVERLAY2, "overlay2" },
+        { CONTROL_IGNORE_GROUP_LOCK, "ignore-group-lock" },
+        { CONTROL_OVERLAY3, "overlay3" },
+        { CONTROL_OVERLAY4, "overlay4" },
+        { CONTROL_OVERLAY5, "overlay5" },
+        { CONTROL_OVERLAY6, "overlay6" },
+        { CONTROL_OVERLAY7, "overlay7" },
+        { CONTROL_OVERLAY8, "overlay8" },
+    };
+    static_assert(
+        CONTROL_ALL_BOOLEAN ==
+        (CONTROL_REPEAT | CONTROL_SLOW | CONTROL_DEBOUNCE |
+         CONTROL_STICKY_KEYS | CONTROL_MOUSE_KEYS | CONTROL_MOUSE_KEYS_ACCEL |
+         CONTROL_AX | CONTROL_AX_TIMEOUT | CONTROL_AX_FEEDBACK |
+         CONTROL_BELL | CONTROL_OVERLAY1 | CONTROL_OVERLAY2 |
+         CONTROL_IGNORE_GROUP_LOCK |
+         CONTROL_OVERLAY3 | CONTROL_OVERLAY4 | CONTROL_OVERLAY5 |
+         CONTROL_OVERLAY6 | CONTROL_OVERLAY7 | CONTROL_OVERLAY8),
+        "missing controls names"
+    );
+
+    const enum xkb_keyboard_control_flags ctrls =
+        xkb_state_serialize_enabled_controls(state, XKB_STATE_CONTROLS);
+
+    printf("0x%08x ", ctrls);
+
+    if (!ctrls) {
+        printf("(none)");
+        return;
+    }
+
+    unsigned int count = 0;
+    for (uint8_t c = 0; c < (uint8_t) ARRAY_SIZE(controls); c++) {
+        if (!(controls[c].control & ctrls))
+            continue;
+        if (count > 0)
+            printf(", ");
+        printf("%s", controls[c].name);
+        count++;
+    }
+}
+
+static void
+tools_print_detailed_keycode_state(const char *prefix,
+                                   struct xkb_state *state,
+                                   struct xkb_compose_state *compose_state,
+                                   xkb_keycode_t keycode,
+                                   enum xkb_key_direction direction,
+                                   enum xkb_consumed_mode consumed_mode,
+                                   enum print_state_options options)
+{
+    printf("------------\n");
+    if (prefix)
+        printf("%s", prefix);
+
+    struct xkb_keymap * const keymap = xkb_state_get_keymap(state);
+    const char * const keyname = xkb_keymap_key_get_name(keymap, keycode);
+    printf("key %s 0x%03"PRIx32" <%s>\n",
+           (direction == XKB_KEY_UP
+                ? "up:   "
+                : direction == XKB_KEY_REPEATED
+                    ? "repeat:"
+                    : "down:  "),
+           keycode, (keyname ? keyname : "(no name)"));
+
+    if (direction == XKB_KEY_UP)
+        return;
+
+    const xkb_layout_index_t layout = xkb_state_key_get_layout(state, keycode);
+
+    const bool verbose = options & PRINT_VERBOSE;
+
+    if (options & PRINT_LAYOUT)
+        print_layouts(state, 0, keycode, verbose);
+
+    if (verbose) {
+        print_modifiers(state, 0, keycode, true, consumed_mode, verbose);
+        printf(INDENT "level: %"PRIu32"\n",
+               xkb_state_key_get_level(state, keycode, layout));
+    } else {
+        printf(INDENT "level:  %"PRIu32",  ",
+               xkb_state_key_get_level(state, keycode, layout));
+        print_modifiers(state, 0, keycode, true, consumed_mode, verbose);
+    }
+
+    enum xkb_compose_status status = XKB_COMPOSE_NOTHING;
+    if (compose_state)
+        status = xkb_compose_state_get_status(compose_state);
+
 #define BUFFER_SIZE MAX(XKB_COMPOSE_MAX_STRING_SIZE, XKB_KEYSYM_NAME_MAX_SIZE)
-    assert(XKB_KEYSYM_UTF8_MAX_SIZE <= BUFFER_SIZE);
+    static_assert(XKB_KEYSYM_UTF8_MAX_SIZE <= BUFFER_SIZE,
+                  "buffer too small");
     char s[BUFFER_SIZE];
 #undef BUFFER_SIZE
-    xkb_layout_index_t layout;
-    enum xkb_compose_status status;
 
-    keymap = xkb_state_get_keymap(state);
+    bool show_unicode = false;
+    const xkb_keysym_t *syms;
+    const int nsyms = xkb_state_key_get_syms(state, keycode, &syms);
+    if (nsyms > 0) {
+        show_unicode = true;
+        printf(INDENT "%skeysyms:",
+               (status == XKB_COMPOSE_NOTHING ? "" : "raw "));
+        for (int i = 0; i < nsyms; i++) {
+            xkb_keysym_get_name(syms[i], s, sizeof(s));
+            printf(" %s", s);
+        }
+    }
 
-    nsyms = xkb_state_key_get_syms(state, keycode, &syms);
+    switch (status) {
+    case XKB_COMPOSE_NOTHING:
+        break;
+    case XKB_COMPOSE_COMPOSING:
+        printf("\n" INDENT "compose: pending\n");
+        show_unicode = false;
+        break;
+    case XKB_COMPOSE_COMPOSED: {
+            const xkb_keysym_t sym = xkb_compose_state_get_one_sym(compose_state);
+            xkb_keysym_get_name(sym, s, sizeof(s));
+        printf("\n" INDENT "composed: %s", s);
+        show_unicode = true;
+        break;
+    }
+    case XKB_COMPOSE_CANCELLED:
+        printf("\n" INDENT "compose: cancelled\n");
+        show_unicode = false;
+        break;
+    default:
+        fprintf(stderr, "\nERROR: Unexpected compose state: %d\n", status);
+        assert(!"Unexpected compose state");
+    }
+
+    if ((options & PRINT_UNICODE) && show_unicode) {
+        if (status == XKB_COMPOSE_COMPOSED)
+            xkb_compose_state_get_utf8(compose_state, s, sizeof(s));
+        else
+            xkb_state_key_get_utf8(state, keycode, s, sizeof(s));
+        if (!*s) {
+            printf("\n");
+        } else {
+            /*
+             * HACK: escape single control characters from C0 set using the
+             * Unicode codepoint convention. Ideally we would like to escape
+             * any non-printable character in the string.
+             */
+            if (strlen(s) == 1 && (*s <= 0x1F || *s == 0x7F))
+                printf(" (");
+            else
+                printf(" \"%s\" (", s);
+
+            /* Print Unicode code points */
+            size_t offset = 0;
+            size_t count = 0;
+            uint32_t cp = utf8_next_code_point(s, sizeof(s), &offset);
+            while (cp && cp != INVALID_UTF8_CODE_POINT) {
+                if (count++ > 0)
+                    printf(" ");
+                printf("U+%04"PRIX32, cp);
+                cp = utf8_next_code_point(s + offset, sizeof(s) - offset,
+                                          &offset);
+            }
+            printf(", %zu code point%s)\n", count, (count > 1 ? "s" : ""));
+        }
+    } else if (show_unicode) {
+        printf("\n");
+    }
+
+    printf(INDENT "LEDs: ");
+    print_leds(state, true);
+    printf("\n");
+}
+
+static void
+tools_print_one_liner_keycode_state(const char *prefix,
+                                    struct xkb_state *state,
+                                    struct xkb_compose_state *compose_state,
+                                    xkb_keycode_t keycode,
+                                    enum xkb_key_direction direction,
+                                    enum xkb_consumed_mode consumed_mode,
+                                    enum print_state_options options)
+{
+    if (prefix)
+        printf("%s", prefix);
+
+    struct xkb_keymap * const keymap = xkb_state_get_keymap(state);
+    printf("key %s",
+           (direction == XKB_KEY_UP)
+                ? "up    "
+                : (direction == XKB_KEY_REPEATED)
+                    ? "repeat"
+                    : "down  ");
+    print_keycode(keymap, " [ ", keycode, " ] ");
+
+    if (direction == XKB_KEY_UP)
+        return;
+
+    const xkb_keysym_t *syms;
+    int nsyms = xkb_state_key_get_syms(state, keycode, &syms);
 
     if (nsyms <= 0)
         return;
 
-    status = XKB_COMPOSE_NOTHING;
+    enum xkb_compose_status status = XKB_COMPOSE_NOTHING;
     if (compose_state)
         status = xkb_compose_state_get_status(compose_state);
 
-    if (status == XKB_COMPOSE_COMPOSING || status == XKB_COMPOSE_CANCELLED)
-        return;
-
+    xkb_keysym_t sym;
     if (status == XKB_COMPOSE_COMPOSED) {
         sym = xkb_compose_state_get_one_sym(compose_state);
         syms = &sym;
         nsyms = 1;
-    }
-    else if (nsyms == 1) {
+    } else if (nsyms == 1) {
         sym = xkb_state_key_get_one_sym(state, keycode);
         syms = &sym;
     }
 
-    if (prefix)
-        printf("%s", prefix);
-
-    print_keycode(keymap, "keycode [ ", keycode, " ] ");
+#define BUFFER_SIZE MAX(XKB_COMPOSE_MAX_STRING_SIZE, XKB_KEYSYM_NAME_MAX_SIZE)
+    static_assert(XKB_KEYSYM_UTF8_MAX_SIZE <= BUFFER_SIZE,
+                  "buffer too small");
+    char s[BUFFER_SIZE];
+#undef BUFFER_SIZE
 
     printf("keysyms [ ");
     for (int i = 0; i < nsyms; i++) {
@@ -210,83 +565,193 @@ tools_print_keycode_state(const char *prefix,
     }
     printf("] ");
 
-    if (fields & PRINT_UNICODE) {
-        if (status == XKB_COMPOSE_COMPOSED)
+    if (!(options & PRINT_UNICODE)) {
+        /* Do nothing */
+    } else if (status == XKB_COMPOSE_COMPOSING) {
+        printf("composing [  ] ");
+    } else if (status == XKB_COMPOSE_CANCELLED) {
+        printf("cancelled [  ] ");
+    } else {
+        assert(status == XKB_COMPOSE_NOTHING || status == XKB_COMPOSE_COMPOSED);
+        if (status == XKB_COMPOSE_COMPOSED) {
+            printf("composed ");
             xkb_compose_state_get_utf8(compose_state, s, sizeof(s));
-        else
-            xkb_state_key_get_utf8(state, keycode, s, sizeof(s));
-        /* HACK: escape single control characters from C0 set using the
-        * Unicode codepoint convention. Ideally we would like to escape
-        * any non-printable character in the string.
-        */
-        if (!*s) {
-            printf("unicode [   ] ");
-        } else if (strlen(s) == 1 && (*s <= 0x1F || *s == 0x7F)) {
-            printf("unicode [ U+%04hX ] ", *s);
         } else {
-            printf("unicode [ %s ] ", s);
+            printf("unicode ");
+            if (compose_state)
+                printf(" ");
+            xkb_state_key_get_utf8(state, keycode, s, sizeof(s));
+        }
+        if (!*s) {
+            printf("[   ] ");
+        } else if (strlen(s) == 1 && (*s <= 0x1F || *s == 0x7F)) {
+            /*
+             * HACK: escape single control characters from C0 set using the
+             * Unicode codepoint convention. Ideally we would like to escape
+             * any non-printable character in the string.
+             */
+            printf("[ U+%04hX ] ", *s);
+        } else {
+            printf("[ %s ] ", s);
         }
     }
 
-    layout = xkb_state_key_get_layout(state, keycode);
-    if (fields & PRINT_LAYOUT) {
-        printf("layout [ %s (%"PRIu32") ] ",
-               xkb_keymap_layout_get_name(keymap, layout), layout);
+    const xkb_layout_index_t layout = xkb_state_key_get_layout(state, keycode);
+    if (options & PRINT_LAYOUT) {
+        const char * const layout_name =
+            xkb_keymap_layout_get_name(keymap, layout);
+        printf("layout [ #%"PRIu32" %s ] ",
+               layout, (layout_name ? layout_name : "(no name)"));
     }
 
     printf("level [ %"PRIu32" ] ",
            xkb_state_key_get_level(state, keycode, layout));
 
-    printf("mods [ ");
-    for (xkb_mod_index_t mod = 0; mod < xkb_keymap_num_mods(keymap); mod++) {
-        if (xkb_state_mod_index_is_active(state, mod,
-                                          XKB_STATE_MODS_EFFECTIVE) <= 0)
-            continue;
-        if (xkb_state_mod_index_is_consumed2(state, keycode, mod,
-                                             consumed_mode))
-            printf("-%s ", xkb_keymap_mod_get_name(keymap, mod));
-        else
-            printf("%s ", xkb_keymap_mod_get_name(keymap, mod));
-    }
-    printf("] ");
+    printf("mods [");
+    print_modifiers_names(state, XKB_STATE_MODS_EFFECTIVE, keycode,
+                          consumed_mode);
+    printf(" ] ");
 
     printf("leds [ ");
-    for (xkb_led_index_t led = 0; led < xkb_keymap_num_leds(keymap); led++) {
-        if (xkb_state_led_index_is_active(state, led) <= 0)
-            continue;
-        printf("%s ", xkb_keymap_led_get_name(keymap, led));
-    }
-    printf("] ");
-
-    printf("\n");
+    print_leds(state, false);
+    printf(" ] ");
 }
 
 void
-tools_print_state_changes(enum xkb_state_component changed)
+tools_print_keycode_state(const char *prefix,
+                          struct xkb_state *state,
+                          struct xkb_compose_state *compose_state,
+                          xkb_keycode_t keycode,
+                          enum xkb_key_direction direction,
+                          enum xkb_consumed_mode consumed_mode,
+                          enum print_state_options options)
+{
+
+    if (keycode == XKB_KEYCODE_INVALID)
+        return;
+
+    if (options & PRINT_UNILINE) {
+        tools_print_one_liner_keycode_state(
+            prefix, state, compose_state, keycode, direction,
+            consumed_mode, options
+        );
+        printf("\n");
+    } else {
+        tools_print_detailed_keycode_state(
+            prefix, state, compose_state, keycode, direction,
+            consumed_mode, options
+        );
+    }
+}
+
+void
+tools_print_state_changes(const char *prefix, struct xkb_state *state,
+                          enum xkb_state_component changed,
+                          enum print_state_options options)
 {
     if (changed == 0)
         return;
 
-    printf("changed [ ");
-    if (changed & XKB_STATE_LAYOUT_EFFECTIVE)
-        printf("effective-layout ");
-    if (changed & XKB_STATE_LAYOUT_DEPRESSED)
-        printf("depressed-layout ");
-    if (changed & XKB_STATE_LAYOUT_LATCHED)
-        printf("latched-layout ");
-    if (changed & XKB_STATE_LAYOUT_LOCKED)
-        printf("locked-layout ");
-    if (changed & XKB_STATE_MODS_EFFECTIVE)
-        printf("effective-mods ");
-    if (changed & XKB_STATE_MODS_DEPRESSED)
-        printf("depressed-mods ");
-    if (changed & XKB_STATE_MODS_LATCHED)
-        printf("latched-mods ");
-    if (changed & XKB_STATE_MODS_LOCKED)
-        printf("locked-mods ");
-    if (changed & XKB_STATE_LEDS)
-        printf("leds ");
-    printf("]\n");
+    if (prefix)
+        printf("%s", prefix);
+    if (options & PRINT_UNILINE) {
+        printf("state      [ ");
+        print_layouts(state, changed, XKB_KEYCODE_INVALID, false);
+        print_modifiers(state, changed, XKB_KEYCODE_INVALID, false,
+                        XKB_CONSUMED_MODE_XKB /* unused*/, false);
+        if (changed & XKB_STATE_LEDS)
+            printf("leds ");
+        if (changed & XKB_STATE_CONTROLS)
+            printf("controls ");
+        printf("]\n");
+    } else {
+        printf("state changes:\n");
+
+        static const enum xkb_state_component mod_mask =
+            XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED |
+            XKB_STATE_MODS_LOCKED | XKB_STATE_MODS_EFFECTIVE;
+        if (changed & mod_mask) {
+            print_modifiers(state, changed, XKB_KEYCODE_INVALID,
+                            false, XKB_CONSUMED_MODE_XKB /* unused*/, true);
+        }
+
+        static const enum xkb_state_component layout_mask =
+            XKB_STATE_LAYOUT_DEPRESSED | XKB_STATE_LAYOUT_LATCHED |
+            XKB_STATE_LAYOUT_LOCKED | XKB_STATE_LAYOUT_EFFECTIVE;
+        if (changed & layout_mask) {
+            print_layouts(state, changed, XKB_KEYCODE_INVALID, true);
+        }
+
+        if (changed & XKB_STATE_LEDS) {
+            printf(INDENT "LEDs: ");
+            print_leds(state, true);
+            printf("\n");
+        }
+
+        if (changed & XKB_STATE_CONTROLS) {
+            printf(INDENT "Controls: ");
+            print_controls(state, true);
+            printf("\n");
+        }
+    }
+}
+
+#undef INDENT
+
+void
+tools_print_events(const char *prefix, struct xkb_state *state,
+                   struct xkb_events *events,
+                   struct xkb_compose_state *compose_state,
+                   enum xkb_consumed_mode consumed_mode,
+                   enum print_state_options options, bool report_state_changes)
+{
+    const struct xkb_event *event;
+    while ((event = xkb_events_next(events)) != NULL) {
+        const enum xkb_event_type event_type =
+            xkb_event_get_type(event);
+        switch (event_type) {
+            case XKB_EVENT_TYPE_KEY_DOWN:
+            case XKB_EVENT_TYPE_KEY_REPEATED:
+            case XKB_EVENT_TYPE_KEY_UP: {
+                const xkb_keycode_t kc = xkb_event_get_keycode(event);
+                const enum xkb_key_direction direction
+                    = (event_type == XKB_EVENT_TYPE_KEY_UP)
+                    ? XKB_KEY_UP
+                    : (event_type == XKB_EVENT_TYPE_KEY_REPEATED)
+                        ? XKB_KEY_REPEATED
+                        : XKB_KEY_DOWN;
+                if (compose_state && direction == XKB_KEY_DOWN) {
+                    const xkb_keysym_t keysym =
+                        xkb_state_key_get_one_sym(state, kc);
+                    xkb_compose_state_feed(compose_state, keysym);
+                }
+                tools_print_keycode_state(prefix, state, compose_state, kc,
+                                          direction, consumed_mode,
+                                          options);
+                if (compose_state) {
+                    const enum xkb_compose_status status =
+                        xkb_compose_state_get_status(compose_state);
+                    if (status == XKB_COMPOSE_CANCELLED ||
+                        status == XKB_COMPOSE_COMPOSED)
+                            xkb_compose_state_reset(compose_state);
+                }
+                break;
+            }
+            case XKB_EVENT_TYPE_COMPONENTS_CHANGE: {
+                const enum xkb_state_component changed =
+                    xkb_state_update_event(state, event);
+                if (report_state_changes && changed)
+                    tools_print_state_changes(prefix, state, changed, options);
+                break;
+            }
+            default: {
+                static_assert(XKB_EVENT_TYPE_COMPONENTS_CHANGE == 4 &&
+                              XKB_EVENT_TYPE_COMPONENTS_CHANGE ==
+                              (enum xkb_event_type) _LAST_XKB_EVENT_TYPE,
+                              "Missing event type");
+            }
+        }
+    }
 }
 
 #ifdef _WIN32
@@ -307,7 +772,9 @@ tools_enable_stdin_echo(void)
     GetConsoleMode(stdin_handle, &mode);
     SetConsoleMode(stdin_handle, mode | ENABLE_ECHO_INPUT);
 }
-#else
+
+#elif defined(HAVE_TERMIOS)
+
 void
 tools_disable_stdin_echo(void)
 {
@@ -330,12 +797,60 @@ tools_enable_stdin_echo(void)
     }
 }
 
+#else
+
+/* Unsupported */
+
+void
+tools_disable_stdin_echo(void)
+{
+    fprintf(stderr, "ERROR: Disabling stdin echo is not supported\n");
+}
+
+void
+tools_enable_stdin_echo(void)
+{
+    fprintf(stderr, "ERROR: Enabling stdin echo is not supported\n");
+}
+
 #endif
 
-int
-tools_exec_command(const char *prefix, int real_argc, char **real_argv)
+void
+tools_enable_verbose_logging(struct xkb_context *ctx)
 {
-    char *argv[64] = {NULL};
+    xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_DEBUG);
+    xkb_context_set_log_verbosity(ctx, XKB_LOG_VERBOSITY_VERBOSE);
+}
+
+static inline bool
+is_wayland_session(void)
+{
+    /* This simple check should be enough for our use case. */
+    return !isempty(getenv("WAYLAND_DISPLAY"));
+}
+
+static inline bool
+is_x11_session(void)
+{
+    /* This simple check should be enough for our use case. */
+    return !isempty(getenv("DISPLAY"));
+}
+
+const char *
+select_backend(const char *wayland, const char *x11, const char *fallback)
+{
+    if (wayland && is_wayland_session())
+        return wayland;
+    else if (x11 && is_x11_session())
+        return x11;
+    else
+        return fallback;
+}
+
+int
+tools_exec_command(const char *prefix, int real_argc, const char **real_argv)
+{
+    const char *argv[64] = {NULL};
     char executable[PATH_MAX];
     const char *command;
     int rc;
@@ -355,10 +870,10 @@ tools_exec_command(const char *prefix, int real_argc, char **real_argv)
     }
 
     argv[0] = executable;
-    for (int i = 1; i < real_argc; i++)
+    for (int i = 1; i < MIN(real_argc, (int) ARRAY_SIZE(argv)); i++)
         argv[i] = real_argv[i];
 
-    execv(executable, argv);
+    execv(executable, (char **) argv);
     if (errno == ENOENT) {
         fprintf(stderr, "Command '%s' is not available\n", command);
         return EXIT_INVALID_USAGE;
@@ -412,4 +927,393 @@ tools_read_stdin(void)
 err:
     fclose(file);
     return NULL;
+}
+
+bool
+tools_parse_bool(const char *s, enum tools_arg_optionality optional, bool *out)
+{
+    if (isempty(s)) {
+        if (optional == TOOLS_ARG_REQUIRED) {
+            fprintf(stderr, "ERROR: boolean value is required, but got none\n");
+            return false;
+        } else {
+            /* Keep value unchanged */
+            return true;
+        }
+    } else if (strncmp(s, "true", sizeof("true")) == 0) {
+        *out = true;
+        return true;
+    } else if (strncmp(s, "false", sizeof("false")) == 0) {
+        *out = false;
+        return true;
+    } else {
+        fprintf(stderr, "ERROR: invalid boolean value: \"%s\"\n", s);
+        return false;
+    }
+}
+
+bool
+tools_parse_controls(const char *raw, struct xkb_machine_options *options,
+                     enum xkb_keyboard_control_flags *controls_affect,
+                     enum xkb_keyboard_control_flags *controls_values)
+{
+    if (isempty(raw))
+        return true;
+
+    enum control_field {
+        CONTROL_FIELD_OVERLAY1 = 0,
+        CONTROL_FIELD_OVERLAY2,
+        CONTROL_FIELD_OVERLAY3,
+        CONTROL_FIELD_OVERLAY4,
+        CONTROL_FIELD_OVERLAY5,
+        CONTROL_FIELD_OVERLAY6,
+        CONTROL_FIELD_OVERLAY7,
+        CONTROL_FIELD_OVERLAY8,
+        CONTROL_FIELD_STICKY_KEYS,
+        CONTROL_FIELD_LATCH_TO_LOCK,
+        CONTROL_FIELD_LATCH_SIMULTANEOUS,
+        _NUM_CONTROL_FIELDS,
+    };
+
+    static const char * fields[] = {
+        [CONTROL_FIELD_OVERLAY1] = "overlay1",
+        [CONTROL_FIELD_OVERLAY2] = "overlay2",
+        [CONTROL_FIELD_OVERLAY3] = "overlay3",
+        [CONTROL_FIELD_OVERLAY4] = "overlay4",
+        [CONTROL_FIELD_OVERLAY5] = "overlay5",
+        [CONTROL_FIELD_OVERLAY6] = "overlay6",
+        [CONTROL_FIELD_OVERLAY7] = "overlay7",
+        [CONTROL_FIELD_OVERLAY8] = "overlay8",
+        [CONTROL_FIELD_STICKY_KEYS] = "sticky-keys",
+        [CONTROL_FIELD_LATCH_TO_LOCK] = "latch-to-lock",
+        [CONTROL_FIELD_LATCH_SIMULTANEOUS]= "latch-simultaneous",
+    };
+
+    const char *start = raw;
+    const char *s = start;
+
+    bool ok = true;
+
+    /* Parse comma-separated list of options */
+    while (true) {
+        /* Consume until reaching next item or end of string */
+        while (*s != '\0' && *s != ',') { s++; }
+
+        /*
+         * Handle +/- prefix, to respectively enable or disable the
+         * corresponding option. This enable to explicitly override defaults.
+         */
+        const bool disable = (start[0] == '-');
+        if (disable || start[0] == '+')
+            start++;
+
+        const size_t len = s - start;
+        if (!len) {
+            if (s[0] == ',') {
+                /* Accept empty entry */
+                goto next;
+            } else {
+                break;
+            }
+        }
+
+        ok = false;
+        for (enum control_field type = 0;
+             type < (enum control_field) ARRAY_SIZE(fields);
+             type++) {
+            if (strncmp(start, fields[type], len) != 0 ||
+                fields[type][len] != '\0')
+                continue;
+
+            ok = true;
+
+            switch (type) {
+            case CONTROL_FIELD_OVERLAY1:
+            case CONTROL_FIELD_OVERLAY2: {
+                static_assert(CONTROL_FIELD_OVERLAY1 == 0, "");
+                static_assert(XKB_KEYBOARD_CONTROL_OVERLAY2 ==
+                              (XKB_KEYBOARD_CONTROL_OVERLAY1 << 1), "");
+                const enum xkb_keyboard_control_flags flag =
+                    XKB_KEYBOARD_CONTROL_OVERLAY1 << type;
+                if (disable)
+                    *controls_values &= ~flag;
+                else
+                    *controls_values |= flag;
+                *controls_affect |= flag;
+                break;
+            }
+            case CONTROL_FIELD_OVERLAY3:
+            case CONTROL_FIELD_OVERLAY4:
+            case CONTROL_FIELD_OVERLAY5:
+            case CONTROL_FIELD_OVERLAY6:
+            case CONTROL_FIELD_OVERLAY7:
+            case CONTROL_FIELD_OVERLAY8: {
+                static_assert(CONTROL_FIELD_OVERLAY3 == 2, "");
+                static_assert(XKB_KEYBOARD_CONTROL_OVERLAY4 ==
+                              (XKB_KEYBOARD_CONTROL_OVERLAY3 << 1), "");
+                const enum xkb_keyboard_control_flags flag =
+                    XKB_KEYBOARD_CONTROL_OVERLAY3 << (type - CONTROL_FIELD_OVERLAY3);
+                if (disable)
+                    *controls_values &= ~flag;
+                else
+                    *controls_values |= flag;
+                *controls_affect |= flag;
+                break;
+            }
+            case CONTROL_FIELD_STICKY_KEYS:
+                if (disable)
+                    *controls_values &= ~XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS;
+                else
+                    *controls_values |= XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS;
+                *controls_affect |= XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS;
+                break;
+            case CONTROL_FIELD_LATCH_TO_LOCK:
+                ok = xkb_machine_options_update_a11y_flags(
+                    options, XKB_A11Y_LATCH_TO_LOCK,
+                    (disable ? 0 : XKB_A11Y_LATCH_TO_LOCK)
+                ) == 0;
+                break;
+            case CONTROL_FIELD_LATCH_SIMULTANEOUS:
+                ok = xkb_machine_options_update_a11y_flags(
+                    options, XKB_A11Y_LATCH_SIMULTANEOUS_KEYS,
+                    (disable ? 0 : XKB_A11Y_LATCH_SIMULTANEOUS_KEYS)
+                ) == 0;
+                break;
+            default:
+                {} /* Label followed by declaration requires C23 */
+                static_assert(
+                    CONTROL_FIELD_LATCH_SIMULTANEOUS == 10 &&
+                    CONTROL_FIELD_LATCH_SIMULTANEOUS + 1 == _NUM_CONTROL_FIELDS,
+                    "missing case"
+                );
+            }
+        }
+
+        if (!ok) {
+            fprintf(stderr, "ERROR: cannot parse control entry: \"%.*s\"\n",
+                    (unsigned int) len, start);
+            break;
+        }
+
+next:
+        if (s[0] == '\0')
+            break;
+
+        s++;
+        start = s;
+    }
+
+    return ok;
+}
+
+static size_t
+tools_parse_mod_mask(const char *raw, size_t length, struct xkb_keymap *keymap,
+                     xkb_mod_mask_t *out)
+{
+    const char *start = raw;
+    const char *s = start;
+
+    char buf[64] = {0};
+
+    /* Parse plus-separated list of mask */
+    static const char sep = '+';
+    size_t count = 0;
+    while (true) {
+        /* Consume until reaching next item or end of string */
+        while (count < length && *s != '\0' && *s != sep) { s++; count++; }
+
+        const size_t len = s - start;
+        if (!len) {
+            if (s[0] == sep) {
+                /* Accept empty entry */
+                goto next;
+            } else {
+                break;
+            }
+        }
+
+        if (len >= ARRAY_SIZE(buf) || !memcpy(buf, start, len))
+            return 0;
+        buf[len] = '\0';
+
+        const xkb_mod_index_t idx = xkb_keymap_mod_get_index(keymap, buf);
+        if (idx == XKB_MOD_INVALID) {
+            fprintf(stderr, "ERROR: cannot parse modifier: \"%s\"\n", buf);
+            return 0;
+        }
+
+        *out |= xkb_keymap_mod_get_mask2(keymap, idx);
+
+next:
+        if (count >= length || s[0] == '\0')
+            break;
+
+        s++;
+        count++;
+        start = s;
+    }
+
+    return count;
+}
+
+bool
+tools_parse_modifiers_mappings(const char *raw, struct xkb_keymap *keymap,
+                               struct xkb_machine_options *options)
+{
+    const char *start = raw;
+    const char *s = start;
+    static const char list_sep = ',';
+    static const char mods_sep = ':';
+
+    /* Parse comma-separated list of mappings */
+    while (true) {
+        /* Consume until reaching next item or end of string */
+        while (*s != '\0' && *s != list_sep) { s++; }
+
+        size_t len = s - start;
+        if (!len) {
+            if (s[0] == list_sep) {
+                /* Accept empty entry */
+                goto next;
+            } else {
+                break;
+            }
+        }
+
+        size_t source_len = 0;
+        while (source_len < len && start[source_len] != mods_sep)
+            source_len++;
+
+        xkb_mod_mask_t source = 0;
+        size_t consumed = tools_parse_mod_mask(start, source_len, keymap, &source);
+        if (consumed != source_len) {
+            fprintf(stderr, "ERROR: invalid modifiers mapping source\n");
+            return false;
+        }
+
+        if (start[consumed] != mods_sep) {
+            fprintf(stderr, "ERROR: invalid modifiers mapping: \"%s\"\n",
+                    start);
+            return false;
+        }
+
+        start += consumed + 1;
+        len -= consumed + 1;
+
+        xkb_mod_mask_t target = 0;
+        consumed = tools_parse_mod_mask(start, len, keymap, &target);
+        if (consumed != len) {
+            fprintf(stderr, "ERROR: invalid modifiers mapping target: \"%s\"\n",
+                    start);
+            return false;
+        }
+
+        if (xkb_machine_options_remap_mods(options, source, target)) {
+            fprintf(stderr,
+                    "ERROR: cannot add modifiers mapping: "
+                    "0x%"PRIx32" -> 0x%"PRIx32"\n", source, target);
+            return false;
+        }
+
+next:
+        if (s[0] == '\0')
+            break;
+
+        s++;
+        start = s;
+    }
+
+    return true;
+}
+
+bool
+tools_parse_shortcuts_mask(const char *raw, struct xkb_keymap *keymap,
+                           struct xkb_machine_options *options)
+{
+    xkb_mod_mask_t mask = 0;
+    return tools_parse_mod_mask(raw, SIZE_MAX, keymap, &mask) &&
+           !xkb_machine_options_update_shortcut_mods(options, mask, mask);
+}
+
+static int
+tools_parse_layout_index1(const char *raw, size_t len, xkb_layout_index_t *out)
+{
+    int consumed = parse_dec_to_uint32_t(raw, len, out);
+    if (consumed > 0 && *out == 0) {
+        consumed = -1;
+    }
+    if (consumed < 0) {
+        fprintf(stderr, "ERROR: invalid layout index: \"%.*s\"\n",
+                (unsigned int) len, raw);
+    } else {
+        /* 1-indexed */
+        (*out)--;
+    }
+    return consumed;
+}
+
+bool
+tools_parse_shortcuts_mappings(const char *raw,
+                               struct xkb_machine_options *options)
+{
+    const char *start = raw;
+    const char *s = start;
+    static const char list_sep = ',';
+    static const char layout_sep = ':';
+
+    /* Parse comma-separated list of mappings */
+    while (true) {
+        /* Consume until reaching next item or end of string */
+        while (*s != '\0' && *s != list_sep) { s++; }
+
+        size_t len = s - start;
+        if (!len) {
+            if (s[0] == list_sep) {
+                /* Accept empty entry */
+                goto next;
+            } else {
+                break;
+            }
+        }
+
+        xkb_layout_index_t source = 0;
+        int consumed = tools_parse_layout_index1(start, len, &source);
+        if (consumed <= 0) {
+            fprintf(stderr, "ERROR: invalid shortcuts layout source\n");
+            return false;
+        }
+
+        if (start[consumed] != layout_sep) {
+            fprintf(stderr, "ERROR: invalid shortcuts layout mapping: \"%s\"\n",
+                    start);
+            return false;
+        }
+
+        start += consumed + 1;
+        len -= (size_t) consumed + 1;
+
+        xkb_layout_index_t target = 0;
+        consumed = tools_parse_layout_index1(start, len, &target);
+        if ((size_t) consumed != len) {
+            fprintf(stderr, "ERROR: invalid shortcuts layout target: \"%s\"\n",
+                    start);
+            return false;
+        }
+
+        if (xkb_machine_options_remap_shortcut_layout(options, source, target)) {
+            fprintf(stderr,
+                    "ERROR: cannot add shortcuts layout mapping: "
+                    "%"PRIu32" -> %"PRIu32"\n", source, target);
+            return false;
+        }
+
+next:
+        if (s[0] == '\0')
+            break;
+
+        s++;
+        start = s;
+    }
+
+    return true;
 }

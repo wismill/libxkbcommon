@@ -10,14 +10,17 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
+
 #include "xkbcommon/xkbcommon-keysyms.h"
 #include "xkbcommon/xkbcommon.h"
+#include "utf8-decoding.h"
 #include "utils.h"
 #include "utils-numbers.h"
 #include "keysym.h"
-#include "ks_tables.h"
+#include "keysym-names.h"
 
 static ssize_t
 find_keysym_index(xkb_keysym_t ks)
@@ -88,7 +91,7 @@ xkb_keysym_get_name(xkb_keysym_t ks, char *buffer, size_t size)
         return get_unicode_name(ks, buffer, size);
 
     /* Unnamed, non-Unicode, symbol (shouldn't generally happen). */
-    return snprintf(buffer, size, "0x%08x", ks);
+    return snprintf(buffer, size, "0x%08"PRIx32, ks);
 }
 
 bool
@@ -141,7 +144,14 @@ xkb_keysym_iterator_new(bool iterate_only_explicit_keysyms)
 struct xkb_keysym_iterator*
 xkb_keysym_iterator_unref(struct xkb_keysym_iterator *iter)
 {
-    free(iter);
+    /*
+     * [NOTE] If we ever make this API public, add:
+     * - an `refcnt` member,
+     * - `xkb_keysym_iterator_ref()`,
+     * - `assert(!iter || iter->refcnt > 0)`.
+     */
+    if (iter)
+        free(iter);
     return NULL;
 }
 
@@ -227,13 +237,16 @@ parse_keysym_hex(const char *s, uint32_t *out)
 xkb_keysym_t
 xkb_keysym_from_name(const char *name, enum xkb_keysym_flags flags)
 {
+    static const enum xkb_keysym_flags XKB_KEYSYM_FLAGS =
+        XKB_KEYSYM_CASE_INSENSITIVE;
+
+    if (flags & ~XKB_KEYSYM_FLAGS)
+        return XKB_KEY_NoSymbol;
+
     const struct name_keysym *entry = NULL;
     char *tmp;
     uint32_t val;
     bool icase = (flags & XKB_KEYSYM_CASE_INSENSITIVE);
-
-    if (flags & ~XKB_KEYSYM_CASE_INSENSITIVE)
-        return XKB_KEY_NoSymbol;
 
     /*
      * We need to !icase case to be fast, for e.g. Compose file parsing.
@@ -341,6 +354,20 @@ xkb_keysym_from_name(const char *name, enum xkb_keysym_flags flags)
     return XKB_KEY_NoSymbol;
 }
 
+xkb_keysym_t
+xkb_utf8_to_keysym(const char *buffer, size_t size)
+{
+    if (!buffer || !size)
+        return 0;
+
+    /* Try to parse the parameter as a single UTF-8 encoded character */
+    size_t length = 0;
+    const uint32_t codepoint = utf8_next_code_point(buffer, size, &length);
+    return (codepoint == INVALID_UTF8_CODE_POINT || length == 0)
+        ? XKB_KEY_NoSymbol
+        : xkb_utf32_to_keysym(codepoint);
+}
+
 /*
  * Check whether a keysym with code "keysym" and name "name" is deprecated.
  * • If the keysym is not deprecated itself and has no deprecated names,
@@ -395,16 +422,23 @@ xkb_keysym_is_deprecated(xkb_keysym_t keysym,
             }
             /* There is a reference name that is not deprecated */
             *reference_name = get_name_by_index(deprecated_keysyms[mid].offset);
-            if (name == NULL)
+            if (!name) {
                 /* No name to check: indicate not deprecated */
                 return false;
+            }
             if (deprecated_keysyms[mid].explicit_count) {
                 /* Only some explicit names are deprecated */
-                uint8_t k = deprecated_keysyms[mid].explicit_index;
                 const uint8_t k_max = deprecated_keysyms[mid].explicit_index
                                     + deprecated_keysyms[mid].explicit_count;
+                assert(k_max <= ARRAY_SIZE(explicit_deprecated_aliases));
                 /* Check every deprecated alias */
-                for (; k < k_max; k++) {
+                for (uint8_t k = deprecated_keysyms[mid].explicit_index;
+                     k < k_max; k++) {
+                    #ifdef __clang__
+                    /* Make clang-tidy happy */
+                    __builtin_assume(k_max <=
+                                     ARRAY_SIZE(explicit_deprecated_aliases));
+                    #endif
                     const char *alias =
                         get_name_by_index(explicit_deprecated_aliases[k]);
                     if (strcmp(name, alias) == 0)

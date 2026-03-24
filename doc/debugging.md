@@ -11,6 +11,8 @@ xkbcommon provides multiple tools for debugging. Please consult the manual pages
 ### Basic tools
 
 - Interactive:
+  - `xkbcli interactive` to test your current configuration by detecting the
+    session type.
   - `xkbcli interactive-x11` to test your current configuration in an *X11* session.
   - `xkbcli interactive-wayland` to test your current configuration in a *Wayland*
     session.
@@ -24,8 +26,11 @@ xkbcommon provides multiple tools for debugging. Please consult the manual pages
   current configuration. This requires access to the `/dev/input/event*` devices,
   you may need to add your user to the `input` group or run as root.
 - `xkbcli compile-keymap`: to check the resulting compiled keymap for some
-  configuration.
+  configuration. Use the option `--explicit-values` to force all values to be
+  explicit. This is especially useful to debug [compatibility interpretations].
 - `xkbcli compile-compose`: to check the resulting Compose file.
+
+[compatibility interpretations]: @ref interpret-statements
 
 ## Testing a custom configuration {#testing-custom-config}
 

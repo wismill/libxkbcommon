@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "config.h"
+
 #include "xkbcommon/xkbcommon.h"
 
 #include "atom.h"
@@ -20,20 +22,23 @@ enum xkb_file_type {
     FILE_TYPE_TYPES = 1,
     FILE_TYPE_COMPAT = 2,
     FILE_TYPE_SYMBOLS = 3,
+
+    /* File types which must be found in a keymap file. */
+    FIRST_KEYMAP_FILE_TYPE = FILE_TYPE_KEYCODES,
+    LAST_KEYMAP_FILE_TYPE = FILE_TYPE_SYMBOLS,
+
     /* Geometry is not compiled any more. */
     FILE_TYPE_GEOMETRY = 4,
 
     /* A top level file which includes the above files. */
     FILE_TYPE_KEYMAP,
 
-/* File types which must be found in a keymap file. */
-#define FIRST_KEYMAP_FILE_TYPE FILE_TYPE_KEYCODES
-#define LAST_KEYMAP_FILE_TYPE  FILE_TYPE_SYMBOLS
 
     /* This one doesn't mix with the others, but useful here as well. */
     FILE_TYPE_RULES,
 
-    _FILE_TYPE_NUM_ENTRIES
+    _FILE_TYPE_NUM_ENTRIES,
+    FILE_TYPE_INVALID = _FILE_TYPE_NUM_ENTRIES
 };
 
 enum stmt_type {
@@ -73,6 +78,8 @@ enum stmt_type {
     STMT_GROUP_COMPAT,
     STMT_LED_MAP,
     STMT_LED_NAME,
+    STMT_UNKNOWN_DECLARATION,
+    STMT_UNKNOWN_COMPOUND,
 
     _STMT_NUM_VALUES
 };
@@ -82,7 +89,11 @@ enum merge_mode {
     MERGE_AUGMENT,
     MERGE_OVERRIDE,
     MERGE_REPLACE,
+    _MERGE_MODE_NUM_ENTRIES,
 };
+enum { MERGE_MODE_MIN_WIDTH = 3 /* 2 bits + sign */ };
+static_assert(_MERGE_MODE_NUM_ENTRIES - 1 <= (1 << (MERGE_MODE_MIN_WIDTH - 1)) - 1,
+              "Cannot encode merge mode");
 
 const char *
 xkb_file_type_to_string(enum xkb_file_type type);
@@ -275,9 +286,9 @@ typedef struct {
 typedef struct {
     ParseCommon common;
     enum merge_mode merge;
+    bool virtual;
     int64_t ndx;
     ExprDef *name;
-    bool virtual;
 } LedNameDef;
 
 typedef struct {
@@ -286,6 +297,11 @@ typedef struct {
     xkb_atom_t name;
     VarDef *body;
 } LedMapDef;
+
+typedef struct {
+    ParseCommon common;
+    char *name;
+} UnknownStatement;
 
 enum xkb_map_flags {
     MAP_IS_DEFAULT = (1 << 0),
@@ -300,8 +316,8 @@ enum xkb_map_flags {
 
 typedef struct {
     ParseCommon common;
-    enum xkb_file_type file_type;
     char *name;
     ParseCommon *defs;
+    enum xkb_file_type file_type;
     enum xkb_map_flags flags;
 } XkbFile;

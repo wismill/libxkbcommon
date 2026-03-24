@@ -6,6 +6,7 @@
 
 #include "config.h"
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -113,5 +114,38 @@ MAKE_PARSE_HEX_TO(uint32_t, UINT32_MAX)
  * @returns -1 on error (overflow) or the count of characters parsed.
  */
 MAKE_PARSE_HEX_TO(uint64_t, UINT64_MAX)
+
+static inline unsigned int
+popcount32(uint32_t x)
+{
+#if defined(__GNUC__) || defined(__clang__)
+    return __builtin_popcountl(x);
+#elif defined(_MSC_VER)
+    return __popcnt(x);
+#else
+    /* Fallback (Brian Kernighan’s method) */
+    int count = 0;
+    while (x) {
+        x &= x - 1;
+        count++;
+    }
+    return count;
+#endif
+}
+
+static inline unsigned int
+next_pow2(unsigned int x)
+{
+#if defined(__GNUC__) || defined(__clang__)
+    if (x <= 1) return 1u;
+    return 1u << (sizeof(unsigned) * CHAR_BIT - __builtin_clz(x - 1));
+#else
+    if (x <= 1u) return 1;
+    x--;
+    for (unsigned s = 1; s < sizeof(x)*CHAR_BIT; s <<= 1)
+        x |= x >> s;
+    return x + 1u;
+#endif
+}
 
 #undef MAKE_PARSE_HEX_TO

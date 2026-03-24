@@ -10,9 +10,13 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 
+#include "xkbcommon/xkbcommon.h"
 #include "xkbcommon/xkbcommon-names.h"
+#include "features/enums.h"
 #include "keymap.h"
+#include "messages-codes.h"
 
 static void
 update_builtin_keymap_fields(struct xkb_keymap *keymap)
@@ -42,13 +46,21 @@ update_builtin_keymap_fields(struct xkb_keymap *keymap)
 }
 
 struct xkb_keymap *
-xkb_keymap_new(struct xkb_context *ctx,
+xkb_keymap_new(struct xkb_context *ctx, const char *func,
                enum xkb_keymap_format format,
                enum xkb_keymap_compile_flags flags)
 {
-    struct xkb_keymap *keymap;
+    static const enum xkb_keymap_compile_flags XKB_KEYMAP_COMPILE_FLAGS =
+        (enum xkb_keymap_compile_flags) XKB_KEYMAP_COMPILE_FLAGS_VALUES;
 
-    keymap = calloc(1, sizeof(*keymap));
+    if (flags & ~XKB_KEYMAP_COMPILE_FLAGS) {
+        log_err(ctx, XKB_LOG_MESSAGE_NO_ID,
+                "%s: unrecognized keymap compilation flags: 0x%x\n", func,
+                (flags & ~XKB_KEYMAP_COMPILE_FLAGS));
+        return NULL;
+    }
+
+    struct xkb_keymap * const keymap = calloc(1, sizeof(*keymap));
     if (!keymap)
         return NULL;
 
@@ -61,34 +73,6 @@ xkb_keymap_new(struct xkb_context *ctx,
     update_builtin_keymap_fields(keymap);
 
     return keymap;
-}
-
-struct xkb_key *
-XkbKeyByName(struct xkb_keymap *keymap, xkb_atom_t name, bool use_aliases)
-{
-    struct xkb_key *key;
-
-    xkb_keys_foreach(key, keymap)
-        if (key->name == name)
-            return key;
-
-    if (use_aliases) {
-        xkb_atom_t new_name = XkbResolveKeyAlias(keymap, name);
-        if (new_name != XKB_ATOM_NONE)
-            return XkbKeyByName(keymap, new_name, false);
-    }
-
-    return NULL;
-}
-
-xkb_atom_t
-XkbResolveKeyAlias(const struct xkb_keymap *keymap, xkb_atom_t name)
-{
-    for (darray_size_t i = 0; i < keymap->num_key_aliases; i++)
-        if (keymap->key_aliases[i].alias == name)
-            return keymap->key_aliases[i].real;
-
-    return XKB_ATOM_NONE;
 }
 
 void
@@ -146,11 +130,6 @@ action_equal(const union xkb_action *a, const union xkb_action *b)
     if (a->type != b->type)
         return false;
 
-    /* Ensure we support all action types */
-    static_assert(ACTION_TYPE_INTERNAL == 18 &&
-                  ACTION_TYPE_INTERNAL + 1 == _ACTION_TYPE_NUM_ENTRIES,
-                  "Missing action type");
-
     switch (a->type) {
     case ACTION_TYPE_NONE:
     case ACTION_TYPE_VOID:
@@ -187,16 +166,25 @@ action_equal(const union xkb_action *a, const union xkb_action *b)
     case ACTION_TYPE_CTRL_LOCK:
         return (a->ctrls.flags == b->ctrls.flags &&
                 a->ctrls.ctrls == b->ctrls.ctrls);
+    case ACTION_TYPE_REDIRECT_KEY:
+        return (a->redirect.keycode == b->redirect.keycode &&
+                a->redirect.affect == b->redirect.affect &&
+                a->redirect.mods == b->redirect.mods);
     case ACTION_TYPE_UNSUPPORTED_LEGACY:
+    case ACTION_TYPE_UNKNOWN:
         return true;
-    case ACTION_TYPE_PRIVATE:
-        return (a->priv.data == b->priv.data);
+    /* ACTION_TYPE_PRIVATE processed in the default case */
     case ACTION_TYPE_INTERNAL:
         return (a->internal.flags == b->internal.flags) &&
                (a->internal.clear_latched_mods == b->internal.clear_latched_mods);
     default:
-        assert(!"Unsupported action");
-        return false;
+        {} /* Label followed by declaration requires C23 */
+        /* Ensure to not miss `xkb_action_type` updates */
+        static_assert(ACTION_TYPE_INTERNAL == 20 &&
+                      ACTION_TYPE_INTERNAL + 1 == _ACTION_TYPE_NUM_ENTRIES,
+                      "Missing action type");
+        /* Private/custom action */
+        return memcmp(a->priv.data, b->priv.data, sizeof(a->priv.data)) == 0;
     }
 }
 
@@ -218,7 +206,7 @@ XkbLevelsSameActions(const struct xkb_level *a, const struct xkb_level *b)
 xkb_layout_index_t
 XkbWrapGroupIntoRange(int32_t group,
                       xkb_layout_index_t num_groups,
-                      enum xkb_range_exceed_type out_of_range_group_action,
+                      enum xkb_layout_out_of_range_policy out_of_range_group_policy,
                       xkb_layout_index_t out_of_range_group_number)
 {
     if (num_groups == 0)
@@ -227,19 +215,19 @@ XkbWrapGroupIntoRange(int32_t group,
     if (group >= 0 && (xkb_layout_index_t) group < num_groups)
         return group;
 
-    switch (out_of_range_group_action) {
-    case RANGE_REDIRECT:
+    switch (out_of_range_group_policy) {
+    case XKB_LAYOUT_OUT_OF_RANGE_REDIRECT:
         if (out_of_range_group_number >= num_groups)
             return 0;
         return out_of_range_group_number;
 
-    case RANGE_SATURATE:
+    case XKB_LAYOUT_OUT_OF_RANGE_CLAMP:
         if (group < 0)
             return 0;
         else
             return num_groups - 1;
 
-    case RANGE_WRAP:
+    case XKB_LAYOUT_OUT_OF_RANGE_WRAP:
     default: {
         /*
          * Ensure conversion xkb_layout_index_t → int32_t is lossless.
@@ -274,7 +262,7 @@ xkb_keymap_key_get_actions_by_level(struct xkb_keymap *keymap,
         goto err;
 
     layout = XkbWrapGroupIntoRange((int32_t) layout, key->num_groups,
-                                   key->out_of_range_group_action,
+                                   key->out_of_range_group_policy,
                                    key->out_of_range_group_number);
     if (layout == XKB_LAYOUT_INVALID)
         goto err;

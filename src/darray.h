@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "config.h"
+
 /* Originally taken from: https://ccodearchive.net/info/darray.html
  * But modified for libxkbcommon. */
 
@@ -12,15 +14,19 @@
 #include <assert.h>
 #include <limits.h>
 
-typedef unsigned int darray_size_t;
+#include "utils.h"
 
-#define darray(type) struct {       \
-    /** Array of items */           \
-    type *item;                     \
-    /** Current size */             \
-    darray_size_t size;             \
-    /** Count of allocated items */ \
-    darray_size_t alloc;            \
+typedef unsigned int darray_size_t;
+#define DARRAY_SIZE_T_WIDTH (sizeof(darray_size_t) * CHAR_BIT)
+#define DARRAY_SIZE_MAX UINT_MAX
+
+#define darray(type) struct {         \
+    /** Current size */               \
+    darray_size_t size;               \
+    /** Count of allocated items */   \
+    darray_size_t alloc;              \
+    /** Array of items */             \
+    type *item ATTR_COUNTED_BY(size); \
 }
 
 #define darray_new() { 0, 0, 0 }
@@ -62,6 +68,8 @@ typedef darray (char)           darray_char;
 typedef darray (signed char)    darray_schar;
 typedef darray (unsigned char)  darray_uchar;
 
+typedef darray (char *)         darray_string;
+
 typedef darray (short)          darray_short;
 typedef darray (int)            darray_int;
 typedef darray (long)           darray_long;
@@ -83,6 +91,17 @@ typedef darray (unsigned long)  darray_ulong;
     darray_resize(arr, (arr).size + 1); \
     (arr).item[(arr).size - 1] = (__VA_ARGS__); \
 } while (0)
+
+#define darray_insert(arr, i, ...) do { \
+    darray_size_t __index = (i); \
+    darray_resize(arr, (arr).size+1); \
+    memmove( \
+        (arr).item + __index + 1, \
+        (arr).item + __index, \
+        ((arr).size - __index - 1) * sizeof(*(arr).item) \
+    ); \
+    (arr).item[__index] = (__VA_ARGS__); \
+} while(0)
 
 /*** Insertion (multiple items) ***/
 
@@ -112,6 +131,18 @@ typedef darray (unsigned long)  darray_ulong;
 /* Warning: Do not call darray_remove_last on an empty darray. */
 #define darray_remove_last(arr) (--(arr).size)
 
+/* Warning, slow: Requires copying all elements after removed item. */
+#define darray_remove(arr, i) do { \
+    darray_size_t __index = (i); \
+    if (__index < (arr).size-1) \
+        memmove( \
+            &(arr).item[__index], \
+            &(arr).item[__index + 1], \
+            ((arr).size -1 - __index) * sizeof(*(arr).item) \
+        ); \
+    (arr).size--; \
+} while(0)
+
 /*** String buffer ***/
 
 #define darray_append_string(arr, str) do { \
@@ -119,6 +150,10 @@ typedef darray (unsigned long)  darray_ulong;
     darray_append_items(arr, __str, (darray_size_t) strlen(__str) + 1); \
     (arr).size--; \
 } while (0)
+
+/* Same as `darray_append_string` but do count the final '\0' in the size */
+#define darray_append_string0(arr, string) \
+    darray_append_items((arr), (string), strlen(string) + 1)
 
 #define darray_append_lit(arr, stringLiteral) do { \
     darray_append_items(arr, stringLiteral, \
@@ -130,7 +165,8 @@ typedef darray (unsigned long)  darray_ulong;
     darray_size_t __count = (count), __oldSize = (arr).size; \
     darray_resize(arr, __oldSize + __count + 1); \
     memcpy((arr).item + __oldSize, items, __count * sizeof(*(arr).item)); \
-    (arr).item[--(arr).size] = 0; \
+    (arr).item[(arr).size - 1] = 0; \
+    (arr).size--; \
 } while (0)
 
 #define darray_prepends_nullterminate(arr, items, count) do { \
@@ -139,7 +175,8 @@ typedef darray (unsigned long)  darray_ulong;
     memmove((arr).item + __count, (arr).item, \
             __oldSize * sizeof(*(arr).item)); \
     memcpy((arr).item, items, __count * sizeof(*(arr).item)); \
-    (arr).item[--(arr).size] = 0; \
+    (arr).item[(arr).size - 1] = 0; \
+    (arr).size--; \
 } while (0)
 
 /*** Size management ***/
@@ -212,5 +249,7 @@ darray_next_alloc(darray_size_t alloc, darray_size_t need, size_t itemSize)
          (idx)++, (val)++)
 
 #define darray_foreach_reverse(i, arr) \
-    if ((arr).item) \
-    for ((i) = &(arr).item[(arr).size - 1]; (arr).size > 0 && (i) >= &(arr).item[0]; (i)--)
+    if ((arr).item && (arr).size) \
+    for ((i) = &(arr).item[(arr).size - 1]; \
+         (arr).size > 0 && (i) >= &(arr).item[0]; \
+         (i)--)

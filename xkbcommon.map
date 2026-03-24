@@ -136,7 +136,47 @@ global:
     xkb_rmlvo_builder_new;
     xkb_rmlvo_builder_append_layout;
     xkb_rmlvo_builder_append_option;
+    xkb_rmlvo_builder_ref;
     xkb_rmlvo_builder_unref;
+    xkb_keymap_mod_get_mask2;
     xkb_keymap_new_from_rmlvo;
     xkb_keymap_new_from_names2;
 } V_1.10.0;
+
+V_1.12.0 {
+global:
+    xkb_keymap_get_as_string2;
+} V_1.11.0;
+
+V_1.14.0 {
+global:
+    xkb_has_feature;
+    xkb_keymap_key_iterator_new;
+    xkb_keymap_key_iterator_destroy;
+    xkb_keymap_key_iterator_next;
+    xkb_state_update_event;
+    xkb_state_update_synthetic;
+    xkb_state_serialize_enabled_controls;
+    xkb_machine_options_new;
+    xkb_machine_options_destroy;
+    xkb_machine_options_update_a11y_flags;
+    xkb_machine_options_remap_mods;
+    xkb_machine_options_update_shortcut_mods;
+    xkb_machine_options_remap_shortcut_layout;
+    xkb_machine_new;
+    xkb_machine_ref;
+    xkb_machine_unref;
+    xkb_machine_get_keymap;
+    xkb_machine_process_key;
+    xkb_machine_process_synthetic;
+    xkb_events_new_batch;
+    xkb_events_destroy;
+    xkb_events_next;
+    xkb_event_get_type;
+    xkb_event_get_keycode;
+    xkb_event_get_changed_components;
+    xkb_event_serialize_enabled_controls;
+    xkb_event_serialize_mods;
+    xkb_event_serialize_layout;
+    xkb_utf8_to_keysym;
+} V_1.12.0;

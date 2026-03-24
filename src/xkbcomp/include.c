@@ -320,7 +320,8 @@ expand:
 FILE *
 FindFileInXkbPath(struct xkb_context *ctx, const char* parent_file_name,
                   const char *name, size_t name_len, enum xkb_file_type type,
-                  char *buf, size_t buf_size, unsigned int *offset)
+                  char *buf, size_t buf_size, unsigned int *offset,
+                  bool required)
 {
     /* We do not handle absolute paths here */
     assert(!is_absolute_path(name));
@@ -349,7 +350,7 @@ FindFileInXkbPath(struct xkb_context *ctx, const char* parent_file_name,
     }
 
     /* We only print warnings if we can’t find the file on the first lookup */
-    if (*offset == 0) {
+    if (required && *offset == 0) {
         log_err(ctx, XKB_ERROR_INCLUDED_FILE_NOT_FOUND,
                 "Couldn't find file \"%s/%.*s\" in include paths\n",
                 typeDir, (unsigned int) name_len, name);
@@ -376,7 +377,7 @@ ExceedsIncludeMaxDepth(struct xkb_context *ctx, unsigned int include_depth)
 
 XkbFile *
 ProcessIncludeFile(struct xkb_context *ctx, const IncludeStmt *stmt,
-                   enum xkb_file_type file_type)
+                   enum xkb_file_type file_type, char *path, size_t path_size)
 {
     /*
      * Resolve include statement:
@@ -387,7 +388,6 @@ ProcessIncludeFile(struct xkb_context *ctx, const IncludeStmt *stmt,
      */
     XkbFile *xkb_file = NULL;  /* Exact match */
     XkbFile *candidate = NULL; /* Weak match */
-    char buf[PATH_MAX];
 
     const char *stmt_file = stmt->file;
     size_t stmt_file_len = strlen(stmt_file);
@@ -396,13 +396,13 @@ ProcessIncludeFile(struct xkb_context *ctx, const IncludeStmt *stmt,
     // FIXME: use parent file name instead of “(unknow)”.
     const ssize_t expanded = expand_path(ctx, "(unknown)",
                                          stmt_file, stmt_file_len, file_type,
-                                         buf, sizeof(buf));
+                                         path, path_size);
     if (expanded < 0) {
         /* Error */
         return NULL;
     } else if (expanded > 0) {
         /* %-expanded */
-        stmt_file = buf;
+        stmt_file = path;
         stmt_file_len = (size_t) expanded;
         assert(stmt_file[stmt_file_len] == '\0');
     }
@@ -435,7 +435,7 @@ ProcessIncludeFile(struct xkb_context *ctx, const IncludeStmt *stmt,
             // FIXME: use parent file name instead of “(unknow)”.
             file = FindFileInXkbPath(ctx, "(unknown)",
                                      stmt_file, stmt_file_len, file_type,
-                                     buf, sizeof(buf), &offset);
+                                     path, path_size, &offset, true);
         }
     }
 
@@ -484,7 +484,7 @@ ProcessIncludeFile(struct xkb_context *ctx, const IncludeStmt *stmt,
         offset++;
         file = FindFileInXkbPath(ctx, "(unknown)",
                                  stmt_file, stmt_file_len, file_type,
-                                 buf, sizeof(buf), &offset);
+                                 path, path_size, &offset, true);
     }
 
     if (!xkb_file) {
@@ -496,10 +496,14 @@ ProcessIncludeFile(struct xkb_context *ctx, const IncludeStmt *stmt,
     }
 
     if (!xkb_file) {
-        log_err(ctx, XKB_ERROR_INVALID_INCLUDED_FILE,
-                "Couldn't process include statement for '%s%s%s%s)'\n",
-                stmt->file,
-                (stmt->map ? "(" : ""), stmt->map, (stmt->map ? ")" : ""));
+        if (stmt->map)
+            log_err(ctx, XKB_ERROR_INVALID_INCLUDED_FILE,
+                    "Couldn't process include statement for '%s(%s)'\n",
+                    stmt->file, stmt->map);
+        else
+            log_err(ctx, XKB_ERROR_INVALID_INCLUDED_FILE,
+                    "Couldn't process include statement for '%s'\n",
+                    stmt->file);
     }
 
     return xkb_file;

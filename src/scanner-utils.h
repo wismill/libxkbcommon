@@ -20,8 +20,8 @@
 
 /* Point to some substring in the file; used to avoid copying. */
 struct sval {
-    const char *start;
     size_t len;
+    const char *start ATTR_COUNTED_BY(len);
 };
 typedef darray(struct sval) darray_sval;
 
@@ -43,9 +43,9 @@ svaleq_prefix(struct sval s1, struct sval s2)
     return s1.len <= s2.len && memcmp(s1.start, s2.start, s1.len) == 0;
 }
 
-#define SVAL(start, len) (struct sval){(start), len}
+#define SVAL(__start, __len) (struct sval){ .start = (__start), .len = (__len) }
 #define SVAL_LIT(literal) SVAL(literal, sizeof(literal) - 1)
-#define SVAL_INIT(literal) { literal, sizeof(literal) - 1 }
+#define SVAL_INIT(literal) { .start = (literal), .len = sizeof(literal) - 1 }
 
 /* A line:column location in the input string (1-based). */
 struct scanner_loc {
@@ -53,9 +53,9 @@ struct scanner_loc {
 };
 
 struct scanner {
-    const char *s;
     size_t pos;
     size_t len;
+    const char *s ATTR_COUNTED_BY(len);
     /*
      * Internal buffer.
      * Since this is used to handle paths that are possibly absolute, in theory
@@ -87,13 +87,13 @@ scanner_token_location(struct scanner *s);
                       loc.column, ##__VA_ARGS__);                                   \
 } while(0)
 
-#define scanner_err(scanner, id, fmt, ...)                     \
-    scanner_log_with_code(scanner, XKB_LOG_LEVEL_ERROR, 0, id, \
-                          fmt, ##__VA_ARGS__)
+#define scanner_err(scanner, id, fmt, ...)              \
+    scanner_log_with_code(scanner, XKB_LOG_LEVEL_ERROR, \
+                          XKB_LOG_VERBOSITY_MINIMAL, id, fmt, ##__VA_ARGS__)
 
-#define scanner_warn(scanner, id, fmt, ...)                      \
-    scanner_log_with_code(scanner, XKB_LOG_LEVEL_WARNING, 0, id, \
-                          fmt, ##__VA_ARGS__)
+#define scanner_warn(scanner, id, fmt, ...)               \
+    scanner_log_with_code(scanner, XKB_LOG_LEVEL_WARNING, \
+                          XKB_LOG_VERBOSITY_MINIMAL, id, fmt, ##__VA_ARGS__)
 
 #define scanner_vrb(scanner, verbosity, id, fmt, ...)                    \
     scanner_log_with_code(scanner, XKB_LOG_LEVEL_WARNING, verbosity, id, \

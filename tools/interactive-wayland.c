@@ -7,6 +7,7 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -20,9 +21,9 @@
 
 #include "xkbcommon/xkbcommon.h"
 #include "xkbcommon/xkbcommon-compose.h"
-#include "tools-common.h"
 #include "src/utils.h"
 #include "src/keymap-formats.h"
+#include "tools-common.h"
 
 #include <wayland-client.h>
 #include "wayland-client-protocol.h"
@@ -68,17 +69,52 @@ struct interactive_seat {
 
     struct xkb_keymap *keymap;
     struct xkb_state *state;
+    struct xkb_machine *machine;
+    struct xkb_events *events;
     struct xkb_compose_state *compose_state;
 
     struct wl_list link;
 };
 
-static bool terminate;
+static bool terminate = false;
 static enum xkb_keymap_format keymap_input_format = DEFAULT_INPUT_KEYMAP_FORMAT;
+static enum xkb_keymap_compile_flags compile_flags =
+    (enum xkb_keymap_compile_flags) DEFAULT_KEYMAP_COMPILE_FLAGS;
 #ifdef KEYMAP_DUMP
+static_assert(DEFAULT_OUTPUT_KEYMAP_FORMAT == XKB_KEYMAP_USE_ORIGINAL_FORMAT,
+              "Out of sync usage()");
 static enum xkb_keymap_format keymap_output_format = DEFAULT_OUTPUT_KEYMAP_FORMAT;
+static enum xkb_keymap_serialize_flags serialize_flags =
+    (enum xkb_keymap_serialize_flags) DEFAULT_KEYMAP_SERIALIZE_FLAGS;
 static bool dump_raw_keymap;
+#else
+static bool use_events_api = true;
+static enum xkb_consumed_mode consumed_mode = XKB_CONSUMED_MODE_XKB;
+static enum print_state_options print_options = DEFAULT_PRINT_OPTIONS;
+static bool report_state_changes = true;
+static bool use_local_state = false;
+static struct xkb_machine_options * machine_options = NULL;
+static enum xkb_keyboard_control_flags kbd_controls_affect = XKB_KEYBOARD_CONTROL_NO_FLAGS;
+static enum xkb_keyboard_control_flags kbd_controls_values = XKB_KEYBOARD_CONTROL_NO_FLAGS;
+static const char *raw_modifiers_mapping = NULL;
+static const char *raw_shortcuts_mask = NULL;
+static struct xkb_keymap *custom_keymap = NULL;
 #endif
+
+#ifndef KEYMAP_DUMP
+static void
+surface_configure(void *data, struct xdg_surface *surface,
+                  uint32_t serial)
+{
+    struct interactive_dpy *inter = data;
+
+    xdg_surface_ack_configure(inter->xdg_surf, serial);
+    wl_surface_commit(inter->wl_surf);
+}
+
+static const struct xdg_surface_listener surface_listener = {
+    surface_configure,
+};
 
 #ifdef HAVE_MKOSTEMP
 static int
@@ -217,7 +253,10 @@ os_create_anonymous_file(off_t size)
 static void
 buffer_release(void *data, struct wl_buffer *buffer)
 {
+    struct interactive_dpy *inter = data;
+
     wl_buffer_destroy(buffer);
+    inter->buf = NULL;
 }
 
 static const struct wl_buffer_listener buffer_listener = {
@@ -246,7 +285,7 @@ buffer_create(struct interactive_dpy *inter, uint32_t width, uint32_t height)
         stride = width * 2;
         break;
     default:
-        fprintf(stderr, "Unsupported SHM format %"PRIu32"\n", inter->shm_format);
+        fprintf(stderr, "ERROR: Unsupported SHM format %"PRIu32"\n", inter->shm_format);
         exit(EXIT_FAILURE);
     }
 
@@ -254,32 +293,32 @@ buffer_create(struct interactive_dpy *inter, uint32_t width, uint32_t height)
 
     const off_t offset = (off_t) size;
     if ((size_t) offset != size) {
-        fprintf(stderr, "Couldn't create surface buffer (buffer size error)\n");
+        fprintf(stderr, "ERROR: Couldn't create surface buffer (buffer size error)\n");
         exit(EXIT_FAILURE);
     }
 
     fd = os_create_anonymous_file(offset);
     if (fd < 0) {
-        fprintf(stderr, "Couldn't create surface buffer (buffer file error)\n");
+        fprintf(stderr, "ERROR: Couldn't create surface buffer (buffer file error)\n");
         exit(EXIT_FAILURE);
     }
 
     map = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (map == MAP_FAILED) {
-        fprintf(stderr, "Couldn't mmap surface buffer\n");
+        fprintf(stderr, "ERROR: Couldn't mmap surface buffer\n");
         exit(EXIT_FAILURE);
     }
     memset(map, 0xff, size);
     munmap(map, size);
 
     if (size > INT32_MAX) {
-        fprintf(stderr, "Couldn't create surface pool\n");
+        fprintf(stderr, "ERROR: Couldn't create surface pool\n");
         exit(EXIT_FAILURE);
     }
     pool = wl_shm_create_pool(inter->shm, fd, (int32_t) size);
 
     if (width > INT32_MAX || height > INT32_MAX || stride > INT32_MAX) {
-        fprintf(stderr, "Couldn't create surface pool buffer\n");
+        fprintf(stderr, "ERROR: Couldn't create surface pool buffer\n");
         exit(EXIT_FAILURE);
     }
     const int32_t iwidth = (int32_t) width;
@@ -304,20 +343,6 @@ buffer_create(struct interactive_dpy *inter, uint32_t width, uint32_t height)
     wl_shm_pool_destroy(pool);
     close(fd);
 }
-
-static void
-surface_configure(void *data, struct xdg_surface *surface,
-                  uint32_t serial)
-{
-    struct interactive_dpy *inter = data;
-
-    xdg_surface_ack_configure(inter->xdg_surf, serial);
-    wl_surface_commit(inter->wl_surf);
-}
-
-static const struct xdg_surface_listener surface_listener = {
-    surface_configure,
-};
 
 static void
 toplevel_configure(void *data, struct xdg_toplevel *toplevel,
@@ -349,6 +374,8 @@ static void surface_create(struct interactive_dpy *inter)
     inter->wl_surf = wl_compositor_create_surface(inter->compositor);
     inter->xdg_surf = xdg_wm_base_get_xdg_surface(inter->shell, inter->wl_surf);
     xdg_surface_add_listener(inter->xdg_surf, &surface_listener, inter);
+
+    /* Create a window only for the interactive tool */
     inter->xdg_top = xdg_surface_get_toplevel(inter->xdg_surf);
     xdg_toplevel_add_listener(inter->xdg_top, &toplevel_listener, inter);
     xdg_toplevel_set_title(inter->xdg_top, "xkbcommon event tester");
@@ -366,6 +393,7 @@ static void surface_create(struct interactive_dpy *inter)
 
     wl_surface_commit(inter->wl_surf);
 }
+#endif
 
 static void
 shell_ping(void *data, struct xdg_wm_base *shell, uint32_t serial)
@@ -382,50 +410,144 @@ kbd_keymap(void *data, struct wl_keyboard *wl_kbd, uint32_t format,
            int fd, uint32_t size)
 {
     struct interactive_seat *seat = data;
-    void *buf;
-
-    buf = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
-    if (buf == MAP_FAILED) {
-        fprintf(stderr, "ERROR: Failed to mmap keymap: %d\n", errno);
+#ifndef KEYMAP_DUMP
+    if (custom_keymap) {
+        /* Custom keymap: ignore keymap from the server */
         close(fd);
-        return;
-    }
+        if (!seat->keymap)
+            seat->keymap = xkb_keymap_ref(custom_keymap);
+    } else {
+#endif
+        const char * const label = xkb_keymap_get_format_label(format);
+        fprintf(stderr,
+                "%s: keymap: format: %"PRIu32" (%s); size: %.3f kB (%.3f kiB)\n",
+                seat->name_str, format, (label ? label : "unsupported"),
+                (double) size / 1000.0, (double) size / 1024.0);
 
+        void *buf = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+        if (buf == MAP_FAILED) {
+            fprintf(stderr, "%s: ERROR: Failed to mmap keymap: errno=%d\n",
+                    seat->name_str, errno);
+            close(fd);
+            return;
+        }
 #ifdef KEYMAP_DUMP
-    /* We do not want to be interactive, so stop at next loop */
-    terminate = true;
-    if (dump_raw_keymap) {
-        /* Dump the raw keymap */
-        fprintf(stdout, "%s", (char *)buf);
+        /* We do not want to be interactive, so stop at next loop */
+        terminate = true;
+        if (dump_raw_keymap) {
+            /* Dump the raw keymap */
+            fprintf(stdout, "%s", (char *)buf);
+            munmap(buf, size);
+            close(fd);
+            /* Do not go further */
+            return;
+        }
+#endif
+        xkb_keymap_unref(seat->keymap);
+        seat->keymap = xkb_keymap_new_from_buffer(seat->inter->ctx,
+                                                  buf, size - 1,
+                                                  keymap_input_format,
+                                                  compile_flags);
         munmap(buf, size);
         close(fd);
-        /* Do not go further */
-        return;
+#ifndef KEYMAP_DUMP
     }
 #endif
-
-    seat->keymap = xkb_keymap_new_from_buffer(seat->inter->ctx, buf, size - 1,
-                                              keymap_input_format,
-                                              XKB_KEYMAP_COMPILE_NO_FLAGS);
-    munmap(buf, size);
-    close(fd);
     if (!seat->keymap) {
-        fprintf(stderr, "ERROR: Failed to compile keymap!\n");
+        fprintf(stderr, "%s: ERROR: Failed to compile keymap!\n", seat->name_str);
         return;
     }
+
 #ifdef KEYMAP_DUMP
     /* Dump the reformatted keymap */
-    char *dump = xkb_keymap_get_as_string(seat->keymap, keymap_output_format);
+    char *dump = xkb_keymap_get_as_string2(seat->keymap, keymap_output_format,
+                                           serialize_flags);
     fprintf(stdout, "%s", dump);
     free(dump);
-    return;
-#endif
-
-    seat->state = xkb_state_new(seat->keymap);
-    if (!seat->state) {
-        fprintf(stderr, "ERROR: Failed to create XKB state!\n");
-        return;
+#else
+    /* Reset the state, except if already set and not using a local state */
+    if (!seat->state || !use_local_state) {
+        xkb_state_unref(seat->state);
+        seat->state = xkb_state_new(seat->keymap);
+        if (!seat->state) {
+            fprintf(stderr, "%s: ERROR: Failed to create XKB state!\n",
+                    seat->name_str);
+        } else if (use_local_state && !use_events_api) {
+            const struct xkb_state_components_update components = {
+                .size = sizeof(components),
+                .components = XKB_STATE_CONTROLS,
+                .affect_controls = kbd_controls_affect,
+                .controls = kbd_controls_values,
+            };
+            const struct xkb_state_update update = {
+                .size = sizeof(update),
+                .components = &components,
+            };
+            // FIXME: handle error
+            xkb_state_update_synthetic(seat->state, &update, NULL);
+        }
     }
+    if (use_local_state && use_events_api) {
+        if (!seat->machine) {
+            if (raw_modifiers_mapping) {
+                /* No race condition when using wl_display_dispatch() */
+                xkb_machine_options_remap_mods(machine_options, 0, 0);
+                if (!tools_parse_modifiers_mappings(raw_modifiers_mapping,
+                                                    seat->keymap,
+                                                    machine_options)) {
+                    fprintf(stderr,
+                            "%s: ERROR: Failed to parse modifiers mapping: \"%s\"\n",
+                            seat->name_str, raw_modifiers_mapping);
+                }
+            }
+            if (raw_shortcuts_mask) {
+                /* No race condition when using wl_display_dispatch() */
+                xkb_machine_options_update_shortcut_mods(
+                    machine_options, XKB_MOD_ALL, 0
+                );
+                if (!tools_parse_shortcuts_mask(raw_shortcuts_mask, seat->keymap,
+                                                machine_options)) {
+                    fprintf(stderr,
+                            "%s: ERROR: Failed to parse shortcuts mask: \"%s\"\n",
+                            seat->name_str, raw_shortcuts_mask);
+                }
+            }
+
+            seat->machine = xkb_machine_new(seat->keymap, machine_options);
+            if (!seat->machine)
+                fprintf(stderr, "%s: ERROR: Failed to create local XKB state!\n",
+                        seat->name_str);
+        }
+        if (!seat->events) {
+            /* Initialize the events queue */
+            seat->events = xkb_events_new_batch(seat->inter->ctx,
+                                                XKB_EVENTS_NO_FLAGS);
+            if (seat->events) {
+                const struct xkb_state_components_update components = {
+                    .size = sizeof(components),
+                    .components = XKB_STATE_CONTROLS,
+                    .affect_controls = kbd_controls_affect,
+                    .controls = kbd_controls_values,
+                };
+                const struct xkb_state_update update = {
+                    .size = sizeof(update),
+                    .components = &components,
+                };
+                // FIXME: handle error
+                xkb_machine_process_synthetic(seat->machine, &update,
+                                                 seat->events);
+                const struct xkb_event *event;
+                while ((event = xkb_events_next(seat->events))) {
+                    xkb_state_update_event(seat->state, event);
+                }
+            } else {
+                fprintf(stderr,
+                        "%s: ERROR: Failed to create XKB event queue!\n",
+                        seat->name_str);
+            }
+        }
+    }
+#endif
 }
 
 static void
@@ -444,32 +566,69 @@ static void
 kbd_key(void *data, struct wl_keyboard *wl_kbd, uint32_t serial, uint32_t time,
         uint32_t key, uint32_t state)
 {
+#ifndef KEYMAP_DUMP
     struct interactive_seat *seat = data;
     xkb_keycode_t keycode = key + EVDEV_OFFSET;
 
-    if (seat->compose_state && state != WL_KEYBOARD_KEY_STATE_RELEASED) {
-        xkb_keysym_t keysym = xkb_state_key_get_one_sym(seat->state, keycode);
-        xkb_compose_state_feed(seat->compose_state, keysym);
+    char * const prefix = asprintf_safe("%s: ", seat->name_str);
+    const enum xkb_key_direction direction
+        = (state == WL_KEYBOARD_KEY_STATE_RELEASED)
+        ? XKB_KEY_UP
+#if HAVE_WL_KEYBOARD_KEY_STATE_REPEATED
+        : (state == WL_KEYBOARD_KEY_STATE_REPEATED)
+            ? XKB_KEY_REPEATED
+#endif
+            : XKB_KEY_DOWN;
+
+    if (use_local_state && use_events_api) {
+        /* Run our local state machine with the xkb_machine API */
+        const int ret = xkb_machine_process_key(seat->machine,
+                                                keycode, direction,
+                                                seat->events);
+        if (ret) {
+            fprintf(stderr, "%s: ERROR: could not update the state machine\n",
+                    seat->name_str);
+            // TODO: better error handling
+        } else {
+            tools_print_events(prefix, seat->state, seat->events,
+                               seat->compose_state, consumed_mode,
+                               print_options, report_state_changes);
+        }
+    } else {
+        if (seat->compose_state && direction == XKB_KEY_DOWN) {
+            const xkb_keysym_t keysym =
+                xkb_state_key_get_one_sym(seat->state, keycode);
+            xkb_compose_state_feed(seat->compose_state, keysym);
+        }
+        tools_print_keycode_state(prefix, seat->state, seat->compose_state,
+                                  keycode, direction, consumed_mode,
+                                  print_options);
+        if (seat->compose_state) {
+            const enum xkb_compose_status status =
+                xkb_compose_state_get_status(seat->compose_state);
+            if (status == XKB_COMPOSE_CANCELLED || status == XKB_COMPOSE_COMPOSED)
+                xkb_compose_state_reset(seat->compose_state);
+        }
+        if (use_local_state) {
+            /* Run our local state machine with the legacy state API */
+            const enum xkb_state_component changed =
+                xkb_state_update_key(seat->state, keycode,
+                                     (state == WL_KEYBOARD_KEY_STATE_RELEASED
+                                             ? XKB_KEY_UP
+                                             : XKB_KEY_DOWN));
+            if (changed && report_state_changes)
+                 tools_print_state_changes(prefix, seat->state,
+                                           changed, print_options);
+        }
     }
 
-    if (state != WL_KEYBOARD_KEY_STATE_RELEASED) {
-        char *prefix = asprintf_safe("%s: ", seat->name_str);
-        tools_print_keycode_state(prefix, seat->state, seat->compose_state, keycode,
-                                XKB_CONSUMED_MODE_XKB,
-                                PRINT_ALL_FIELDS);
-        free(prefix);
-    }
-
-    if (seat->compose_state) {
-        enum xkb_compose_status status = xkb_compose_state_get_status(seat->compose_state);
-        if (status == XKB_COMPOSE_CANCELLED || status == XKB_COMPOSE_COMPOSED)
-            xkb_compose_state_reset(seat->compose_state);
-    }
+    free(prefix);
 
     /* Exit on ESC. */
     if (xkb_state_key_get_one_sym(seat->state, keycode) == XKB_KEY_Escape &&
         state != WL_KEYBOARD_KEY_STATE_PRESSED)
         terminate = true;
+#endif
 }
 
 static void
@@ -477,16 +636,36 @@ kbd_modifiers(void *data, struct wl_keyboard *wl_kbd, uint32_t serial,
               uint32_t mods_depressed, uint32_t mods_latched,
               uint32_t mods_locked, uint32_t group)
 {
+#ifndef KEYMAP_DUMP
+    if (use_local_state) {
+        /* Ignore state update if using a local state machine */
+        return;
+    }
+
     struct interactive_seat *seat = data;
 
-    xkb_state_update_mask(seat->state, mods_depressed, mods_latched,
-                          mods_locked, 0, 0, group);
+    const enum xkb_state_component changed = xkb_state_update_mask(
+        seat->state, mods_depressed, mods_latched, mods_locked, 0, 0, group
+    );
+    char * const prefix = asprintf_safe("%s: ", seat->name_str);
+    if (report_state_changes)
+        tools_print_state_changes(prefix, seat->state, changed, print_options);
+    free(prefix);
+#endif
 }
 
 static void
 kbd_repeat_info(void *data, struct wl_keyboard *wl_kbd, int32_t rate,
                 int32_t delay)
 {
+#ifndef KEYMAP_DUMP
+    struct interactive_seat * const seat = data;
+
+    fprintf(stderr,
+            "%s: repeat info: rate: %"PRIi32" keys/s%s; delay: %"PRIi32" ms\n",
+            seat->name_str, rate,
+            (!rate ? " (compositor handles key repetition)" : ""), delay);
+#endif
 }
 
 static const struct wl_keyboard_listener kbd_listener = {
@@ -580,11 +759,15 @@ seat_capabilities(void *data, struct wl_seat *wl_seat, uint32_t caps)
         else
             wl_keyboard_destroy(seat->wl_kbd);
 
+        xkb_events_destroy(seat->events);
         xkb_state_unref(seat->state);
+        xkb_machine_unref(seat->machine);
         xkb_keymap_unref(seat->keymap);
         xkb_compose_state_unref(seat->compose_state);
 
+        seat->events = NULL;
         seat->state = NULL;
+        seat->machine = NULL;
         seat->compose_state = NULL;
         seat->keymap = NULL;
         seat->wl_kbd = NULL;
@@ -628,7 +811,7 @@ seat_create(struct interactive_dpy *inter, struct wl_registry *registry,
     seat->global_name = name;
     seat->inter = inter;
     seat->wl_seat = wl_registry_bind(registry, name, &wl_seat_interface,
-                                     MIN(version, 5));
+                                     MIN(version, 10));
     wl_seat_add_listener(seat->wl_seat, &seat_listener, seat);
     if (seat->inter->compose_table) {
         seat->compose_state = xkb_compose_state_new(seat->inter->compose_table,
@@ -649,6 +832,8 @@ seat_destroy(struct interactive_seat *seat)
         else
             wl_keyboard_destroy(seat->wl_kbd);
 
+        xkb_events_destroy(seat->events);
+        xkb_machine_unref(seat->machine);
         xkb_state_unref(seat->state);
         xkb_compose_state_unref(seat->compose_state);
         xkb_keymap_unref(seat->keymap);
@@ -695,12 +880,14 @@ registry_global(void *data, struct wl_registry *registry, uint32_t name,
         inter->shm = wl_registry_bind(registry, name, &wl_shm_interface,
                                       MIN(version, 1));
     }
+#ifndef KEYMAP_DUMP
     else if (strcmp(interface, "zxdg_decoration_manager_v1") == 0) {
         inter->decoration_manager = wl_registry_bind(
             registry, name, &zxdg_decoration_manager_v1_interface,
             MIN(version, 1)
         );
     }
+#endif
 }
 
 static void
@@ -730,10 +917,14 @@ dpy_disconnect(struct interactive_dpy *inter)
     wl_list_for_each_safe(seat, tmp, &inter->seats, link)
         seat_destroy(seat);
 
-    if (inter->xdg_surf)
-        xdg_surface_destroy(inter->xdg_surf);
+    if (inter->decoration)
+        zxdg_toplevel_decoration_v1_destroy(inter->decoration);
+    if (inter->decoration_manager)
+        zxdg_decoration_manager_v1_destroy(inter->decoration_manager);
     if (inter->xdg_top)
         xdg_toplevel_destroy(inter->xdg_top);
+    if (inter->xdg_surf)
+        xdg_surface_destroy(inter->xdg_surf);
     if (inter->wl_surf)
         wl_surface_destroy(inter->wl_surf);
     if (inter->shell)
@@ -744,10 +935,6 @@ dpy_disconnect(struct interactive_dpy *inter)
         wl_shm_destroy(inter->shm);
     if (inter->buf)
         wl_buffer_destroy(inter->buf);
-    if (inter->decoration)
-        zxdg_toplevel_decoration_v1_destroy(inter->decoration);
-    if (inter->decoration_manager)
-        zxdg_decoration_manager_v1_destroy(inter->decoration_manager);
 
     /* Do one last roundtrip to try to destroy our wl_buffer. */
     wl_display_roundtrip(inter->dpy);
@@ -760,25 +947,74 @@ static void
 usage(FILE *fp, char *progname)
 {
         fprintf(fp,
-                "Usage: %s [--help]"
+                "Usage: %s [--help] [--verbose]"
 #ifdef KEYMAP_DUMP
-                " [--raw] [--input-format] [--output-format] [--format]"
+                " [--no-pretty] [--drop-unused] [--raw] [--input-format] [--strict]"
+                " [--output-format] [--format] [--no-pretty] [--drop-unused]"
 #else
-                " [--format] [--enable-compose]"
+                " [--uniline] [--multiline] [--consumed-mode={xkb|gtk}]"
+                " [--no-state-report] [--format] [--strict] [--enable-compose]"
+                " [--local-state] [--legacy-state-api true|false]"
+                " [--controls CONTROLS] [--modifiers-mapping MAPPING]"
+                " [--shortcuts-mask MASK] [--shortcuts-mapping]"
+                " [--keymap FILE]"
 #endif
                 "\n",
                 progname);
         fprintf(fp,
 #ifdef KEYMAP_DUMP
-                "    --input-format <FORMAT>     use input keymap format FORMAT\n"
-                "    --output-format <FORMAT>    use output keymap format FORMAT\n"
+                "    --input-format <FORMAT>     use input keymap format FORMAT (default: '%s')\n"
+                "    --output-format <FORMAT>    use output keymap format FORMAT (default: same as input)\n"
                 "    --format <FORMAT>           keymap format to use for both input and output\n"
+                "    --strict                    parse using strict mode\n"
+                "    --no-pretty                 do not pretty-print when serializing a keymap\n"
+                "    --drop-unused               disable unused bits serialization\n"
+                "    --explicit-values           force serializing all values\n"
                 "    --raw                       dump the raw keymap, without parsing it\n"
 #else
-                "    --format <FORMAT>  use keymap format FORMAT\n"
+                "    --format <FORMAT>  use keymap format FORMAT (default: '%s')\n"
+                "    --strict           parse using strict mode\n"
                 "    --enable-compose   enable Compose\n"
+                "    --local-state      enable local state handling and ignore modifiers/layouts\n"
+                "                       state updates from the compositor\n"
+                "    --legacy-state-api [=true|false]\n"
+                "                       use the legacy state API instead of the event API.\n"
+                "                       It implies --local-state if explicitly disabled.\n"
+                "                       Default: false.\n"
+                "    --controls [<CONTROLS>]\n"
+                "                       use the given keyboard controls; available values are:\n"
+                "                       sticky-keys, latch-to-lock, latch-simultaneous and overlay{1-8}.\n"
+                "                       It implies --local-state and --legacy-state-api=false.\n"
+                "    --modifiers-mapping <MAPPING>\n"
+                "                       use the given modifiers mapping.\n"
+                "                       <MAPPING> is a comma-separated list of modifiers masks\n"
+                "                       mappings with format \"source:target\", e.g.\n"
+                "                       \"Control+Alt:LevelThree,Alt:Meta\".\n"
+                "                       It implies --local-state and --legacy-state-api=false.\n"
+                "    --shortcuts-mask <MASK>\n"
+                "                       use the given modifier mask to enable selecting a specific\n"
+                "                       layout (see --shortcuts-mapping) when some of these modifiers\n"
+                "                       are active. The modifier mask is a plus-separated list of\n"
+                "                       modifiers names, e.g. \"Control+Alt+Super\".\n"
+                "                       It implies --local-state and --legacy-state-api=false.\n"
+                "    --shortcuts-mapping <MAPPING>\n"
+                "                       use the given layout mapping to enable selecting a specific\n"
+                "                       layout when some modifiers are active (see --shortcuts-mask).\n"
+                "                       <MAPPING> is a comma-separated list of 1-indexed layout\n"
+                "                       indices mappings with format \"source:target\", e.g. \"2:1,3:1\".\n"
+                "                       It implies --local-state and --legacy-state-api=false.\n"
+                "    --keymap [<FILE>]  use the given keymap instead of the keymap from the compositor.\n"
+                "                       It implies --local-state.\n"
+                "                       If <FILE> is \"-\" or missing, then load from stdin.\n"
+                "    -1, --uniline      enable uniline event output\n"
+                "    --multiline        enable multiline event output\n"
+                "    --consumed-mode={xkb|gtk}\n"
+                "                       select the consumed modifiers mode (default: xkb)\n"
+                "    --no-state-report  do not report changes to the state\n"
 #endif
-                "    --help             display this help and exit\n"
+                "    --verbose          enable verbose debugging output\n"
+                "    --help             display this help and exit\n",
+                xkb_keymap_get_format_label(DEFAULT_INPUT_KEYMAP_FORMAT)
         );
 }
 
@@ -786,44 +1022,107 @@ int
 main(int argc, char *argv[])
 {
     int ret = 0;
+    bool verbose = false;
     struct interactive_dpy inter;
     struct wl_registry *registry;
-    const char *locale;
-    struct xkb_compose_table *compose_table = NULL;
+
+#ifndef KEYMAP_DUMP
+    bool with_keymap_file = false;
+    const char *keymap_path = NULL;
+
+    /* Only used for state options */
+    inter.ctx = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+    if (!inter.ctx) {
+        ret = -1;
+        fprintf(stderr, "ERROR: Couldn't create xkb context\n");
+        goto err_out;
+    }
+    machine_options = xkb_machine_options_new(inter.ctx);
+    xkb_context_unref(inter.ctx);
+    inter.ctx = NULL;
+    if (!machine_options) {
+        ret = -1;
+        fprintf(stderr, "ERROR: Couldn't create xkb state machine options\n");
+        goto err_out;
+    }
 
     bool with_compose = false;
+    struct xkb_compose_table *compose_table = NULL;
+#endif
+
     enum options {
+        OPT_VERBOSE,
+        OPT_UNILINE,
+        OPT_MULTILINE,
+        OPT_CONSUMED_MODE,
+        OPT_NO_STATE_REPORT,
         OPT_COMPOSE,
+        OPT_LOCAL_STATE,
+        OPT_LEGACY_STATE_API,
+        OPT_CONTROLS,
+        OPT_MODIFIERS_TWEAK_MAPPING,
+        OPT_SHORTCUTS_TWEAK_MASK,
+        OPT_SHORTCUTS_TWEAK_MAPPING,
         OPT_INPUT_KEYMAP_FORMAT,
         OPT_OUTPUT_KEYMAP_FORMAT,
         OPT_KEYMAP_FORMAT,
+        OPT_KEYMAP_STRICT_PARSER,
+        OPT_KEYMAP_NO_PRETTY,
+        OPT_KEYMAP_DROP_UNUSED,
+        OPT_KEYMAP_EXPLICIT,
+        OPT_KEYMAP,
         OPT_RAW,
     };
     static struct option opts[] = {
         {"help",                 no_argument,            0, 'h'},
+        {"verbose",              no_argument,            0, OPT_VERBOSE},
+        {"strict",               no_argument,            0, OPT_KEYMAP_STRICT_PARSER},
 #ifdef KEYMAP_DUMP
         {"input-format",         required_argument,      0, OPT_INPUT_KEYMAP_FORMAT},
         {"output-format",        required_argument,      0, OPT_OUTPUT_KEYMAP_FORMAT},
         {"format",               required_argument,      0, OPT_KEYMAP_FORMAT},
+        {"no-pretty",            no_argument,            0, OPT_KEYMAP_NO_PRETTY},
+        {"drop-unused",          no_argument,            0, OPT_KEYMAP_DROP_UNUSED},
+        {"explicit-values",      no_argument,            0, OPT_KEYMAP_EXPLICIT},
         {"raw",                  no_argument,            0, OPT_RAW},
 #else
+        {"uniline",              no_argument,            0, OPT_UNILINE},
+        {"multiline",            no_argument,            0, OPT_MULTILINE},
+        {"consumed-mode",        required_argument,      0, OPT_CONSUMED_MODE},
+        {"no-state-report",      no_argument,            0, OPT_NO_STATE_REPORT},
         {"format",               required_argument,      0, OPT_INPUT_KEYMAP_FORMAT},
         {"enable-compose",       no_argument,            0, OPT_COMPOSE},
+        {"local-state",          no_argument,            0, OPT_LOCAL_STATE},
+        {"legacy-state-api",     optional_argument,      0, OPT_LEGACY_STATE_API},
+        {"controls",             required_argument,      0, OPT_CONTROLS},
+        {"modifiers-mapping",    required_argument,      0, OPT_MODIFIERS_TWEAK_MAPPING},
+        {"shortcuts-mask",       required_argument,      0, OPT_SHORTCUTS_TWEAK_MASK},
+        {"shortcuts-mapping",    required_argument,      0, OPT_SHORTCUTS_TWEAK_MAPPING},
+        {"keymap",               optional_argument,      0, OPT_KEYMAP},
 #endif
         {0, 0, 0, 0},
     };
 
     setlocale(LC_ALL, "");
 
+#ifndef KEYMAP_DUMP
+    /* Ensure synced with usage() and man page */
+    assert(use_events_api);
+    assert(consumed_mode == XKB_CONSUMED_MODE_XKB);
+#endif
+
     while (1) {
         int opt;
         int option_index = 0;
 
-        opt = getopt_long(argc, argv, "h", opts, &option_index);
+        opt = getopt_long(argc, argv, "*1h", opts, &option_index);
         if (opt == -1)
             break;
 
         switch (opt) {
+        case OPT_VERBOSE:
+            verbose = true;
+            break;
         case OPT_INPUT_KEYMAP_FORMAT:
             keymap_input_format = xkb_keymap_parse_format(optarg);
             if (!keymap_input_format) {
@@ -834,51 +1133,165 @@ main(int argc, char *argv[])
                         "--format",
 #endif
                         optarg);
-                usage(stderr, argv[0]);
-                return EXIT_INVALID_USAGE;
+                goto invalid_usage;
             }
+            break;
+        case OPT_KEYMAP_STRICT_PARSER:
+            compile_flags |= XKB_KEYMAP_COMPILE_STRICT_MODE;
             break;
 #ifdef KEYMAP_DUMP
         case OPT_OUTPUT_KEYMAP_FORMAT:
             keymap_output_format = xkb_keymap_parse_format(optarg);
             if (!keymap_output_format) {
                 fprintf(stderr, "ERROR: invalid --output-format \"%s\"\n", optarg);
-                usage(stderr, argv[0]);
-                return EXIT_INVALID_USAGE;
+                goto invalid_usage;
             }
             break;
         case OPT_KEYMAP_FORMAT:
             keymap_input_format = xkb_keymap_parse_format(optarg);
             if (!keymap_input_format) {
                 fprintf(stderr, "ERROR: invalid --format: \"%s\"\n", optarg);
-                usage(stderr, argv[0]);
-                exit(EXIT_INVALID_USAGE);
+                goto invalid_usage;
             }
             keymap_output_format = keymap_input_format;
+            break;
+        case OPT_KEYMAP_NO_PRETTY:
+            serialize_flags &= ~XKB_KEYMAP_SERIALIZE_PRETTY;
+            break;
+        case OPT_KEYMAP_DROP_UNUSED:
+            serialize_flags &= ~XKB_KEYMAP_SERIALIZE_KEEP_UNUSED;
+            break;
+        case OPT_KEYMAP_EXPLICIT:
+            serialize_flags |= XKB_KEYMAP_SERIALIZE_EXPLICIT;
             break;
         case OPT_RAW:
             dump_raw_keymap = true;
             break;
 #else
+        case OPT_KEYMAP:
+            with_keymap_file = true;
+            /* Optional arguments require `=`, but we want to make this
+             * requirement optional too, so that both `--keymap=xxx` and
+             * `--keymap xxx` work. */
+            if (!optarg && argv[optind] &&
+                (argv[optind][0] != '-' || strcmp(argv[optind], "-") == 0 )) {
+                keymap_path = argv[optind++];
+            } else {
+                keymap_path = optarg;
+            }
+            /* --local-state is implied */
+            goto local_state;
         case OPT_COMPOSE:
             with_compose = true;
+            break;
+        case OPT_LOCAL_STATE:
+local_state:
+            use_local_state = true;
+            break;
+        case OPT_LEGACY_STATE_API: {
+            bool legacy_api = true;
+            if (!tools_parse_bool(optarg, TOOLS_ARG_OPTIONAL, &legacy_api))
+                goto invalid_usage;
+            use_events_api = !legacy_api;
+            if (use_events_api)
+                goto local_state;
+            break;
+        }
+        case OPT_CONTROLS:
+            if (!tools_parse_controls(optarg, machine_options,
+                                      &kbd_controls_affect,
+                                      &kbd_controls_values)) {
+                goto invalid_usage;
+            }
+            /* --local-state and --legacy-state-api=false are implied */
+            use_events_api = true;
+            goto local_state;
+        case OPT_MODIFIERS_TWEAK_MAPPING:
+            raw_modifiers_mapping = optarg;
+            /* --local-state and --legacy-state-api=false are implied */
+            use_events_api = true;
+            goto local_state;
+        case OPT_SHORTCUTS_TWEAK_MASK:
+            raw_shortcuts_mask = optarg;
+            /* --local-state and --legacy-state-api=false are implied */
+            use_events_api = true;
+            goto local_state;
+        case OPT_SHORTCUTS_TWEAK_MAPPING:
+            if (!tools_parse_shortcuts_mappings(optarg, machine_options))
+                goto invalid_usage;
+            /* --local-state and --legacy-state-api=false are implied */
+            use_events_api = true;
+            goto local_state;
+        case '1':
+        case OPT_UNILINE:
+            print_options |= PRINT_UNILINE;
+            break;
+        case '*':
+        case OPT_MULTILINE:
+            print_options &= ~PRINT_UNILINE;
+            break;
+        case OPT_CONSUMED_MODE:
+            if (strcmp(optarg, "gtk") == 0) {
+                consumed_mode = XKB_CONSUMED_MODE_GTK;
+            } else if (strcmp(optarg, "xkb") == 0) {
+                consumed_mode = XKB_CONSUMED_MODE_XKB;
+            } else {
+                fprintf(stderr, "ERROR: invalid --consumed-mode \"%s\"\n",
+                        optarg);
+                usage(stderr, argv[0]);
+                ret = EXIT_INVALID_USAGE;
+                goto error_parse_args;
+            }
+            break;
+        case OPT_NO_STATE_REPORT:
+            report_state_changes = false;
             break;
 #endif
         case 'h':
             usage(stdout, argv[0]);
-            return EXIT_SUCCESS;
+            ret = EXIT_SUCCESS;
+            goto error_parse_args;
         default:
+invalid_usage:
             usage(stderr, argv[0]);
-            return EXIT_INVALID_USAGE;
+            ret = EXIT_INVALID_USAGE;
+            goto error_parse_args;
         }
     }
+
+#ifndef KEYMAP_DUMP
+    if (optind < argc && !isempty(argv[optind])) {
+        /* Some positional arguments left: use as a keymap input */
+        if (keymap_path)
+            goto too_much_arguments;
+        keymap_path = argv[optind++];
+        if (optind < argc) {
+            /* Further positional arguments is an error */
+too_much_arguments:
+            fprintf(stderr, "ERROR: Too many positional arguments\n");
+            goto invalid_usage;
+        }
+        with_keymap_file = true;
+    } else if (is_pipe_or_regular_file(STDIN_FILENO) && !with_keymap_file) {
+        /* No positional argument: piping detected */
+        with_keymap_file = true;
+    }
+
+    if (with_keymap_file) {
+        /* --local-state is implied with custom keymap */
+        use_local_state = true;
+    }
+
+    if (isempty(keymap_path) || strcmp(keymap_path, "-") == 0)
+        keymap_path = NULL;
+#endif
 
     memset(&inter, 0, sizeof(inter));
     wl_list_init(&inter.seats);
 
     inter.dpy = wl_display_connect(NULL);
     if (!inter.dpy) {
-        fprintf(stderr, "Couldn't connect to Wayland server\n");
+        fprintf(stderr, "ERROR: Couldn't connect to Wayland server\n");
         ret = -1;
         goto err_out;
     }
@@ -886,23 +1299,51 @@ main(int argc, char *argv[])
     inter.ctx = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
     if (!inter.ctx) {
         ret = -1;
-        fprintf(stderr, "Couldn't create xkb context\n");
+        fprintf(stderr, "ERROR: Couldn't create xkb context\n");
         goto err_out;
     }
 
+    if (verbose)
+        tools_enable_verbose_logging(inter.ctx);
+
+#ifndef KEYMAP_DUMP
+    if (with_keymap_file) {
+        FILE *file = NULL;
+        if (keymap_path) {
+            /* Read from regular file */
+            file = fopen(keymap_path, "rb");
+        } else {
+            /* Read from stdin */
+            file = tools_read_stdin();
+        }
+        if (!file) {
+            fprintf(stderr, "ERROR: Failed to open keymap file \"%s\": %s\n",
+                    keymap_path ? keymap_path : "stdin", strerror(errno));
+            xkb_context_unref(inter.ctx);
+            goto err_out;
+        }
+        custom_keymap = xkb_keymap_new_from_file(inter.ctx, file,
+                                                 keymap_input_format,
+                                                 compile_flags);
+        if (!custom_keymap)
+            goto err_out;
+        fclose(file);
+    }
+
     if (with_compose) {
-        locale = setlocale(LC_CTYPE, NULL);
+        const char *locale = setlocale(LC_CTYPE, NULL);
         compose_table =
             xkb_compose_table_new_from_locale(inter.ctx, locale,
                                               XKB_COMPOSE_COMPILE_NO_FLAGS);
         if (!compose_table) {
-            fprintf(stderr, "Couldn't create compose from locale\n");
+            fprintf(stderr, "ERROR: Couldn't create compose from locale\n");
             goto err_compose;
         }
         inter.compose_table = compose_table;
     } else {
         inter.compose_table = NULL;
     }
+#endif
 
     registry = wl_display_get_registry(inter.dpy);
     wl_registry_add_listener(registry, &registry_listener, &inter);
@@ -924,7 +1365,9 @@ main(int argc, char *argv[])
         goto err_conn;
     }
 
+#ifndef KEYMAP_DUMP
     surface_create(&inter);
+#endif
 
     tools_disable_stdin_echo();
     do {
@@ -935,8 +1378,18 @@ main(int argc, char *argv[])
     wl_registry_destroy(registry);
 err_conn:
     dpy_disconnect(&inter);
+#ifndef KEYMAP_DUMP
 err_compose:
     xkb_compose_table_unref(compose_table);
+#endif
 err_out:
-    exit(ret >= 0 ? EXIT_SUCCESS : EXIT_FAILURE);
+#ifndef KEYMAP_DUMP
+    xkb_keymap_unref(custom_keymap);
+#endif
+    ret = (ret >= 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+error_parse_args:
+#ifndef KEYMAP_DUMP
+    xkb_machine_options_destroy(machine_options);
+#endif
+    exit(ret);
 }

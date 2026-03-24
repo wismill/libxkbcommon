@@ -267,8 +267,8 @@ enum wildcard_match_type {
 struct rule {
     struct sval mlvo_value_at_pos[_MLVO_NUM_ENTRIES];
     enum mlvo_match_type match_type_at_pos[_MLVO_NUM_ENTRIES];
-    mlvo_index_t num_mlvo_values;
     struct sval kccgst_value_at_pos[_KCCGST_NUM_ENTRIES];
+    mlvo_index_t num_mlvo_values;
     kccgst_index_t num_kccgst_values;
     bool skip;
 };
@@ -336,14 +336,14 @@ split_comma_separated_mlvo(struct xkb_context *ctx,
      */
 
     if (!s) {
-        struct matched_sval val = { .sval = { NULL, 0 } };
+        struct matched_sval val = { .sval = SVAL(NULL, 0) };
         darray_append(arr, val);
         return arr;
     }
 
     while (true) {
         struct matched_sval val = {
-            .sval = { s, 0 },
+            .sval = SVAL(s, 0),
             .matched = false,
             /* NOTE: Cannot store XKB_LAYOUT_INVALID */
             .layout = OPTIONS_MATCH_ALL_GROUPS
@@ -365,7 +365,7 @@ split_comma_separated_mlvo(struct xkb_context *ctx,
                 /* Note: 1-indexed layout */
                 s += count;
                 if (layout == 0 || layout > XKB_MAX_GROUPS) {
-                    log_err(ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
+                    log_err(ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
                             "Invalid layout index %"PRIu32" "
                             "for the RMVLO component: \"%.*s\"\n", layout,
                             (unsigned int) val.sval.len, val.sval.start);
@@ -383,7 +383,7 @@ split_comma_separated_mlvo(struct xkb_context *ctx,
             const char* const layout_index_end = s;
             while (*s != '\0' && *s != ',') { s++; }
             if (count <= 0 || layout_index_end != s) {
-                log_err(ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
+                log_err(ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
                         "Invalid layout index \"%.*s\" for the RMLVO "
                         "component \"%.*s\"; discarding specifier.\n",
                         (unsigned int) (s - layout_start), layout_start,
@@ -464,10 +464,7 @@ matcher_new_from_rmlvo(const struct xkb_rmlvo_builder *rmlvo, const char **rules
         struct xkb_rmlvo_builder_layout *layout;
         darray_foreach(layout, rmlvo->layouts) {
             struct matched_sval val = {
-                .sval = {
-                    .start = layout->layout,
-                    .len = strlen_safe(layout->layout)
-                },
+                .sval = SVAL(layout->layout, strlen_safe(layout->layout)),
                 .layout = OPTIONS_MATCH_ALL_GROUPS,
                 .matched = false
             };
@@ -485,10 +482,7 @@ matcher_new_from_rmlvo(const struct xkb_rmlvo_builder *rmlvo, const char **rules
         struct xkb_rmlvo_builder_option *option;
         darray_foreach(option, rmlvo->options) {
             struct matched_sval val = {
-                .sval = {
-                    .start = option->option,
-                    .len = strlen_safe(option->option),
-                },
+                .sval = SVAL(option->option, strlen_safe(option->option)),
                 .layout = (option->layout) == XKB_LAYOUT_INVALID
                     ? OPTIONS_MATCH_ALL_GROUPS
                     : option->layout,
@@ -653,7 +647,7 @@ matcher_include(struct matcher *m, struct scanner *parent_scanner,
         } else {
             file = FindFileInXkbPath(m->ctx, parent_scanner->file_name,
                                      stmt_file, stmt_file_len, FILE_TYPE_RULES,
-                                     buf, sizeof(buf), &offset);
+                                     buf, sizeof(buf), &offset, true);
         }
     }
 
@@ -677,7 +671,7 @@ matcher_include(struct matcher *m, struct scanner *parent_scanner,
         offset++;
         file = FindFileInXkbPath(m->ctx, parent_scanner->file_name,
                                  stmt_file, stmt_file_len, FILE_TYPE_RULES,
-                                 buf, sizeof(buf), &offset);
+                                 buf, sizeof(buf), &offset, true);
     }
 
     log_err(m->ctx, XKB_LOG_MESSAGE_NO_ID,
@@ -1066,7 +1060,7 @@ static void
 matcher_rule_set_mlvo_wildcard(struct matcher *m, struct scanner *s,
                                enum mlvo_match_type match_type)
 {
-    struct sval dummy = { NULL, 0 };
+    struct sval dummy = SVAL(NULL, 0);
     matcher_rule_set_mlvo_common(m, s, dummy, match_type);
 }
 
@@ -1321,7 +1315,7 @@ expand_qualifier_in_kccgst_value(
     if ((*i + 3 <= value.len || is_merge_mode_prefix(str[*i + 3])) &&
         str[*i] == 'a' && str[*i+1] == 'l' && str[*i+2] == 'l') {
         if (has_layout_idx_range)
-            scanner_vrb(s, 2, XKB_LOG_MESSAGE_NO_ID,
+            scanner_vrb(s, XKB_LOG_VERBOSITY_DETAILED, XKB_LOG_MESSAGE_NO_ID,
                         "Using :all qualifier with indices range "
                         "is not recommended.");
         /* Add at least one layout */
@@ -1928,6 +1922,49 @@ read_rules_file(struct xkb_context *ctx,
     return ret;
 }
 
+/**
+ * XKB extension: append all *.pre or *.post optional partial rules files.
+ * This is a lightweight extension mechanism to enable *simple* rules files
+ * composition: rules files are just processed sequentially using the matcher
+ * resulting from the previous file.
+ */
+static bool
+xkb_resolve_partial_rules(struct xkb_context *ctx, char *path, size_t path_size,
+                          const char* rules, const char* suffix,
+                          struct matcher *matcher)
+{
+    /* Set partial rules filename: canonical rules filename + suffix */
+    char partial_rules[60]; /* Arbitrary, but we do not expect long names */
+    if (unlikely(!snprintf_safe(partial_rules, sizeof(partial_rules),
+                                "%s%s", rules, suffix))) {
+        log_err(ctx, XKB_ERROR_CANNOT_RESOLVE_RMLVO,
+                "Cannot load XKB rules \"%s%s\"\n", rules, suffix);
+        return false;
+    }
+
+    /*
+     * Traverse all include paths and resolve all corresponding partial rules.
+     * These files are optional, but required to be valid if present.
+     */
+    unsigned int offset = 0;
+    FILE *file = NULL;
+    const size_t len = strlen(partial_rules);
+    while ((file = FindFileInXkbPath(ctx, "(unknown)",
+                                     partial_rules, len, FILE_TYPE_RULES,
+                                     path, path_size, &offset, false)) != NULL) {
+        const bool ok = read_rules_file(ctx, matcher, 0, file, path);
+        fclose(file);
+        if (!ok) {
+            log_err(ctx, XKB_ERROR_CANNOT_RESOLVE_RMLVO,
+                    "Error while parsing XKB rules \"%s\"\n", path);
+            return false;
+        }
+        offset++;
+    }
+
+    return true;
+}
+
 static bool
 xkb_resolve_rules(struct xkb_context *ctx,
                   const char* rules, struct matcher *matcher,
@@ -1935,29 +1972,59 @@ xkb_resolve_rules(struct xkb_context *ctx,
                   xkb_layout_index_t *explicit_layouts)
 {
     bool ret = false;
-    FILE *file;
-    struct matched_sval *mval;
+
+    /* First check if the main rules file exists or error early */
     unsigned int offset = 0;
     char path[PATH_MAX];
-
-    file = FindFileInXkbPath(ctx, "(unknown)",
-                             rules, strlen(rules), FILE_TYPE_RULES,
-                             path, sizeof(path), &offset);
+    FILE * const file = FindFileInXkbPath(ctx, "(unknown)",
+                                          rules, strlen(rules), FILE_TYPE_RULES,
+                                          path, sizeof(path), &offset, true);
     if (!file) {
         log_err(ctx, XKB_ERROR_CANNOT_RESOLVE_RMLVO,
                 "Cannot load XKB rules \"%s\"\n", rules);
         goto err_out;
     }
 
+    /*
+     * Final rule set is equivalent to:
+     *
+     * ! include <include path 1>/rules/<rules>.pre  // only if defined
+     * …
+     * ! include <include path n>/rules/<rules>.pre  // only if defined
+     * ! include <rules>                             // main rules file
+     * ! include <include path 1>/rules/<rules>.post // only if defined
+     * …
+     * ! include <include path n>/rules/<rules>.post // only if defined
+     */
+
+    /* XKB extension: resolve optional <rules>.pre files */
+    ret = xkb_resolve_partial_rules(ctx, path, sizeof(path),
+                                    rules, ".pre", matcher);
+    if (!ret)
+        goto err_out;
+
+    /* Resolve main <rules> file */
     ret = read_rules_file(ctx, matcher, 0, file, path);
-    if (!ret ||
-        darray_empty(matcher->kccgst[KCCGST_KEYCODES]) ||
+    if (!ret) {
+        log_err(ctx, XKB_ERROR_CANNOT_RESOLVE_RMLVO,
+                "Error while parsing XKB rules \"%s\"\n", path);
+        goto err_out;
+    }
+
+    /* XKB extension: resolve optional <rules>.post files */
+    ret = xkb_resolve_partial_rules(ctx, path, sizeof(path),
+                                    rules, ".post", matcher);
+    if (!ret)
+        goto err_out;
+
+    /* Check we got required components */
+    if (darray_empty(matcher->kccgst[KCCGST_KEYCODES]) ||
         darray_empty(matcher->kccgst[KCCGST_TYPES]) ||
         darray_empty(matcher->kccgst[KCCGST_COMPAT]) ||
         /* darray_empty(matcher->kccgst[KCCGST_GEOMETRY]) || */
         darray_empty(matcher->kccgst[KCCGST_SYMBOLS])) {
         log_err(ctx, XKB_ERROR_CANNOT_RESOLVE_RMLVO,
-                "No components returned from XKB rules \"%s\"\n", path);
+                "No components returned from XKB rules \"%s\"\n", rules);
         ret = false;
         goto err_out;
     }
@@ -1968,7 +2035,7 @@ xkb_resolve_rules(struct xkb_context *ctx,
     darray_steal(matcher->kccgst[KCCGST_SYMBOLS], &out->symbols, NULL);
     darray_steal(matcher->kccgst[KCCGST_GEOMETRY], &out->geometry, NULL);
 
-    mval = &matcher->rmlvo.model;
+    struct matched_sval *mval = &matcher->rmlvo.model;
     if (!mval->matched && mval->sval.len > 0)
         log_err(matcher->ctx, XKB_ERROR_CANNOT_RESOLVE_RMLVO,
                 "Unrecognized RMLVO model \"%.*s\" was ignored\n",

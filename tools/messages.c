@@ -23,7 +23,7 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_ERROR_MALFORMED_NUMBER_LITERAL, "Malformed number literal"},
     {XKB_WARNING_CONFLICTING_KEY_TYPE_PRESERVE_ENTRIES, "Conflicting key type preserve entries"},
     {XKB_ERROR_INTEGER_OVERFLOW, "Integer overflow"},
-    {XKB_ERROR_UNSUPPORTED_MODIFIER_MASK, "Unsupported modifier mask"},
+    {XKB_ERROR_UNSUPPORTED_MODIFIER_MASK_, "Unsupported modifier mask"},
     {XKB_ERROR_EXPECTED_ARRAY_ENTRY, "Expected array entry"},
     {XKB_ERROR_INVALID_NUMERIC_KEYSYM, "Invalid numeric keysym"},
     {XKB_WARNING_ILLEGAL_KEYCODE_ALIAS, "Illegal keycode alias"},
@@ -38,7 +38,9 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_WARNING_ILLEGAL_KEY_TYPE_PRESERVE_RESULT, "Illegal key type preserve result"},
     {XKB_ERROR_INVALID_INCLUDE_STATEMENT, "Invalid include statement"},
     {XKB_ERROR_INVALID_MODMAP_ENTRY, "Invalid modmap entry"},
-    {XKB_ERROR_UNSUPPORTED_GROUP_INDEX, "Unsupported group index"},
+    {XKB_ERROR_UNSUPPORTED_LAYOUT_OUT_OF_RANGE_POLICY_, "Unsupported layout out of range policy"},
+    {XKB_ERROR_UNKNOWN_STATEMENT, "Unknown statement"},
+    {XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX_, "Unsupported layout index"},
     {XKB_WARNING_CONFLICTING_KEY_TYPE_LEVEL_NAMES, "Conflicting key type level names"},
     {XKB_ERROR_INVALID_SET_DEFAULT_STATEMENT, "Invalid set default statement"},
     {XKB_WARNING_CONFLICTING_KEY_TYPE_MAP_ENTRY, "Conflicting key type map entry"},
@@ -49,12 +51,15 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_ERROR_UNSUPPORTED_SHIFT_LEVEL, "Unsupported shift level"},
     {XKB_ERROR_INCLUDED_FILE_NOT_FOUND, "Included file not found"},
     {XKB_ERROR_UNKNOWN_OPERATOR, "Unknown operator"},
+    {XKB_ERROR_OVERLAPPING_OVERLAY, "Overlapping overlay"},
     {XKB_WARNING_UNSUPPORTED_LEGACY_ACTION, "Unsupported legacy action"},
+    {XKB_ERROR_UNSUPPORTED_A11Y_FLAGS_, "Unsupported a11y flags"},
     {XKB_WARNING_DUPLICATE_ENTRY, "Duplicate entry"},
     {XKB_ERROR_RECURSIVE_INCLUDE, "Recursive include"},
     {XKB_WARNING_CONFLICTING_KEY_TYPE_DEFINITIONS, "Conflicting key type definitions"},
     {XKB_ERROR_GLOBAL_DEFAULTS_WRONG_SCOPE, "Global defaults wrong scope"},
     {XKB_WARNING_MISSING_DEFAULT_SECTION, "Missing default section"},
+    {XKB_ERROR_ABI_INVALID_STRUCT_SIZE_, "Abi invalid struct size"},
     {XKB_WARNING_CONFLICTING_KEY_SYMBOL, "Conflicting key symbol"},
     {XKB_ERROR_INVALID_OPERATION, "Invalid operation"},
     {XKB_WARNING_NUMERIC_KEYSYM, "Numeric keysym"},
@@ -64,12 +69,15 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_ERROR_ALLOCATION_ERROR, "Allocation error"},
     {XKB_ERROR_INVALID_ACTION_FIELD, "Invalid action field"},
     {XKB_ERROR_WRONG_FIELD_TYPE, "Wrong field type"},
+    {XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX, "Unsupported overlay index"},
     {XKB_ERROR_CANNOT_RESOLVE_RMLVO, "Cannot resolve rmlvo"},
     {XKB_WARNING_INVALID_UNICODE_ESCAPE_SEQUENCE, "Invalid unicode escape sequence"},
     {XKB_ERROR_INVALID_REAL_MODIFIER, "Invalid real modifier"},
+    {XKB_ERROR_NO_VALID_DEFAULT_INCLUDE_PATH, "No valid default include path"},
     {XKB_ERROR_UNKNOWN_DEFAULT_FIELD, "Unknown default field"},
     {XKB_WARNING_UNKNOWN_CHAR_ESCAPE_SEQUENCE, "Unknown char escape sequence"},
     {XKB_ERROR_INVALID_INCLUDED_FILE, "Invalid included file"},
+    {XKB_ERROR_INVALID_COMPOSE_LOCALE, "Invalid compose locale"},
     {XKB_ERROR_INVALID_COMPOSE_SYNTAX, "Invalid compose syntax"},
     {XKB_ERROR_INCOMPATIBLE_ACTIONS_AND_KEYSYMS_COUNT, "Incompatible actions and keysyms count"},
     {XKB_WARNING_MULTIPLE_GROUPS_AT_ONCE, "Multiple groups at once"},
@@ -84,10 +92,12 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_ERROR_UNKNOWN_FIELD, "Unknown field"},
     {XKB_ERROR_KEYMAP_COMPILATION_FAILED, "Keymap compilation failed"},
     {XKB_ERROR_UNKNOWN_ACTION_TYPE, "Unknown action type"},
+    {XKB_ERROR_ABI_FORWARD_COMPAT_, "Abi forward compat"},
     {XKB_WARNING_CONFLICTING_KEY_ACTION, "Conflicting key action"},
     {XKB_WARNING_CONFLICTING_KEY_TYPE_MERGING_GROUPS, "Conflicting key type merging groups"},
     {XKB_ERROR_CONFLICTING_KEY_SYMBOLS_ENTRY, "Conflicting key symbols entry"},
     {XKB_WARNING_MISSING_SYMBOLS_GROUP_NAME_INDEX, "Missing symbols group name index"},
+    {XKB_ERROR_ABI_BACKWARD_COMPAT_, "Abi backward compat"},
     {XKB_WARNING_CONFLICTING_KEY_FIELDS, "Conflicting key fields"},
     {XKB_ERROR_INVALID_IDENTIFIER, "Invalid identifier"},
     {XKB_WARNING_UNRESOLVED_KEYMAP_SYMBOL, "Unresolved keymap symbol"},
@@ -103,7 +113,7 @@ xkb_message_get_all(const struct xkb_message_entry **messages)
 }
 
 const struct xkb_message_entry*
-xkb_message_get(xkb_message_code_t code)
+xkb_message_get(enum xkb_message_code code)
 {
     if (code < _XKB_LOG_MESSAGE_MIN_CODE || code > _XKB_LOG_MESSAGE_MAX_CODE)
         return NULL;

@@ -13,22 +13,22 @@ import sys
 import tempfile
 import unittest
 from abc import ABCMeta, abstractmethod
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from dataclasses import dataclass
 from functools import reduce
 from pathlib import Path
+from typing import ClassVar
 
 try:
-    top_builddir = os.environ["top_builddir"]
-    top_srcdir = os.environ["top_srcdir"]
+    top_builddir = Path(os.environ["top_builddir"])
+    top_srcdir = Path(os.environ["top_srcdir"])
 except KeyError:
     print(
         "Required environment variables not found: top_srcdir/top_builddir",
         file=sys.stderr,
     )
-    from pathlib import Path
 
-    top_srcdir = "."
+    top_srcdir = Path(".")
     try:
         top_builddir = next(Path(".").glob("**/meson-logs/")).parent
     except StopIteration:
@@ -138,6 +138,12 @@ class KccgstTarget(Target):
         return ["--kccgst"]
 
 
+class KccgstYamlTarget(Target):
+    @property
+    def args(self) -> list[str]:
+        return ["--kccgst-yaml"]
+
+
 @dataclass
 class KeymapTarget(Target, RMLVO):
     arg: bool = False
@@ -176,7 +182,7 @@ def _disable_coredump():
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
 
 
-def run_command(args, input: str | None = None):
+def run_command(args, input: str | None = None) -> tuple[int, str, str]:
     logger.debug("run command: {}".format(" ".join(args)))
 
     try:
@@ -190,20 +196,23 @@ def run_command(args, input: str | None = None):
         )
         return p.returncode, p.stdout, p.stderr
     except subprocess.TimeoutExpired as e:
-        return 0, e.stdout, e.stderr
+        return (
+            0,
+            e.stdout.decode("utf-8") if e.stdout else "",
+            e.stderr.decode("utf-8") if e.stderr else "",
+        )
 
 
+@dataclass
 class XkbcliTool:
-    xkbcli_tool = "xkbcli"
-    subtool = None
+    xkbcli_tool: ClassVar[str] = "xkbcli"
+    tool_path: ClassVar[Path] = top_builddir
 
-    def __init__(self, subtool=None, skipIf=(), skipError=()):
-        self.tool_path = top_builddir
-        self.subtool = subtool
-        self.skipIf = skipIf
-        self.skipError = skipError
+    subtool: str | None = None
+    skipIf: tuple[tuple[bool, str], ...] = ()
+    skipError: tuple[tuple[Callable[[int, str, str], bool], str], ...] = ()
 
-    def run_command(self, args, input: str | None = None):
+    def run_command(self, args, input: str | None = None) -> tuple[int, str, str]:
         for condition, reason in self.skipIf:
             if condition:
                 raise unittest.SkipTest(reason)
@@ -215,7 +224,7 @@ class XkbcliTool:
 
         return run_command(args, input=input)
 
-    def run_command_success(self, args, input: str | None = None):
+    def run_command_success(self, args, input: str | None = None) -> tuple[str, str]:
         rc, stdout, stderr = self.run_command(args, input=input)
         if rc != 0:
             for testfunc, reason in self.skipError:
@@ -224,7 +233,9 @@ class XkbcliTool:
         assert rc == 0, (rc, stdout, stderr)
         return stdout, stderr
 
-    def run_command_invalid(self, args, input: str | None = None):
+    def run_command_invalid(
+        self, args, input: str | None = None
+    ) -> tuple[int, str, str]:
         rc, stdout, stderr = self.run_command(args, input=input)
         assert rc == 2, (rc, stdout, stderr)
         return rc, stdout, stderr
@@ -246,6 +257,20 @@ class XkbcliTool:
 
 
 class TestXkbcli(unittest.TestCase):
+    xkbcli: ClassVar[XkbcliTool]
+    xkbcli_list: ClassVar[XkbcliTool]
+    xkbcli_how_to_type: ClassVar[XkbcliTool]
+    xkbcli_compile_keymap: ClassVar[XkbcliTool]
+    xkbcli_compile_compose: ClassVar[XkbcliTool]
+    xkbcli_interactive_evdev: ClassVar[XkbcliTool]
+    xkbcli_interactive_x11: ClassVar[XkbcliTool]
+    xkbcli_interactive_wayland: ClassVar[XkbcliTool]
+    xkbcli_interactive: ClassVar[XkbcliTool]
+    xkbcli_dump_keymap_x11: ClassVar[XkbcliTool]
+    xkbcli_dump_keymap_wayland: ClassVar[XkbcliTool]
+    xkbcli_dump_keymap: ClassVar[XkbcliTool]
+    all_tools: ClassVar[list[XkbcliTool]]
+
     @classmethod
     def setUpClass(cls):
         cls.xkbcli = XkbcliTool()
@@ -261,19 +286,20 @@ class TestXkbcli(unittest.TestCase):
         cls.xkbcli_how_to_type = XkbcliTool("how-to-type")
         cls.xkbcli_compile_keymap = XkbcliTool("compile-keymap")
         cls.xkbcli_compile_compose = XkbcliTool("compile-compose")
+        no_interactive_evdev = (
+            (
+                not int(os.getenv("HAVE_XKBCLI_INTERACTIVE_EVDEV", "1")),
+                "evdev not enabled",
+            ),
+            (not os.path.exists("/dev/input/event0"), "event node required"),
+            (
+                not os.access("/dev/input/event0", os.R_OK),
+                "insufficient permissions",
+            ),
+        )
         cls.xkbcli_interactive_evdev = XkbcliTool(
             "interactive-evdev",
-            skipIf=(
-                (
-                    not int(os.getenv("HAVE_XKBCLI_INTERACTIVE_EVDEV", "1")),
-                    "evdev not enabled",
-                ),
-                (not os.path.exists("/dev/input/event0"), "event node required"),
-                (
-                    not os.access("/dev/input/event0", os.R_OK),
-                    "insufficient permissions",
-                ),
-            ),
+            skipIf=no_interactive_evdev,
             skipError=(
                 (
                     lambda rc, stdout, stderr: "Couldn't find any keyboards" in stderr,
@@ -281,26 +307,46 @@ class TestXkbcli(unittest.TestCase):
                 ),
             ),
         )
+        no_interactive_x11 = (
+            (
+                not int(os.getenv("HAVE_XKBCLI_INTERACTIVE_X11", "1")),
+                "x11 not enabled",
+            ),
+            (not os.getenv("DISPLAY"), "DISPLAY not set"),
+        )
         cls.xkbcli_interactive_x11 = XkbcliTool(
             "interactive-x11",
-            skipIf=(
-                (
-                    not int(os.getenv("HAVE_XKBCLI_INTERACTIVE_X11", "1")),
-                    "x11 not enabled",
-                ),
-                (not os.getenv("DISPLAY"), "DISPLAY not set"),
+            skipIf=no_interactive_x11,
+        )
+        no_interactive_wayland = (
+            (
+                not int(os.getenv("HAVE_XKBCLI_INTERACTIVE_WAYLAND", "1")),
+                "wayland not enabled",
             ),
+            (not os.getenv("WAYLAND_DISPLAY"), "WAYLAND_DISPLAY not set"),
         )
         cls.xkbcli_interactive_wayland = XkbcliTool(
             "interactive-wayland",
-            skipIf=(
-                (
-                    not int(os.getenv("HAVE_XKBCLI_INTERACTIVE_WAYLAND", "1")),
-                    "wayland not enabled",
-                ),
-                (not os.getenv("WAYLAND_DISPLAY"), "WAYLAND_DISPLAY not set"),
-            ),
+            skipIf=no_interactive_wayland,
         )
+        # NOTE: `interactive` cannot be tested, because it hardcodes the paths
+        #        of the `xkbcli-interactive-{wayland,x11}` tools it calls to the
+        #        *install* directory, while we need to use those of the *build*
+        #        directory.
+
+        cls.xkbcli_dump_keymap_x11 = XkbcliTool(
+            "dump-keymap-x11",
+            skipIf=no_interactive_x11,
+        )
+        cls.xkbcli_dump_keymap_wayland = XkbcliTool(
+            "dump-keymap-wayland",
+            skipIf=no_interactive_wayland,
+        )
+        # NOTE: `dump-keymap` cannot be tested, because it hardcodes the paths
+        #        of the `xkbcli-dump-keymap-{wayland,x11}` tools it calls to the
+        #        *install* directory, while we need to use those of the *build*
+        #        directory.
+
         cls.all_tools = [
             cls.xkbcli,
             cls.xkbcli_list,
@@ -310,6 +356,8 @@ class TestXkbcli(unittest.TestCase):
             cls.xkbcli_interactive_evdev,
             cls.xkbcli_interactive_x11,
             cls.xkbcli_interactive_wayland,
+            cls.xkbcli_dump_keymap_x11,
+            cls.xkbcli_dump_keymap_wayland,
         ]
 
     def test_help(self):
@@ -335,6 +383,20 @@ class TestXkbcli(unittest.TestCase):
     def test_xkbcli_too_many_args(self):
         self.xkbcli.run_command_invalid(["a"] * 64)
 
+    def test_compile_keymap(self):
+        for args in (
+            ["--verbose", "-h"],
+            ["--format=v2", "-h"],
+            ["--input-format=xkb_v1", "-h"],
+            ["--output-format=xkb_v2", "-h"],
+            ["--strict", "-h"],
+            ["--no-pretty", "-h"],
+            ["--drop-unused", "-h"],
+            ["--explicit-values", "-h"],
+        ):
+            with self.subTest(args=args):
+                self.xkbcli_compile_keymap.run_command_success(args)
+
     def test_compile_keymap_args(self):
         xkb_root = Path(os.environ["XKB_CONFIG_ROOT"])
         keymap_path = xkb_root / "keymaps/masks.xkb"
@@ -344,6 +406,7 @@ class TestXkbcli(unittest.TestCase):
         for target in (
             RmlvoTarget(),
             KccgstTarget(),
+            KccgstYamlTarget(),
             # Keymap from RMLVO
             KeymapTarget(),
             # Keymap from RMLVO (stdin ignored)
@@ -387,7 +450,8 @@ class TestXkbcli(unittest.TestCase):
         keymap_from_path2 = KeymapTarget(arg=False, path=Path(keymap_path))
         rmlvo = RmlvoTarget()
         kccgst = KccgstTarget()
-        for args in (
+        kccgstYaml = KccgstYamlTarget()
+        for entry in (
             # --keymap does not use RMLVO options
             ("--rules", "some-rules", keymap_from_stdin),
             ("--model", "some-model", keymap_from_stdin),
@@ -409,23 +473,32 @@ class TestXkbcli(unittest.TestCase):
             (rmlvo, keymap_from_stdin),
             (rmlvo, keymap_from_path1),
             (rmlvo, keymap_from_path2),
-            [kccgst, keymap_from_stdin],
-            [kccgst, keymap_from_path1],
-            [kccgst, keymap_from_path2],
-            [kccgst, rmlvo],
-            [kccgst, rmlvo, keymap_from_stdin],
-            [kccgst, rmlvo, keymap_from_path1],
-            [kccgst, rmlvo, keymap_from_path2],
+            (kccgst, kccgstYaml),
+            (kccgst, keymap_from_stdin),
+            (kccgst, keymap_from_path1),
+            (kccgst, keymap_from_path2),
+            (kccgst, rmlvo),
+            (kccgst, rmlvo, keymap_from_stdin),
+            (kccgst, rmlvo, keymap_from_path1),
+            (kccgst, rmlvo, keymap_from_path2),
+            (kccgstYaml, keymap_from_stdin),
+            (kccgstYaml, keymap_from_path1),
+            (kccgstYaml, keymap_from_path2),
+            (kccgstYaml, rmlvo),
+            (kccgstYaml, rmlvo, keymap_from_stdin),
+            (kccgstYaml, rmlvo, keymap_from_path1),
+            (kccgstYaml, rmlvo, keymap_from_path2),
         ):
-            with self.subTest(args=args):
-                args = list(
+            with self.subTest(args=entry):
+                args: list[str] = list(
                     itertools.chain.from_iterable(
-                        arg.args if isinstance(arg, Target) else arg for arg in args
+                        arg.args if isinstance(arg, Target) else arg for arg in entry
                     )
                 )
-                input = reduce(
-                    lambda acc, arg: acc
-                    or (arg.stdin if isinstance(arg, Target) else None),
+                input: str | None = reduce(
+                    lambda acc, arg: (
+                        acc or (arg.stdin if isinstance(arg, Target) else None)
+                    ),
                     args,
                     None,
                 )
@@ -438,7 +511,12 @@ class TestXkbcli(unittest.TestCase):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = {
                 executor.submit(run, target.args, rmlvo): (target, rmlvo)
-                for target in (RmlvoTarget(), KccgstTarget(), KeymapTarget())
+                for target in (
+                    RmlvoTarget(),
+                    KccgstTarget(),
+                    KccgstYamlTarget(),
+                    KeymapTarget(),
+                )
                 for rmlvo in rmlvos
             }
             for future in concurrent.futures.as_completed(futures, TIMEOUT):
@@ -474,11 +552,56 @@ class TestXkbcli(unittest.TestCase):
         assert rc == 1, (stdout, stderr)
         assert "Couldn't look up rules" in stderr
 
+    def test_compile_compose(self):
+        for args in (["--verbose"],):
+            with self.subTest(args=args):
+                self.xkbcli_compile_compose.run_command_success(args)
+
     def test_how_to_type(self):
-        # Unicode codepoint conversions, we support whatever strtol does
-        for args in (["123"], ["0x123"], ["0123"]):
+        for args in (["--verbose", "1"],):
             with self.subTest(args=args):
                 self.xkbcli_how_to_type.run_command_success(args)
+
+        @dataclass
+        class Entry:
+            args: list[str]
+            name: str
+            value: int
+
+        for entry in (
+            # Unicode codepoint conversions, we support whatever strtol does
+            Entry(args=["123"], name="braceleft", value=0x007B),
+            Entry(args=["0123"], name="braceleft", value=0x007B),
+            Entry(args=["0a"], name="Linefeed", value=0xFF0A),
+            Entry(args=["0x123"], name="gcedilla", value=0x03BB),
+            Entry(args=["U+123"], name="gcedilla", value=0x03BB),
+            # Characters
+            Entry(args=["1"], name="1", value=0x0031),
+            Entry(args=["a"], name="a", value=0x0061),
+            Entry(args=["á"], name="aacute", value=0x00E1),
+            # Keysyms names (fallback without --keysym option)
+            Entry(args=["acute"], name="acute", value=0x00B4),
+            Entry(args=["U123"], name="U0123", value=0x1000123),
+            # Keysyms names (with --keysym)
+            Entry(args=["--keysym", "1"], name="1", value=0x0031),
+            Entry(args=["--keysym", "a"], name="a", value=0x0061),
+            Entry(args=["--keysym", "acute"], name="acute", value=0x00B4),
+            Entry(args=["--keysym", "U123"], name="U0123", value=0x1000123),
+            # Keysym values
+            Entry(args=["--keysym", "123"], name="braceleft", value=0x007B),
+            Entry(args=["--keysym", "0x123"], name="0x00000123", value=0x0123),
+        ):
+            with self.subTest(args=args):
+                stdout, _stderr = self.xkbcli_how_to_type.run_command_success(
+                    entry.args
+                )
+                expected = f"keysym: {entry.name} (0x{entry.value:04x})"
+                lines = stdout.splitlines()
+                assert len(lines) >= 1
+                assert lines[0] == expected, (
+                    entry,
+                    f'expected: "{expected}", but got: "{lines[0]}"',
+                )
 
     def test_how_to_type_rmlvo(self):
         def run(rmlvo):
@@ -531,34 +654,111 @@ class TestXkbcli(unittest.TestCase):
                 with self.subTest(rmlvo=rmlvo):
                     future.result()
 
+    # Note: use -h in the interactive tools to speedup the tests
+
     def test_interactive_evdev(self):
         # Note: --enable-compose fails if $prefix doesn't have the compose tables
         # installed
         for args in (
-            ["--report-state-changes"],
-            ["--enable-compose"],
-            ["--consumed-mode=xkb"],
-            ["--consumed-mode=gtk"],
-            ["--without-x11-offset"],
+            ["--verbose", "-h"],
+            ["--uniline", "-h"],
+            ["--multiline", "-h"],
+            ["--report-state-changes", "-h"],
+            ["--no-state-report", "-h"],
+            ["--consumed-mode=xkb", "-h"],
+            ["--consumed-mode=gtk", "-h"],
+            ["--without-x11-offset", "-h"],
+            ["--format=xkb_v2", "-h"],
+            ["--strict", "-h"],
+            ["--enable-compose", "-h"],
+            ["--legacy-state-api", "-h"],
+            ["--legacy-state-api=false", "-h"],
+            ["--legacy-state-api=true", "-h"],
+            ["--controls=+sticky-keys,-latch-to-lock", "-h"],
+            ["--modifiers-mapping=Control+Alt:Level3", "-h"],
+            ["--shortcuts-mask=Control+Alt+Super", "-h"],
+            ["--shortcuts-mapping=2:1", "-h"],
         ):
             with self.subTest(args=args):
                 self.xkbcli_interactive_evdev.run_command_success(args)
 
     def test_interactive_x11(self):
-        # To be filled in if we handle something other than --help
-        pass
+        for args in (
+            ["--verbose", "-h"],
+            ["--uniline", "-h"],
+            ["--multiline", "-h"],
+            ["--no-state-report", "-h"],
+            ["--consumed-mode=xkb", "-h"],
+            ["--consumed-mode=gtk", "-h"],
+            ["--format=xkb_v2", "-h"],
+            ["--strict", "-h"],
+            ["--enable-compose", "-h"],
+            ["--local-state", "-h"],
+            ["--legacy-state-api", "-h"],
+            ["--legacy-state-api=false", "-h"],
+            ["--legacy-state-api=true", "-h"],
+            ["--controls=+sticky-keys,-latch-to-lock", "-h"],
+            ["--modifiers-mapping=Control+Alt:Level3", "-h"],
+            ["--shortcuts-mask=Control+Alt+Super", "-h"],
+            ["--shortcuts-mapping=2:1", "-h"],
+        ):
+            with self.subTest(args=args):
+                self.xkbcli_interactive_x11.run_command_success(args)
 
     def test_interactive_wayland(self):
-        # To be filled in if we handle something other than --help
-        pass
+        for args in (
+            ["--verbose", "-h"],
+            ["--uniline", "-h"],
+            ["--multiline", "-h"],
+            ["--no-state-report", "-h"],
+            ["--consumed-mode=xkb", "-h"],
+            ["--consumed-mode=gtk", "-h"],
+            ["--format=xkb_v2", "-h"],
+            ["--strict", "-h"],
+            ["--enable-compose", "-h"],
+            ["--local-state", "-h"],
+            ["--legacy-state-api", "-h"],
+            ["--legacy-state-api=false", "-h"],
+            ["--legacy-state-api=true", "-h"],
+            ["--controls=+sticky-keys,-latch-to-lock", "-h"],
+            ["--modifiers-mapping=Control+Alt:Level3", "-h"],
+            ["--shortcuts-mask=Control+Alt+Super", "-h"],
+            ["--shortcuts-mapping=2:1", "-h"],
+        ):
+            with self.subTest(args=args):
+                self.xkbcli_interactive_wayland.run_command_success(args)
+
+    def test_dump_keymap_wayland(self):
+        for args in (
+            ["--verbose", "-h"],
+            ["--format=v2", "-h"],
+            ["--strict", "-h"],
+            ["--no-pretty", "-h"],
+            ["--drop-unused", "-h"],
+            ["--explicit-values", "-h"],
+        ):
+            with self.subTest(args=args):
+                self.xkbcli_dump_keymap_wayland.run_command_success(args)
+
+    def test_dump_keymap_x11(self):
+        for args in (
+            ["--verbose", "-h"],
+            ["--format=v2", "-h"],
+            ["--strict", "-h"],
+            ["--no-pretty", "-h"],
+            ["--drop-unused", "-h"],
+            ["--explicit-values", "-h"],
+        ):
+            with self.subTest(args=args):
+                self.xkbcli_dump_keymap_x11.run_command_success(args)
 
 
 if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as tmpdir:
         # Use our own test xkeyboard-config copy.
-        os.environ["XKB_CONFIG_ROOT"] = top_srcdir + "/test/data"
+        os.environ["XKB_CONFIG_ROOT"] = str(top_srcdir / "test/data")
         # Use our own X11 locale copy.
-        os.environ["XLOCALEDIR"] = top_srcdir + "/test/data/locale"
+        os.environ["XLOCALEDIR"] = str(top_srcdir / "test/data/locale")
         # Use our own locale.
         os.environ["LC_CTYPE"] = "en_US.UTF-8"
         # libxkbcommon has fallbacks when XDG_CONFIG_HOME isn't set so we need
@@ -569,5 +769,7 @@ if __name__ == "__main__":
         del os.environ["HOME"]
         # This needs to be separated if we do specific extra path testing
         os.environ["XKB_CONFIG_EXTRA_PATH"] = tmpdir
+        os.environ["XKB_CONFIG_VERSIONED_EXTENSIONS_PATH"] = tmpdir
+        os.environ["XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH"] = tmpdir
 
         unittest.main()

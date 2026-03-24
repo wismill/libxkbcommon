@@ -6,6 +6,7 @@
  */
 
 #include "config.h"
+#include "test-config.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -15,6 +16,7 @@
 #include "xkbcommon/xkbcommon-keysyms.h"
 #include "evdev-scancodes.h"
 #include "test.h"
+#include "context.h"
 #include "keymap.h"
 #include "keymap-formats.h"
 #include "utils.h"
@@ -30,9 +32,13 @@ test_supported_formats(void)
     assert(xkb_keymap_parse_format("x") == 0);
     assert(xkb_keymap_parse_format("v") == 0);
     assert(xkb_keymap_parse_format("vx") == 0);
+    assert(xkb_keymap_parse_format("0b1") == 0); /* only base 10 */
+    assert(xkb_keymap_parse_format("0o1") == 0); /* only base 10 */
     assert(xkb_keymap_parse_format("0x1") == 0); /* only base 10 */
-    assert(xkb_keymap_parse_format("+1") == XKB_KEYMAP_FORMAT_TEXT_V1);
-    assert(xkb_keymap_parse_format(" 1") == XKB_KEYMAP_FORMAT_TEXT_V1);
+    assert(xkb_keymap_parse_format("+1") == 0);
+    assert(xkb_keymap_parse_format(" 1") == 0);
+    assert(xkb_keymap_parse_format("1 ") == XKB_KEYMAP_FORMAT_TEXT_V1);
+    assert(xkb_keymap_parse_format("01") == XKB_KEYMAP_FORMAT_TEXT_V1);
 
     const struct {
         int value;
@@ -45,12 +51,12 @@ test_supported_formats(void)
         { .value = XKB_KEYMAP_USE_ORIGINAL_FORMAT, .labels = NULL, .expected = 0 },
         {
           .value = XKB_KEYMAP_FORMAT_TEXT_V1,
-          .labels = (const char* const[]) { "v1", NULL },
+          .labels = (const char* const[]) { "xkb_v1", "v1", NULL },
           .expected = XKB_KEYMAP_FORMAT_TEXT_V1
         },
         {
           .value = XKB_KEYMAP_FORMAT_TEXT_V2,
-          .labels = (const char* const[]) { "v2", NULL },
+          .labels = (const char* const[]) { "xkb_v2", "v2", NULL },
           .expected = XKB_KEYMAP_FORMAT_TEXT_V2
         },
     };
@@ -58,6 +64,11 @@ test_supported_formats(void)
     for (size_t k = 0; k < ARRAY_SIZE(entries); k++) {
         assert(xkb_keymap_is_supported_format(entries[k].value) ==
                !!entries[k].expected);
+        /* Canonical label */
+        if (entries[k].labels) {
+            assert_streq_not_null("Canonical format label", entries[k].labels[0],
+                                  xkb_keymap_get_format_label(entries[k].value));
+        }
         /* Parse labels */
         for (size_t l = 0; entries[k].labels && entries[k].labels[l]; l++) {
             assert_printf(xkb_keymap_parse_format(entries[k].labels[l]) ==
@@ -148,6 +159,15 @@ test_keymap(void)
     xkb_mod_mask_t mod2_mask;
 
     assert(context);
+
+    /* Reject unsupported flags */
+    static const struct xkb_rule_names names = {NULL, NULL, NULL, NULL, NULL};
+    assert(!xkb_keymap_new_from_names(context, &names, -1));
+    assert(!xkb_keymap_new_from_names(context, &names, 0xffff));
+    assert(!xkb_keymap_new_from_names2(context, &names,
+                                       XKB_KEYMAP_FORMAT_TEXT_V1, -1));
+    assert(!xkb_keymap_new_from_names2(context, &names,
+                                       XKB_KEYMAP_FORMAT_TEXT_V1, 0xffff));
 
     keymap = test_compile_rules(context, XKB_KEYMAP_FORMAT_TEXT_V1, "evdev",
                                 "pc104", "us,ru", NULL, "grp:menu_toggle");
@@ -392,7 +412,7 @@ test_multiple_keysyms_per_level(void)
 static void
 test_multiple_actions_per_level(void)
 {
-    struct xkb_context *context = test_get_context(0);
+    struct xkb_context *context = test_get_context(CONTEXT_NO_FLAG);
     struct xkb_keymap *keymap;
     struct xkb_state *state;
     xkb_keycode_t kc;
@@ -602,6 +622,274 @@ test_multiple_actions_per_level(void)
     xkb_context_unref(context);
 }
 
+static void
+count_keys(struct xkb_keymap *keymap, xkb_keycode_t key, void *data)
+{
+    if (!xkb_keymap_key_get_name(keymap, key))
+        return;
+    darray_size_t * const count = data;
+    (*count)++;
+}
+
+static void
+test_keynames_atoms(void)
+{
+    static struct {
+        const char *rules;
+        xkb_keycode_t max_keycode;
+        darray_size_t num_aliases;
+        darray_size_t num_atoms;
+        darray_size_t num_key_names;
+    } tests[] = {
+        {
+            .rules = "base",
+            .max_keycode = 255,
+            .num_aliases = 63,
+            .num_atoms = 484,
+            .num_key_names = 325,
+        },
+        {
+            .rules = "evdev",
+            .max_keycode = 569,
+            .num_aliases = 33,
+            .num_atoms = 501,
+            .num_key_names = 305,
+        },
+    };
+
+    for (size_t t = 0; t < ARRAY_SIZE(tests); t++) {
+        fprintf(stderr, "------\n*** %s: #%zu ***\n", __func__, t);
+
+        struct xkb_context *context = test_get_context(CONTEXT_NO_FLAG);
+        struct xkb_keymap *keymap = test_compile_rules(
+            context, XKB_KEYMAP_FORMAT_TEXT_V1, tests[t].rules,
+            "pc104", "us", NULL, NULL
+        );
+        assert(keymap);
+
+        darray_size_t expected, got;
+
+        expected = (darray_size_t) tests[t].max_keycode;
+        got = xkb_keymap_max_keycode(keymap);
+        assert_eq("keynames max keycode", expected, got, "%u");
+
+        expected = tests[t].num_aliases;
+        got = keymap->num_key_aliases;
+        assert_eq("keynames num aliases", expected, got, "%u");
+
+        expected = tests[t].num_atoms;
+        got = xkb_atom_table_size(context);
+        assert_eq("atoms", expected, got, "%u");
+
+        /*
+         * Find size of the temporary key name LUT used during compilation.
+         * It corresponds to: max(key name/alias atom) + 1.
+         */
+        darray_size_t num_key_names = 0;
+        for (xkb_atom_t a = 0; a < xkb_atom_table_size(context); a++) {
+            const char *name = xkb_atom_text(context, a);
+            if (name == NULL)
+                continue;
+            if (xkb_keymap_key_by_name(keymap, name) != XKB_KEYCODE_INVALID) {
+                num_key_names = a + 1;
+            }
+        }
+
+        expected = tests[t].num_key_names;
+        got = num_key_names;
+        assert_eq("keynames atoms", expected, got, "%u");
+
+        /* Count valid key names */
+        got = keymap->num_key_aliases;
+        xkb_keymap_key_for_each(keymap, count_keys, &got);
+
+        /*
+         * Check that we do not waste too much memory with non-key name/alias
+         * entries in the LUT.
+         */
+        const double valid_entries = (double) got / num_key_names;
+        const double valid_entries_min = 0.92;
+        const double valid_entries_max = 1.0;
+        assert_printf(valid_entries >= valid_entries_min &&
+                      valid_entries < valid_entries_max,
+                      "No enough valid entries; expected: %f <= %f < %f\n",
+                      valid_entries_min, valid_entries, valid_entries_max);
+
+        xkb_keymap_unref(keymap);
+        xkb_context_unref(context);
+    }
+}
+
+static void
+test_key_iterator(void)
+{
+    struct xkb_context *context = test_get_context(CONTEXT_NO_FLAG);
+    assert(context);
+
+    static const xkb_keycode_t test0_all[] = {1, 2, 9};
+    static const xkb_keycode_t test0_bound[] = {2, 9};
+    static const xkb_keycode_t test1_all[] = {0x1000, 0x2000, 0x9000};
+    static const xkb_keycode_t test1_bound[] = {0x2000, 0x9000};
+    static const xkb_keycode_t test2_all[] = {9, 0x1000, 0x2000};
+    static const xkb_keycode_t test2_bound[] = {9, 0x2000};
+
+    static const struct {
+        const char *keymap;
+        const xkb_keycode_t *keys_all;
+        const xkb_keycode_t *keys_bound;
+        size_t num_keys_all;
+        size_t num_keys_bound;
+    } tests[] = {
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes {\n"
+                "    <2> = 2;\n"
+                "    <1> = 1;\n"
+                "    <9> = 9;\n"
+                "  };\n"
+                "  xkb_symbols {\n"
+                "    key <2> {[2]};\n"
+                "    key <9> {[9]};\n"
+                "  };\n"
+                "};",
+            .keys_all = test0_all,
+            .num_keys_all = ARRAY_SIZE(test0_all),
+            .keys_bound = test0_bound,
+            .num_keys_bound = ARRAY_SIZE(test0_bound),
+        },
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes {\n"
+                "    <0x2000> = 0x2000;\n"
+                "    <0x1000> = 0x1000;\n"
+                "    <0x9000> = 0x9000;\n"
+                "  };\n"
+                "  xkb_symbols {\n"
+                "    key <0x2000> {[2]};\n"
+                "    key <0x9000> {[9]};\n"
+                "  };\n"
+                "};",
+            .keys_all = test1_all,
+            .num_keys_all = ARRAY_SIZE(test1_all),
+            .keys_bound = test1_bound,
+            .num_keys_bound = ARRAY_SIZE(test1_bound),
+        },
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes {\n"
+                "    <0x2000> = 0x2000;\n"
+                "    <0x1000> = 0x1000;\n"
+                "    <9> = 9;\n"
+                "  };\n"
+                "  xkb_symbols {\n"
+                "    key <0x2000> {[2]};\n"
+                "    key <9> {[9]};\n"
+                "  };\n"
+                "};",
+            .keys_all = test2_all,
+            .num_keys_all = ARRAY_SIZE(test2_all),
+            .keys_bound = test2_bound,
+            .num_keys_bound = ARRAY_SIZE(test2_bound),
+        },
+    };
+
+    for (size_t t = 0; t < ARRAY_SIZE(tests); t++) {
+        struct xkb_keymap * const keymap = test_compile_string(
+            context, XKB_KEYMAP_FORMAT_TEXT_V1, tests[t].keymap
+        );
+        assert(keymap);
+
+        /* Reject invalid flags */
+        assert(!xkb_keymap_key_iterator_new(keymap, -1));
+        assert(!xkb_keymap_key_iterator_new(keymap, 0xffff));
+
+        static const enum xkb_keymap_key_iterator_flags flags[] = {
+            XKB_KEYMAP_KEY_ITERATOR_NO_FLAGS,
+            XKB_KEYMAP_KEY_ITERATOR_DESCENDING_ORDER,
+            XKB_KEYMAP_KEY_ITERATOR_SKIP_UNBOUND,
+            XKB_KEYMAP_KEY_ITERATOR_DESCENDING_ORDER |
+            XKB_KEYMAP_KEY_ITERATOR_SKIP_UNBOUND,
+        };
+        for (size_t f = 0; f < ARRAY_SIZE(flags); f++) {
+            fprintf(stderr, "------\n*** %s: #%zu, flags: 0x%x ***\n",
+                    __func__, t, flags[f]);
+            struct xkb_keymap_key_iterator * const iter =
+                xkb_keymap_key_iterator_new(keymap, flags[f]);
+            assert(iter);
+
+            const bool ascending =
+                !(flags[f] & XKB_KEYMAP_KEY_ITERATOR_DESCENDING_ORDER);
+            const bool skip_unbound =
+                (flags[f] & XKB_KEYMAP_KEY_ITERATOR_SKIP_UNBOUND);
+            xkb_keycode_t expected_count = (skip_unbound)
+                ? tests[t].num_keys_bound
+                : tests[t].num_keys_all;
+            const xkb_keycode_t * const keycodes = (skip_unbound)
+                ? tests[t].keys_bound
+                : tests[t].keys_all;
+            size_t count = 0;
+            size_t index = (skip_unbound)
+                ? ((ascending) ? 0 : tests[t].num_keys_bound - 1)
+                : ((ascending) ? 0 : tests[t].num_keys_all - 1);
+            xkb_keycode_t current = 0;
+            xkb_keycode_t previous = (ascending)
+                ? 0
+                : XKB_KEYCODE_INVALID;
+
+            while ((current = xkb_keymap_key_iterator_next(iter)) !=
+                   XKB_KEYCODE_INVALID) {
+                assert(count < expected_count);
+                assert(current == keycodes[index]);
+                assert((ascending && current > previous) ^
+                       (!ascending && current < previous));
+
+                count++;
+                if (ascending)
+                    index++;
+                else
+                    index--;
+                previous = current;
+            }
+
+            assert(count == expected_count);
+
+            xkb_keymap_key_iterator_destroy(iter);
+        }
+
+        xkb_keymap_unref(keymap);
+    }
+
+    xkb_context_unref(context);
+}
+
+/*
+ * Github issue 934: commit b09aa7c6d8440e1690619239fe57e5f12374af0d introduced
+ * a segfault while trying to optimize key aliases allocation.
+ */
+static void
+test_issue_934(void)
+{
+    struct xkb_keymap *keymap;
+    struct xkb_context *context = test_get_context(CONTEXT_NO_FLAG);
+    assert(context);
+
+    keymap = test_compile_rules(context, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                "base", "pc104", "us", NULL, NULL);
+    assert(keymap);
+    xkb_keymap_unref(keymap);
+
+    /* Would segfaulted before */
+    keymap = test_compile_rules(context, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                "evdev", "pc104", "us", NULL, NULL);
+    assert(keymap);
+    xkb_keymap_unref(keymap);
+
+    xkb_context_unref(context);
+}
+
 int
 main(void)
 {
@@ -614,6 +902,9 @@ main(void)
     test_numeric_keysyms();
     test_multiple_keysyms_per_level();
     test_multiple_actions_per_level();
+    test_keynames_atoms();
+    test_key_iterator();
+    test_issue_934();
 
     return EXIT_SUCCESS;
 }

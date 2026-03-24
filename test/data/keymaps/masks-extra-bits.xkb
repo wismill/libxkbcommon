@@ -8,7 +8,7 @@ xkb_keycodes {
 xkb_types {
 	virtual_modifiers X=0xf0000000;
 
-	type "default" {
+	type "ONE_LEVEL" {
 		modifiers= none;
 	};
 };
@@ -19,7 +19,7 @@ xkb_compatibility {
 	interpret.useModMapMods= AnyLevel;
 	interpret.repeat= False;
 	interpret VoidSymbol+AnyOfOrNone(none) {
-		repeat= True;
+		action= NoAction();
 	};
 };
 

@@ -32,19 +32,22 @@
 struct keyboard {
     char *path;
     int fd;
+    struct xkb_machine *machine;
+    struct xkb_events *events;
     struct xkb_state *state;
     struct xkb_compose_state *compose_state;
     struct keyboard *next;
 };
 
 static bool verbose = false;
-static bool terminate;
+static bool terminate = false;
 static int evdev_offset = 8;
-static bool report_state_changes;
-static bool with_compose;
+static bool use_events_api = true;
+static bool report_state_changes = true;
+static bool with_compose = false;
 static enum xkb_consumed_mode consumed_mode = XKB_CONSUMED_MODE_XKB;
 
-print_state_fields_mask_t print_fields = PRINT_ALL_FIELDS;
+enum print_state_options print_options = DEFAULT_PRINT_OPTIONS;
 
 #define DEFAULT_INCLUDE_PATH_PLACEHOLDER "__defaults__"
 #define NLONGS(n) (((n) + LONG_BIT - 1) / LONG_BIT)
@@ -84,15 +87,21 @@ is_keyboard(int fd)
 }
 
 static int
-keyboard_new(struct dirent *ent, struct xkb_keymap *keymap,
+keyboard_new(struct dirent *ent,
+             struct xkb_context *ctx, struct xkb_keymap *keymap,
+             const struct xkb_machine_options *options,
+             enum xkb_keyboard_control_flags kbd_controls_affect,
+             enum xkb_keyboard_control_flags kbd_controls_values,
              struct xkb_compose_table *compose_table, struct keyboard **out)
 {
     int ret;
     char *path;
     int fd;
-    struct xkb_state *state;
+    struct xkb_machine *machine = NULL;
+    struct xkb_events *events = NULL;
+    struct xkb_state *state = NULL;
     struct xkb_compose_state *compose_state = NULL;
-    struct keyboard *kbd;
+    struct keyboard *kbd = NULL;
 
     ret = asprintf(&path, "/dev/input/%s", ent->d_name);
     if (ret < 0)
@@ -110,11 +119,49 @@ keyboard_new(struct dirent *ent, struct xkb_keymap *keymap,
         goto err_fd;
     }
 
+    if (use_events_api) {
+        machine = xkb_machine_new(keymap, options);
+        if (!machine) {
+            fprintf(stderr, "Couldn't create xkb state machine for %s\n", path);
+            ret = -EFAULT;
+            goto err_machine;
+        }
+
+        events = xkb_events_new_batch(ctx, XKB_EVENTS_NO_FLAGS);
+        if (!events) {
+            fprintf(stderr, "Couldn't create xkb events for %s\n", path);
+            ret = -EFAULT;
+            goto err_xkb_events;
+        }
+    }
+
     state = xkb_state_new(keymap);
     if (!state) {
         fprintf(stderr, "Couldn't create xkb state for %s\n", path);
         ret = -EFAULT;
-        goto err_fd;
+        goto err_state;
+    }
+
+    const struct xkb_state_components_update components = {
+        .size = sizeof(components),
+        .components = XKB_STATE_CONTROLS,
+        .affect_controls = kbd_controls_affect,
+        .controls = kbd_controls_values,
+    };
+    const struct xkb_state_update update = {
+        .size = sizeof(update),
+        .components = &components,
+    };
+    if (use_events_api) {
+        // FIXME: handle error
+        xkb_machine_process_synthetic(machine, &update, events);
+        const struct xkb_event *event;
+        while ((event = xkb_events_next(events))) {
+            xkb_state_update_event(state, event);
+        }
+    } else {
+        // FIXME: handle error
+        xkb_state_update_synthetic(state, &update, NULL);
     }
 
     if (with_compose) {
@@ -123,27 +170,34 @@ keyboard_new(struct dirent *ent, struct xkb_keymap *keymap,
         if (!compose_state) {
             fprintf(stderr, "Couldn't create compose state for %s\n", path);
             ret = -EFAULT;
-            goto err_state;
+            goto err_compose_state;
         }
     }
 
     kbd = calloc(1, sizeof(*kbd));
     if (!kbd) {
         ret = -ENOMEM;
-        goto err_compose_state;
+        goto err_kbd;
     }
 
     kbd->path = path;
     kbd->fd = fd;
+    kbd->machine = machine;
+    kbd->events = events;
     kbd->state = state;
     kbd->compose_state = compose_state;
     *out = kbd;
     return 0;
 
-err_compose_state:
+err_kbd:
     xkb_compose_state_unref(compose_state);
-err_state:
+err_compose_state:
     xkb_state_unref(state);
+err_state:
+    xkb_events_destroy(events);
+err_xkb_events:
+    xkb_machine_unref(machine);
+err_machine:
 err_fd:
     close(fd);
 err_path:
@@ -159,6 +213,8 @@ keyboard_free(struct keyboard *kbd)
     if (kbd->fd >= 0)
         close(kbd->fd);
     free(kbd->path);
+    xkb_machine_unref(kbd->machine);
+    xkb_events_destroy(kbd->events);
     xkb_state_unref(kbd->state);
     xkb_compose_state_unref(kbd->compose_state);
     free(kbd);
@@ -171,7 +227,10 @@ filter_device_name(const struct dirent *ent)
 }
 
 static struct keyboard *
-get_keyboards(struct xkb_keymap *keymap,
+get_keyboards(struct xkb_context *ctx, struct xkb_keymap *keymap,
+              const struct xkb_machine_options *options,
+              enum xkb_keyboard_control_flags kbd_controls_affect,
+              enum xkb_keyboard_control_flags kbd_controls_values,
               struct xkb_compose_table *compose_table)
 {
     int ret, i, nents;
@@ -185,7 +244,8 @@ get_keyboards(struct xkb_keymap *keymap,
     }
 
     for (i = 0; i < nents; i++) {
-        ret = keyboard_new(ents[i], keymap, compose_table, &kbd);
+        ret = keyboard_new(ents[i], ctx, keymap, options, kbd_controls_values,
+                           kbd_controls_affect, compose_table, &kbd);
         if (ret) {
             if (ret == -EACCES) {
                 fprintf(stderr, "Couldn't open /dev/input/%s: %s. "
@@ -239,45 +299,60 @@ enum {
 static void
 process_event(struct keyboard *kbd, uint16_t type, uint16_t code, int32_t value)
 {
-    xkb_keycode_t keycode;
-    struct xkb_keymap *keymap;
-    enum xkb_state_component changed;
-    enum xkb_compose_status status;
-
     if (type != EV_KEY)
         return;
 
-    keycode = evdev_offset + code;
-    keymap = xkb_state_get_keymap(kbd->state);
+    const xkb_keycode_t keycode = evdev_offset + code;
+    struct xkb_keymap * const keymap = xkb_state_get_keymap(kbd->state);
 
-    if (value == KEY_STATE_REPEAT && !xkb_keymap_key_repeats(keymap, keycode))
+    if ((value == KEY_STATE_REPEAT && !xkb_keymap_key_repeats(keymap, keycode)) ||
+        (value != KEY_STATE_PRESS && value != KEY_STATE_REPEAT &&
+         value != KEY_STATE_RELEASE))
         return;
 
-    if (with_compose && value != KEY_STATE_RELEASE) {
-        xkb_keysym_t keysym = xkb_state_key_get_one_sym(kbd->state, keycode);
-        xkb_compose_state_feed(kbd->compose_state, keysym);
-    }
+    const enum xkb_key_direction direction = (value == KEY_STATE_RELEASE)
+        ? XKB_KEY_UP
+        : (value == KEY_STATE_REPEAT)
+            ? XKB_KEY_REPEATED
+            : XKB_KEY_DOWN;
 
-    if (value != KEY_STATE_RELEASE) {
+    if (use_events_api) {
+        /* Use the xkb_machine API */
+        const int ret = xkb_machine_process_key(kbd->machine, keycode, direction,
+                                                kbd->events);
+        if (ret) {
+            fprintf(stderr, "ERROR: could not update the state machine\n");
+            // TODO: better error handling
+        } else {
+            tools_print_events(NULL, kbd->state, kbd->events,
+                               kbd->compose_state, consumed_mode,
+                               print_options, report_state_changes);
+        }
+    } else {
+        /* Use the legacy state API */
+        if (with_compose && direction == XKB_KEY_DOWN) {
+            xkb_keysym_t keysym = xkb_state_key_get_one_sym(kbd->state, keycode);
+            xkb_compose_state_feed(kbd->compose_state, keysym);
+        }
+
         tools_print_keycode_state(
-            NULL, kbd->state, kbd->compose_state, keycode,
-            consumed_mode, print_fields
+            NULL, kbd->state, kbd->compose_state, keycode, direction,
+            consumed_mode, print_options
         );
+
+        if (with_compose) {
+            const enum xkb_compose_status status =
+                xkb_compose_state_get_status(kbd->compose_state);
+            if (status == XKB_COMPOSE_CANCELLED || status == XKB_COMPOSE_COMPOSED)
+                xkb_compose_state_reset(kbd->compose_state);
+        }
+
+        const enum xkb_state_component changed =
+            xkb_state_update_key(kbd->state, keycode, direction);
+
+        if (changed && report_state_changes)
+            tools_print_state_changes(NULL, kbd->state, changed, print_options);
     }
-
-    if (with_compose) {
-        status = xkb_compose_state_get_status(kbd->compose_state);
-        if (status == XKB_COMPOSE_CANCELLED || status == XKB_COMPOSE_COMPOSED)
-            xkb_compose_state_reset(kbd->compose_state);
-    }
-
-    if (value == KEY_STATE_RELEASE)
-        changed = xkb_state_update_key(kbd->state, keycode, XKB_KEY_UP);
-    else
-        changed = xkb_state_update_key(kbd->state, keycode, XKB_KEY_DOWN);
-
-    if (report_state_changes)
-        tools_print_state_changes(changed);
 }
 
 static int
@@ -307,16 +382,15 @@ loop(struct keyboard *kbds)
     int ret = -1;
     struct keyboard *kbd;
     nfds_t nfds, i;
-    struct pollfd *fds = NULL;
 
     for (kbd = kbds, nfds = 0; kbd; kbd = kbd->next, nfds++) {}
-    fds = calloc(nfds, sizeof(*fds));
-    if (fds == NULL) {
+    struct pollfd *fds = calloc(nfds, sizeof(*fds));
+    if (!fds) {
         fprintf(stderr, "Out of memory");
         goto out;
     }
 
-    for (i = 0, kbd = kbds; kbd; kbd = kbd->next, i++) {
+    for (i = 0, kbd = kbds; kbd && i < nfds; kbd = kbd->next, i++) {
         fds[i].fd = kbd->fd;
         fds[i].events = POLLIN;
     }
@@ -331,7 +405,7 @@ loop(struct keyboard *kbds)
             goto out;
         }
 
-        for (i = 0, kbd = kbds; kbd; kbd = kbd->next, i++) {
+        for (i = 0, kbd = kbds; kbd && i < nfds; kbd = kbd->next, i++) {
             if (fds[i].revents != 0) {
                 ret = read_keyboard(kbd);
                 if (ret) {
@@ -356,24 +430,50 @@ sigintr_handler(int signum)
 static void
 usage(FILE *fp, char *progname)
 {
-        fprintf(fp, "Usage: %s [--include=<path>] [--include-defaults] [--format=<format>]"
-                "[--rules=<rules>] [--model=<model>] [--layout=<layout>] "
-                "[--variant=<variant>] [--options=<options>] "
-                "[--enable-environment-names]\n",
-                progname);
-        fprintf(fp, "   or: %s --keymap <path to keymap file>\n",
-                progname);
-        fprintf(fp, "For both:\n"
-                        "          --format <FORMAT> (use keymap format FORMAT)\n"
-                        "          --verbose (enable verbose debugging output)\n"
-                        "          --short (do not print layout nor Unicode keysym translation)\n"
-                        "          --report-state-changes (report changes to the state)\n"
-                        "          --enable-compose (enable Compose)\n"
-                        "          --consumed-mode={xkb|gtk} (select the consumed modifiers mode, default: xkb)\n"
-                        "          --without-x11-offset (don't add X11 keycode offset)\n"
-                    "Other:\n"
-                        "          --help (display this help and exit)\n"
-        );
+    fprintf(fp, "Usage: %s [--include=<path>] [--include-defaults] [--format=<format>]"
+            "[--rules=<rules>] [--model=<model>] [--layout=<layout>] "
+            "[--variant=<variant>] [--options=<options>] "
+            "[--enable-environment-names]\n"
+            "    or: %s --keymap <path to keymap file>\n"
+            "Options:\n"
+            " --format <FORMAT>\n"
+            "    Use keymap format FORMAT (default: '%s')\n"
+            " --strict\n"
+            "    Parse using strict mode\n"
+            " --verbose\n"
+            "    Enable verbose debugging output\n"
+            " -1, --uniline\n"
+            "    Enable uniline event output\n"
+            " --multiline\n"
+            "    Enable uniline event output\n"
+            " --short\n"
+            "    Shorter event output\n"
+            " --report-state-changes\n"
+            "    Report changes to the state\n"
+            " --no-state-report\n"
+            "    Do not report changes to the state\n"
+            " --legacy-state-api[=true|false]\n"
+            "    Use legacy state API instead of event API\n"
+            " --controls\n"
+            "    Sticky-keys, latch-to-lock, latch-simultaneous, overlay{1-8}\n"
+            " --modifiers-mapping <MAPPING>\n"
+            "    Remap the modifiers\n"
+            " --shortcuts-mask <MASK>\n"
+            "    Set the modifier mask for shortcuts tweaks\n"
+            " --shortcuts-mapping <MAPPING>\n"
+            "    Set the layout indices mapping for shortcuts tweaks\n"
+            " --enable-compose\n"
+            "    Enable Compose\n"
+            " --consumed-mode={xkb|gtk}\n"
+            "    Select the consumed modifiers mode (default: xkb)\n"
+            " --without-x11-offset\n"
+            "    Don't add X11 keycode offset\n"
+            "Other:\n"
+            "    --help\n"
+            "    Display this help and exit\n",
+            progname, progname,
+            xkb_keymap_get_format_label(DEFAULT_INPUT_KEYMAP_FORMAT)
+    );
 }
 
 int
@@ -388,20 +488,26 @@ main(int argc, char *argv[])
     size_t num_includes = 0;
     bool use_env_names = false;
     enum xkb_keymap_format keymap_format = DEFAULT_INPUT_KEYMAP_FORMAT;
+    static enum xkb_keymap_compile_flags compile_flags =
+        (enum xkb_keymap_compile_flags) DEFAULT_KEYMAP_COMPILE_FLAGS;
     const char *rules = NULL;
     const char *model = NULL;
     const char *layout = NULL;
     const char *variant = NULL;
     const char *options = NULL;
     const char *keymap_path = NULL;
+    bool with_keymap_file = false;
     const char *locale;
     struct sigaction act;
     enum options {
         OPT_VERBOSE,
+        OPT_UNILINE,
+        OPT_MULTILINE,
         OPT_INCLUDE,
         OPT_INCLUDE_DEFAULTS,
         OPT_ENABLE_ENV_NAMES,
         OPT_KEYMAP_FORMAT,
+        OPT_KEYMAP_STRICT_PARSER,
         OPT_RULES,
         OPT_MODEL,
         OPT_LAYOUT,
@@ -409,28 +515,43 @@ main(int argc, char *argv[])
         OPT_OPTION,
         OPT_KEYMAP,
         OPT_WITHOUT_X11_OFFSET,
+        OPT_LEGACY_STATE_API,
+        OPT_CONTROLS,
+        OPT_MODIFIERS_TWEAK_MAPPING,
+        OPT_SHORTCUTS_TWEAK_MASK,
+        OPT_SHORTCUTS_TWEAK_MAPPING,
         OPT_CONSUMED_MODE,
         OPT_COMPOSE,
         OPT_SHORT,
         OPT_REPORT_STATE,
+        OPT_NO_STATE_REPORT,
     };
     static struct option opts[] = {
         {"help",                 no_argument,            0, 'h'},
         {"verbose",              no_argument,            0, OPT_VERBOSE},
+        {"uniline",              no_argument,            0, OPT_UNILINE},
+        {"multiline",            no_argument,            0, OPT_MULTILINE},
         {"include",              required_argument,      0, OPT_INCLUDE},
         {"include-defaults",     no_argument,            0, OPT_INCLUDE_DEFAULTS},
         {"enable-environment-names", no_argument,        0, OPT_ENABLE_ENV_NAMES},
         {"format",               required_argument,      0, OPT_KEYMAP_FORMAT},
+        {"strict",               no_argument,            0, OPT_KEYMAP_STRICT_PARSER},
         {"rules",                required_argument,      0, OPT_RULES},
         {"model",                required_argument,      0, OPT_MODEL},
         {"layout",               required_argument,      0, OPT_LAYOUT},
         {"variant",              required_argument,      0, OPT_VARIANT},
         {"options",              required_argument,      0, OPT_OPTION},
         {"keymap",               required_argument,      0, OPT_KEYMAP},
+        {"legacy-state-api",     optional_argument,      0, OPT_LEGACY_STATE_API},
+        {"controls",             required_argument,      0, OPT_CONTROLS},
+        {"modifiers-mapping",    required_argument,      0, OPT_MODIFIERS_TWEAK_MAPPING},
+        {"shortcuts-mask",       required_argument,      0, OPT_SHORTCUTS_TWEAK_MASK},
+        {"shortcuts-mapping",    required_argument,      0, OPT_SHORTCUTS_TWEAK_MAPPING},
         {"consumed-mode",        required_argument,      0, OPT_CONSUMED_MODE},
         {"enable-compose",       no_argument,            0, OPT_COMPOSE},
         {"short",                no_argument,            0, OPT_SHORT},
         {"report-state-changes", no_argument,            0, OPT_REPORT_STATE},
+        {"no-state-report",      no_argument,            0, OPT_NO_STATE_REPORT},
         {"without-x11-offset",   no_argument,            0, OPT_WITHOUT_X11_OFFSET},
         {0, 0, 0, 0},
     };
@@ -438,15 +559,39 @@ main(int argc, char *argv[])
     setlocale(LC_ALL, "");
 
     bool has_rmlvo_options = false;
+
+    /* Initialize state options */
+    ctx = xkb_context_new(XKB_CONTEXT_NO_FLAGS); /* Only used for state options */
+    struct xkb_machine_options * const machine_options = xkb_machine_options_new(ctx);
+    if (!machine_options)
+        goto error_machine_options;
+    xkb_context_unref(ctx);
+    ctx = NULL;
+    enum xkb_keyboard_control_flags kbd_controls_affect = XKB_KEYBOARD_CONTROL_NO_FLAGS;
+    enum xkb_keyboard_control_flags kbd_controls_values = XKB_KEYBOARD_CONTROL_NO_FLAGS;
+    const char *raw_modifiers_mapping = NULL;
+    const char *raw_shortcuts_mask = NULL;
+
+    /* Ensure synced with usage() and man page */
+    assert(consumed_mode == XKB_CONSUMED_MODE_XKB);
+
     while (1) {
         int option_index = 0;
-        int opt = getopt_long(argc, argv, "h", opts, &option_index);
+        int opt = getopt_long(argc, argv, "*1h", opts, &option_index);
         if (opt == -1)
             break;
 
         switch (opt) {
         case OPT_VERBOSE:
             verbose = true;
+            break;
+        case '1':
+        case OPT_UNILINE:
+            print_options |= PRINT_UNILINE;
+            break;
+        case '*':
+        case OPT_MULTILINE:
+            print_options &= ~PRINT_UNILINE;
             break;
         case OPT_INCLUDE:
             if (num_includes >= ARRAY_SIZE(includes))
@@ -466,8 +611,12 @@ main(int argc, char *argv[])
             if (!keymap_format) {
                 fprintf(stderr, "ERROR: invalid --format \"%s\"\n", optarg);
                 usage(stderr, argv[0]);
-                return EXIT_INVALID_USAGE;
+                ret = EXIT_INVALID_USAGE;
+                goto error_parse_args;
             }
+            break;
+        case OPT_KEYMAP_STRICT_PARSER:
+            compile_flags |= XKB_KEYMAP_COMPILE_STRICT_MODE;
             break;
         case OPT_RULES:
             if (keymap_path)
@@ -502,6 +651,7 @@ main(int argc, char *argv[])
         case OPT_KEYMAP:
             if (has_rmlvo_options)
                 goto input_format_error;
+            with_keymap_file = true;
             keymap_path = optarg;
             break;
         case OPT_WITHOUT_X11_OFFSET:
@@ -510,11 +660,14 @@ main(int argc, char *argv[])
         case OPT_REPORT_STATE:
             report_state_changes = true;
             break;
+        case OPT_NO_STATE_REPORT:
+            report_state_changes = false;
+            break;
         case OPT_COMPOSE:
             with_compose = true;
             break;
         case OPT_SHORT:
-            print_fields &= ~PRINT_VERBOSE_FIELDS;
+            print_options &= ~PRINT_VERBOSE;
             break;
         case OPT_CONSUMED_MODE:
             if (strcmp(optarg, "gtk") == 0) {
@@ -524,7 +677,8 @@ main(int argc, char *argv[])
             } else {
                 fprintf(stderr, "ERROR: invalid --consumed-mode \"%s\"\n", optarg);
                 usage(stderr, argv[0]);
-                return EXIT_INVALID_USAGE;
+                ret = EXIT_INVALID_USAGE;
+                goto error_parse_args;
             }
             break;
 #ifdef ENABLE_PRIVATE_APIS
@@ -532,12 +686,54 @@ main(int argc, char *argv[])
             print_modmaps = true;
             break;
 #endif
+        case OPT_LEGACY_STATE_API: {
+            bool legacy_api = true;
+            if (!tools_parse_bool(optarg, TOOLS_ARG_OPTIONAL, &legacy_api)) {
+                usage(stderr, argv[0]);
+                ret = EXIT_INVALID_USAGE;
+                goto error_parse_args;
+            }
+            use_events_api = !legacy_api;
+            break;
+        }
+        case OPT_CONTROLS:
+            if (!tools_parse_controls(optarg, machine_options,
+                                      &kbd_controls_affect,
+                                      &kbd_controls_values)) {
+                usage(stderr, argv[0]);
+                ret = EXIT_INVALID_USAGE;
+                goto error_parse_args;
+            }
+            /* --legacy-state-api=false is implied */
+            use_events_api = true;
+            break;
+        case OPT_MODIFIERS_TWEAK_MAPPING:
+            raw_modifiers_mapping = optarg;
+            /* --legacy-state-api=false is implied */
+            use_events_api = true;
+            break;
+        case OPT_SHORTCUTS_TWEAK_MASK:
+            raw_shortcuts_mask = optarg;
+            /* --legacy-state-api=false is implied */
+            use_events_api = true;
+            break;
+        case OPT_SHORTCUTS_TWEAK_MAPPING:
+            if (!tools_parse_shortcuts_mappings(optarg, machine_options)) {
+                usage(stderr, argv[0]);
+                ret = EXIT_INVALID_USAGE;
+                goto error_parse_args;
+            }
+            /* --legacy-state-api=false is implied */
+            use_events_api = true;
+            break;
         case 'h':
             usage(stdout, argv[0]);
-            return EXIT_SUCCESS;
+            ret = EXIT_SUCCESS;
+            goto error_parse_args;
         default:
             usage(stderr, argv[0]);
-            return EXIT_INVALID_USAGE;
+            ret = EXIT_INVALID_USAGE;
+            goto error_parse_args;
         }
     }
 
@@ -550,8 +746,20 @@ main(int argc, char *argv[])
 too_much_arguments:
             fprintf(stderr, "ERROR: Too much positional arguments\n");
             usage(stderr, argv[0]);
-            exit(EXIT_INVALID_USAGE);
+            ret = EXIT_INVALID_USAGE;
+            goto error_parse_args;
         }
+        with_keymap_file = true;
+    } else if (is_pipe_or_regular_file(STDIN_FILENO) && !with_keymap_file) {
+        /* No positional argument: piping detected */
+        with_keymap_file = true;
+    }
+
+    if (isempty(keymap_path) || strcmp(keymap_path, "-") == 0)
+        keymap_path = NULL;
+
+    if (!(print_options & PRINT_VERBOSE) && (print_options & PRINT_UNILINE)) {
+        print_options &= ~PRINT_VERBOSE_ONE_LINE_FIELDS;
     }
 
     enum xkb_context_flags ctx_flags = XKB_CONTEXT_NO_DEFAULT_INCLUDES;
@@ -564,10 +772,8 @@ too_much_arguments:
         goto out;
     }
 
-    if (verbose) {
-        xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_DEBUG);
-        xkb_context_set_log_verbosity(ctx, 10);
-    }
+    if (verbose)
+        tools_enable_verbose_logging(ctx);
 
     if (num_includes == 0)
         includes[num_includes++] = DEFAULT_INCLUDE_PATH_PLACEHOLDER;
@@ -580,15 +786,22 @@ too_much_arguments:
             xkb_context_include_path_append(ctx, include);
     }
 
-    if (keymap_path) {
-        FILE *file = fopen(keymap_path, "rb");
+    if (with_keymap_file) {
+        FILE *file = NULL;
+        if (keymap_path) {
+            /* Read from regular file */
+            file = fopen(keymap_path, "rb");
+        } else {
+            /* Read from stdin */
+            file = tools_read_stdin();
+        }
         if (!file) {
-            fprintf(stderr, "ERROR: Couldn't open '%s': %s\n",
-                    keymap_path, strerror(errno));
+            fprintf(stderr, "ERROR: Failed to open keymap file \"%s\": %s\n",
+                    keymap_path ? keymap_path : "stdin", strerror(errno));
             goto out;
         }
         keymap = xkb_keymap_new_from_file(ctx, file, keymap_format,
-                                          XKB_KEYMAP_COMPILE_NO_FLAGS);
+                                          compile_flags);
         fclose(file);
     }
     else {
@@ -602,10 +815,10 @@ too_much_arguments:
 
         if (!rules && !model && !layout && !variant && !options)
             keymap = xkb_keymap_new_from_names2(ctx, NULL, keymap_format,
-                                                XKB_KEYMAP_COMPILE_NO_FLAGS);
+                                                compile_flags);
         else
             keymap = xkb_keymap_new_from_names2(ctx, &rmlvo, keymap_format,
-                                                XKB_KEYMAP_COMPILE_NO_FLAGS);
+                                                compile_flags);
 
         if (!keymap) {
             fprintf(stderr,
@@ -621,6 +834,21 @@ too_much_arguments:
         goto out;
     }
 
+    if (raw_modifiers_mapping &&
+        !tools_parse_modifiers_mappings(raw_modifiers_mapping, keymap,
+                                        machine_options)) {
+        fprintf(stderr,
+                "ERROR: Failed to parse modifiers mapping: \"%s\"\n",
+                raw_modifiers_mapping);
+    }
+
+    if (raw_shortcuts_mask &&
+        !tools_parse_shortcuts_mask(raw_shortcuts_mask, keymap, machine_options)) {
+        fprintf(stderr,
+                "ERROR: Failed to parse shortcuts mask: \"%s\"\n",
+                raw_shortcuts_mask);
+    }
+
     if (with_compose) {
         locale = setlocale(LC_CTYPE, NULL);
         compose_table =
@@ -632,7 +860,8 @@ too_much_arguments:
         }
     }
 
-    kbds = get_keyboards(keymap, compose_table);
+    kbds = get_keyboards(ctx, keymap, machine_options, kbd_controls_affect,
+                         kbd_controls_values, compose_table);
     if (!kbds) {
         goto out;
     }
@@ -660,6 +889,9 @@ too_much_arguments:
 out:
     xkb_compose_table_unref(compose_table);
     xkb_keymap_unref(keymap);
+error_parse_args:
+error_machine_options:
+    xkb_machine_options_destroy(machine_options);
     xkb_context_unref(ctx);
 
     return ret;
@@ -667,10 +899,12 @@ out:
 too_many_includes:
     fprintf(stderr, "ERROR: too many includes (max: %zu)\n",
             ARRAY_SIZE(includes));
+    xkb_machine_options_destroy(machine_options);
     exit(EXIT_INVALID_USAGE);
 
 input_format_error:
     fprintf(stderr, "ERROR: Cannot use RMLVO options with keymap input\n");
     usage(stderr, argv[0]);
+    xkb_machine_options_destroy(machine_options);
     exit(EXIT_INVALID_USAGE);
 }

@@ -41,6 +41,9 @@ struct parser_param {
 #define parser_warn(param, warning_id, fmt, ...) \
     scanner_warn((param)->scanner, warning_id, fmt, ##__VA_ARGS__)
 
+#define parser_vrb(param, verbosity, warning_id, fmt, ...) \
+    scanner_vrb((param)->scanner, verbosity, warning_id, fmt, ##__VA_ARGS__)
+
 static void
 _xkbcommon_error(struct parser_param *param, const char *msg)
 {
@@ -142,10 +145,11 @@ resolve_keysym(struct parser_param *param, struct sval name, xkb_keysym_t *sym_r
         EXCLAM          54 "!"
         INVERT          55 "~"
         STRING          60 "string literal"
-        INTEGER         61 "integer literal"
-        FLOAT           62 "float literal"
-        IDENT           63 "identifier"
-        KEYNAME         64 "key name"
+        DECIMAL_DIGIT   61 "decimal digit"
+        INTEGER         62 "integer literal"
+        FLOAT           63 "float literal"
+        IDENT           64 "identifier"
+        KEYNAME         65 "key name"
         PARTIAL         70 "partial"
         DEFAULT         71 "default"
         HIDDEN          72 "hidden"
@@ -190,12 +194,13 @@ resolve_keysym(struct parser_param *param, struct sval name, xkb_keysym_t *sym_r
         LedNameDef      *ledName;
         KeycodeDef      *keyCode;
         KeyAliasDef     *keyAlias;
+        UnknownStatement *unknown;
         void            *geom;
         XkbFile         *file;
         struct { XkbFile *head; XkbFile *last; } fileList;
 }
 
-%type <num>     INTEGER FLOAT
+%type <num>     DECIMAL_DIGIT INTEGER FLOAT
 %type <str>     STRING
 %type <sval>    IDENT
 %type <atom>    KEYNAME
@@ -209,7 +214,7 @@ resolve_keysym(struct parser_param *param, struct sval name, xkb_keysym_t *sym_r
 %type <noSymbolOrActionList> NoSymbolOrActionList
 %type <any>     Decl
 %type <anyList> DeclList
-%type <expr>    Expr Term Lhs Terminal Coord CoordList
+%type <expr>    Expr Term Lhs Terminal OptTerminal Coord CoordList
 %type <expr>    MultiKeySymOrActionList NonEmptyActions Actions Action
 %type <expr>    KeySyms NonEmptyKeySyms KeySymList KeyOrKeySym
 %type <exprList> ExprList KeyOrKeySymList
@@ -230,6 +235,7 @@ resolve_keysym(struct parser_param *param, struct sval name, xkb_keysym_t *sym_r
 %type <geom>    ShapeDecl SectionDecl SectionBody SectionBodyItem RowBody RowBodyItem
 %type <geom>    Keys Key OverlayDecl OverlayKeyList OverlayKey OutlineList OutlineInList
 %type <geom>    DoodadDecl
+%type <unknown> UnknownDecl UnknownCompoundStatementDecl
 %type <file>    XkbFile XkbMapConfig
 %type <fileList> XkbMapConfigList
 %type <file>    XkbCompositeMap
@@ -411,6 +417,10 @@ Decl            :       OptMergeMode VarDecl
                 |       OptMergeMode ShapeDecl          { $$ = NULL; }
                 |       OptMergeMode SectionDecl        { $$ = NULL; }
                 |       OptMergeMode DoodadDecl         { $$ = NULL; }
+                |       OptMergeMode UnknownDecl
+                            { $$ = (ParseCommon *) $2; }
+                |       OptMergeMode UnknownCompoundStatementDecl
+                            { $$ = (ParseCommon *) $2; }
                 |       MergeMode STRING
                         {
                             $$ = (ParseCommon *) IncludeCreate(param->ctx, $2, $1);
@@ -603,6 +613,23 @@ LedNameDecl:            INDICATOR Integer EQUALS Expr SEMI
                         { $$ = LedNameCreate($2, $4, false); }
                 |       VIRTUAL INDICATOR Integer EQUALS Expr SEMI
                         { $$ = LedNameCreate($3, $5, true); }
+                ;
+
+UnknownDecl     :       IDENT Terminal EQUALS Expr SEMI
+                        {
+                            FreeStmt((ParseCommon *) $2);
+                            FreeStmt((ParseCommon *) $4);
+                            $$ = UnknownStatementCreate(STMT_UNKNOWN_DECLARATION, $1);
+                        }
+                ;
+
+UnknownCompoundStatementDecl:
+                        IDENT OptTerminal OBRACE VarDeclList CBRACE SEMI
+                        {
+                            FreeStmt((ParseCommon *) $2);
+                            FreeStmt((ParseCommon *) $4.head);
+                            $$ = UnknownStatementCreate(STMT_UNKNOWN_COMPOUND, $1);
+                        }
                 ;
 
 ShapeDecl       :       SHAPE String OBRACE OutlineList CBRACE SEMI
@@ -838,6 +865,11 @@ Lhs             :       FieldSpec
                         { $$ = ExprCreateArrayRef($1, $3, $5); }
                 ;
 
+OptTerminal     :       Terminal
+                        { $$ = $1; }
+                |       { $$ = NULL; }
+                ;
+
 Terminal        :       String
                         { $$ = ExprCreateString($1); }
                 |       Integer
@@ -934,7 +966,16 @@ KeySymLit       :       IDENT
                         }
                         /* Handle keysym that is also a keyword  */
                 |       SECTION { $$ = XKB_KEY_section; }
-                |       Integer
+                |       DECIMAL_DIGIT
+                        {
+                            /*
+                             * Special case for digits 0..9:
+                             * map to XKB_KEY_0 .. XKB_KEY_9, consistent with
+                             * other keysym names: <name> → XKB_KEY_<name>.
+                             */
+                            $$ = XKB_KEY_0 + (xkb_keysym_t) $1;
+                        }
+                |       INTEGER
                         {
                             if ($1 < XKB_KEYSYM_MIN) {
                                 /* Negative value */
@@ -949,11 +990,14 @@ KeySymLit       :       IDENT
                                 );
                                 $$ = XKB_KEY_NoSymbol;
                             }
-                            else if ($1 < 10) {
-                                /* Special case for digits 0..9:
-                                 * map to XKB_KEY_0 .. XKB_KEY_9 */
-                                $$ = XKB_KEY_0 + (xkb_keysym_t) $1;
-                            }
+                            /*
+                             * Integers 0..9 are handled with DECIMAL_DIGIT if
+                             * they were formatted as single characters '0'..'9'.
+                             * Otherwise they are handled here as raw keysyms
+                             * values. E.g. `01` and `0x1` are interpreted as
+                             * the keysym 0x0001, while `1` is interpreted as
+                             * XKB_KEY_1.
+                             */
                             else {
                                 /* Any other numeric value */
                                 if ($1 <= XKB_KEYSYM_MAX) {
@@ -975,8 +1019,15 @@ KeySymLit       :       IDENT
                                     );
                                     $$ = XKB_KEY_NoSymbol;
                                 }
-                                parser_warn(
-                                    param, XKB_WARNING_NUMERIC_KEYSYM,
+                                parser_vrb(
+                                    /*
+                                     * Require an extra high verbosity, because
+                                     * keysyms are formatted as number unless
+                                     * enabling pretty-pretting for the
+                                     * serialization.
+                                     */
+                                    param, XKB_LOG_VERBOSITY_COMPREHENSIVE,
+                                    XKB_WARNING_NUMERIC_KEYSYM,
                                     "numeric keysym \"%#06"PRIx64"\" (%"PRId64")",
                                     $1, $1
                                 );
@@ -988,17 +1039,20 @@ SignedNumber    :       MINUS Number    { $$ = -$2; }
                 |       Number          { $$ = $1; }
                 ;
 
-Number          :       FLOAT   { $$ = $1; }
-                |       INTEGER { $$ = $1; }
+Number          :       FLOAT         { $$ = $1; }
+                |       DECIMAL_DIGIT { $$ = $1; }
+                |       INTEGER       { $$ = $1; }
                 ;
 
 Float           :       FLOAT   { $$ = 0; }
                 ;
 
-Integer         :       INTEGER { $$ = $1; }
+Integer         :       INTEGER       { $$ = $1; }
+                |       DECIMAL_DIGIT { $$ = $1; }
                 ;
 
-KeyCode         :       INTEGER { $$ = $1; }
+KeyCode         :       INTEGER       { $$ = $1; }
+                |       DECIMAL_DIGIT { $$ = $1; }
                 ;
 
 Ident           :       IDENT   { $$ = xkb_atom_intern(param->ctx, $1.start, $1.len); }
@@ -1017,6 +1071,7 @@ MapName         :       STRING  { $$ = $1; }
 
 %%
 
+/* Parse a specific section */
 XkbFile *
 parse(struct xkb_context *ctx, struct scanner *scanner, const char *map)
 {
@@ -1067,11 +1122,33 @@ parse(struct xkb_context *ctx, struct scanner *scanner, const char *map)
     }
 
     if (first)
-        log_vrb(ctx, 5,
+        log_vrb(ctx, XKB_LOG_VERBOSITY_DETAILED,
                 XKB_WARNING_MISSING_DEFAULT_SECTION,
                 "No map in include statement, but \"%s\" contains several; "
                 "Using first defined map, \"%s\"\n",
                 scanner->file_name, safe_map_name(first));
 
     return first;
+}
+
+/* Parse the next section */
+bool
+parse_next(struct xkb_context *ctx, struct scanner *scanner, XkbFile **xkb_file)
+{
+    int ret;
+    struct parser_param param = {
+        .scanner = scanner,
+        .ctx = ctx,
+        .rtrn = NULL,
+        .more_maps = false,
+    };
+
+    if ((ret = yyparse(&param)) == 0 && param.more_maps) {
+        *xkb_file = param.rtrn;
+        return true;
+    } else {
+        FreeXkbFile(param.rtrn);
+        *xkb_file = NULL;
+        return (ret == 0);
+    }
 }

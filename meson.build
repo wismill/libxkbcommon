@@ -1,12 +1,13 @@
 project(
     'libxkbcommon',
     'c',
-    version: '1.10.0',
+    version: '1.13.0',
     default_options: [
         'c_std=c11',
+        'build.c_std=c11',
         'warning_level=3',
     ],
-    meson_version : '>= 0.58.0', # Released on May 2021
+    meson_version : '>= 1.4.0', # Released on March 2024
 )
 
 xkbcommon_project_version = meson.project_version().split('.')
@@ -52,21 +53,106 @@ cflags = [
 ]
 add_project_arguments(cc.get_supported_arguments(cflags), language: 'c')
 
-
-# The XKB config root.
-XKBCONFIGROOT = get_option('xkb-config-root')
-if XKBCONFIGROOT == ''
-    xkeyboard_config_dep = dependency('xkeyboard-config', required: false)
+# The legacy X11 config root. Only xkeyboard-config 2.* provides it.
+# This is intended when using old xkeyboard-config and as a last resort for
+# misconfigured setups.
+# Try both un- and versioned pkg-config (xkeyboard-config < 2.45).
+XKB_LEGACY_ROOT = ''
+foreach v: ['-2', '']
+    xkeyboard_config_dep = dependency(f'xkeyboard-config@v@', required: false)
     if xkeyboard_config_dep.found()
-        XKBCONFIGROOT = xkeyboard_config_dep.get_variable(pkgconfig: 'xkb_base')
-    else
-        XKBCONFIGROOT = get_option('prefix')/get_option('datadir')/'X11'/'xkb'
-  endif
+        XKB_LEGACY_ROOT = xkeyboard_config_dep.get_variable(
+            pkgconfig: 'xkb_base',
+            default_value: ''
+        )
+        break
+    endif
+endforeach
+if XKB_LEGACY_ROOT == ''
+    # Fallback to the legacy X11 directory
+    XKB_LEGACY_ROOT = get_option('prefix')/get_option('datadir')/'X11'/'xkb'
 endif
 
-XKBCONFIGEXTRAPATH = get_option('xkb-config-extra-path')
-if XKBCONFIGEXTRAPATH == ''
-    XKBCONFIGEXTRAPATH = get_option('prefix')/get_option('sysconfdir')/'xkb'
+# The xkeyboard-config root
+# Try to set it from the xkeyboard-config package, from the most recent to the
+# oldest major version. The hard-coded major versions list should cover a few
+# decades, given the expected pace of xkeyboard-config format changes.
+XKEYBOARD_CONFIG_ROOT = ''
+XKEYBOARD_CONFIG_VERSION_MAJOR = ''
+XKEYBOARD_CONFIG_VERSIONED_EXTENSIONS_PATH = ''
+XKEYBOARD_CONFIG_UNVERSIONED_EXTENSIONS_PATH = ''
+foreach v: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2]
+    xkeyboard_config_dep = dependency(f'xkeyboard-config-@v@', required: false)
+    if xkeyboard_config_dep.found()
+        XKEYBOARD_CONFIG_ROOT = xkeyboard_config_dep.get_variable(pkgconfig: 'xkb_root')
+        XKEYBOARD_CONFIG_VERSION_MAJOR = xkeyboard_config_dep.version().split('.')[0]
+        # The following variables may not be defined
+        XKEYBOARD_CONFIG_VERSIONED_EXTENSIONS_PATH = \
+            xkeyboard_config_dep.get_variable(
+                pkgconfig: 'xkb_versioned_extensions_path',
+                default_value: '',
+            )
+        XKEYBOARD_CONFIG_UNVERSIONED_EXTENSIONS_PATH = \
+            xkeyboard_config_dep.get_variable(
+                pkgconfig: 'xkb_unversioned_extensions_path',
+                default_value: '',
+            )
+        break
+    endif
+endforeach
+if XKEYBOARD_CONFIG_ROOT == ''
+    # Try old unversioned pkg-config (xkeyboard-config < 2.45)
+    xkeyboard_config_dep = dependency('xkeyboard-config', required: false)
+    if xkeyboard_config_dep.found()
+        XKEYBOARD_CONFIG_ROOT = xkeyboard_config_dep.get_variable(pkgconfig: 'xkb_base')
+        XKEYBOARD_CONFIG_VERSION_MAJOR = xkeyboard_config_dep.version().split('.')[0]
+        # No extension path defined
+    endif
+endif
+
+# The XKB config root for libxkbcommon
+XKB_CONFIG_ROOT = get_option('xkb-config-root')
+if XKB_CONFIG_ROOT == ''
+    if XKEYBOARD_CONFIG_ROOT != ''
+        XKB_CONFIG_ROOT = XKEYBOARD_CONFIG_ROOT
+    else
+        # No xkeyboard-config or too old: use legacy X11 path fallback
+        XKB_CONFIG_ROOT = XKB_LEGACY_ROOT
+    endif
+endif
+
+# The XKB extensions directories
+XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH = get_option('xkb-config-unversioned-extensions-path')
+if XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH == '' and XKEYBOARD_CONFIG_ROOT != ''
+    if XKEYBOARD_CONFIG_UNVERSIONED_EXTENSIONS_PATH != ''
+        XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH = XKEYBOARD_CONFIG_UNVERSIONED_EXTENSIONS_PATH
+    elif XKEYBOARD_CONFIG_ROOT.endswith(f'-@XKEYBOARD_CONFIG_VERSION_MAJOR@')
+        # The xkeyboard-config root is versioned: remove the version suffix
+        # Meson does not have a length() function… Compute the length manually
+        s = XKEYBOARD_CONFIG_VERSION_MAJOR
+        foreach len: range(3)
+            if s == ''
+                break
+            endif
+            s = s.substring(1)
+        endforeach
+        XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH = XKEYBOARD_CONFIG_ROOT.substring(0, -len - 1) + '.d'
+    else
+        XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH = get_option('prefix')/get_option('datadir')/'xkeyboard-config.d'
+    endif
+endif
+XKB_CONFIG_VERSIONED_EXTENSIONS_PATH = get_option('xkb-config-versioned-extensions-path')
+if XKB_CONFIG_VERSIONED_EXTENSIONS_PATH == '' and XKEYBOARD_CONFIG_ROOT != ''
+    if XKEYBOARD_CONFIG_VERSIONED_EXTENSIONS_PATH != ''
+        XKB_CONFIG_VERSIONED_EXTENSIONS_PATH = XKEYBOARD_CONFIG_VERSIONED_EXTENSIONS_PATH
+    else
+        XKB_CONFIG_VERSIONED_EXTENSIONS_PATH = f'@XKEYBOARD_CONFIG_ROOT@.d'
+    endif
+endif
+
+XKB_CONFIG_EXTRA_PATH = get_option('xkb-config-extra-path')
+if XKB_CONFIG_EXTRA_PATH == ''
+    XKB_CONFIG_EXTRA_PATH = get_option('prefix')/get_option('sysconfdir')/'xkb'
 endif
 
 # The X locale directory for compose.
@@ -90,8 +176,21 @@ else
 endif
 configh_data.set(system_extensions, 1)
 system_ext_define = '#define ' + system_extensions
-configh_data.set_quoted('DFLT_XKB_CONFIG_ROOT', XKBCONFIGROOT)
-configh_data.set_quoted('DFLT_XKB_CONFIG_EXTRA_PATH', XKBCONFIGEXTRAPATH)
+configh_data.set_quoted('DFLT_XKB_LEGACY_ROOT', XKB_LEGACY_ROOT)
+configh_data.set_quoted('DFLT_XKB_CONFIG_ROOT', XKB_CONFIG_ROOT)
+if XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH != ''
+    configh_data.set_quoted(
+        'DFLT_XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH',
+        XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH
+    )
+endif
+if XKB_CONFIG_VERSIONED_EXTENSIONS_PATH != ''
+    configh_data.set_quoted(
+        'DFLT_XKB_CONFIG_VERSIONED_EXTENSIONS_PATH',
+        XKB_CONFIG_VERSIONED_EXTENSIONS_PATH
+    )
+endif
+configh_data.set_quoted('DFLT_XKB_CONFIG_EXTRA_PATH', XKB_CONFIG_EXTRA_PATH)
 configh_data.set_quoted('XLOCALEDIR', XLOCALEDIR)
 configh_data.set_quoted('DEFAULT_XKB_RULES', get_option('default-rules'))
 configh_data.set_quoted('DEFAULT_XKB_MODEL', get_option('default-model'))
@@ -107,10 +206,36 @@ else
     configh_data.set('DEFAULT_XKB_OPTIONS', 'NULL')
 endif
 if cc.has_header('unistd.h')
-    configh_data.set('HAVE_UNISTD_H', 1)
+    configh_data.set10('HAVE_UNISTD_H', true)
+endif
+if cc.has_header('dirent.h')
+    configh_data.set10('HAVE_DIRENT_H', true)
+endif
+if configh_data.get('HAVE_UNISTD_H', 0) == 1 and configh_data.get('HAVE_DIRENT_H', 0) == 1
+    configh_data.set10('HAVE_XKB_EXTENSIONS_DIRECTORIES', true)
+    has_extensions_directories = true
+else
+    has_extensions_directories = false
 endif
 if cc.links('int main(){if(__builtin_expect(1<0,0)){}}', name: '__builtin_expect')
     configh_data.set('HAVE___BUILTIN_EXPECT', 1)
+endif
+# Test if counted_by attribute is available, and supported on pointer fields
+# (not just flexible array fields).
+if cc.compiles('''
+        struct test {
+            int count;
+            int *items __attribute__((counted_by(count)));
+        };
+        int main(void) {
+            struct test t = {0};
+            return 0;
+        }
+        ''',
+        args: cc.get_supported_arguments('-Werror=attributes'),
+        name: 'counted_by attribute for pointers'
+    )
+    configh_data.set('HAVE_ATTR_COUNTED_BY', 1)
 endif
 if cc.has_header_symbol('unistd.h', 'eaccess', prefix: system_ext_define)
     configh_data.set('HAVE_EACCESS', 1)
@@ -145,12 +270,55 @@ elif cc.has_header_symbol('stdlib.h', '__secure_getenv', prefix: system_ext_defi
 else
     message('C library does not support secure_getenv, using getenv instead')
 endif
+if cc.has_header_symbol('stdlib.h', 'realpath', prefix: system_ext_define)
+    configh_data.set('HAVE_REAL_PATH', 1)
+endif
 if not cc.has_header_symbol('limits.h', 'PATH_MAX', prefix: system_ext_define)
     if host_machine.system() == 'windows'
         # see https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#maximum-path-length-limitation
         configh_data.set('PATH_MAX', 260)
     else
         configh_data.set('PATH_MAX', 4096)
+    endif
+endif
+if cc.has_header_symbol('time.h', 'CLOCK_PROCESS_CPUTIME_ID', prefix: system_ext_define)
+    configh_data.set('HAVE_CLOCK_PROCESS_CPUTIME_ID', 1)
+endif
+if cc.has_header_symbol('time.h', 'CLOCK_MONOTONIC', prefix: system_ext_define)
+    configh_data.set('HAVE_CLOCK_MONOTONIC', 1)
+endif
+if cc.has_header_symbol('termios.h', 'tcsetattr', prefix: system_ext_define)
+    configh_data.set('HAVE_TERMIOS', 1)
+endif
+has_glibc = cc.has_function(
+    'gnu_get_libc_version',
+    prefix: '#include <gnu/libc-version.h>'
+)
+has_compose_locale_fallback = false
+if cc.has_header_symbol('locale.h', 'newlocale', prefix: system_ext_define)
+    # Use newlocale only if it fails on missing locales
+    if meson.can_run_host_binaries()
+        # Check newlocale implementation
+        r = cc.run(
+            '''
+            #define _GNU_SOURCE
+            #include <locale.h>
+            int main(void){
+                locale_t loc = newlocale(LC_ALL_MASK, "¡NONSENSE!", (locale_t) 0);
+                return (loc != (locale_t) 0);
+            }''',
+            name: 'newlocale fails on invalid locales',
+        )
+        if r.compiled() and r.returncode() == 0
+            has_compose_locale_fallback = true
+        endif
+    elif has_glibc
+        # Cannot check implementation, so enable only for implementations
+        # known to failed on missing locales.
+        has_compose_locale_fallback = true
+    endif
+    if has_compose_locale_fallback
+        configh_data.set('HAVE_NEWLOCALE', 1)
     endif
 endif
 
@@ -184,6 +352,7 @@ yacc_gen = generator(
     arguments: ['--defines=@OUTPUT1@', '-o', '@OUTPUT0@', '-p', '_xkbcommon_', '@INPUT@'],
 )
 libxkbcommon_sources = [
+    'src/compose/constants.h',
     'src/compose/parser.c',
     'src/compose/parser.h',
     'src/compose/paths.c',
@@ -222,13 +391,17 @@ libxkbcommon_sources = [
     'src/context.h',
     'src/context-priv.c',
     'src/darray.h',
+    'src/features.c',
+    'src/features/enums.h',
     'src/keysym.c',
     'src/keysym.h',
     'src/keysym-case-mappings.c',
     'src/keysym-utf.c',
-    'src/ks_tables.h',
+    'src/keysym-names.h',
     'src/keymap.c',
     'src/keymap.h',
+    'src/keymap-compare.c',
+    'src/keymap-compare.h',
     'src/keymap-priv.c',
     'src/messages-codes.h',
     'src/rmlvo.c',
@@ -236,6 +409,7 @@ libxkbcommon_sources = [
     'src/scanner-utils.c',
     'src/scanner-utils.h',
     'src/state.c',
+    'src/state-priv.h',
     'src/text.c',
     'src/text.h',
     'src/utf8.c',
@@ -279,6 +453,8 @@ install_headers(
     'include/xkbcommon/xkbcommon.h',
     'include/xkbcommon/xkbcommon-compat.h',
     'include/xkbcommon/xkbcommon-compose.h',
+    'include/xkbcommon/xkbcommon-errors.h',
+    'include/xkbcommon/xkbcommon-features.h',
     'include/xkbcommon/xkbcommon-keysyms.h',
     'include/xkbcommon/xkbcommon-names.h',
     subdir: 'xkbcommon',
@@ -289,12 +465,23 @@ dep_libxkbcommon = declare_dependency(
     include_directories: include_directories('include'),
 )
 meson.override_dependency('xkbcommon', dep_libxkbcommon)
+pkgconfig_variables = [
+    f'xkb_root=@XKB_CONFIG_ROOT@',
+    f'xkb_extra_path=@XKB_CONFIG_EXTRA_PATH@',
+]
+if has_extensions_directories
+    pkgconfig_variables += [
+        f'xkb_unversioned_extensions_path=@XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH@',
+        f'xkb_versioned_extensions_path=@XKB_CONFIG_VERSIONED_EXTENSIONS_PATH@',
+    ]
+endif
 pkgconfig.generate(
     libxkbcommon,
     name: 'xkbcommon',
     filebase: 'xkbcommon',
     version: meson.project_version(),
     description: 'XKB API common to servers and clients',
+    variables: pkgconfig_variables,
 )
 
 
@@ -312,12 +499,15 @@ You can disable X11 support with -Denable-x11=false.''')
         'src/x11/state.c',
         'src/x11/util.c',
         'src/x11/x11-priv.h',
+        'src/context.c',
         'src/context.h',
         'src/context-priv.c',
         'src/keymap.h',
         'src/keymap-priv.c',
         'src/atom.h',
         'src/atom.c',
+        'src/utils.c',
+        'src/utils.h',
     ]
     libxkbcommon_x11_link_args = []
     libxkbcommon_x11_link_deps = []
@@ -454,13 +644,16 @@ if build_tools
         sources: [
             'tools/tools-common.h',
             'tools/tools-common.c',
+            'src/compose/constants.h',
+            'src/utf8-decoding.c',
+            'src/utf8-decoding.h',
         ],
         include_directories: [include_directories('tools', 'include')],
         dependencies: dep_libxkbcommon,
     )
     configh_data.set10('HAVE_TOOLS', true)
 
-    # Tool: xkbcli
+    # Tool: export-keysyms
     export_keysym_dep = [tools_dep]
     if icu_dep.found()
         export_keysym_dep += [icu_dep]
@@ -493,6 +686,39 @@ if build_tools
                      install_dir: bash_completion_path)
     endif
 
+    if get_option('enable-zsh-completion')
+        zsh_completion_path = get_option('zsh-completion-path')
+        if zsh_completion_path == ''
+            zsh_completion_path = get_option('datadir') / 'zsh/site-functions'
+        endif
+        install_data('tools/xkbcli-zsh-completion.zsh',
+                     rename: '_xkbcli',
+                     install_dir: zsh_completion_path)
+        install_data('tools/xkb-model-zsh-completion.zsh',
+                     rename: '_xkb_model',
+                     install_dir: zsh_completion_path)
+        install_data('tools/xkb-layout-zsh-completion.zsh',
+                     rename: '_xkb_layout',
+                     install_dir: zsh_completion_path)
+        install_data('tools/xkb-variant-zsh-completion.zsh',
+                     rename: '_xkb_variant',
+                     install_dir: zsh_completion_path)
+        install_data('tools/xkb-options-zsh-completion.zsh',
+                     rename: '_xkb_options',
+                     install_dir: zsh_completion_path)
+    endif
+
+    # Tool: info
+    xkbcli_info = executable(
+        'xkbcli-info',
+        'tools/info.c',
+        dependencies: tools_dep,
+        install: true,
+        install_dir: dir_libexec
+    )
+    install_man('tools/xkbcli-info.1')
+    configh_data.set10('HAVE_XKBCLI_INFO', true)
+
     # Tool: compile-keymap
     xkbcli_compile_keymap = executable('xkbcli-compile-keymap',
                                        'tools/compile-keymap.c',
@@ -510,8 +736,6 @@ if build_tools
                'src/compose/dump.c',
                'src/compose/dump.h',
                'src/compose/escape.h',
-               'tools/tools-common.c',
-               'tools/tools-common.h',
                dependencies: tools_dep,
                install: true,
                install_dir: dir_libexec)
@@ -523,8 +747,6 @@ if build_tools
                'tools/how-to-type.c',
                'src/keymap-formats.c',
                'src/keymap-formats.h',
-               'src/utf8-decoding.c',
-               'src/utf8-decoding.h',
                dependencies: tools_dep,
                install: true,
                install_dir: dir_libexec)
@@ -556,6 +778,9 @@ if build_tools
         )
         executable('xkbcli-interactive-x11',
                    'tools/interactive-x11.c',
+                   'src/keymap-formats.c',
+                   'src/keymap-formats.h',
+                   'src/utils.h',
                    dependencies: x11_tools_dep,
                    install: true,
                    install_dir: dir_libexec)
@@ -566,6 +791,7 @@ if build_tools
                    'tools/interactive-x11.c',
                    'src/keymap-formats.c',
                    'src/keymap-formats.h',
+                   'src/utils.h',
                    dependencies: x11_tools_dep,
                    c_args: ['-DKEYMAP_DUMP'],
                    install: true,
@@ -582,6 +808,12 @@ if build_tools
         if not wayland_client_dep.found() or not wayland_protocols_dep.found() or not wayland_scanner_dep.found()
             error('''The Wayland xkbcli programs require wayland-client and wayland-protocols which were not found.
 You can disable the Wayland xkbcli programs with -Denable-wayland=false.''')
+        endif
+
+        if cc.has_header_symbol('wayland/wayland-client-protocol.h', \
+                                'WL_KEYBOARD_KEY_STATE_REPEATED', \
+                                dependencies: wayland_client_dep)
+            configh_data.set10('HAVE_WL_KEYBOARD_KEY_STATE_REPEATED', true)
         endif
 
         wayland_scanner = find_program(wayland_scanner_dep.get_variable(pkgconfig: 'wayland_scanner'))
@@ -610,6 +842,7 @@ You can disable the Wayland xkbcli programs with -Denable-wayland=false.''')
                    'tools/interactive-wayland.c',
                    'src/keymap-formats.c',
                    'src/keymap-formats.h',
+                   'src/utils.h',
                    xdg_shell_sources,
                    xdg_decoration_sources,
                    dependencies: [tools_dep, wayland_client_dep],
@@ -622,6 +855,7 @@ You can disable the Wayland xkbcli programs with -Denable-wayland=false.''')
                    'tools/interactive-wayland.c',
                    'src/keymap-formats.c',
                    'src/keymap-formats.h',
+                   'src/utils.h',
                    xdg_shell_sources,
                    xdg_decoration_sources,
                    dependencies: [tools_dep, wayland_client_dep],
@@ -630,6 +864,30 @@ You can disable the Wayland xkbcli programs with -Denable-wayland=false.''')
                    install_dir: dir_libexec)
         install_man('tools/xkbcli-dump-keymap-wayland.1')
         configh_data.set10('HAVE_XKBCLI_DUMP_KEYMAP_WAYLAND', true)
+    endif
+
+    # Tool: interactive
+    if (
+       configh_data.get('HAVE_XKBCLI_INTERACTIVE_WAYLAND', 0) == 1 or
+       configh_data.get('HAVE_XKBCLI_INTERACTIVE_X11', 0) == 1 or
+       configh_data.get('HAVE_XKBCLI_INTERACTIVE_EVDEV', 0) == 1
+    )
+        executable('xkbcli-interactive', 'tools/interactive.c',
+                   dependencies: tools_dep,
+                   install: true,
+                   install_dir: dir_libexec)
+    endif
+
+    # Tool: dump-keymap
+    if (
+       configh_data.get('HAVE_XKBCLI_DUMP_KEYMAP_WAYLAND', 0) == 1 or
+       configh_data.get('HAVE_XKBCLI_DUMP_KEYMAP_X11', 0) == 1
+    )
+        executable('xkbcli-dump-keymap', 'tools/interactive.c',
+                   c_args: ['-DKEYMAP_DUMP'],
+                   dependencies: tools_dep,
+                   install: true,
+                   install_dir: dir_libexec)
     endif
 
     # Tool: list
@@ -660,7 +918,7 @@ endif
 # xkeyboard-config "verifier"
 xkct_config = configuration_data()
 xkct_config.set('MESON_BUILD_ROOT', meson.current_build_dir())
-xkct_config.set('XKB_CONFIG_ROOT', XKBCONFIGROOT)
+xkct_config.set('XKB_CONFIG_ROOT', XKB_CONFIG_ROOT)
 configure_file(input: 'test/xkeyboard-config-test.py.in',
                output: 'xkeyboard-config-test',
                configuration: xkct_config)
@@ -678,7 +936,35 @@ test_env.set('HAVE_XKBCLI_LIST', configh_data.get('HAVE_XKBCLI_LIST', 0).to_stri
 
 test_configh_data = configuration_data()
 test_configh_data.set_quoted('TEST_XKB_CONFIG_ROOT', meson.current_source_dir()/'test'/'data')
+test_configh_data.set('_FORTIFY_SOURCE', '3')
 configure_file(output: 'test-config.h', configuration: test_configh_data)
+
+# Headers C++ compatibility test (optional)
+# Exclude MSVC because it does not handle mixing C and C++ well
+if build_machine.system() != 'windows' and \
+   add_languages('cpp', required: false, native: false)
+    cpp = meson.get_compiler('cpp')
+    cpp_compat_test_deps = []
+    cpp_compat_test_cpp_args = []
+    if get_option('enable-x11')
+        cpp_compat_test_cpp_args += '-DHAS_XKB_X11'
+        cpp_compat_test_deps += xcb_dep
+    endif
+    if get_option('enable-xkbregistry')
+        cpp_compat_test_cpp_args += '-DHAS_XKB_REGISTRY'
+    endif
+    test(
+        'headers C++ compatibility',
+        executable(
+            'test-cpp-headers',
+            'test/headers-compatibility.cpp',
+            include_directories: include_directories('include'),
+            dependencies: cpp_compat_test_deps,
+            cpp_args: cpp_compat_test_cpp_args,
+            override_options: ['cpp_std=c++11'],
+        )
+    )
+endif
 
 m_dep = cc.find_library('m', required : false)
 # Some tests need to use unexported symbols, so we link them against
@@ -686,6 +972,8 @@ m_dep = cc.find_library('m', required : false)
 libxkbcommon_test_internal = library(
     'xkbcommon-test-internal',
     libxkbcommon_sources,
+    'src/xkbcomp/keymap-file-iterator.c',
+    'src/xkbcomp/keymap-file-iterator.h',
     include_directories: include_directories('src', 'include'),
     c_args: ['-DENABLE_PRIVATE_APIS'],
     gnu_symbol_visibility: 'hidden',
@@ -695,6 +983,8 @@ test_dep = declare_dependency(
         'bench/bench.c',
         'bench/bench.h',
         'src/utils-numbers.h',
+        'src/utf8-decoding.c',
+        'src/utf8-decoding.h',
         'test/common.c',
         'test/evdev-scancodes.h',
         'test/test.h',
@@ -705,6 +995,36 @@ test_dep = declare_dependency(
     link_with: libxkbcommon_test_internal,
     dependencies: [m_dep],
 )
+
+if build_tools
+    # Tool: introspection
+    executable(
+        'introspection',
+        'tools/introspection.c',
+        'src/utils.c',
+        'src/utils.h',
+        'src/keymap-formats.c',
+        'src/keymap-formats.h',
+        'src/xkbcomp/keymap-file-iterator.h',
+        dependencies: test_dep,
+        include_directories: include_directories('src', 'src/xkbcomp', 'include'),
+        install: false
+    )
+
+    introspection_config = configuration_data()
+    introspection_config.set('MESON_BUILD_ROOT', meson.current_build_dir())
+    introspection_config.set('DEFAULT_XKB_RULES', get_option('default-rules'))
+    introspection_config.set('DEFAULT_XKB_MODEL', get_option('default-model'))
+    introspection_config.set('DEFAULT_XKB_LAYOUT', get_option('default-layout'))
+    introspection_config.set('DEFAULT_XKB_VARIANT', get_option('default-variant'))
+    introspection_config.set('DEFAULT_XKB_OPTIONS', get_option('default-options'))
+    configure_file(
+        input: 'tools/introspection-query.py.in',
+        output: 'introspection-query',
+        configuration: introspection_config
+    )
+endif
+
 if get_option('enable-x11')
     libxkbcommon_x11_test_internal = library(
         'xkbcommon-x11-internal',
@@ -733,6 +1053,17 @@ if get_option('enable-x11')
         dependencies: [x11_test_dep],
     )
 endif
+test(
+    'features',
+    executable(
+        'test-features',
+        'test/features.c',
+        'src/features/enums.h',
+        dependencies: test_dep,
+        c_args: ['-DENABLE_PRIVATE_APIS'],
+    ),
+    env: test_env,
+)
 # TODO: version range?
 keysyms_test_dep = [test_dep]
 keysyms_test_c_args = ['-DENABLE_PRIVATE_APIS']
@@ -800,6 +1131,38 @@ test(
 test(
     'buffercomp',
     executable('test-buffercomp', 'test/buffercomp.c', dependencies: test_dep),
+    env: test_env,
+)
+test(
+    'lenient-mode',
+    executable('test-lenient-mode', 'test/lenient-mode.c', dependencies: test_dep),
+    env: test_env,
+)
+if has_extensions_directories
+    extensions_test_deps = [test_dep]
+    extensions_test_c_args = []
+    if get_option('enable-xkbregistry')
+        extensions_test_deps += [dep_libxkbregistry, dep_libxml]
+        extensions_test_c_args += ['-DHAS_XKBREGISTRY']
+    endif
+    test(
+        'extensions-directories',
+        executable(
+            'extensions-directories',
+            'test/extensions-directories.c',
+            dependencies: extensions_test_deps,
+            c_args: extensions_test_c_args,
+        ),
+        env: test_env,
+    )
+endif
+test(
+    'introspection',
+    executable(
+        'test-introspection',
+        'test/introspection.c',
+        dependencies: test_dep
+    ),
     env: test_env,
 )
 
@@ -876,7 +1239,22 @@ test(
 )
 test(
     'state',
-    executable('test-state', 'test/state.c', dependencies: test_dep),
+    executable(
+        'test-state',
+        'test/state.c',
+        'test/state.h',
+        dependencies: test_dep
+    ),
+    env: test_env,
+)
+test(
+    'server-state',
+    executable(
+        'test-server-state',
+        'test/server-state.c',
+        'test/state.h',
+        dependencies: test_dep
+    ),
     env: test_env,
 )
 test(
@@ -898,9 +1276,12 @@ test(
         'test/compose-iter.h',
         'test/utils-text.c',
         'test/utils-text.h',
+        'src/compose/constants.h',
         'src/compose/dump.c',
         'src/compose/dump.h',
         'src/compose/escape.h',
+        'src/compose/escape.h',
+        'src/compose/parser.h',
         dependencies: test_dep
     ),
     env: test_env,
@@ -955,12 +1336,20 @@ if get_option('enable-x11')
     test(
         'x11',
         executable('test-x11', 'test/x11.c', dependencies: x11_xvfb_test_dep),
+        suite: ['x11'],
         env: test_env,
         is_parallel : false,
     )
     test(
         'x11comp',
-        executable('test-x11comp', 'test/x11comp.c', dependencies: x11_xvfb_test_dep),
+        executable(
+            'test-x11comp',
+            'test/x11comp.c',
+            'test/utils-text.c',
+            'test/utils-text.h',
+            dependencies: x11_xvfb_test_dep
+        ),
+        suite: ['x11', 'flaky'],
         env: test_env,
         is_parallel : false,
     )
@@ -1095,6 +1484,7 @@ benchmark(
         'bench-compose-traversal',
         'bench/compose-traversal.c',
         'bench/bench.h',
+        'src/compose/constants.h',
         'test/compose-iter.c',
         'test/compose-iter.h',
         'test/test.h',
@@ -1134,11 +1524,13 @@ You can disable the documentation with -Denable-docs=false.''')
         'doc/diagrams/xkb-configuration.dot',
         'doc/diagrams/xkb-keymap-components.dot',
         'doc/diagrams/xkb-types-explanation.dot',
+        'doc/img/numeric-keypad-overlay.svg',
         'doc/doxygen-extra.css',
         'doc/faq.md',
         'doc/introduction-to-xkb.md',
         'doc/quick-guide.md',
         'doc/compatibility.md',
+        'doc/packaging-keyboard-layouts.md',
         'doc/user-configuration.md',
         'doc/rules-format.md',
         'doc/keymap-text-format-v1-v2.md',
@@ -1147,6 +1539,8 @@ You can disable the documentation with -Denable-docs=false.''')
         'doc/license.md',
         'include/xkbcommon/xkbcommon.h',
         'include/xkbcommon/xkbcommon-compose.h',
+        'include/xkbcommon/xkbcommon-errors.h',
+        'include/xkbcommon/xkbcommon-features.h',
         'include/xkbcommon/xkbcommon-keysyms.h',
         'include/xkbcommon/xkbcommon-names.h',
         'include/xkbcommon/xkbcommon-x11.h',
@@ -1209,38 +1603,42 @@ if get_option('enable-xkbregistry')
   libxkbregistry_dep = dep_libxkbregistry
 endif
 
-if meson.version().version_compare('>=0.62.0')
-    summary({
-      'backend': meson.backend(),
-      'buildtype': get_option('buildtype'),
-      'id': cc.get_id(),
-      'c_args': get_option('c_args'),
-      'c_link_args': get_option('c_link_args'),
-      'yacc': yacc.full_path() + ' ' + yacc.version(),
-    }, section: 'Compiler')
-    summary({
-      'prefix': get_option('prefix'),
-      'bindir': get_option('bindir'),
-      'libdir': get_option('libdir'),
-      'datadir': get_option('datadir'),
-      'xkb-config-root': XKBCONFIGROOT,
-      'xkb-config-extra-path': XKBCONFIGEXTRAPATH,
-      'xlocaledir': XLOCALEDIR,
-    }, section: 'Directories')
-    summary({
-      'docs': get_option('enable-docs'),
-      'tools': get_option('enable-tools'),
-      'wayland': get_option('enable-wayland'),
-      'x11': get_option('enable-x11'),
-    }, section: 'Features')
-    summary({
-      'layout': get_option('default-layout'),
-      'model': get_option('default-model'),
-      'options': get_option('default-options'),
-      'rules': get_option('default-rules'),
-      'variant': get_option('default-variant'),
-    }, section: 'Defaults')
-    summary({
-      'merge-modes': has_merge_modes_tests,
-    }, section: 'Tests')
-endif
+summary({
+    'backend': meson.backend(),
+    'buildtype': get_option('buildtype'),
+    'id': cc.get_id(),
+    'c_args': get_option('c_args'),
+    'c_link_args': get_option('c_link_args'),
+    'yacc': yacc.full_path() + ' ' + yacc.version(),
+    'glibc': has_glibc,
+}, section: 'Compiler')
+summary({
+    'prefix': get_option('prefix'),
+    'bindir': get_option('bindir'),
+    'libdir': get_option('libdir'),
+    'datadir': get_option('datadir'),
+    'xkb-config-root': XKB_CONFIG_ROOT,
+    'xkb-legacy-root': XKB_LEGACY_ROOT,
+    'xkb-config-unversioned-extensions-path': XKB_CONFIG_UNVERSIONED_EXTENSIONS_PATH,
+    'xkb-config-versioned-extensions-path': XKB_CONFIG_VERSIONED_EXTENSIONS_PATH,
+    'xkb-config-extra-path': XKB_CONFIG_EXTRA_PATH,
+    'xlocaledir': XLOCALEDIR,
+}, section: 'Directories')
+summary({
+    'docs': get_option('enable-docs'),
+    'tools': get_option('enable-tools'),
+    'wayland': get_option('enable-wayland'),
+    'x11': get_option('enable-x11'),
+    'compose locale fallback': has_compose_locale_fallback,
+    'XKB extensions directories': has_extensions_directories,
+}, section: 'Features')
+summary({
+    'layout': get_option('default-layout'),
+    'model': get_option('default-model'),
+    'options': get_option('default-options'),
+    'rules': get_option('default-rules'),
+    'variant': get_option('default-variant'),
+}, section: 'Defaults')
+summary({
+    'merge-modes': has_merge_modes_tests,
+}, section: 'Tests')

@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "config.h"
+
 #include "ast.h"
 #include "utils.h"
 
@@ -33,11 +35,12 @@ expand_path(struct xkb_context *ctx, const char* parent_file_name,
 FILE *
 FindFileInXkbPath(struct xkb_context *ctx, const char* parent_file_name,
                   const char *name, size_t name_len, enum xkb_file_type type,
-                  char *buf, size_t buf_size, unsigned int *offset);
+                  char *buf, size_t buf_size, unsigned int *offset,
+                  bool required);
 
 bool
 ExceedsIncludeMaxDepth(struct xkb_context *ctx, unsigned int include_depth);
 
 XkbFile *
 ProcessIncludeFile(struct xkb_context *ctx, const IncludeStmt *stmt,
-                   enum xkb_file_type file_type);
+                   enum xkb_file_type file_type, char *path, size_t path_size);

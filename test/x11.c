@@ -4,6 +4,7 @@
  */
 
 #include "config.h"
+#include "test-config.h"
 
 #include <stdlib.h>
 
@@ -13,7 +14,7 @@
 
 X11_TEST(test_basic)
 {
-    struct xkb_context *ctx = test_get_context(0);
+    struct xkb_context *ctx = test_get_context(CONTEXT_NO_FLAG);
     xcb_connection_t *conn;
     int ret;
     int32_t device_id;
@@ -23,15 +24,25 @@ X11_TEST(test_basic)
     int exit_code = EXIT_SUCCESS;
 
     /*
-    * The next two steps depend on a running X server with XKB support.
-    * If it fails, it's not necessarily an actual problem with the code.
-    * So we don't want a FAIL here.
-    */
+     * The next two steps depend on a running X server with XKB support.
+     * If it fails, it's not necessarily an actual problem with the code.
+     * So we don't want a FAIL here.
+     */
     conn = xcb_connect(display, NULL);
     if (!conn || xcb_connection_has_error(conn)) {
         exit_code = TEST_SETUP_FAILURE;
         goto err_conn;
     }
+
+    /* Reject invalid flags */
+    assert(!xkb_x11_setup_xkb_extension(conn,
+                                        XKB_X11_MIN_MAJOR_XKB_VERSION,
+                                        XKB_X11_MIN_MINOR_XKB_VERSION,
+                                        -1, NULL, NULL, NULL, NULL));
+    assert(!xkb_x11_setup_xkb_extension(conn,
+                                        XKB_X11_MIN_MAJOR_XKB_VERSION,
+                                        XKB_X11_MIN_MINOR_XKB_VERSION,
+                                        0xffff, NULL, NULL, NULL, NULL));
 
     ret = xkb_x11_setup_xkb_extension(conn,
                                       XKB_X11_MIN_MAJOR_XKB_VERSION,
@@ -47,7 +58,7 @@ X11_TEST(test_basic)
     assert(device_id != -1);
 
     keymap = xkb_x11_keymap_new_from_device(ctx, conn, device_id,
-                                            XKB_KEYMAP_COMPILE_NO_FLAGS);
+                                            TEST_KEYMAP_COMPILE_FLAGS);
     assert(keymap);
 
     state = xkb_x11_state_new_from_device(keymap, conn, device_id);

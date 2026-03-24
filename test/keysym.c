@@ -3,9 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 #include "config.h"
-#include "utils.h"
-#include "xkbcommon/xkbcommon-keysyms.h"
-#include "xkbcommon/xkbcommon.h"
+#include "test-config.h"
 
 #include <assert.h>
 #include <locale.h>
@@ -20,11 +18,14 @@
 #include "test/keysym-case-mapping.h"
 #endif
 
+#include "xkbcommon/xkbcommon-keysyms.h"
+#include "xkbcommon/xkbcommon.h"
 #include "test.h"
 #include "utils.h"
 #include "utils-numbers.h"
 #include "src/keysym.h" /* For unexported is_lower/upper/keypad() */
 #include "test/keysym.h"
+#include "utils.h"
 
 /* Explicit ordered list of modifier keysyms */
 static const xkb_keysym_t modifier_keysyms[] = {
@@ -115,8 +116,8 @@ test_string(const char *string, xkb_keysym_t expected)
 
     keysym = xkb_keysym_from_name(string, XKB_KEYSYM_NO_FLAGS);
 
-    fprintf(stderr, "Expected string %s -> %x\n", string, expected);
-    fprintf(stderr, "Received string %s -> %x\n\n", string, keysym);
+    fprintf(stderr, "Expected string %s -> 0x%"PRIx32"\n", string, expected);
+    fprintf(stderr, "Received string %s -> 0x%"PRIx32"\n\n", string, keysym);
 
     return keysym == expected;
 }
@@ -128,8 +129,8 @@ test_casestring(const char *string, xkb_keysym_t expected)
 
     keysym = xkb_keysym_from_name(string, XKB_KEYSYM_CASE_INSENSITIVE);
 
-    fprintf(stderr, "Expected casestring %s -> %x\n", string, expected);
-    fprintf(stderr, "Received casestring %s -> %x\n\n", string, keysym);
+    fprintf(stderr, "Expected casestring %s -> 0x%"PRIx32"\n", string, expected);
+    fprintf(stderr, "Received casestring %s -> 0x%"PRIx32"\n\n", string, keysym);
 
     return keysym == expected;
 }
@@ -185,13 +186,10 @@ static int
 test_utf8(xkb_keysym_t keysym, const char *expected)
 {
     char s[XKB_KEYSYM_UTF8_MAX_SIZE];
-    int ret;
 
-    ret = xkb_keysym_to_utf8(keysym, s, sizeof(s));
-    if (ret <= 0)
-        return ret;
-
-    assert(expected != NULL);
+    const int ret = xkb_keysym_to_utf8(keysym, s, sizeof(s));
+    if (ret <= 0 || !expected)
+        return (!ret && !expected);
 
     fprintf(stderr, "Expected keysym %#06"PRIx32" -> %s (%zu bytes)\n", keysym, expected,
             strlen(expected));
@@ -415,6 +413,7 @@ int
 main(void)
 {
     test_init();
+
 #if HAVE_ICU
     u_getUnicodeVersion(icu_unicode_version);
 #endif
@@ -456,6 +455,10 @@ main(void)
 
     test_modifiers_table();
 
+    /* Reject invalid flags */
+    assert(xkb_keysym_from_name("a", -1) == XKB_KEY_NoSymbol);
+    assert(xkb_keysym_from_name("a", 0xffff) == XKB_KEY_NoSymbol);
+
     /* Check xkb_keysym_get_explicit_names works */
     const char* aliases[XKB_KEYSYM_EXPLICIT_ALIASES_MAX] = {0};
     int aliases_count =
@@ -468,13 +471,13 @@ main(void)
         xkb_keysym_get_explicit_names(XKB_KEY_ISO_Group_Shift,
                                       aliases, ARRAY_SIZE(aliases));
     assert(aliases_count == XKB_KEYSYM_EXPLICIT_ALIASES_MAX);
-    assert_streq_not_null("", "Mode_switch", aliases[0]);
+    assert_streq_not_null("", "ISO_Group_Shift", aliases[0]);
     assert_streq_not_null("", "Arabic_switch", aliases[1]);
     assert_streq_not_null("", "Greek_switch", aliases[2]);
     assert_streq_not_null("", "Hangul_switch", aliases[3]);
     assert_streq_not_null("", "Hebrew_switch", aliases[4]);
-    assert_streq_not_null("", "ISO_Group_Shift", aliases[5]);
-    assert_streq_not_null("", "kana_switch", aliases[6]);
+    assert_streq_not_null("", "kana_switch", aliases[5]);
+    assert_streq_not_null("", "Mode_switch", aliases[6]);
     assert_streq_not_null("", "script_switch", aliases[7]);
     assert_streq_not_null("", "SunAltGraph", aliases[8]);
 
@@ -522,6 +525,18 @@ main(void)
         char utf8[7];
         int needed = xkb_keysym_to_utf8(ks, utf8, sizeof(utf8));
         assert(0 <= needed && needed <= XKB_KEYSYM_UTF8_MAX_SIZE);
+        if (needed) {
+            /* UTF-8 Roundtrip */
+            const xkb_keysym_t ks_from_utf8 =
+                xkb_utf8_to_keysym(utf8, (size_t)needed - 1);
+            if (ks_from_utf8 != ks) {
+                /* Non canonical mapping */
+                const uint32_t expected = xkb_keysym_to_utf32(ks);
+                const uint32_t got = xkb_keysym_to_utf32(ks_from_utf8);
+                assert_eq("UTF-8 roundtrip for 0x%04"PRIx32,
+                        expected, got, "0x%04"PRIx32, ks);
+            }
+        }
         /* Check maximum name length (`needed` does not include the ending NULL) */
         char name[XKB_KEYSYM_NAME_MAX_SIZE];
         needed = xkb_keysym_iterator_get_name(iter, name, sizeof(name));
@@ -707,7 +722,8 @@ main(void)
     assert(test_keysym(XKB_KEY_LONGEST_CANONICAL_NAME, LONGEST_CANONICAL_NAME));
     /* Canonical names */
     assert(test_keysym(XKB_KEY_Henkan, "Henkan_Mode"));
-    assert(test_keysym(XKB_KEY_ISO_Group_Shift, "Mode_switch"));
+    assert(test_keysym(XKB_KEY_Mode_switch, "ISO_Group_Shift"));
+    assert(test_keysym(XKB_KEY_ISO_Group_Shift, "ISO_Group_Shift"));
     assert(test_keysym(XKB_KEY_dead_perispomeni, "dead_tilde"));
     assert(test_keysym(XKB_KEY_guillemetleft, "guillemotleft"));
     assert(test_keysym(XKB_KEY_ordmasculine, "masculine"));
@@ -777,15 +793,15 @@ main(void)
     assert(test_deprecated(XKB_KEY_downcaret, NULL, true, NULL));
     assert(test_deprecated(XKB_KEY_downcaret, "downcaret", true, NULL));
     /* Mixed deprecated and not deprecated aliases */
-    assert(test_deprecated(XKB_KEY_Mode_switch, NULL, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_Mode_switch, "Mode_switch", false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_Mode_switch, garbage_name, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, NULL, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, "ISO_Group_Shift", false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, garbage_name, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_SunAltGraph, NULL, false, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_SunAltGraph, "SunAltGraph", true, "Mode_switch"));
-    assert(test_deprecated(XKB_KEY_SunAltGraph, garbage_name, false, "Mode_switch"));
+    assert(test_deprecated(XKB_KEY_Mode_switch, NULL, false, "ISO_Group_Shift"));
+    assert(test_deprecated(XKB_KEY_Mode_switch, "Mode_switch", false, "ISO_Group_Shift"));
+    assert(test_deprecated(XKB_KEY_Mode_switch, garbage_name, false, "ISO_Group_Shift"));
+    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, NULL, false, "ISO_Group_Shift"));
+    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, "ISO_Group_Shift", false, "ISO_Group_Shift"));
+    assert(test_deprecated(XKB_KEY_ISO_Group_Shift, garbage_name, false, "ISO_Group_Shift"));
+    assert(test_deprecated(XKB_KEY_SunAltGraph, NULL, false, "ISO_Group_Shift"));
+    assert(test_deprecated(XKB_KEY_SunAltGraph, "SunAltGraph", true, "ISO_Group_Shift"));
+    assert(test_deprecated(XKB_KEY_SunAltGraph, garbage_name, false, "ISO_Group_Shift"));
     assert(test_deprecated(XKB_KEY_notapproxeq, "notapproxeq", true, NULL));
     assert(test_deprecated(XKB_KEY_approxeq, "approxeq", true, NULL));
     /* Unicode is never deprecated */
@@ -825,6 +841,11 @@ main(void)
     assert(test_string("", XKB_KEY_NoSymbol));
     assert(test_casestring("", XKB_KEY_NoSymbol));
 
+    assert(xkb_utf8_to_keysym(NULL, 0) == XKB_KEY_NoSymbol);
+    assert(xkb_utf8_to_keysym("", 1) == XKB_KEY_NoSymbol);
+    assert(xkb_utf8_to_keysym("1", 2) == XKB_KEY_1);
+    assert(xkb_utf8_to_keysym("12", 2) == XKB_KEY_1); /* Only first codepoint */
+
     /* Latin-1 keysyms (1:1 mapping in UTF-32) */
     assert(test_utf8(0x0020, "\x20"));
     assert(test_utf8(0x007e, "\x7e"));
@@ -855,13 +876,47 @@ main(void)
     assert(test_utf8(XKB_KEY_Return, "\r"));
     assert(test_utf8(XKB_KEY_KP_Enter, "\r"));
     assert(test_utf8(XKB_KEY_KP_Equal, "="));
-    assert(test_utf8(XKB_KEY_9, "9"));
-    assert(test_utf8(XKB_KEY_KP_9, "9"));
+    assert(test_utf8(XKB_KEY_asterisk, "*"));
     assert(test_utf8(XKB_KEY_KP_Multiply, "*"));
+    assert(test_utf8(XKB_KEY_XF86NumericStar, "*"));
+    assert(test_utf8(XKB_KEY_plus, "+"));
+    assert(test_utf8(XKB_KEY_KP_Add, "+"));
+    assert(test_utf8(XKB_KEY_minus, "-"));
     assert(test_utf8(XKB_KEY_KP_Subtract, "-"));
+    assert(test_utf8(XKB_KEY_slash, "/"));
+    assert(test_utf8(XKB_KEY_KP_Divide, "/"));
+    assert(test_utf8(XKB_KEY_numbersign, "#"));
+    assert(test_utf8(XKB_KEY_XF86NumericPound, "#"));
+    assert(test_utf8(XKB_KEY_9, "9"));
+    assert(test_utf8(XKB_KEY_KP_0, "0"));
+    assert(test_utf8(XKB_KEY_KP_1, "1"));
+    assert(test_utf8(XKB_KEY_KP_2, "2"));
+    assert(test_utf8(XKB_KEY_KP_3, "3"));
+    assert(test_utf8(XKB_KEY_KP_4, "4"));
+    assert(test_utf8(XKB_KEY_KP_5, "5"));
+    assert(test_utf8(XKB_KEY_KP_6, "6"));
+    assert(test_utf8(XKB_KEY_KP_7, "7"));
+    assert(test_utf8(XKB_KEY_KP_8, "8"));
+    assert(test_utf8(XKB_KEY_KP_9, "9"));
+    assert(test_utf8(XKB_KEY_XF86Numeric0, "0"));
+    assert(test_utf8(XKB_KEY_XF86Numeric1, "1"));
+    assert(test_utf8(XKB_KEY_XF86Numeric2, "2"));
+    assert(test_utf8(XKB_KEY_XF86Numeric3, "3"));
+    assert(test_utf8(XKB_KEY_XF86Numeric4, "4"));
+    assert(test_utf8(XKB_KEY_XF86Numeric5, "5"));
+    assert(test_utf8(XKB_KEY_XF86Numeric6, "6"));
+    assert(test_utf8(XKB_KEY_XF86Numeric7, "7"));
+    assert(test_utf8(XKB_KEY_XF86Numeric8, "8"));
+    assert(test_utf8(XKB_KEY_XF86Numeric9, "9"));
+
+    /* These are function keys, not letters */
+    assert(test_utf8(XKB_KEY_XF86NumericA, NULL));
+    assert(test_utf8(XKB_KEY_XF86NumericB, NULL));
+    assert(test_utf8(XKB_KEY_XF86NumericC, NULL));
+    assert(test_utf8(XKB_KEY_XF86NumericD, NULL));
 
     /* Unicode keysyms */
-    assert(test_utf8(XKB_KEYSYM_UNICODE_OFFSET, NULL) == 0); /* Min Unicode codepoint */
+    assert(test_utf8(XKB_KEYSYM_UNICODE_OFFSET, NULL)); /* Min Unicode codepoint */
     assert(test_utf8(0x1000001, "\x01"));     /* Currently accepted, but not intended (< 0x100100) */
     assert(test_utf8(0x1000020, " "));        /* Currently accepted, but not intended (< 0x100100) */
     assert(test_utf8(0x100007f, "\x7f"));     /* Currently accepted, but not intended (< 0x100100) */
@@ -869,9 +924,9 @@ main(void)
     assert(test_utf8(XKB_KEYSYM_UNICODE_MIN, "Ā")); /* Min Unicode keysym */
     assert(test_utf8(0x10005d0, "א"));
     assert(test_utf8(XKB_KEYSYM_UNICODE_MAX, "\xf4\x8f\xbf\xbf")); /* Max Unicode */
-    assert(test_utf8(XKB_KEYSYM_UNICODE_SURROGATE_MIN, NULL) == 0);
-    assert(test_utf8(XKB_KEYSYM_UNICODE_SURROGATE_MAX, NULL) == 0);
-    assert(test_utf8(XKB_KEYSYM_UNICODE_MAX + 1, NULL) == 0);
+    assert(test_utf8(XKB_KEYSYM_UNICODE_SURROGATE_MIN, NULL));
+    assert(test_utf8(XKB_KEYSYM_UNICODE_SURROGATE_MAX, NULL));
+    assert(test_utf8(XKB_KEYSYM_UNICODE_MAX + 1, NULL));
 
     assert(test_utf32_to_keysym('y', XKB_KEY_y));
     assert(test_utf32_to_keysym('u', XKB_KEY_u));
@@ -892,14 +947,36 @@ main(void)
     assert(test_utf32_to_keysym(0x1b, XKB_KEY_Escape));
     assert(test_utf32_to_keysym(0x7f, XKB_KEY_Delete));
 
+    /* Not keypad nor phone keys */
     assert(test_utf32_to_keysym(' ', XKB_KEY_space));
+    assert(test_utf32_to_keysym('\t', XKB_KEY_Tab));
+    assert(test_utf32_to_keysym('\r', XKB_KEY_Return));
     assert(test_utf32_to_keysym(',', XKB_KEY_comma));
     assert(test_utf32_to_keysym('.', XKB_KEY_period));
     assert(test_utf32_to_keysym('=', XKB_KEY_equal));
+    assert(test_utf32_to_keysym('0', XKB_KEY_0));
+    assert(test_utf32_to_keysym('1', XKB_KEY_1));
+    assert(test_utf32_to_keysym('2', XKB_KEY_2));
+    assert(test_utf32_to_keysym('3', XKB_KEY_3));
+    assert(test_utf32_to_keysym('4', XKB_KEY_4));
+    assert(test_utf32_to_keysym('5', XKB_KEY_5));
+    assert(test_utf32_to_keysym('6', XKB_KEY_6));
+    assert(test_utf32_to_keysym('7', XKB_KEY_7));
+    assert(test_utf32_to_keysym('8', XKB_KEY_8));
     assert(test_utf32_to_keysym('9', XKB_KEY_9));
+    assert(test_utf32_to_keysym('A', XKB_KEY_A));
+    assert(test_utf32_to_keysym('B', XKB_KEY_B));
+    assert(test_utf32_to_keysym('C', XKB_KEY_C));
+    assert(test_utf32_to_keysym('D', XKB_KEY_D));
+    assert(test_utf32_to_keysym('E', XKB_KEY_E));
+    assert(test_utf32_to_keysym('F', XKB_KEY_F));
+    assert(test_utf32_to_keysym('#', XKB_KEY_numbersign));
+    assert(test_utf32_to_keysym('+', XKB_KEY_plus));
+    assert(test_utf32_to_keysym('-', XKB_KEY_minus));
     assert(test_utf32_to_keysym('*', XKB_KEY_asterisk));
     assert(test_utf32_to_keysym(0xd7, XKB_KEY_multiply));
-    assert(test_utf32_to_keysym('-', XKB_KEY_minus));
+    assert(test_utf32_to_keysym('/', XKB_KEY_slash));
+
     assert(test_utf32_to_keysym(0x10fffd, 0x110fffd));
     assert(test_utf32_to_keysym(0x20ac, XKB_KEY_EuroSign));
 
@@ -965,17 +1042,14 @@ main(void)
      * •       SS: upper case (special mapping, not handled by us)
      * • U+1E9E ẞ: upper case, only for capitals
      */
-#ifndef XKB_KEY_Ssharp
-#define XKB_KEY_Ssharp (XKB_KEYSYM_UNICODE_OFFSET + 0x1E9E)
-#endif
     assert(!xkb_keysym_is_upper_or_title(XKB_KEY_ssharp));
-    assert(xkb_keysym_is_upper_or_title(XKB_KEY_Ssharp));
+    assert(xkb_keysym_is_upper_or_title(XKB_KEY_SSHARP));
     assert(xkb_keysym_is_lower(XKB_KEY_ssharp));
-    assert(!xkb_keysym_is_lower(XKB_KEY_Ssharp));
-    assert(xkb_keysym_to_upper(XKB_KEY_ssharp) == XKB_KEY_Ssharp);
+    assert(!xkb_keysym_is_lower(XKB_KEY_SSHARP));
+    assert(xkb_keysym_to_upper(XKB_KEY_ssharp) == XKB_KEY_SSHARP);
     assert(xkb_keysym_to_lower(XKB_KEY_ssharp) == XKB_KEY_ssharp);
-    assert(xkb_keysym_to_upper(XKB_KEY_Ssharp) == XKB_KEY_Ssharp);
-    assert(xkb_keysym_to_lower(XKB_KEY_Ssharp) == XKB_KEY_ssharp);
+    assert(xkb_keysym_to_upper(XKB_KEY_SSHARP) == XKB_KEY_SSHARP);
+    assert(xkb_keysym_to_lower(XKB_KEY_SSHARP) == XKB_KEY_ssharp);
 
     /* Title case: simple mappings
      * • U+01F1 Ǳ: upper case

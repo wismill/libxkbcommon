@@ -187,11 +187,12 @@ Some additional resources are:
 
   <dl>
     <dt><a name="depressed-mod-def">Depressed</a></dt>
-    <dd>Active while depressed; e.g. the usual Shift.</dd>
+    <dd>Active while logically depressed; e.g. the usual Shift.</dd>
     <dt><a name="latched-mod-def">Latched</a></dt>
     <dd>
-      Activated when pressed and deactivated after the next
-      non-modifier key press.
+      Activated when pressed and released, then automatically deactivated
+      after the next key event that produces a symbol (i.e. a non-modifier
+      key press). Useful for one-shot modifier keys (e.g. a sticky Shift).
     </dd>
     <dt><a name="locked-mod-def">Locked</a></dt>
     <dd>
@@ -267,6 +268,37 @@ Some additional resources are:
   - Layout 1: Arabic
   - Layout 2: English
 
+  Similarly to modifiers, layouts have *depressed*, *latched* and *locked*
+  components, which are summed to give the *effective* layout. Unlike
+  modifiers — which are *masks*, so multiple can be active simultaneously —
+  only a *single* layout is active at any time, the components being
+  numeric *offsets* or *indices* rather than bits.
+
+  @todo out-of-range layout policy `xkb_layout_out_of_range_policy`
+  @todo effective layout
+
+  <dl>
+  <dt><a name="depressed-group-def">Depressed layout</a></dt>
+  <dd>
+    Offsets the active layout by the given amount for as long as the
+    triggering key is physically held down, then the offset is removed.
+    Corresponds to a [`SetGroup`][SetGroup] action.
+  </dd>
+  <dt><a name="latched-group-def">Latched layout</a></dt>
+  <dd>
+    Offsets the active layout by the given amount when the triggering key
+    is pressed and released, then the offset is removed after the next
+    symbol-producing key press. Corresponds to a
+    [`LatchGroup`][LatchGroup] action.
+  </dd>
+  <dt><a name="locked-group-def">Locked layout</a></dt>
+  <dd>
+    Sets the active layout to the given index until explicitly changed
+    again. Corresponds to a [`LockGroup`][LockGroup] action. This is the
+    usual behaviour of a layout-switch key (e.g. toggling between a
+    Latin and a Greek layout).
+  </dd>
+  </dl>
   </dd>
   <dt><a name="key-action-def">Key Action</a></dt>
   <dd>
@@ -671,11 +703,22 @@ Examples:
 
 A keysym can be written directly with its *numeric* value: e.g. `0x61` is `a`.
 
+This syntax is mostly useful in the following use cases:
+- the corresponding keysym has no associated name nor is in the Unicode range;
+- the corresponding keysym has/had a name but it is not supported in all the
+  ecosystem;
+- keymap serialization by tools.
+
 @note Digits `0 .. 9` have a special treatment because they are interpreted as
 names, not values. E.g. `1` is the keysym with name `1` and value `0x31`.
 
-@warning This syntax should be avoided for its poor readability, except if it
-is not possible to write the keysym with the previous syntaxes.
+@note The previous special case does not apply to integers values in range
+`0 .. 9` that are written with *2+* characters: e.g. `01` and `0x1` are both
+interpreted as the *unnamed* keysym with value `0x01`, not the keysym named `1`
+and with value `0x31`.
+
+@warning Do not use this syntax to *manually* write keymap files unless there is
+no other option: it is the least human-friendly syntax.
 </dd>
 </dl>
 
@@ -1463,7 +1506,7 @@ can be consumed again in further keysym translations.
 @note Remember that @ref keysym-transformations may affect the resulting
 keysym when some modifiers are not [consumed](@ref consumed-modifiers).
 
-@remark `preserve` statements may be used to tweak keyboard shorcuts.
+@remark `preserve` statements may be used to tweak keyboard shortcuts.
 @remark@figure
 @figcaption
 Example of use of `preserve` to tweak `Control` shortcuts. Note it would
@@ -1566,7 +1609,7 @@ type "TWO_LEVEL" {
     level_name[Level2] = "Shift";
 };
 ```
-            @endfigcaption
+            @endfigure
             @figure@figcaption
             Mapping test
             @endfigcaption
@@ -1576,7 +1619,7 @@ type "TWO_LEVEL" {
 | `Shift`            | `Shift`              | Yes    | 2           |
 | `Lock`             | (none)               | Yes    | 1           |
 | `Shift + Lock`     | `Shift`              | Yes    | 2           |
-            @endfigcaption
+            @endfigure
         </div>
     </div>
     <div class="example">
@@ -1598,7 +1641,7 @@ type "ALPHABETIC" {
     level_name[Level2] = "Caps";
 };
 ```
-            @endfigcaption
+            @endfigure
             @figure@figcaption
             Mapping test
             @endfigcaption
@@ -1608,7 +1651,7 @@ type "ALPHABETIC" {
 | `Shift`            | `Shift`              | Yes    | 2           |
 | `Lock`             | `Lock`               | Yes    | 2           |
 | `Shift + Lock`     | `Shift + Lock`       | No     | 1           |
-            @endfigcaption
+            @endfigure
         </div>
     </div>
 </div>
@@ -1653,7 +1696,7 @@ type "FOUR_LEVEL" {
 	level_name[Level4] = "Shift AltGr";
 };
 ```
-            @endfigcaption
+            @endfigure
             @figure@figcaption
             Mapping test
             @endfigcaption
@@ -1667,7 +1710,7 @@ type "FOUR_LEVEL" {
 | `LevelThree+Shift`      | `LevelThree+Shift`   | Yes    | 4           |
 | `LevelThree+Lock`       | `LevelThree`         | Yes    | 3           |
 | `LevelThree+Shift+Lock` | `LevelThree+Shift`   | Yes    | 4           |
-            @endfigcaption
+            @endfigure
         </div>
     </div>
     <div class="example">
@@ -1695,7 +1738,7 @@ type "FOUR_LEVEL_SEMIALPHABETIC" {
 	level_name[Level4] = "Shift AltGr";
 };
 ```
-            @endfigcaption
+            @endfigure
             @figure@figcaption
             Mapping test
             @endfigcaption
@@ -1709,7 +1752,7 @@ type "FOUR_LEVEL_SEMIALPHABETIC" {
 | `LevelThree+Shift`      | `LevelThree+Shift`      | Yes    | 4           |
 | `LevelThree+Lock`       | `LevelThree+Lock`       | Yes    | 3           |
 | `LevelThree+Shift+Lock` | `LevelThree+Shift+Lock` | Yes    | 4           |
-            @endfigcaption
+            @endfigure
         </div>
     </div>
     <div class="example">
@@ -1737,7 +1780,7 @@ type "FOUR_LEVEL_ALPHABETIC" {
 	level_name[Level4] = "Shift AltGr";
 };
 ```
-            @endfigcaption
+            @endfigure
             @figure@figcaption
             Mapping test
             @endfigcaption
@@ -1751,7 +1794,7 @@ type "FOUR_LEVEL_ALPHABETIC" {
 | `LevelThree+Shift`      | `LevelThree+Shift`      | Yes    | 4           |
 | `LevelThree+Lock`       | `LevelThree+Lock`       | Yes    | 4           |
 | `LevelThree+Shift+Lock` | `LevelThree+Shift+Lock` | Yes    | 3           |
-            @endfigcaption
+            @endfigure
         </div>
     </div>
 </div>
@@ -2016,6 +2059,29 @@ up.
 
     groups = All - group1;
 
+This is a *mask* of group indices.
+
+The following special values can be used in the expression:
+
+<dl>
+<dt>`GroupN`</dt>
+<dd>
+Denotes the N-th group, e.g. `Group3` is `0x4` = `1 << (3 - 1)`.
+<dt>`First`</dt>
+<dd>
+Denotes the *first* group and always equals to `0x1`.
+
+@since 1.14
+</dd>
+<dt>`Last`</dt>
+<dd>
+Denotes the *last* group and depends on the keymap setup: e.g. with 3 layouts
+it is to `0x4 = 1 << (3 - 1)`.
+
+@since 1.14
+</dd>
+</dl>
+
 If the given groups are in the required state (see below), the LED is
 lit.
 
@@ -2094,23 +2160,203 @@ of record of the `xkb_symbols` section. The possible keycodes are defined in the
 A key description consists of:
 
 <dl>
-    <dt>Groups</dt>
-    <dd>
-        Each key may have one or more associated [groups]. Each group can be
-        configured with the following parameters:
+<dt>Groups</dt>
+<dd>
+Each key may have one or more associated [groups]. Each group can be
+configured with the following parameters:
 
-        - @ref key-type-setting "Type"</dt>
-        - @ref key-symbols-table "Symbols"</dt>
-        - @ref key-actions-table "Actions"</dt>
-    </dd>
-    <dt>Additional attributes</dt>
-    <dd>
-        These attributes are usually set via the <code>[xkb_compat]</code>
-        section, but may be also set directly:
+- @ref key-type-setting "Type"</dt>
+- @ref key-symbols-table "Symbols"</dt>
+- @ref key-actions-table "Actions"</dt>
+</dd>
 
-        - @ref key-virtual-modifiers "Virtual modifiers"
-        - @ref key-repeat "Repeat"
-    </dd>
+<dt>Key behavior @anchor key-behaviors</dt>
+<dd>
+[*Key behavior*][Key behaviors] enables to *alter the key events processing*
+before running the actions filters. Key behavior is independent of keyboard
+modifier or group state.
+
+Each key has exactly *one* behavior, described hereinafter.
+
+Key behaviors are used to *simulate* any of these types of keys.
+
+@note @anchor key-behavior-permanent All the parameters presented hereinafter
+can be optionally *prefixed* by `permanent` to indicate an *unmodifiable*
+physical, electrical or software driver characteristic of a key.
+@note The `permanent` flag indicates a characteristic of the underlying system
+that libxkbcommon cannot affect, so libxkbcommon treats all permanent behaviors
+as if they were [*default*](@ref key-behavior-default) and *ignore* the
+corresponding parameters.
+<!-- blank required by Doxygen -->
+
+<dl>
+<dt>Default @anchor key-behavior-default</dt>
+<dd>
+Press and release events are processed normally.
+</dd>
+<dt>Overlays @anchor key-behavior-overlay</dt>
+<dd>
+A *keyboard overlay* allows some subset of the keyboard to report *alternate keycodes*
+when the corresponding [overlay control](@ref XKB_KEYBOARD_CONTROL_OVERLAY1) is
+enabled.
+
+For example a keyboard overlay can be used to *simulate* a numeric or editing
+keypad on keyboard that does not actually have one. This technique is very
+common on laptop computers and embedded systems with small keyboards, see
+an example hereinafter.
+
+@figure
+@figcaption
+Numeric keypad hardware overlay example.<br/>
+The keys with a thick border and a blue background can be overlaid by using the
+`Fn` key. When the overlay is enabled, they produce alternative *numeric keypad*
+keycodes corresponding to their bottom-right label. E.g.:
+- the key `<AD07>` and labelled `U` produces the keycode `<KP4>` (numpad `4`),
+- the key `<AD10>` and labelled `P` produces the keycode `<KPMU>` (numpad multiplication).
+@endfigcaption
+@image html numeric-keypad-overlay.svg width=100%
+@endfigure
+
+libxkbcommon supports *effectful* keyboard overlays since version 1.14.0. The
+differences between [keymap formats] is presented in the
+table hereinafter:
+
+<table>
+<caption>
+Overlay support by [keymap formats]
+</caption>
+<thead>
+<tr>
+<th>Feature</th>
+<th>`::XKB_KEYMAP_FORMAT_TEXT_V1`</th>
+<th>`::XKB_KEYMAP_FORMAT_TEXT_V2`</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>Number of overlays</th>
+<td>
+**2**
+</td>
+<td>
+**8**
+</td>
+</tr>
+<tr>
+<th>Corresponding [keyboard controls]</th>
+<td>
+[`Overlay1`][Overlay1] and [`Overlay2`][Overlay2]
+</td>
+<td>
+[`Overlay1`][Overlay1] to [`Overlay8`][Overlay8]
+</td>
+</tr>
+<tr>
+<th>Overlapping @anchor overlapping-overlays</th>
+<td>
+**Disjoint overlays:** *no* overlap is allowed, i.e. each key can be part of
+*at most* one overlay.
+</td>
+<td>
+A key may be assigned to **any overlay without restriction**, enabling
+**overlapping** overlays. There is no limitation on which overlay a given key
+may belong to, and a key may be assigned to *more than one overlay*.
+
+When *multiple* overlays are active at the same time and a key belongs to more
+than one of them, the effective mapping for that key is determined by
+**activation order**: the mapping defined by the **most recently activated**
+overlay takes precedence over all previously activated ones, regardless of
+the indices of the overlays involved.
+
+@important This behavior differs from classic X11 overlay semantics, where
+activation order carries no significance.
+
+<details>
+<summary>Example of 2 overlapping overlays</summary>
+@figure
+@figcaption
+Example of overlay overlap
+@endfigcaption
+
+Assume `<AD07>` is assigned to two overlays:
+
+```c
+xkb_symbols {
+    key <AD07> {
+        [u, U],
+        overlay1=<KP6>, // numpad overlay
+        overlay2=<INS>  // edit overlay
+    };
+};
+```
+
+Given the following activation sequence:
+
+1. [`Overlay1`][Overlay1] is activated. `<AD07>` resolves to `<KP6>`.
+2. [`Overlay2`][Overlay2] is subsequently activated, while [`Overlay1`][Overlay1]
+   remains active. As [`Overlay2`][Overlay2] is now the most recently activated
+   overlay to which `<AD07>` belongs, it takes precedence: `<AD07>` resolves to
+   `<INS>`.
+3. [`Overlay2`][Overlay2] is deactivated. [`Overlay1`][Overlay1] remains active
+   and, being the most recently activated applicable overlay, resumes precedence.
+   `<AD07>` resolves once again to `<KP6>`.
+
+@endfigure
+</details>
+
+</td>
+</tbody>
+</table>
+
+[Key behaviors]: https://www.x.org/releases/current/doc/kbproto/xkbproto.html#Key_Behavior
+[Overlay1]: @ref XKB_KEYBOARD_CONTROL_OVERLAY1
+[Overlay2]: @ref XKB_KEYBOARD_CONTROL_OVERLAY2
+[Overlay8]: @ref XKB_KEYBOARD_CONTROL_OVERLAY8
+[keyboard controls]: @ref xkb_keyboard_control_flags
+[keymap formats]: @ref xkb_keymap_format
+<!-- blank required by Doxygen -->
+
+</dd>
+<dt>Lock @anchor key-behavior-lock</dt>
+<dd>
+@warning Only parsing is supported
+
+- `locks` / `locking`: boolean
+
+<!-- TODO: lock (for posterity) -->
+@todo See [Key behaviors] for a complete description
+<!-- blank required by Doxygen -->
+
+</dd>
+<dt>Radio groups @anchor key-behavior-radio-groups</dt>
+<dd>
+@warning Only parsing is supported
+
+- `radiogroup`: positive integer
+- `allownone`: boolean
+
+<!-- TODO: radio groups (for posterity) -->
+@todo See [Key behaviors] for a complete description
+<!-- blank required by Doxygen -->
+
+</dd>
+</dl>
+</dd>
+
+<dt>Additional attributes</dt>
+<dd>
+These attributes are usually set via the <code>[xkb_compat]</code>
+section, but may be also set directly:
+
+- @ref key-virtual-modifiers "Virtual modifiers"
+- @ref key-repeat "Repeat"
+- group wrap control (see: `xkb_layout_out_of_range_policy`)
+
+@todo `groupsWrap`, `groupsClamp`, `groupsRedirect`
+<!-- TODO: doc about special values First/Last -->
+<!-- blank required by Doxygen -->
+
+</dd>
 </dl>
 
 @warning Using multiple groups in *symbols* files is not recommended, because
@@ -2798,6 +3044,8 @@ xkb_symbols {
 <th>`::XKB_KEYMAP_FORMAT_TEXT_V1`</th>
 <th>`::XKB_KEYMAP_FORMAT_TEXT_V2`</th>
 </tr>
+</thead>
+<tbody>
 <tr>
 <th>Alt</th>
 <td>8</td>
@@ -3112,17 +3360,17 @@ The following table provide an overview of the available actions:
 | [Group action] | [`SetGroup`][SetGroup] |         | Modifies the _base_ group          |
 | ^        | [`LatchGroup`][LatchGroup] |           | Modifies the _latched_ group       |
 | ^        | [`LockGroup`][LockGroup] |             | Modifies the _locked_ group        |
+| [Keyboard controls action] | [`SetControls`][SetControls] |         | Set the standard XKB controls      |
+| ^        | [`LockControls`][LockControls] |       | Lock the standard XKB controls     |
+| [Keyboard emulation action] | [`RedirectKey`][redirectkey] | `Redirect` | Emulate pressing a key with a different key code |
 | [Legacy action] | `MovePointer`| `MovePtr`        | Move the mouse pointer             |
 | ^        | `PointerButton`     | `PtrBtn`         | Simulate a mouse button press      |
 | ^        | `LockPointerButton` | `LockPtrBtn`     | Simulate a mouse button press, locked until the action’s key is pressed again. |
 | ^        | `SetPointerDefault` | `SetPtrDflt`     | Set the default select button (???)|
-| ^        | [`SetControls`][SetControls] |         | Set the standard XKB controls      |
-| ^        | [`LockControls`][LockControls] |       | Lock the standard XKB controls     |
 | ^        | [`TerminateServer`][TerminateServer] | `Terminate` | Shut down the X server |
 | ^        | `SwitchScreen`      |                  | Switch virtual X screen            |
 | ^        | [`Private`][Private]|                  | Raw encoding of an action          |
-| [Unsupported legacy action]| [`RedirectKey`][redirectkey] | `Redirect` | Emulate pressing a key with a different key code |
-| ^        | `ISOLock`           |                  | Convert ordinary modifier key actions into lock actions while this action is active |
+| [Unsupported legacy action] | `ISOLock`           |                  | Convert ordinary modifier key actions into lock actions while this action is active |
 | ^        | `DeviceButton`      | `DevBtn`         | Emulate an event from an arbitrary input device such as a joystick |
 | ^        | `LockDeviceButton`  | `LockDevBtn`     | Emulate an event from an arbitrary input device such as a joystick |
 | ^        | `DeviceValuator`    | `DevVal`         | <span class="todo">TODO</span> |
@@ -3324,7 +3572,7 @@ enumeration:
 - `lock`: the action only locks the modifier, but cannot unlock it.
 - `unlock`: the action only unlocks modifier, but cannot lock it.
 - `both`: the first key press locks the modifier and the second key
-  press releases the modifier..
+  press releases the modifier.
 - `neither`: do not lock nor unlock, i.e. do nothing.
 </td>
 </tr>
@@ -3460,6 +3708,26 @@ Modifies the *base* group.
 <td>
 Group index:
 - 1-based numbering
+- Named constants:
+
+  <dl>
+  <dt>`GroupN`</dt>
+  <dd>
+  Denotes the N-th group, e.g. `Group2` is the second group.
+  <dt>`First`</dt>
+  <dd>
+  Denotes the *first* group and always equals to `1`.
+
+  @since 1.14
+  </dd>
+  <dt>`Last`</dt>
+  <dd>
+  Denotes the *last* group and depends on the keymap setup: e.g. with 3 layouts
+  it equals to 3.
+
+  @since 1.14
+  </dd>
+  </dl>
 - either absolute (no sign) or relative (`+`/`-` sign)
 </td>
 <td>0</td>
@@ -3534,7 +3802,7 @@ Modifies the *locked* group.
 <td>Target group or group delta</td>
 </tr>
 <tr>
-<th>`lockOnRelease`</th>
+<th>`lockOnRelease` @anchor lockOnRelease</th>
 <td>boolean</td>
 <td>false</td>
 <td>
@@ -3560,7 +3828,6 @@ See further details [hereinafter](@ref lock-group-action-effects)
 <th>On key release</th>
 </tr>
 </thead>
-
 <tbody>
 
 <tr>
@@ -3573,6 +3840,7 @@ See further details [hereinafter](@ref lock-group-action-effects)
 
 In either case, the resulting *effective* keyboard group is brought back into
 range depending on the value of the `GroupsWrap` control for the keyboard.
+See `xkb_layout_out_of_range_policy` for further details.
 </td>
 <td>
 If *no* keys were operated simultaneously with this key and the `clearLocks`
@@ -3597,6 +3865,7 @@ additional effects:
   press to the locked keyboard group and subtracts it from the latched keyboard
   group. The *locked* and *effective* keyboard group are brought back into range
   according to the value of the global `GroupsWrap` control for the keyboard.
+  See `xkb_layout_out_of_range_policy` for further details.
 - Otherwise, key release adds the key press *delta* to the latched keyboard
   group.
 </td>
@@ -3614,6 +3883,7 @@ additional effects:
 
   In either case, the resulting *locked* and *effective* group is brought back
   into range depending on the value of the `GroupsWrap` control for the keyboard.
+  See `xkb_layout_out_of_range_policy` for further details.
 </td>
 <td>
 
@@ -3640,64 +3910,9 @@ additional effects:
 </tbody>
 </table>
 
+### Keyboard controls actions {#kbd-control-actions}
 
-### Legacy X11 actions {#legacy-x11-actions}
-
-[legacy action]: @ref legacy-x11-actions
-
-@attention The following legacy actions are kept for compatibility only: they are parsed
-and validated but have no effect. This allows to use keymaps defined in
-<code>[xkeyboard-config]</code> for both X11 and Wayland.
-
-#### Pointer actions
-
-<dl>
-<dt>`MovePointer`<dt>
-<dt>`MovePtr`</dt>
-<dd>
-Move the mouse pointer
-
-@todo MovePointer parameters
-<!-- blank required by Doxgen -->
-
-</dd>
-
-<dt>`PointerButton`</dt>
-<dt>`PtrBtn`</dt>
-<dd>
-Simulate a mouse button press
-
-@todo PointerButton parameters
-<!-- blank required by Doxgen -->
-
-</dd>
-
-<dt>`LockPointerButton`</dt>
-<dt>`LockPointerBtn`</dt>
-<dt>`LockPtrButton`</dt>
-<dt>`LockPtrBtn`</dt>
-<dd>
-Simulate a mouse button press, locked until this actiion’s key is pressed again
-
-@todo LockPointerButton parameters
-<!-- blank required by Doxgen -->
-
-</dd>
-
-<dt>`SetPointerDefault`</dt>
-<dt>`SetPtrDflt`</dt>
-<dd>
-Set the default select button (???)
-
-@todo SetPointerDefault parameters
-<!-- blank required by Doxgen -->
-
-<dd>
-</dl>
-
-
-#### Control flags actions
-
+[Keyboard controls action]: @ref kbd-control-actions
 [SetControls]:  @ref set-controls-action
 [LockControls]: @ref lock-controls-action
 
@@ -3738,15 +3953,22 @@ Mask of the following enumeration:
 - `AccessXFeedback`
 - `AudibleBell`
 - `IgnoreGroupLock`
-- `Overlay1`
-- `Overlay2`
+- [`Overlay1`](@ref XKB_KEYBOARD_CONTROL_OVERLAY1)
+- [`Overlay2`](@ref XKB_KEYBOARD_CONTROL_OVERLAY2)
+- Requires `::XKB_KEYMAP_FORMAT_TEXT_V2` and version 1.14+
+  - [`Overlay3`](@ref XKB_KEYBOARD_CONTROL_OVERLAY3)
+  - [`Overlay4`](@ref XKB_KEYBOARD_CONTROL_OVERLAY4)
+  - [`Overlay5`](@ref XKB_KEYBOARD_CONTROL_OVERLAY5)
+  - [`Overlay6`](@ref XKB_KEYBOARD_CONTROL_OVERLAY6)
+  - [`Overlay7`](@ref XKB_KEYBOARD_CONTROL_OVERLAY7)
+  - [`Overlay8`](@ref XKB_KEYBOARD_CONTROL_OVERLAY8)
 
 Plus 2 special values:
 - `all`
 - `none`
 </td>
 <td>0</td>
-<td>Standard XKB controls</td>
+<td>Standard XKB *boolean* controls</td>
 </tbody>
 </table>
 
@@ -3772,7 +3994,7 @@ Lock the standard XKB controls
 <td>`ctrls`</td>
 <td>Mask (see [`SetControls`][SetControls])</td>
 <td>0</td>
-<td>Standard XKB controls</td>
+<td>Standard XKB *boolean* controls</td>
 <tr>
 <th>`affect`</th>
 <td></td>
@@ -3784,13 +4006,209 @@ enumeration:
 - `neither`
 </td>
 <td>`both`</td>
-<td><span class="todo">TODO</span></td>
+<td>
+- `lock`: the action only locks the controls, but cannot unlock them.
+- `unlock`: the action only unlocks controls, but cannot lock them.
+- `both`: the first key press locks the controls and the second key
+  press releases the controls.
+- `neither`: do not lock nor unlock, i.e. do nothing.
+</td>
 </tr>
 </tbody>
 </table>
 
 </dd>
 </dl>
+
+@warning Only a subset of the original XKB controls are *effectual*.
+See `xkb_keyboard_control_flags` for further details.
+
+<table>
+<caption>
+Effects of controls actions @anchor controls-actions-effects
+</caption>
+<thead>
+<tr>
+<th>Action</th>
+<th>On key press</th>
+<th>On key release</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>`SetControls` @anchor set-controls-action-effects</th>
+<td>
+Enable any boolean controls that are specified in `controls` and not already
+enabled at the time of the key press.
+</td>
+<td>
+Disable any controls that were enabled by the corresponding key press.
+</td>
+</tr>
+<tr>
+<th>`LockControls` @anchor lock-controls-action-effects</th>
+<td>
+If `noLock` is false, locks and enables any boolean controls that are specified
+in `controls` and not already locked at the time of the key press.
+</td>
+<td>
+If `noUnlock` is False, key release unlocks and disables any controls that are
+specified in `controls` and *were* enabled at the time of the corresponding key
+press.
+</td>
+</tr>
+</tbody>
+</table>
+
+### Keyboard emulation actions {#kbd-emulation-actions}
+
+#### RedirectKey {#redirect-key-action}
+
+[Keyboard emulation action]: @ref kbd-emulation-actions
+[redirectkey]: @ref redirect-key-action
+
+`RedirectKey` emulates pressing a key with a different key code.
+
+`RedirectKey` normally redirects to another key on the *same device* as the key
+or button which caused the event, else on the *core* keyboard device.
+
+<table>
+<caption>Parameters</caption>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>Data type</th>
+<th>Default value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>`key`</th>
+<td>`keycode`, `kc`</td>
+<td>
+keycode or `auto`.
+
+@anchor redirect-key-auto
+`auto` is a special value that resolves to the keycode where the action is
+located, e.g.:
+
+```c
+// Original: implict parameter
+key <AB01> { [RedirectKey(…) ] };
+// Original: explicit parameter
+key <AB01> { [RedirectKey(keycode=auto, …) ] };
+// Resolved
+key <AB01> { [RedirectKey(keycode=<AB01>, …) ] };
+```
+</td>
+<td>
+`auto`
+
+@since 1.0.0: invalid keycode
+@since 1.14.0: `auto`
+</td>
+<td>Target keycode to emulate</td>
+<tr>
+<th>`clearmodifiers`</th>
+<td>`clearmods`</td>
+<td>modifier mask</td>
+<td>`none` (0)</td>
+<td>Modifiers to clear</td>
+</tr>
+<tr>
+<th>`modifiers`</th>
+<td>`mods`</td>
+<td>modifier mask</td>
+<td>`none` (0)</td>
+<td>Modifiers to add</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<caption>Effects</caption>
+<thead>
+<tr>
+<th>On key *press*</th>
+<th>On key *release*</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+Key press causes a key press event for the key specified by the `key` parameter
+instead of for the actual key. The state reported in this event reports of the
+current *effective* modifiers changed as follow:
+- Modifiers in the `clearmodifiers` parameter are cleared.
+- Modifiers in the `modifiers` parameter are set.
+</td>
+<td>
+
+Key release causes a key release event for the key specified by the `key`
+parameter; the state field for this event consists of the *effective*
+modifiers at the time of the release, changed as described on the key press.
+</td>
+</tbody>
+</table>
+
+
+### Legacy X11 actions {#legacy-x11-actions}
+
+[legacy action]: @ref legacy-x11-actions
+
+@attention The following legacy actions are kept for compatibility only: they are parsed
+and validated but have no effect. This allows to use keymaps defined in
+<code>[xkeyboard-config]</code> for both X11 and Wayland.
+
+#### Pointer actions
+
+<dl>
+<dt>`MovePointer`<dt>
+<dt>`MovePtr`</dt>
+<dd>
+Move the mouse pointer
+
+@todo MovePointer parameters
+<!-- blank required by Doxygen -->
+
+</dd>
+
+<dt>`PointerButton`</dt>
+<dt>`PtrBtn`</dt>
+<dd>
+Simulate a mouse button press
+
+@todo PointerButton parameters
+<!-- blank required by Doxygen -->
+
+</dd>
+
+<dt>`LockPointerButton`</dt>
+<dt>`LockPointerBtn`</dt>
+<dt>`LockPtrButton`</dt>
+<dt>`LockPtrBtn`</dt>
+<dd>
+Simulate a mouse button press, locked until this actiion’s key is pressed again
+
+@todo LockPointerButton parameters
+<!-- blank required by Doxygen -->
+
+</dd>
+
+<dt>`SetPointerDefault`</dt>
+<dt>`SetPtrDflt`</dt>
+<dd>
+Set the default select button (???)
+
+@todo SetPointerDefault parameters
+<!-- blank required by Doxygen -->
+
+<dd>
+</dl>
+
 
 #### Server actions
 
@@ -3861,74 +4279,6 @@ Examples:
 
 @attention The following legacy actions are **unsupported**: they are parsed
 and but *not validated* and are then completely *ignored*.
-
-#### Redirect key {#redirect-key-action}
-
-[redirectkey]: @ref redirect-key-action
-
-`RedirectKey` emulates pressing a key with a different key code.
-
-`RedirectKey` normally redirects to another key on the *same device* as the key
-or button which caused the event, else on the *core* keyboard device.
-
-<table>
-<caption>Parameters</caption>
-<thead>
-<tr>
-<th>Name</th>
-<th>Aliases</th>
-<th>Data type</th>
-<th>Default value</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>`key`</th>
-<td>`keycode`, `kc`</td>
-<td>keycode</td>
-<td>0</td>
-<td>Target keycode to emulate</td>
-<tr>
-<th>`clearmodifiers`</th>
-<td>`clearmods`</td>
-<td>modifier mask</td>
-<td>`none` (0)</td>
-<td>Modifiers to clear</td>
-</tr>
-<tr>
-<th>`modifiers`</th>
-<td>`mods`</td>
-<td>modifier mask</td>
-<td>`none` (0)</td>
-<td>Modifiers to add</td>
-</tr>
-</tbody>
-</table>
-
-<table>
-<caption>Effects</caption>
-<thead>
-<tr>
-<th>On key *press*</th>
-<th>On key *release*</th>
-</tr>
-<tr>
-<td>
-
-Key press causes a key press event for the key specified by the `key` parameter
-instead of for the actual key. The state reported in this event reports of the
-current *effective* modifiers changed as follow:
-- Modifiers in the `clearmodifiers` parameter are cleared.
-- Modifiers in the `modifiers` parameter are set.
-</td>
-<td>
-
-Key release causes a key release event for the key specified by the `key`
-parameter; the state field for this event consists of the *effective*
-modifiers at the time of the release, changed as described on the key press.
-</td>
-</thead>
 
 #### ISO lock
 

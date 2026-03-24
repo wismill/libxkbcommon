@@ -16,13 +16,17 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include "keymap.h"
-#include "text.h"
 #include "xkbcommon/xkbcommon.h"
+#include "atom.h"
+#include "features/enums.h"
+#include "keymap.h"
+#include "messages-codes.h"
+#include "text.h"
 
 struct xkb_keymap *
 xkb_keymap_ref(struct xkb_keymap *keymap)
 {
+    assert(keymap->refcnt > 0);
     keymap->refcnt++;
     return keymap;
 }
@@ -46,6 +50,7 @@ clear_interpret(struct xkb_sym_interpret *interp)
 void
 xkb_keymap_unref(struct xkb_keymap *keymap)
 {
+    assert(!keymap || keymap->refcnt > 0);
     if (!keymap || --keymap->refcnt > 0)
         return;
 
@@ -63,6 +68,9 @@ xkb_keymap_unref(struct xkb_keymap *keymap)
                     }
                 }
                 free(key->groups);
+            }
+            if (!key->overlays_inline && key->overlays_keys) {
+                free((void *)key->overlays_keys);
             }
         }
         free(keymap->keys);
@@ -107,23 +115,15 @@ xkb_keymap_new_from_rmlvo(const struct xkb_rmlvo_builder *rmlvo,
                           enum xkb_keymap_format format,
                           enum xkb_keymap_compile_flags flags)
 {
-    struct xkb_keymap *keymap;
-    const struct xkb_keymap_format_ops *ops;
-
-    ops = get_keymap_format_ops(format);
+    const struct xkb_keymap_format_ops *ops = get_keymap_format_ops(format);
     if (!ops || !ops->keymap_new_from_rmlvo) {
         log_err_func(rmlvo->ctx, XKB_LOG_MESSAGE_NO_ID,
                      "unsupported keymap format: %d\n", format);
         return NULL;
     }
 
-    if (flags & ~(XKB_KEYMAP_COMPILE_NO_FLAGS)) {
-        log_err_func(rmlvo->ctx, XKB_LOG_MESSAGE_NO_ID,
-                     "unrecognized flags: %#x\n", flags);
-        return NULL;
-    }
-
-    keymap = xkb_keymap_new(rmlvo->ctx, format, flags);
+    struct xkb_keymap *keymap = xkb_keymap_new(rmlvo->ctx, __func__, format,
+                                               flags);
     if (!keymap)
         return NULL;
 
@@ -141,31 +141,20 @@ xkb_keymap_new_from_names2(struct xkb_context *ctx,
                            enum xkb_keymap_format format,
                            enum xkb_keymap_compile_flags flags)
 {
-    struct xkb_keymap *keymap;
-    struct xkb_rule_names rmlvo;
-    const struct xkb_keymap_format_ops *ops;
-
-    ops = get_keymap_format_ops(format);
+    const struct xkb_keymap_format_ops *ops = get_keymap_format_ops(format);
     if (!ops || !ops->keymap_new_from_names) {
         log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
                      "unsupported keymap format: %d\n", format);
         return NULL;
     }
 
-    if (flags & ~(XKB_KEYMAP_COMPILE_NO_FLAGS)) {
-        log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
-                     "unrecognized flags: %#x\n", flags);
-        return NULL;
-    }
-
-    keymap = xkb_keymap_new(ctx, format, flags);
+    struct xkb_keymap *keymap = xkb_keymap_new(ctx, __func__, format, flags);
     if (!keymap)
         return NULL;
 
+    struct xkb_rule_names rmlvo = {0};
     if (rmlvo_in)
         rmlvo = *rmlvo_in;
-    else
-        memset(&rmlvo, 0, sizeof(rmlvo));
     xkb_context_sanitize_rule_names(ctx, &rmlvo);
 
     if (!ops->keymap_new_from_names(keymap, &rmlvo)) {
@@ -202,19 +191,10 @@ xkb_keymap_new_from_buffer(struct xkb_context *ctx,
                            enum xkb_keymap_format format,
                            enum xkb_keymap_compile_flags flags)
 {
-    struct xkb_keymap *keymap;
-    const struct xkb_keymap_format_ops *ops;
-
-    ops = get_keymap_format_ops(format);
+    const struct xkb_keymap_format_ops *ops = get_keymap_format_ops(format);
     if (!ops || !ops->keymap_new_from_string) {
         log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
                      "unsupported keymap format: %d\n", format);
-        return NULL;
-    }
-
-    if (flags & ~(XKB_KEYMAP_COMPILE_NO_FLAGS)) {
-        log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
-                     "unrecognized flags: %#x\n", flags);
         return NULL;
     }
 
@@ -224,7 +204,7 @@ xkb_keymap_new_from_buffer(struct xkb_context *ctx,
         return NULL;
     }
 
-    keymap = xkb_keymap_new(ctx, format, flags);
+    struct xkb_keymap *keymap = xkb_keymap_new(ctx, __func__, format, flags);
     if (!keymap)
         return NULL;
 
@@ -246,19 +226,10 @@ xkb_keymap_new_from_file(struct xkb_context *ctx,
                          enum xkb_keymap_format format,
                          enum xkb_keymap_compile_flags flags)
 {
-    struct xkb_keymap *keymap;
-    const struct xkb_keymap_format_ops *ops;
-
-    ops = get_keymap_format_ops(format);
+    const struct xkb_keymap_format_ops *ops = get_keymap_format_ops(format);
     if (!ops || !ops->keymap_new_from_file) {
         log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
                      "unsupported keymap format: %d\n", format);
-        return NULL;
-    }
-
-    if (flags & ~(XKB_KEYMAP_COMPILE_NO_FLAGS)) {
-        log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
-                     "unrecognized flags: %#x\n", flags);
         return NULL;
     }
 
@@ -268,7 +239,7 @@ xkb_keymap_new_from_file(struct xkb_context *ctx,
         return NULL;
     }
 
-    keymap = xkb_keymap_new(ctx, format, flags);
+    struct xkb_keymap *keymap = xkb_keymap_new(ctx, __func__, format, flags);
     if (!keymap)
         return NULL;
 
@@ -281,22 +252,40 @@ xkb_keymap_new_from_file(struct xkb_context *ctx,
 }
 
 char *
-xkb_keymap_get_as_string(struct xkb_keymap *keymap,
-                         enum xkb_keymap_format format)
+xkb_keymap_get_as_string2(struct xkb_keymap *keymap,
+                          enum xkb_keymap_format format,
+                          enum xkb_keymap_serialize_flags flags)
 {
-    const struct xkb_keymap_format_ops *ops;
+    static const enum xkb_keymap_serialize_flags XKB_KEYMAP_SERIALIZE_FLAGS
+        = (enum xkb_keymap_serialize_flags) XKB_KEYMAP_SERIALIZE_FLAGS_VALUES;
+
+    if (flags & ~XKB_KEYMAP_SERIALIZE_FLAGS) {
+        log_err_func(keymap->ctx, XKB_LOG_MESSAGE_NO_ID,
+                     "unrecognized serialization flags: %#x\n",
+                     (flags & ~XKB_KEYMAP_SERIALIZE_FLAGS));
+        return NULL;
+    }
 
     if (format == XKB_KEYMAP_USE_ORIGINAL_FORMAT)
         format = keymap->format;
 
-    ops = get_keymap_format_ops(format);
+    const struct xkb_keymap_format_ops * const ops =
+        get_keymap_format_ops(format);
     if (!ops || !ops->keymap_get_as_string) {
         log_err_func(keymap->ctx, XKB_LOG_MESSAGE_NO_ID,
                      "unsupported keymap format: %d\n", format);
         return NULL;
     }
 
-    return ops->keymap_get_as_string(keymap, format);
+    return ops->keymap_get_as_string(keymap, format, flags);
+}
+
+char *
+xkb_keymap_get_as_string(struct xkb_keymap *keymap,
+                         enum xkb_keymap_format format)
+{
+    return xkb_keymap_get_as_string2(keymap, format,
+                                     XKB_KEYMAP_SERIALIZE_NO_FLAGS);
 }
 
 /**
@@ -339,6 +328,17 @@ xkb_mod_mask_t
 xkb_keymap_mod_get_mask(struct xkb_keymap *keymap, const char* name)
 {
     const xkb_mod_index_t idx = xkb_keymap_mod_get_index(keymap, name);
+    return (idx >= keymap->mods.num_mods)
+        ? 0
+        : keymap->mods.mods[idx].mapping;
+}
+
+/**
+ * Return the canonical mapping of a given modifier.
+ */
+xkb_mod_mask_t
+xkb_keymap_mod_get_mask2(struct xkb_keymap *keymap, xkb_mod_index_t idx)
+{
     return (idx >= keymap->mods.num_mods)
         ? 0
         : keymap->mods.mods[idx].mapping;
@@ -412,7 +412,7 @@ xkb_keymap_num_levels_for_key(struct xkb_keymap *keymap, xkb_keycode_t kc,
 
     static_assert(XKB_MAX_GROUPS < INT32_MAX, "Max groups don't fit");
     layout = XkbWrapGroupIntoRange((int32_t) layout, key->num_groups,
-                                   key->out_of_range_group_action,
+                                   key->out_of_range_group_policy,
                                    key->out_of_range_group_number);
     if (layout == XKB_LAYOUT_INVALID)
         return 0;
@@ -475,7 +475,7 @@ xkb_keymap_key_get_mods_for_level(struct xkb_keymap *keymap,
 
     static_assert(XKB_MAX_GROUPS < INT32_MAX, "Max groups don't fit");
     layout = XkbWrapGroupIntoRange((int32_t) layout, key->num_groups,
-                                   key->out_of_range_group_action,
+                                   key->out_of_range_group_policy,
                                    key->out_of_range_group_number);
     if (layout == XKB_LAYOUT_INVALID)
         return 0;
@@ -528,7 +528,7 @@ xkb_keymap_key_get_level(struct xkb_keymap *keymap, const struct xkb_key *key,
 {
     static_assert(XKB_MAX_GROUPS < INT32_MAX, "Max groups don't fit");
     layout = XkbWrapGroupIntoRange((int32_t) layout, key->num_groups,
-                                   key->out_of_range_group_action,
+                                   key->out_of_range_group_policy,
                                    key->out_of_range_group_number);
     if (layout == XKB_LAYOUT_INVALID)
         return NULL;
@@ -588,6 +588,101 @@ xkb_keymap_max_keycode(struct xkb_keymap *keymap)
     return keymap->max_key_code;
 }
 
+struct xkb_keymap_key_iterator {
+    int8_t increment;
+    bool skip_unbound;
+    const struct xkb_key *min;
+    const struct xkb_key *max;
+    const struct xkb_key *next;
+    struct xkb_keymap *keymap;
+};
+
+struct xkb_keymap_key_iterator *
+xkb_keymap_key_iterator_new(struct xkb_keymap *keymap,
+                            enum xkb_keymap_key_iterator_flags flags)
+{
+    static const enum xkb_keymap_key_iterator_flags XKB_KEYMAP_KEY_ITERATOR_FLAGS
+        = XKB_KEYMAP_KEY_ITERATOR_DESCENDING_ORDER
+        | XKB_KEYMAP_KEY_ITERATOR_SKIP_UNBOUND;
+
+    if (flags & ~XKB_KEYMAP_KEY_ITERATOR_FLAGS) {
+            log_err(keymap->ctx, XKB_LOG_MESSAGE_NO_ID,
+                    "unrecognized keymap iterator flags: %#x\n",
+                    (flags & ~XKB_KEYMAP_KEY_ITERATOR_FLAGS));
+            return NULL;
+    }
+
+    struct xkb_keymap_key_iterator * const iter = calloc(1, sizeof(*iter));
+    if (!iter) {
+        log_err(keymap->ctx, XKB_ERROR_ALLOCATION_ERROR,
+                "Could not allocate a keymap key iterator.\n");
+        return NULL;
+    }
+
+    iter->keymap = xkb_keymap_ref(keymap);
+
+    if (keymap->num_keys == 0) {
+        iter->next = NULL;
+        iter->min = NULL;
+        iter->max = NULL;
+        return iter;
+    }
+
+    iter->skip_unbound = (flags & XKB_KEYMAP_KEY_ITERATOR_SKIP_UNBOUND);
+    iter->increment = (flags & XKB_KEYMAP_KEY_ITERATOR_DESCENDING_ORDER)
+        ? -1
+        : 1;
+    iter->min = (keymap->num_keys_low)
+        ? &iter->keymap->keys[keymap->min_key_code]
+        : &iter->keymap->keys[0];
+    iter->max = &iter->keymap->keys[iter->keymap->num_keys - 1];
+
+    if (iter->increment < 0) {
+        iter->next = iter->max;
+    } else {
+        iter->next = iter->min;
+    }
+
+    return iter;
+}
+
+void
+xkb_keymap_key_iterator_destroy(struct xkb_keymap_key_iterator *iter)
+{
+    if (!iter)
+        return;
+
+    xkb_keymap_unref(iter->keymap);
+    free(iter);
+}
+
+xkb_keycode_t
+xkb_keymap_key_iterator_next(struct xkb_keymap_key_iterator *iter)
+{
+    if (!iter->next)
+        return XKB_KEYCODE_INVALID;
+
+    const struct xkb_key * next = iter->next;
+
+    /* Skip undefined keys (no name) and optionally unbound keys */
+    while (next->name == XKB_ATOM_NONE ||
+           (iter->skip_unbound && (next->num_groups == 0))) {
+        next += iter->increment;
+        if (next < iter->min || next > iter->max) {
+            /* No key left */
+            iter->next = NULL;
+            return XKB_KEYCODE_INVALID;
+        }
+    }
+
+    const xkb_keycode_t ret = next->keycode;
+
+    next += iter->increment;
+    iter->next = (next < iter->min || next > iter->max) ? NULL : next;
+
+    return ret;
+}
+
 void
 xkb_keymap_key_for_each(struct xkb_keymap *keymap, xkb_keymap_key_iter_t iter,
                         void *data)
@@ -617,9 +712,9 @@ xkb_keymap_key_by_name(struct xkb_keymap *keymap, const char *name)
 
     atom = xkb_atom_lookup(keymap->ctx, name);
     if (atom) {
-        xkb_atom_t ratom = XkbResolveKeyAlias(keymap, atom);
-        if (ratom)
-            atom = ratom;
+        for (darray_size_t i = 0; i < keymap->num_key_aliases; i++)
+            if (keymap->key_aliases[i].alias == atom)
+                atom = keymap->key_aliases[i].real;
     }
     if (!atom)
         return XKB_KEYCODE_INVALID;

@@ -14,29 +14,40 @@
 
 #include "config.h"
 
-#include "messages-codes.h"
+#include <limits.h>
+#include <stdint.h>
+#include <string.h>
+
 #include "xkbcommon/xkbcommon.h"
+#include "xkbcommon/xkbcommon-errors.h"
 #include "xkbcommon/xkbcommon-keysyms.h"
 
-#include "darray.h"
-#include "keymap.h"
-#include "xkbcomp-priv.h"
-#include "darray.h"
-#include "text.h"
-#include "expr.h"
 #include "action.h"
-#include "vmod.h"
+#include "context.h"
+#include "darray.h"
+#include "expr.h"
 #include "include.h"
+#include "keymap.h"
 #include "keysym.h"
+#include "messages-codes.h"
+#include "text.h"
+#include "utils.h"
+#include "utils-numbers.h"
 #include "util-mem.h"
+#include "vmod.h"
+#include "xkbcomp-priv.h"
 #include "xkbcomp/ast.h"
-
 
 enum key_repeat {
     KEY_REPEAT_UNDEFINED = 0,
     KEY_REPEAT_YES = 1,
     KEY_REPEAT_NO = 2,
+    _KEY_REPEAT_NUM_ENTRIES,
 };
+enum { KEY_REPEAT_MIN_WIDTH = 3 /* 2 bits + sign */ };
+static_assert(_KEY_REPEAT_NUM_ENTRIES - 1 <=
+              (1 << (KEY_REPEAT_MIN_WIDTH - 1)) - 1,
+              "Cannot encode key repeat");
 
 enum group_field {
     GROUP_FIELD_SYMS = (1 << 0),
@@ -49,28 +60,87 @@ enum key_field {
     KEY_FIELD_DEFAULT_TYPE = (1 << 1),
     KEY_FIELD_GROUPINFO = (1 << 2),
     KEY_FIELD_VMODMAP = (1 << 3),
+    KEY_FIELD_OVERLAY = (1 << 4),
+    KEY_FIELD_ALL = KEY_FIELD_REPEAT | KEY_FIELD_DEFAULT_TYPE
+                  | KEY_FIELD_GROUPINFO | KEY_FIELD_VMODMAP | KEY_FIELD_OVERLAY,
 };
+enum { KEY_FIELD_MIN_WIDTH = 6 /* 5 bits + sign */ };
+static_assert(KEY_FIELD_ALL <= (1 << (KEY_FIELD_MIN_WIDTH - 1)) - 1,
+              "Cannot encode key field");
 
 typedef struct {
-    enum group_field defined;
     darray(struct xkb_level) levels;
+    enum group_field defined;
     xkb_atom_t type;
 } GroupInfo;
 
-typedef struct {
-    enum key_field defined;
-    enum merge_mode merge;
+enum {
+    XKB_LAYOUT_OUT_OF_RANGE_POLICY_MIN_WIDTH = 4 /* 3 bits + sign */,
+    KEYINFO_OUT_OF_RANGE_GROUP_POLICY_BIT_FIELD = 8,
+    KEYINFO_DEFINED_BIT_FIELD = 16,
+    KEYINFO_MERGE_BIT_FIELD = 8,
+    KEYINFO_REPEAT_BIT_FIELD = 8,
+};
+static_assert(
+    XKB_LAYOUT_OUT_OF_RANGE_WRAP < XKB_LAYOUT_OUT_OF_RANGE_CLAMP &&
+    XKB_LAYOUT_OUT_OF_RANGE_CLAMP < XKB_LAYOUT_OUT_OF_RANGE_REDIRECT,
+    "Enum values were changed!"
+);
+static_assert(XKB_LAYOUT_OUT_OF_RANGE_REDIRECT <=
+              (1 << XKB_LAYOUT_OUT_OF_RANGE_POLICY_MIN_WIDTH) - 1,
+              "Cannot encode out of range redirect");
+static_assert(KEYINFO_OUT_OF_RANGE_GROUP_POLICY_BIT_FIELD >=
+              XKB_LAYOUT_OUT_OF_RANGE_POLICY_MIN_WIDTH, "");
+static_assert((unsigned)KEYINFO_DEFINED_BIT_FIELD >=
+              (unsigned)KEY_FIELD_MIN_WIDTH, "Cannot encode KeyInfo field");
+static_assert((unsigned)KEYINFO_MERGE_BIT_FIELD >=
+              (unsigned)MERGE_MODE_MIN_WIDTH, "Cannot encode KeyInfo field");
+static_assert((unsigned)KEYINFO_REPEAT_BIT_FIELD >=
+              (unsigned)KEY_REPEAT_MIN_WIDTH, "Cannot encode KeyInfo field");
 
+typedef struct {
     xkb_atom_t name;
 
-    darray(GroupInfo) groups;
-
-    enum key_repeat repeat;
     xkb_mod_mask_t vmodmap;
     xkb_atom_t default_type;
 
-    enum xkb_range_exceed_type out_of_range_group_action;
     xkb_layout_index_t out_of_range_group_number;
+    darray(GroupInfo) groups;
+    enum xkb_layout_out_of_range_policy
+        out_of_range_group_policy:KEYINFO_OUT_OF_RANGE_GROUP_POLICY_BIT_FIELD;
+
+    /* NOTE: this bitfield could be reduce to 1 byte, should we need it */
+    enum key_field defined:KEYINFO_DEFINED_BIT_FIELD;
+    enum merge_mode merge:KEYINFO_MERGE_BIT_FIELD;
+    enum key_repeat repeat:KEYINFO_REPEAT_BIT_FIELD;
+
+    bool out_of_range_pending_group:1;
+
+    /** If true, overlays in the mask are explicitly cleared */
+    bool overlays_clear:1;
+    /** Track the count of allocated slots of overlays_keys */
+    xkb_overlay_index_t overlays_alloc;
+    /** Overlays indices */
+    xkb_overlay_mask_t overlays;
+    /**
+     * Target overlays keys, if any.
+     *
+     * For 0 or 1 elements storage is inline in the struct; for 2 or more a
+     * heap sparse array is used.
+     */
+    union {
+        /** Inlined if at most one overlay is defined (overlays_alloc = 0) */
+        const struct xkb_key *overlay_key;
+        /**
+         * Allocated if 2 or more overlays are defined (overlays_alloc > 0).
+         *
+         * A sparse array maps the set of sparse overlay indices in field
+         * `overlays` to contiguously stored values. Values are stored in
+         * ascending overlay order, and a value’s position in storage equals the
+         * popcount of all mask bits strictly below its overlay — its rank.
+         */
+        const struct xkb_key **overlays_keys;
+    };
 } KeyInfo;
 
 static void
@@ -137,8 +207,12 @@ static void
 InitKeyInfo(struct xkb_context *ctx, KeyInfo *keyi)
 {
     memset(keyi, 0, sizeof(*keyi));
+    static_assert(!DEFAULT_KEY_REPEAT, "key repeat not initialized properly");
+    static_assert(!DEFAULT_KEY_VMODMAP, "key vmodmap not initialized properly");
     keyi->name = xkb_atom_intern_literal(ctx, "*");
-    keyi->out_of_range_group_action = RANGE_WRAP;
+    keyi->out_of_range_group_policy = XKB_LAYOUT_OUT_OF_RANGE_WRAP;
+    darray_init(keyi->groups);
+    keyi->overlay_key = NULL;
 }
 
 static void
@@ -148,6 +222,8 @@ ClearKeyInfo(KeyInfo *keyi)
     darray_foreach(groupi, keyi->groups)
         ClearGroupInfo(groupi);
     darray_free(keyi->groups);
+    if (keyi->overlays_alloc)
+        free(keyi->overlays_keys);
 }
 
 /***====================================================================***/
@@ -169,6 +245,7 @@ typedef struct {
     int errorCount;
     unsigned int include_depth;
     xkb_layout_index_t explicit_group;
+    xkb_layout_index_t max_groups;
     darray(KeyInfo) keys;
     KeyInfo default_key;
     ActionsInfo default_actions;
@@ -176,23 +253,22 @@ typedef struct {
     darray(ModMapEntry) modmaps;
     struct xkb_mod_set mods;
 
-    xkb_layout_index_t max_groups;
     struct xkb_context *ctx;
-    /* Needed for AddKeySymbols. */
-    const struct xkb_keymap *keymap;
+    /* Needed for AddKeySymbols and parsing actions */
+    const struct xkb_keymap_info *keymap_info;
 } SymbolsInfo;
 
 static void
-InitSymbolsInfo(SymbolsInfo *info, const struct xkb_keymap *keymap,
+InitSymbolsInfo(SymbolsInfo *info, const struct xkb_keymap_info *keymap_info,
                 unsigned int include_depth, const struct xkb_mod_set *mods)
 {
     memset(info, 0, sizeof(*info));
-    info->ctx = keymap->ctx;
+    info->ctx = keymap_info->keymap.ctx;
     info->include_depth = include_depth;
-    info->keymap = keymap;
-    info->max_groups = format_max_groups(keymap->format);
-    InitKeyInfo(keymap->ctx, &info->default_key);
-    InitActionsInfo(&info->default_actions);
+    info->keymap_info = keymap_info;
+    info->max_groups = keymap_info->features.max_groups;
+    InitKeyInfo(keymap_info->keymap.ctx, &info->default_key);
+    InitActionsInfo(&keymap_info->keymap, &info->default_actions);
     InitVMods(&info->mods, mods, include_depth > 0);
     info->explicit_group = XKB_LAYOUT_INVALID;
 }
@@ -460,6 +536,296 @@ UseNewKeyField(enum key_field field, enum key_field old, enum key_field new,
 }
 
 static bool
+overlays_get(const KeyInfo *info, xkb_overlay_index_t bit,
+             const struct xkb_key **key_out)
+{
+    if (bit >= (xkb_overlay_index_t)(sizeof(xkb_overlay_mask_t) * CHAR_BIT))
+        return false;
+    const xkb_overlay_mask_t mask = (xkb_overlay_mask_t)(1u << bit);
+    if (!(info->overlays & mask)) return false;
+    if (key_out) {
+        if (!info->overlays_alloc) {
+            /* Stored inline */
+            *key_out = info->overlay_key;
+        } else {
+            /* Stored in sparse array */
+            const xkb_overlay_mask_t low = (xkb_overlay_mask_t)(
+                info->overlays & (mask - 1u)
+            );
+            const xkb_overlay_index_t index = (xkb_overlay_index_t)popcount32(low);
+            *key_out = info->overlays_keys[index];
+        }
+    }
+    return true;
+}
+
+static bool
+overlays_insert(KeyInfo *keyi, xkb_overlay_index_t bit,
+                const struct xkb_key *key)
+{
+    if (bit >= (xkb_overlay_index_t)(sizeof(xkb_overlay_mask_t) * CHAR_BIT))
+        return false;
+
+    const xkb_overlay_mask_t mask = (xkb_overlay_mask_t)(1u << bit);
+
+    if ((keyi->overlays & mask) && !keyi->overlays_clear) {
+        /* Overwrite existing slot */
+        if (!keyi->overlays_alloc) {
+            /* Stored inline */
+            keyi->overlay_key = key;
+            if (!key)
+                keyi->overlays_clear = true;
+        } else {
+            /* Stored in sparse array */
+            const xkb_overlay_mask_t low = (xkb_overlay_mask_t)(
+                keyi->overlays & (xkb_overlay_mask_t)(mask - 1u)
+            );
+            /* index = number of set bits strictly below bit */
+            const xkb_overlay_index_t index =
+                (xkb_overlay_index_t)popcount32(low);
+            keyi->overlays_keys[index] = key;
+        }
+        return true;
+    }
+
+    /* Insert new element */
+    if (!keyi->overlays || (keyi->overlays_clear && !key)) {
+        /* No previous overlay or only cleared overlays: use inline storage */
+        keyi->overlay_key = key;
+        keyi->overlays |= mask;
+        keyi->overlays_clear = !key;
+    } else if (!keyi->overlays_alloc) {
+        /* Promote inline element to heap */
+        const xkb_overlay_mask_t overlays = keyi->overlays | mask;
+        const xkb_overlay_index_t alloc =
+            (xkb_overlay_index_t)popcount32(overlays);
+
+        /* Alloc sparse array */
+        const struct xkb_key ** const tmp = calloc(alloc, sizeof(*tmp));
+        if (!tmp) return false;
+
+        /* Copy previous entries to the buffer */
+        if (!keyi->overlays_clear) {
+            /* A previous single overlay was set */
+            const xkb_overlay_mask_t low = (xkb_overlay_mask_t)(
+                overlays & (xkb_overlay_mask_t)(keyi->overlays - 1u)
+            );
+            const xkb_overlay_index_t idx = (xkb_overlay_index_t)popcount32(low);
+            tmp[idx] = keyi->overlay_key;
+        } else {
+            /* All previous overlays were set to none: set thanks to calloc */
+        }
+
+        /* Insert new entry into the buffer */
+        const xkb_overlay_mask_t low = (xkb_overlay_mask_t)(
+            overlays & (xkb_overlay_mask_t)(mask - 1u)
+        );
+        const xkb_overlay_index_t idx = (xkb_overlay_index_t)popcount32(low);
+        tmp[idx] = key;
+
+        keyi->overlays_keys = tmp;
+        keyi->overlays_alloc = alloc;
+        keyi->overlays = overlays;
+        keyi->overlays_clear = false;
+    } else {
+        /* Allocated items: grow heap and shift if relevant */
+        const xkb_overlay_mask_t overlays =
+            (xkb_overlay_mask_t)(keyi->overlays | mask);
+        const xkb_overlay_index_t count =
+            (xkb_overlay_index_t)popcount32(overlays);
+        if (count > keyi->overlays_alloc) {
+            const xkb_overlay_index_t alloc =
+                (xkb_overlay_index_t)next_pow2(count);
+            assert(alloc >= count);
+            const struct xkb_key ** const tmp = realloc(
+                keyi->overlays_keys,
+                (size_t)alloc * sizeof(*keyi->overlays_keys)
+            );
+            if (!tmp) return false;
+            keyi->overlays_keys = tmp;
+            keyi->overlays_alloc = alloc;
+        }
+        /* Get new entry index in sparse array */
+        const xkb_overlay_mask_t low = (xkb_overlay_mask_t)(
+            overlays & (xkb_overlay_mask_t)(mask - 1u)
+        );
+        const xkb_overlay_index_t index = (xkb_overlay_index_t)popcount32(low);
+        if (index >= keyi->overlays_alloc)
+            PANIC_UNREACHABLE();
+        if (index < count - 1u /* previous count */) {
+            /* insert between 2 previous items: move items from greater bits */
+            assert(index + 1 < keyi->overlays_alloc);
+            memmove(keyi->overlays_keys + index + 1, keyi->overlays_keys + index,
+                    (size_t)(count - 1u - index) * sizeof(const struct xkb_key *));
+        }
+        keyi->overlays_keys[index] = key;
+        keyi->overlays = overlays;
+    }
+
+    return true;
+}
+
+/** Merge keyboard overlays. At most one can be defined (X11 limitation) */
+static bool
+merge_overlays(SymbolsInfo *info, KeyInfo *into, KeyInfo *from,
+               bool clobber, bool report, enum key_field *collide)
+{
+    if (!(from->defined & KEY_FIELD_OVERLAY)) {
+        /* `from` is empty: do nothing */
+    } else if (!(into->defined & KEY_FIELD_OVERLAY)) {
+        /* `into` is empty: steal `from` */
+        into->overlays = from->overlays;
+        into->overlays_keys = from->overlays_keys;
+        from->overlays_keys = NULL;
+        into->overlays_alloc = from->overlays_alloc;
+        from->overlays_alloc = 0;
+        into->defined |= KEY_FIELD_OVERLAY;
+    } else if (into->overlays_clear && from->overlays_clear) {
+        /* Only cleared overlays: combine them */
+        into->overlays |= from->overlays;
+    } else {
+        if (info->keymap_info->features.overlapping_overlays) {
+            /* Overlapping overlays */
+
+            const xkb_overlay_mask_t result_mask =
+                (into->overlays | from->overlays);
+            const xkb_overlay_index_t count =
+                (xkb_overlay_index_t)popcount32(result_mask);
+
+            if (count == 0)
+                PANIC_UNREACHABLE();
+
+            /*
+             * Pick the best buffer to write. Prefer the larger one to avoid
+             * future realloc; only realloc if both are too small. The unchosen
+             * buffer will be freed.
+             */
+
+            KeyInfo *dest = into;
+            KeyInfo *src = from;
+            if (into->overlays_alloc >= count &&
+                into->overlays_alloc >= from->overlays_alloc) {
+                /* Do nothing */
+            } else if (from->overlays_alloc >= count) {
+                dest = from;
+                src = into;
+                clobber = !clobber;
+            } else if (count > 1) {
+                /* Neither is sufficient: realloc the larger one if possible */
+                if (into->overlays_alloc < from->overlays_alloc) {
+                    dest = from;
+                    src = into;
+                    clobber = !clobber;
+                }
+
+                if (!dest->overlays_alloc) {
+                    const struct xkb_key **tmp = calloc(count, sizeof(*tmp));
+                    if (!tmp)
+                        return false;
+                    if (dest->overlay_key)
+                        tmp[0] = dest->overlay_key;
+                    dest->overlays_keys = tmp;
+                    dest->overlays_alloc = count;
+                } else {
+                    const struct xkb_key **tmp =
+                        realloc(dest->overlays_keys, count * sizeof(*tmp));
+                    if (!tmp)
+                        return false;
+                    dest->overlays_keys = tmp;
+                    dest->overlays_alloc = count;
+                }
+            }
+
+            xkb_overlay_mask_t remaining = src->overlays;
+            const struct xkb_key **src_keys = (src->overlays_clear)
+                ? NULL
+                : (src->overlays_alloc)
+                    ? src->overlays_keys
+                    : &src->overlay_key;
+            while (remaining) {
+                /* isolate lowest set bit */
+                const xkb_overlay_mask_t lsb = (xkb_overlay_mask_t)(
+                    remaining &
+                    (xkb_overlay_mask_t)(~remaining + 1u)
+                );
+                /* get its index */
+                const xkb_overlay_index_t bit =
+                    (xkb_overlay_index_t)popcount32(lsb - 1u);
+                remaining = (remaining & ~lsb);
+
+                /* pop current value */
+                if (!src->overlays_clear && !src->overlays_alloc && remaining)
+                    PANIC_UNREACHABLE();
+                const struct xkb_key *src_key = (src_keys)
+                    ? *(src_keys++)
+                    : NULL;
+
+                /* check dest */
+                const struct xkb_key *dest_key = NULL;
+                const bool conflict = overlays_get(dest, bit, &dest_key);
+                if (conflict) {
+                    if (dest_key == src_key)
+                       continue;
+                    else if (report)
+                        *collide |= KEY_FIELD_OVERLAY;
+                }
+
+                if ((!conflict || clobber) && !overlays_insert(dest, bit, src_key))
+                    return false;
+            }
+
+            if (into != dest) {
+                if (into->overlays_alloc)
+                    free(into->overlays_keys);
+                into->overlays = from->overlays;
+                into->overlays_clear = from->overlays_clear;
+                into->overlays_alloc = from->overlays_alloc;
+                if (from->overlays_alloc) {
+                    /* Steal */
+                    into->overlays_keys = from->overlays_keys;
+                    from->overlays_keys = NULL;
+                    from->overlays_alloc = 0;
+                } else {
+                    into->overlay_key = from->overlay_key;
+                }
+            }
+        } else {
+            /* Disjoint overlays */
+
+            if (into->overlays == from->overlays &&
+                into->overlays_clear == from->overlays_clear &&
+                into->overlay_key == from->overlay_key) {
+                /* Indentical: do nothing */
+                return true;
+            }
+            if (!(into->overlays & from->overlays)) {
+                if (into->overlays_clear) {
+                    /* `into` clears and `from` sets distinct overlays: use `from` */
+                    into->overlays = from->overlays;
+                    into->overlays_clear = from->overlays_clear;
+                    into->overlays_alloc = from->overlays_alloc;
+                    into->overlay_key = from->overlay_key;
+                    return true;
+                } else if (from->overlays_clear) {
+                    /* `into` sets and `from` clears distinct overlays: use `into` */
+                    return true;
+                }
+            }
+            /* Conflict */
+            if (report)
+                *collide |= KEY_FIELD_OVERLAY;
+            if (clobber) {
+                into->overlays = from->overlays;
+                into->overlays_clear = from->overlays_clear;
+                into->overlays_alloc = from->overlays_alloc;
+                into->overlay_key = from->overlay_key;
+            }
+        }
+    }
+    return true;
+}
+
+static bool
 MergeKeys(SymbolsInfo *info, KeyInfo *into, KeyInfo *from, bool same_file)
 {
     xkb_layout_index_t i;
@@ -505,10 +871,14 @@ MergeKeys(SymbolsInfo *info, KeyInfo *into, KeyInfo *from, bool same_file)
     }
     if (UseNewKeyField(KEY_FIELD_GROUPINFO, into->defined, from->defined,
                        clobber, report, &collide)) {
-        into->out_of_range_group_action = from->out_of_range_group_action;
+        into->out_of_range_pending_group = from->out_of_range_pending_group;
+        into->out_of_range_group_policy = from->out_of_range_group_policy;
         into->out_of_range_group_number = from->out_of_range_group_number;
         into->defined |= KEY_FIELD_GROUPINFO;
     }
+
+    if (!merge_overlays(info, into, from, clobber, report, &collide))
+        return false;
 
     if (collide) {
         log_warn(info->ctx, XKB_WARNING_CONFLICTING_KEY_FIELDS,
@@ -523,23 +893,31 @@ MergeKeys(SymbolsInfo *info, KeyInfo *into, KeyInfo *from, bool same_file)
     return true;
 }
 
+static xkb_atom_t
+XkbResolveKeyAlias(const struct xkb_keymap *keymap, xkb_atom_t name)
+{
+    if (name < keymap->num_key_names) {
+        const KeycodeMatch match = keymap->key_names[name];
+        if (match.found && match.is_alias) {
+            return match.alias.real;
+        }
+    }
+    return name;
+}
+
 /* TODO: Make it so this function doesn't need the entire keymap. */
 static bool
 AddKeySymbols(SymbolsInfo *info, KeyInfo *keyi, bool same_file)
 {
-    xkb_atom_t real_name;
-    KeyInfo *iter;
-
     /*
      * Don't keep aliases in the keys array; this guarantees that
      * searching for keys to merge with by straight comparison (see the
      * following loop) is enough, and we won't get multiple KeyInfo's
      * for the same key because of aliases.
      */
-    real_name = XkbResolveKeyAlias(info->keymap, keyi->name);
-    if (real_name != XKB_ATOM_NONE)
-        keyi->name = real_name;
+    keyi->name = XkbResolveKeyAlias(&info->keymap_info->keymap, keyi->name);
 
+    KeyInfo *iter;
     darray_foreach(iter, info->keys)
         if (iter->name == keyi->name)
             return MergeKeys(info, iter, keyi, same_file);
@@ -667,7 +1045,7 @@ HandleIncludeSymbols(SymbolsInfo *info, IncludeStmt *include)
         return false;
     }
 
-    InitSymbolsInfo(&included, info->keymap, info->include_depth + 1,
+    InitSymbolsInfo(&included, info->keymap_info, info->include_depth + 1,
                     &info->mods);
     included.name = steal(&include->stmt);
 
@@ -675,31 +1053,40 @@ HandleIncludeSymbols(SymbolsInfo *info, IncludeStmt *include)
         SymbolsInfo next_incl;
         XkbFile *file;
 
-        file = ProcessIncludeFile(info->ctx, stmt, FILE_TYPE_SYMBOLS);
+        char path[PATH_MAX];
+        file = ProcessIncludeFile(info->ctx, stmt, FILE_TYPE_SYMBOLS,
+                                  path, sizeof(path));
         if (!file) {
             info->errorCount += 10;
             ClearSymbolsInfo(&included);
             return false;
         }
 
-        InitSymbolsInfo(&next_incl, info->keymap, info->include_depth + 1,
+        InitSymbolsInfo(&next_incl, info->keymap_info, info->include_depth + 1,
                         &included.mods);
         if (stmt->modifier) {
             next_incl.explicit_group = atoi(stmt->modifier) - 1;
             if (next_incl.explicit_group >= info->max_groups) {
-                log_err(info->ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
+                log_err(info->ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
                         "Cannot set explicit group to %"PRIu32" - "
-                        "must be between 1..%u; Ignoring group number\n",
+                        "must be between 1..%"PRIu32"; Ignoring group number\n",
                         next_incl.explicit_group + 1, info->max_groups);
                 next_incl.explicit_group = info->explicit_group;
             }
         }
-        else if (info->keymap->num_groups != 0 && next_incl.include_depth == 1) {
-            /* If keymap is the result of RMLVO resolution and we are at the
+        else if (info->keymap_info->keymap.num_groups != 0 &&
+                 next_incl.include_depth == 1) {
+            /*
+             * If keymap is the result of RMLVO resolution and we are at the
              * first include depth, transform e.g. `pc` into `pc:1` in order to
              * force only one group per key using the explicit group.
              *
-             * NOTE: X11’s xkbcomp does not apply this rule. */
+             * NOTE: X11’s xkbcomp does not apply this rule.
+             *
+             * WARNING: If this feature is removed, then the entries `Last` in
+             * the `groupIndexNames` and `groupMaskNames` LUT should initially
+             * be inactive.
+             */
             next_incl.explicit_group = 0;
         }
         else {
@@ -741,8 +1128,8 @@ GetGroupIndex(SymbolsInfo *info, KeyInfo *keyi, ExprDef *arrayNdx,
         }
 
         if (i >= info->max_groups) {
-            log_err(info->ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
-                    "Too many groups of %s for key %s (max %u); "
+            log_err(info->ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
+                    "Too many groups of %s for key %s (max %"PRIu32"); "
                     "Ignoring %s defined for extra groups\n",
                     name, KeyInfoText(info, keyi), info->max_groups, name);
             return false;
@@ -753,8 +1140,9 @@ GetGroupIndex(SymbolsInfo *info, KeyInfo *keyi, ExprDef *arrayNdx,
         return true;
     }
 
-    if (!ExprResolveGroup(info->ctx, info->max_groups, arrayNdx, ndx_rtrn)) {
-        log_err(info->ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
+    if (ExprResolveGroup(info->keymap_info, arrayNdx, false, ndx_rtrn, NULL) !=
+        PARSER_SUCCESS) {
+        log_err(info->ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
                 "Illegal group index for %s of key %s\n"
                 "Definition with non-integer array index ignored\n",
                 name, KeyInfoText(info, keyi));
@@ -928,15 +1316,21 @@ AddActionsToKey(SymbolsInfo *info, KeyInfo *keyi, ExprDef *arrayNdx,
         for (ExprDef *act = actionList->actions;
              act; act = (ExprDef *) act->common.next) {
             union xkb_action toAct = { 0 };
-            if (!HandleActionDef(info->ctx, info->keymap->format,
-                                 &info->default_actions, &info->mods,
-                                 act, &toAct)) {
+            const enum xkb_parser_error r =
+                HandleActionDef(info->keymap_info, &info->default_actions,
+                                &info->mods, act, &toAct);
+            if (r != PARSER_SUCCESS) {
                 log_err(info->ctx, XKB_ERROR_INVALID_VALUE,
                         "Illegal action definition for %s; "
                         "Action for group %"PRIu32"/level %"PRIu32" ignored\n",
                         KeyInfoText(info, keyi), ndx + 1, level + 1);
-                /* Ensure action type is reset */
-                toAct.type = ACTION_TYPE_NONE;
+                if (r == PARSER_FATAL_ERROR) {
+                    darray_free(actions);
+                    return false;
+                } else {
+                    /* Ensure action type is reset */
+                    toAct.type = ACTION_TYPE_NONE;
+                }
             }
             if (toAct.type == ACTION_TYPE_NONE) {
                 /* Drop action */
@@ -1001,10 +1395,84 @@ static const LookupEntry repeatEntries[] = {
     { NULL, 0 }
 };
 
+/** Handle overlay<N> = <key> entry */
+static bool
+ExprResolveOverlayEntry(const struct xkb_keymap_info *keymap_info,
+                        const char *field, const ExprDef *arrayNdx,
+                        const ExprDef *expr, KeyInfo *keyi,
+                        xkb_overlay_index_t *overlay_rtrn,
+                        const struct xkb_key **key_rtrn)
+{
+    /* Overlay index */
+    if (arrayNdx) {
+        log_err(keymap_info->keymap.ctx, XKB_ERROR_WRONG_FIELD_TYPE,
+                "Overlay field \"%s\" in %s does not support array index; "
+                "ignored\n",
+                field, KeyNameText(keymap_info->keymap.ctx, keyi->name));
+        return false;
+    }
+    static_assert(sizeof(xkb_overlay_index_t) == sizeof(uint8_t), "");
+    const size_t prefix = sizeof("overlay") - 1;
+    const size_t len = strlen(field + prefix);
+    int64_t raw_overlay = XKB_OVERLAY_INVALID;
+    if (parse_dec_to_uint64_t(field + prefix, len, (uint64_t *)&raw_overlay)
+        != (int)len || raw_overlay < 1 ||
+        raw_overlay > (int64_t)keymap_info->features.max_overlays) {
+        log_err(keymap_info->keymap.ctx, XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX,
+                "Unsupported overlay index \"%s\" field for %s: "
+                "expected 1..%u, got: %"PRId64"; ignored\n",
+                field, KeyNameText(keymap_info->keymap.ctx, keyi->name),
+                keymap_info->features.max_overlays, raw_overlay);
+        return false;
+    }
+    *overlay_rtrn = (xkb_overlay_index_t)raw_overlay - 1;
+
+    /* Overlay key */
+    switch (expr->common.type) {
+    case STMT_EXPR_KEYNAME_LITERAL:
+        *key_rtrn = XkbKeyByName(&keymap_info->keymap, expr->key_name.key_name,
+                                 false);
+        if (!*key_rtrn) {
+            log_err(keymap_info->keymap.ctx, XKB_WARNING_UNDEFINED_KEYCODE,
+                    "Unknown key \"%s\" for field %s in %s\n",
+                    xkb_atom_text(keymap_info->keymap.ctx, expr->key_name.key_name),
+                    field, KeyNameText(keymap_info->keymap.ctx, keyi->name));
+            return false;
+        }
+        return true;
+    case STMT_EXPR_IDENT: {
+        const char * const id =
+            xkb_atom_text(keymap_info->keymap.ctx, expr->ident.ident);
+        if (id && istreq(id, "none")) {
+            /* Explicitly no overlay (clear) */
+            *key_rtrn = NULL;
+            return true;
+        } else if (id && istreq(id, "any")) {
+            /* Implicitly no overlay */
+            *key_rtrn = NULL;
+            *overlay_rtrn = XKB_OVERLAY_INVALID;
+            return true;
+        }
+        log_err(keymap_info->keymap.ctx, XKB_ERROR_INVALID_VALUE,
+                "Unsupported overlay value \"%s\" for field %s in %s\n",
+                id, field, KeyNameText(keymap_info->keymap.ctx, keyi->name));
+        return false;
+    }
+    default:
+        log_err(keymap_info->keymap.ctx, XKB_ERROR_INVALID_VALUE,
+                "Expected %s for field \"%s\" in %s, got: %s\n",
+                stmt_type_to_string(STMT_EXPR_KEYNAME_LITERAL),
+                field, KeyNameText(keymap_info->keymap.ctx, keyi->name),
+                stmt_type_to_string(expr->common.type));
+        return false;
+    }
+}
+
 static bool
 SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
-                ExprDef *arrayNdx, ExprDef *value)
+                ExprDef *arrayNdx, ExprDef **value_ptr)
 {
+    ExprDef * restrict const value = *value_ptr;
     if (istreq(field, "type")) {
         xkb_layout_index_t ndx = 0;
         xkb_atom_t val = XKB_ATOM_NONE;
@@ -1020,8 +1488,9 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
             keyi->default_type = val;
             keyi->defined |= KEY_FIELD_DEFAULT_TYPE;
         }
-        else if (!ExprResolveGroup(info->ctx, info->max_groups, arrayNdx, &ndx)) {
-            log_err(info->ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
+        else if (ExprResolveGroup(info->keymap_info, arrayNdx, false,
+                                  &ndx, NULL) != PARSER_SUCCESS) {
+            log_err(info->ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
                     "Illegal group index for type of key %s; "
                     "Definition with non-integer array index ignored\n",
                     KeyInfoText(info, keyi));
@@ -1065,7 +1534,8 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
     else if (istreq(field, "locking") ||
              istreq(field, "lock") ||
              istreq(field, "locks")) {
-        log_vrb(info->ctx, 1, XKB_WARNING_UNSUPPORTED_SYMBOLS_FIELD,
+        log_vrb(info->ctx, XKB_LOG_VERBOSITY_BRIEF,
+                XKB_WARNING_UNSUPPORTED_SYMBOLS_FIELD,
                 "Key behaviors not supported; "
                 "Ignoring locking specification for key %s\n",
                 KeyInfoText(info, keyi));
@@ -1073,17 +1543,94 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
     else if (istreq(field, "radiogroup") ||
              istreq(field, "permanentradiogroup") ||
              istreq(field, "allownone")) {
-        log_vrb(info->ctx, 1, XKB_WARNING_UNSUPPORTED_SYMBOLS_FIELD,
+        log_vrb(info->ctx, XKB_LOG_VERBOSITY_BRIEF,
+                XKB_WARNING_UNSUPPORTED_SYMBOLS_FIELD,
                 "Radio groups not supported; "
                 "Ignoring radio group specification for key %s\n",
                 KeyInfoText(info, keyi));
     }
-    else if (istreq_prefix("overlay", field) ||
-             istreq_prefix("permanentoverlay", field)) {
-        log_vrb(info->ctx, 1, XKB_WARNING_UNSUPPORTED_SYMBOLS_FIELD,
-                "Overlays not supported; "
+    else if (istreq_prefix("permanentoverlay", field)) {
+        /*
+         * Permanent overlay is ineffectual and serves as documentation of the
+         * hardware, so skip it entirely.
+         */
+        log_vrb(info->ctx, XKB_LOG_VERBOSITY_BRIEF,
+                XKB_WARNING_UNSUPPORTED_SYMBOLS_FIELD,
+                "Permanent overlays not supported; "
                 "Ignoring overlay specification for key %s\n",
                 KeyInfoText(info, keyi));
+    }
+    else if (istreq_prefix("overlay", field)) {
+        xkb_overlay_index_t overlay = XKB_OVERLAY_INVALID;
+        const struct xkb_key *key = NULL;
+        if (!ExprResolveOverlayEntry(info->keymap_info, field, arrayNdx,
+                                     *value_ptr, keyi, &overlay, &key))
+            return false;
+        if (overlay == XKB_OVERLAY_INVALID) {
+            /* Overlay has not explicit value: skip */
+            return true;
+        } else if (key && key->name == keyi->name) {
+            /* Do not overlay to the same key! */
+            log_vrb(info->ctx, XKB_LOG_VERBOSITY_BRIEF,
+                    XKB_LOG_MESSAGE_NO_ID,
+                    "Cannot overlay a key to itself; "
+                    "Ignoring overlay %u specification for key %s\n",
+                    overlay + 1, KeyInfoText(info, keyi));
+        } else {
+            const struct xkb_key *prev;
+            if (overlays_get(keyi, overlay, &prev)) {
+                /* Duplicate entry */
+                if (key != prev) {
+                    /* Conflicting fields */
+                    log_warn(info->ctx, XKB_WARNING_CONFLICTING_KEY_FIELDS,
+                             "Conflicting overlays defined in key %s; "
+                             "use overlay%d=%s, ignore overlay%u=%s\n",
+                             KeyInfoText(info, keyi), overlay + 1,
+                             (prev
+                                 ? KeyNameText(info->ctx, prev->name)
+                                 : "none"),
+                             overlay + 1,
+                             (key
+                                 ? KeyNameText(info->ctx, key->name)
+                                 : "none"));
+                }
+            } else if (info->keymap_info->features.overlapping_overlays) {
+                /* Handle overlapping overlays mode */
+                if (!overlays_insert(keyi, overlay, key))
+                    return false;
+                keyi->defined |= KEY_FIELD_OVERLAY;
+            } else {
+                /* Handle disjoint overlays mode */
+                const xkb_overlay_mask_t mask = (xkb_overlay_mask_t)(1u << overlay);
+                if (!keyi->overlays || keyi->overlays_clear) {
+                    /* No overlay previously defined or different overlay cleared */
+                    if (key) {
+                        /* Replace any explicitly cleared overlay */
+                        keyi->overlays = mask;
+                        keyi->overlays_clear = false;
+                        keyi->overlay_key = key;
+                    } else {
+                        /* Explicitly no overlay (clear) */
+                        keyi->overlays |= mask;
+                        keyi->overlays_clear = true;
+                    }
+                    keyi->defined |= KEY_FIELD_OVERLAY;
+                } else if (keyi->overlays) {
+                    if (key) {
+                        log_err(info->ctx, XKB_ERROR_OVERLAPPING_OVERLAY,
+                                "Overlapping overlays are not allowed in %s; "
+                                "use overlay%d=%s, ignore overlay%u=%s\n",
+                                KeyInfoText(info, keyi), keyi->overlays,
+                                KeyNameText(info->ctx, keyi->overlay_key->name),
+                                overlay + 1, KeyNameText(info->ctx, key->name));
+                        return !(info->keymap_info->strict &
+                                 PARSER_NO_FIELD_VALUE_MISMATCH);
+                    } else {
+                        /* Ignore: the previous overlay is explicitly defined */
+                    }
+                }
+            }
+        }
     }
     else if (istreq(field, "repeating") ||
              istreq(field, "repeats") ||
@@ -1113,7 +1660,9 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
             return false;
         }
 
-        keyi->out_of_range_group_action = (set ? RANGE_WRAP : RANGE_SATURATE);
+        keyi->out_of_range_group_policy = (set)
+            ? XKB_LAYOUT_OUT_OF_RANGE_WRAP
+            : XKB_LAYOUT_OUT_OF_RANGE_CLAMP;
         keyi->defined |= KEY_FIELD_GROUPINFO;
     }
     else if (istreq(field, "groupsclamp") ||
@@ -1128,31 +1677,56 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
             return false;
         }
 
-        keyi->out_of_range_group_action = (set ? RANGE_SATURATE : RANGE_WRAP);
+        keyi->out_of_range_group_policy = (set)
+            ? XKB_LAYOUT_OUT_OF_RANGE_CLAMP
+            : XKB_LAYOUT_OUT_OF_RANGE_WRAP;
         keyi->defined |= KEY_FIELD_GROUPINFO;
     }
     else if (istreq(field, "groupsredirect") ||
              istreq(field, "redirectgroups")) {
         xkb_layout_index_t grp = 0;
+        bool pending = false;
 
-        if (!ExprResolveGroup(info->ctx, info->max_groups, value, &grp)) {
-            log_err(info->ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
+        // TODO: recover?
+        if (ExprResolveGroup(info->keymap_info, value, false, &grp, &pending) !=
+            PARSER_SUCCESS && !pending) {
+            log_err(info->ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
                     "Illegal group index for redirect of key %s; "
                     "Definition with non-integer group ignored\n",
                     KeyInfoText(info, keyi));
             return false;
         }
 
-        keyi->out_of_range_group_action = RANGE_REDIRECT;
-        keyi->out_of_range_group_number = grp - 1;
+        if (pending) {
+            keyi->out_of_range_pending_group = true;
+            const darray_size_t pending_index =
+                darray_size(*info->keymap_info->pending_computations);
+            darray_append(
+                *info->keymap_info->pending_computations,
+                (struct pending_computation) {
+                    .expr = *value_ptr,
+                    .computed = false,
+                    .value = 0,
+                }
+            );
+            *value_ptr = NULL;
+            static_assert(sizeof(keyi->out_of_range_group_number) ==
+                          sizeof(pending_index),
+                          "Cannot save pending computation");
+            keyi->out_of_range_group_number = pending_index;
+        } else {
+            keyi->out_of_range_pending_group = false;
+            keyi->out_of_range_group_number = grp - 1;
+        }
+
+        keyi->out_of_range_group_policy = XKB_LAYOUT_OUT_OF_RANGE_REDIRECT;
         keyi->defined |= KEY_FIELD_GROUPINFO;
     }
     else {
         log_err(info->ctx, XKB_ERROR_UNKNOWN_FIELD,
-                "Unknown field \"%s\" in a symbol interpretation; "
-                "Definition ignored\n",
+                "Unknown field \"%s\" in a key; definition ignored\n",
                 field);
-        return false;
+        return !(info->keymap_info->strict & PARSER_NO_UNKNOWN_KEY_FIELDS);
     }
 
     return true;
@@ -1163,15 +1737,17 @@ SetGroupName(SymbolsInfo *info, ExprDef *arrayNdx, ExprDef *value,
              enum merge_mode merge)
 {
     if (!arrayNdx) {
-        log_vrb(info->ctx, 1, XKB_WARNING_MISSING_SYMBOLS_GROUP_NAME_INDEX,
+        log_vrb(info->ctx, XKB_LOG_VERBOSITY_BRIEF,
+                XKB_WARNING_MISSING_SYMBOLS_GROUP_NAME_INDEX,
                 "You must specify an index when specifying a group name; "
                 "Group name definition without array subscript ignored\n");
         return false;
     }
 
     xkb_layout_index_t group = 0;
-    if (!ExprResolveGroup(info->ctx, info->max_groups, arrayNdx, &group)) {
-        log_err(info->ctx, XKB_ERROR_UNSUPPORTED_GROUP_INDEX,
+    if (ExprResolveGroup(info->keymap_info, arrayNdx, false, &group, NULL) !=
+        PARSER_SUCCESS) {
+        log_err(info->ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
                 "Illegal index in group name definition; "
                 "Definition with non-integer array index ignored\n");
         return false;
@@ -1243,7 +1819,7 @@ HandleGlobalVar(SymbolsInfo *info, VarDef *stmt)
         temp.merge = (temp.merge == MERGE_REPLACE)
             ? MERGE_OVERRIDE
             : stmt->merge;
-        ret = SetSymbolsField(info, &temp, field, arrayNdx, stmt->value);
+        ret = SetSymbolsField(info, &temp, field, arrayNdx, &stmt->value);
         MergeKeys(info, &info->default_key, &temp, true);
     }
     else if (!elem && (istreq(field, "name") ||
@@ -1275,14 +1851,15 @@ HandleGlobalVar(SymbolsInfo *info, VarDef *stmt)
         ret = true;
     }
     else if (elem) {
-        ret = SetDefaultActionField(info->ctx, info->keymap->format,
-                                    &info->default_actions,
-                                    &info->mods, elem, field, arrayNdx,
-                                    stmt->value, stmt->merge);
+        ret = (SetDefaultActionField(info->keymap_info, &info->default_actions,
+                                     &info->mods, elem, field, arrayNdx,
+                                     &stmt->value, stmt->merge) !=
+               PARSER_FATAL_ERROR);
     } else {
         log_err(info->ctx, XKB_ERROR_UNKNOWN_DEFAULT_FIELD,
                 "Default defined for unknown field \"%s\"; Ignored\n", field);
-        return false;
+        return !(info->keymap_info->strict &
+                 PARSER_NO_UNKNOWN_SYMBOLS_GLOBAL_FIELDS);
     }
 
     return ret;
@@ -1291,9 +1868,6 @@ HandleGlobalVar(SymbolsInfo *info, VarDef *stmt)
 static bool
 HandleSymbolsBody(SymbolsInfo *info, VarDef *def, KeyInfo *keyi)
 {
-    if (!def)
-        return true; /* Empty body */
-
     bool all_valid_entries = true;
 
     for (; def; def = (VarDef *) def->common.next) {
@@ -1329,7 +1903,7 @@ HandleSymbolsBody(SymbolsInfo *info, VarDef *def, KeyInfo *keyi)
             ok = false;
         }
 
-        if (!ok || !SetSymbolsField(info, keyi, field, arrayNdx, def->value))
+        if (!ok || !SetSymbolsField(info, keyi, field, arrayNdx, &def->value))
             all_valid_entries = false;
     }
 
@@ -1476,6 +2050,15 @@ HandleSymbolsFile(SymbolsInfo *info, XkbFile *file)
             break;
         case STMT_MODMAP:
             ok = HandleModMapDef(info, (ModMapDef *) stmt);
+            break;
+        case STMT_UNKNOWN_DECLARATION:
+        case STMT_UNKNOWN_COMPOUND:
+            log_err(info->ctx, XKB_ERROR_UNKNOWN_STATEMENT,
+                    "Unsupported symbols %s statement \"%s\"; Ignoring\n",
+                    (stmt->type == STMT_UNKNOWN_COMPOUND
+                        ? "compound" : "declaration"),
+                    ((UnknownStatement *)stmt)->name);
+            ok = !(info->keymap_info->strict & PARSER_NO_UNKNOWN_STATEMENTS);
             break;
         default:
             log_err(info->ctx, XKB_ERROR_WRONG_STATEMENT_TYPE,
@@ -1652,6 +2235,7 @@ FindTypeForGroup(struct xkb_keymap *keymap, KeyInfo *keyi,
         goto use_default;
     }
 
+    keymap->types[i].required = true;
     return &keymap->types[i];
 
 use_default:
@@ -1659,6 +2243,7 @@ use_default:
      * Index 0 is guaranteed to contain something, usually
      * ONE_LEVEL or at least some default one-level type.
      */
+    keymap->types[0].required = true;
     return &keymap->types[0];
 }
 
@@ -1677,7 +2262,8 @@ CopySymbolsDefToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info,
      */
     key = XkbKeyByName(keymap, keyi->name, false);
     if (!key) {
-        log_vrb(info->ctx, 5, XKB_WARNING_UNDEFINED_KEYCODE,
+        log_vrb(info->ctx, XKB_LOG_VERBOSITY_DETAILED,
+                XKB_WARNING_UNDEFINED_KEYCODE,
                 "Key %s not found in keycodes; Symbols ignored\n",
                 KeyInfoText(info, keyi));
         return false;
@@ -1720,19 +2306,24 @@ CopySymbolsDefToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info,
     }
 
     key->groups = calloc(key->num_groups, sizeof(*key->groups));
+    assert(darray_size(keyi->groups) == key->num_groups);
 
     /* Find and assign the groups' types in the keymap. */
     darray_enumerate(i, groupi, keyi->groups) {
-        const struct xkb_key_type *type;
-        bool explicit_type;
-
-        type = FindTypeForGroup(keymap, keyi, i, &explicit_type);
+        #ifdef __clang__
+        /* Make clang-tidy happy */
+        __builtin_assume(i < key->num_groups);
+        #endif
+        bool explicit_type = false;
+        const struct xkb_key_type * const type =
+            FindTypeForGroup(keymap, keyi, i, &explicit_type);
 
         /* Always have as many levels as the type specifies. */
         if (type->num_levels < darray_size(groupi->levels)) {
             struct xkb_level *leveli;
 
-            log_vrb(info->ctx, 1, XKB_WARNING_EXTRA_SYMBOLS_IGNORED,
+            log_vrb(info->ctx, XKB_LOG_VERBOSITY_BRIEF,
+                    XKB_WARNING_EXTRA_SYMBOLS_IGNORED,
                     "Type \"%s\" has %"PRIu32" levels, but %s has %u levels; "
                     "Ignoring extra symbols\n",
                     xkb_atom_text(keymap->ctx, type->name), type->num_levels,
@@ -1798,8 +2389,10 @@ CopySymbolsDefToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info,
         /* Copy the level */
         darray_steal(groupi->levels, &key->groups[i].levels, NULL);
         if (key->groups[i].type->num_levels > 1 ||
-            key->groups[i].levels[0].num_syms > 0)
+            key->groups[i].levels[0].num_syms > 0) {
+            key->groups[i].explicit_symbols = true;
             key->explicit |= EXPLICIT_SYMBOLS;
+        }
         if (groupi->defined & GROUP_FIELD_ACTS) { // FIXME
             key->groups[i].explicit_actions = true;
             key->explicit |= EXPLICIT_INTERP;
@@ -1808,8 +2401,9 @@ CopySymbolsDefToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info,
             key->explicit |= EXPLICIT_TYPES;
     }
 
+    key->out_of_range_pending_group = keyi->out_of_range_pending_group;
     key->out_of_range_group_number = keyi->out_of_range_group_number;
-    key->out_of_range_group_action = keyi->out_of_range_group_action;
+    key->out_of_range_group_policy = keyi->out_of_range_group_policy;
 
 key_fields:
     if (keyi->defined & KEY_FIELD_VMODMAP) {
@@ -1820,6 +2414,45 @@ key_fields:
     if (keyi->repeat != KEY_REPEAT_UNDEFINED) {
         key->repeats = (keyi->repeat == KEY_REPEAT_YES);
         key->explicit |= EXPLICIT_REPEAT;
+    }
+
+    if ((keyi->defined & KEY_FIELD_OVERLAY) &&
+        keyi->overlays && !keyi->overlays_clear) {
+        key->overlays = keyi->overlays;
+        if (keyi->overlays_alloc) {
+            /* Remove empty entries */
+
+            xkb_overlay_mask_t remaining = key->overlays;
+            const struct xkb_key **overlays_keys = keyi->overlays_keys;
+            while (remaining) {
+                /* isolate lowest set bit */
+                const xkb_overlay_mask_t lsb = (xkb_overlay_mask_t)(
+                    remaining &
+                    (xkb_overlay_mask_t)(~remaining + 1u)
+                );
+                remaining = (remaining & ~lsb);
+                if (*overlays_keys) {
+                    overlays_keys++;
+                } else {
+                    /* drop current null value (overlayN=none) */
+                    key->overlays &= ~lsb;
+                }
+            }
+
+            if (key->overlays) {
+                /* Steal */
+                key->overlays_keys = keyi->overlays_keys;
+                keyi->overlays_keys = NULL;
+                keyi->overlays_alloc = 0;
+
+                key->overlays_inline = false;
+                key->explicit |= EXPLICIT_OVERLAY;
+            }
+        } else {
+            key->overlay_key = keyi->overlay_key;
+            key->overlays_inline = true;
+            key->explicit |= EXPLICIT_OVERLAY;
+        }
     }
 
     return true;
@@ -1834,7 +2467,8 @@ CopyModMapDefToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info,
     if (!entry->haveSymbol) {
         key = XkbKeyByName(keymap, entry->u.keyName, true);
         if (!key) {
-            log_vrb(info->ctx, 5, XKB_WARNING_UNDEFINED_KEYCODE,
+            log_vrb(info->ctx, XKB_LOG_VERBOSITY_DETAILED,
+                    XKB_WARNING_UNDEFINED_KEYCODE,
                     "Key %s not found in keycodes; "
                     "Modifier map entry for %s not updated\n",
                     KeyNameText(info->ctx, entry->u.keyName),
@@ -1845,7 +2479,8 @@ CopyModMapDefToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info,
     else {
         key = FindKeyForSymbol(keymap, entry->u.keySym);
         if (!key) {
-            log_vrb(info->ctx, 5, XKB_WARNING_UNRESOLVED_KEYMAP_SYMBOL,
+            log_vrb(info->ctx, XKB_LOG_VERBOSITY_DETAILED,
+                    XKB_WARNING_UNRESOLVED_KEYMAP_SYMBOL,
                     "Key \"%s\" not found in symbol map; "
                     "Modifier map entry for %s not updated\n",
                     KeysymText(info->ctx, entry->u.keySym),
@@ -1904,11 +2539,11 @@ CopySymbolsToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info)
 }
 
 bool
-CompileSymbols(XkbFile *file, struct xkb_keymap *keymap)
+CompileSymbols(XkbFile *file, struct xkb_keymap_info *keymap_info)
 {
     SymbolsInfo info;
 
-    InitSymbolsInfo(&info, keymap, 0, &keymap->mods);
+    InitSymbolsInfo(&info, keymap_info, 0, &keymap_info->keymap.mods);
 
     if (file !=NULL)
         HandleSymbolsFile(&info, file);
@@ -1916,7 +2551,7 @@ CompileSymbols(XkbFile *file, struct xkb_keymap *keymap)
     if (info.errorCount != 0)
         goto err_info;
 
-    if (!CopySymbolsToKeymap(keymap, &info))
+    if (!CopySymbolsToKeymap(&keymap_info->keymap, &info))
         goto err_info;
 
     ClearSymbolsInfo(&info);

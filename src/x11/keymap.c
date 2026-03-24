@@ -6,9 +6,13 @@
 #include "config.h"
 
 #include <assert.h>
+#include <xcb/xkb.h>
 
-#include "x11-priv.h"
 #include "xkbcommon/xkbcommon.h"
+#include "xkbcommon/xkbcommon-keysyms.h"
+#include "atom.h"
+#include "keymap.h"
+#include "x11-priv.h"
 
 /*
  * References for the lonesome traveler:
@@ -113,7 +117,7 @@ translate_mods(uint8_t rmods, uint16_t vmods_low, uint16_t vmods_high)
         ((xkb_mod_mask_t) vmods_high << 16);
 }
 
-static enum xkb_action_controls
+enum xkb_action_controls
 translate_controls_mask(uint32_t wire)
 {
     enum xkb_action_controls ret = 0;
@@ -124,11 +128,11 @@ translate_controls_mask(uint32_t wire)
     if (wire & XCB_XKB_BOOL_CTRL_BOUNCE_KEYS)
         ret |= CONTROL_DEBOUNCE;
     if (wire & XCB_XKB_BOOL_CTRL_STICKY_KEYS)
-        ret |= CONTROL_STICKY;
+        ret |= CONTROL_STICKY_KEYS;
     if (wire & XCB_XKB_BOOL_CTRL_MOUSE_KEYS)
-        ret |= CONTROL_MOUSEKEYS;
+        ret |= CONTROL_MOUSE_KEYS;
     if (wire & XCB_XKB_BOOL_CTRL_MOUSE_KEYS_ACCEL)
-        ret |= CONTROL_MOUSEKEYS_ACCEL;
+        ret |= CONTROL_MOUSE_KEYS_ACCEL;
     if (wire & XCB_XKB_BOOL_CTRL_ACCESS_X_KEYS)
         ret |= CONTROL_AX;
     if (wire & XCB_XKB_BOOL_CTRL_ACCESS_X_TIMEOUT_MASK)
@@ -137,19 +141,23 @@ translate_controls_mask(uint32_t wire)
         ret |= CONTROL_AX_FEEDBACK;
     if (wire & XCB_XKB_BOOL_CTRL_AUDIBLE_BELL_MASK)
         ret |= CONTROL_BELL;
+    if (wire & XCB_XKB_BOOL_CTRL_OVERLAY_1_MASK)
+        ret |= CONTROL_OVERLAY1;
+    if (wire & XCB_XKB_BOOL_CTRL_OVERLAY_2_MASK)
+        ret |= CONTROL_OVERLAY2;
     if (wire & XCB_XKB_BOOL_CTRL_IGNORE_GROUP_LOCK_MASK)
         ret |= CONTROL_IGNORE_GROUP_LOCK;
     /* Some controls are not supported and don't appear here. */
     return ret;
 }
 
-static void
-translate_action(union xkb_action *action, const xcb_xkb_action_t *wire)
+static bool
+translate_action(union xkb_action *action, const xcb_xkb_action_t *wire,
+                 xkb_keycode_t min_key_code, xkb_keycode_t max_key_code)
 {
     switch (wire->type) {
     case XCB_XKB_SA_TYPE_SET_MODS:
         action->type = ACTION_TYPE_MOD_SET;
-
         action->mods.mods.mods = translate_mods(wire->setmods.realMods,
                                                 wire->setmods.vmodsLow,
                                                 wire->setmods.vmodsHigh);
@@ -304,18 +312,45 @@ translate_action(union xkb_action *action, const xcb_xkb_action_t *wire)
         }
         break;
 
+    case XCB_XKB_SA_TYPE_REDIRECT_KEY:
+        action->type = ACTION_TYPE_REDIRECT_KEY;
+        if (wire->redirect.newkey < min_key_code ||
+            wire->redirect.newkey > max_key_code)
+                return false;
+        action->redirect.keycode = wire->redirect.newkey;
+        /*
+         * WARNING: there is a bug in Xorg that swap the low and high
+         * vmod values. Real modifiers are fine though. See:
+         * https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/merge_requests/105
+         */
+        action->redirect.affect = translate_mods(wire->redirect.mask,
+                                                 wire->redirect.vmodsMaskLow,
+                                                 wire->redirect.vmodsMaskHigh);
+        action->redirect.mods = translate_mods(wire->redirect.realModifiers,
+                                               wire->redirect.vmodsLow,
+                                               wire->redirect.vmodsHigh);
+        break;
+
     case XCB_XKB_SA_TYPE_NO_ACTION:
+        action->type = ACTION_TYPE_NONE;
+        break;
+
     /* We don't support these. */
     case XCB_XKB_SA_TYPE_ISO_LOCK:
-    case XCB_XKB_SA_TYPE_REDIRECT_KEY:
     case XCB_XKB_SA_TYPE_ACTION_MESSAGE:
     case XCB_XKB_SA_TYPE_DEVICE_BTN:
     case XCB_XKB_SA_TYPE_LOCK_DEVICE_BTN:
     case XCB_XKB_SA_TYPE_DEVICE_VALUATOR:
-        action->type = ACTION_TYPE_NONE;
+        action->type = ACTION_TYPE_UNSUPPORTED_LEGACY;
         break;
 
     default:
+        {} /* Label followed by declaration requires C23 */
+        /* Ensure to not miss `xkb_action_type` updates */
+        static_assert(ACTION_TYPE_INTERNAL == 20 &&
+                      ACTION_TYPE_INTERNAL + 1 == _ACTION_TYPE_NUM_ENTRIES,
+                      "Missing action type");
+
         if (wire->type < ACTION_TYPE_PRIVATE) {
             action->type = ACTION_TYPE_NONE;
             break;
@@ -329,6 +364,7 @@ translate_action(union xkb_action *action, const xcb_xkb_action_t *wire)
         memcpy(action->priv.data, wire->noaction.pad0, 7);
         break;
     }
+    return true;
 }
 
 static bool
@@ -399,6 +435,9 @@ get_types(struct xkb_keymap *keymap, xcb_connection_t *conn,
             }
         }
 
+        /* Checked only when compiling a keymap from text */
+        type->required = true;
+
         xcb_xkb_key_type_next(&types_iter);
     }
 
@@ -422,6 +461,7 @@ get_sym_maps(struct xkb_keymap *keymap, xcb_connection_t *conn,
 
     keymap->min_key_code = reply->minKeyCode;
     keymap->max_key_code = reply->maxKeyCode;
+    keymap->num_keys = keymap->num_keys_low = reply->maxKeyCode + 1;
 
     ALLOC_OR_FAIL(keymap->keys, keymap->max_key_code + 1);
 
@@ -448,11 +488,11 @@ get_sym_maps(struct xkb_keymap *keymap, xcb_connection_t *conn,
         FAIL_UNLESS(key->out_of_range_group_number <= key->num_groups);
 
         if (wire_sym_map->groupInfo & XCB_XKB_GROUPS_WRAP_CLAMP_INTO_RANGE)
-            key->out_of_range_group_action = RANGE_SATURATE;
+            key->out_of_range_group_policy = XKB_LAYOUT_OUT_OF_RANGE_CLAMP;
         else if (wire_sym_map->groupInfo & XCB_XKB_GROUPS_WRAP_REDIRECT_INTO_RANGE)
-            key->out_of_range_group_action = RANGE_REDIRECT;
+            key->out_of_range_group_policy = XKB_LAYOUT_OUT_OF_RANGE_REDIRECT;
         else
-            key->out_of_range_group_action = RANGE_WRAP;
+            key->out_of_range_group_policy = XKB_LAYOUT_OUT_OF_RANGE_WRAP;
 
         {
             int syms_length = xcb_xkb_key_sym_map_syms_length(wire_sym_map);
@@ -476,6 +516,8 @@ get_sym_maps(struct xkb_keymap *keymap, xcb_connection_t *conn,
                         /* Set capitalization transformation */
                         key->groups[group].levels[level].upper =
                             xkb_keysym_to_upper(wire_keysym);
+                        if (wire_keysym != XKB_KEY_NoSymbol)
+                            key->groups[group].explicit_symbols = true;
                     }
 
                     syms_iter++;
@@ -517,6 +559,9 @@ get_actions(struct xkb_keymap *keymap, xcb_connection_t *conn,
         FAIL_UNLESS((unsigned) syms_length == wire_sym_map->width * key->num_groups);
         FAIL_UNLESS(wire_count == 0 || wire_count == syms_length);
 
+        const xkb_keycode_t min_key_code = keymap->min_key_code;
+        const xkb_keycode_t max_key_code = keymap->max_key_code;
+
         if (wire_count != 0) {
             for (xkb_layout_index_t group = 0; group < key->num_groups; group++) {
                 for (xkb_level_index_t level = 0; level < wire_sym_map->width; level++) {
@@ -524,13 +569,19 @@ get_actions(struct xkb_keymap *keymap, xcb_connection_t *conn,
 
                     if (level < key->groups[group].type->num_levels) {
                         key->groups[group].levels[level].num_actions = 1;
-                        union xkb_action *action = &key->groups[group].levels[level].a.action;
+                        union xkb_action *action =
+                            &key->groups[group].levels[level].a.action;
 
-                        translate_action(action, wire_action);
-                        /* If the action and the keysym are both undefined,
-                         * discard them */
-                        if (action->type == ACTION_TYPE_NONE &&
-                            key->groups[group].levels[level].s.sym == XKB_KEY_NoSymbol) {
+                        FAIL_UNLESS(translate_action(action, wire_action,
+                                                     min_key_code, max_key_code));
+
+                        if (action->type != ACTION_TYPE_NONE) {
+                            key->groups[group].implicit_actions =
+                                !(key->explicit & EXPLICIT_INTERP);
+                        } else if (key->groups[group].levels[level].s.sym ==
+                                   XKB_KEY_NoSymbol) {
+                            /* If the action and the keysym are both undefined,
+                             * discard them */
                             key->groups[group].levels[level].num_syms = 0;
                             key->groups[group].levels[level].num_actions = 0;
                         }
@@ -538,6 +589,9 @@ get_actions(struct xkb_keymap *keymap, xcb_connection_t *conn,
 
                     xcb_xkb_action_next(&acts_iter);
                 }
+
+                if (key->groups[group].implicit_actions)
+                    key->implicit_actions = true;
             }
         }
 
@@ -559,7 +613,9 @@ get_vmods(struct xkb_keymap *keymap, xcb_connection_t *conn,
 
     keymap->mods.num_mods =
         NUM_REAL_MODS + MIN(msb_pos(reply->virtualMods), NUM_VMODS);
+    FAIL_UNLESS(keymap->mods.num_mods <= XKB_MAX_MODS);
 
+    static_assert(NUM_REAL_MODS + NUM_VMODS <= XKB_MAX_MODS, "");
     for (unsigned i = 0; i < NUM_VMODS; i++) {
         if (reply->virtualMods & (1u << i)) {
             uint8_t wire = *iter;
@@ -573,6 +629,9 @@ get_vmods(struct xkb_keymap *keymap, xcb_connection_t *conn,
     }
 
     return true;
+
+fail:
+    return false;
 }
 
 static bool
@@ -614,7 +673,10 @@ get_explicits(struct xkb_keymap *keymap, xcb_connection_t *conn,
         }
         if (wire->explicit & XCB_XKB_EXPLICIT_INTERPRET) {
             key->explicit |= EXPLICIT_INTERP;
-            /* Make all key groups have explicit actions too */
+            /*
+             * Make all key groups have explicit actions too, because we have
+             * no way to know which one is implicit.
+             */
             for (xkb_layout_index_t l = 0; l < key->num_groups; l++) {
                 key->groups[l].explicit_actions = true;
             }
@@ -737,7 +799,9 @@ get_indicators(struct xkb_keymap *keymap, xcb_connection_t *conn,
         xcb_xkb_get_indicator_map_maps_iterator(reply);
 
     keymap->num_leds = msb_pos(reply->which);
+    FAIL_UNLESS(keymap->num_leds <= XKB_MAX_LEDS);
 
+    static_assert(XKB_MAX_LEDS == NUM_INDICATORS, "");
     for (unsigned i = 0; i < NUM_INDICATORS; i++) {
         if (reply->which & (UINT32_C(1) << i)) {
             xcb_xkb_indicator_map_t *wire = iter.data;
@@ -777,6 +841,9 @@ get_indicators(struct xkb_keymap *keymap, xcb_connection_t *conn,
     }
 
     return true;
+
+fail:
+    return false;
 }
 
 static bool
@@ -812,6 +879,9 @@ get_sym_interprets(struct xkb_keymap *keymap, xcb_connection_t *conn,
 
     keymap->num_sym_interprets = reply->nSIRtrn;
     ALLOC_OR_FAIL(keymap->sym_interprets, keymap->num_sym_interprets);
+
+    const xkb_keycode_t min_key_code = keymap->min_key_code;
+    const xkb_keycode_t max_key_code = keymap->max_key_code;
 
     for (int i = 0; i < length; i++) {
         xcb_xkb_sym_interpret_t *wire = iter.data;
@@ -852,10 +922,14 @@ get_sym_interprets(struct xkb_keymap *keymap, xcb_connection_t *conn,
             sym_interpret->virtual_mod = NUM_REAL_MODS + wire->virtualMod;
 
         sym_interpret->repeat = (wire->flags & 0x01);
-        translate_action(&sym_interpret->a.action,
-                         (xcb_xkb_action_t *) &wire->action);
+        FAIL_UNLESS(translate_action(&sym_interpret->a.action,
+                                     (xcb_xkb_action_t *) &wire->action,
+                                     min_key_code, max_key_code));
         sym_interpret->num_actions =
             (sym_interpret->a.action.type != ACTION_TYPE_NONE);
+
+        /* Checked only when compiling a keymap from text */
+        sym_interpret->required = true;
 
         xcb_xkb_sym_interpret_next(&iter);
     }
@@ -910,18 +984,23 @@ get_type_names(struct xkb_keymap *keymap, struct x11_atom_interner *interner,
         uint8_t wire_num_levels = *n_levels_per_type_iter;
         struct xkb_key_type *type = &keymap->types[i];
 
-        /* Levels must have names. */
-        FAIL_UNLESS(type->num_levels == wire_num_levels);
+        /* Levels names are optional, but the maximum is the level count */
+        FAIL_UNLESS(type->num_levels >= wire_num_levels);
 
+        /* Allocate names for all levels, even if some names are missing */
         ALLOC_OR_FAIL(type->level_names, type->num_levels);
+        type->num_level_names = type->num_levels;
 
         x11_atom_interner_adopt_atom(interner, wire_type_name, &type->name);
         for (size_t j = 0; j < wire_num_levels; j++) {
             x11_atom_interner_adopt_atom(interner, kt_level_names_iter[j],
                                          &type->level_names[j]);
         }
+        /* We may have received less names than there are levels: ensure
+         * missing names have a fallback. */
+        for (size_t j = wire_num_levels; j < type->num_levels; j++)
+            type->level_names[j] = XKB_ATOM_NONE;
 
-        type->num_level_names = type->num_levels;
         kt_level_names_iter += wire_num_levels;
         key_type_names_iter++;
         n_levels_per_type_iter++;
@@ -974,7 +1053,9 @@ get_vmod_names(struct xkb_keymap *keymap, struct x11_atom_interner *interner,
      */
     keymap->mods.num_mods =
         NUM_REAL_MODS + MIN(msb_pos(reply->virtualMods), NUM_VMODS);
+    FAIL_UNLESS(keymap->mods.num_mods <= XKB_MAX_MODS);
 
+    static_assert(NUM_REAL_MODS + NUM_VMODS <= XKB_MAX_MODS, "");
     for (unsigned i = 0; i < NUM_VMODS; i++) {
         if (reply->virtualMods & (1u << i)) {
             xcb_atom_t wire = *iter;
@@ -987,6 +1068,9 @@ get_vmod_names(struct xkb_keymap *keymap, struct x11_atom_interner *interner,
     }
 
     return true;
+
+fail:
+    return false;
 }
 
 static bool
@@ -1141,7 +1225,6 @@ get_controls(struct xkb_keymap *keymap, xcb_connection_t *conn,
     FAIL_IF_BAD_REPLY(reply, "XkbGetControls");
     FAIL_UNLESS(reply->numGroups > 0 && reply->numGroups <= 4);
 
-    keymap->enabled_ctrls = translate_controls_mask(reply->enabledControls);
     keymap->num_groups = reply->numGroups;
 
     FAIL_UNLESS(keymap->max_key_code < XCB_XKB_CONST_PER_KEY_BIT_ARRAY_SIZE * 8);
@@ -1163,24 +1246,19 @@ xkb_x11_keymap_new_from_device(struct xkb_context *ctx,
                                int32_t device_id,
                                enum xkb_keymap_compile_flags flags)
 {
-    struct xkb_keymap *keymap;
-    const enum xkb_keymap_format format = XKB_KEYMAP_FORMAT_TEXT_V1;
-
-    if (flags & ~(XKB_KEYMAP_COMPILE_NO_FLAGS)) {
-        log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
-                     "unrecognized flags: %#x\n", flags);
-        return NULL;
-    }
-
     if (device_id < 0 || device_id > 127) {
         log_err_func(ctx, XKB_LOG_MESSAGE_NO_ID,
                      "illegal device ID: %"PRId32"\n", device_id);
         return NULL;
     }
 
-    keymap = xkb_keymap_new(ctx, format, flags);
+    const enum xkb_keymap_format format = XKB_KEYMAP_FORMAT_TEXT_V1;
+    struct xkb_keymap * const keymap =
+        xkb_keymap_new(ctx, __func__, format, flags);
     if (!keymap)
         return NULL;
+
+    keymap->redirect_key_auto = XKB_KEYCODE_MAX; /* Invalid X11 keycode */
 
     struct x11_atom_interner interner;
     x11_atom_interner_init(&interner, ctx, conn);

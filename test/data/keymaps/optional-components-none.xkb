@@ -5,7 +5,7 @@ xkb_keycodes {
 };
 
 xkb_types {
-	type "default" {
+	type "ONE_LEVEL" {
 		modifiers= none;
 	};
 };
@@ -14,7 +14,7 @@ xkb_compatibility {
 	interpret.useModMapMods= AnyLevel;
 	interpret.repeat= False;
 	interpret VoidSymbol+AnyOfOrNone(none) {
-		repeat= True;
+		action= NoAction();
 	};
 };
 

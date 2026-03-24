@@ -4,6 +4,7 @@
  */
 
 #include "config.h"
+#include "test-config.h"
 
 #include <locale.h>
 
@@ -82,7 +83,7 @@ test_basic(void)
     log_err(ctx, XKB_ERROR_MALFORMED_NUMBER_LITERAL, "second error: %lu\n", 115415UL);
     log_vrb(ctx, 6, XKB_LOG_MESSAGE_NO_ID, "second verbose 6\n");
 
-    xkb_context_set_log_verbosity(ctx, 0);
+    xkb_context_set_log_verbosity(ctx, XKB_LOG_VERBOSITY_MINIMAL);
     xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_CRITICAL);
     log_warn(ctx, XKB_LOG_MESSAGE_NO_ID, "third warning: %d\n", 87);
     log_dbg(ctx, XKB_LOG_MESSAGE_NO_ID, "third debug: %s %s\n", "hello", "world");
@@ -123,7 +124,7 @@ test_keymaps(void)
     xkb_context_set_log_fn(ctx, log_fn);
 
     xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_WARNING);
-    xkb_context_set_log_verbosity(ctx, 10);
+    xkb_context_set_log_verbosity(ctx, XKB_LOG_VERBOSITY_COMPREHENSIVE);
 
     const struct test_data keymaps[] = {
         {
@@ -197,7 +198,7 @@ test_keymaps(void)
                 "warning: [XKB-433] No map in include statement, but \"(input string)\" contains several; Using first defined map, \"(unnamed map)\"\n"
                 "warning: [XKB-523] Alias of <1> for <> declared more than once; First definition ignored\n"
                 "warning: [XKB-286] The type \"TWO_LEVEL\" for key '<>' group 1 was not previously defined; Using the default type\n"
-                "warning: [XKB-516] Type \"default\" has 1 levels, but <> has 2 levels; Ignoring extra symbols\n",
+                "warning: [XKB-516] Type \"ONE_LEVEL\" has 1 levels, but <> has 2 levels; Ignoring extra symbols\n",
             .error = false
         },
         /* Invalid action fields */
@@ -246,13 +247,13 @@ test_keymaps(void)
                 /* This uses invalid field, but we do not check fields of
                  * legacy actions */
                 "    interpret VoidSymbol+AnyOf(all) {\n"
-                "      action= RedirectKey(data=<garbage>);\n"
+                "      action= DeviceButton(data=<garbage>);\n"
                 "    };\n"
                 "  };\n"
                 "};",
             .log =
                 "warning: [XKB-362] Unsupported legacy action type \"ISOLock\".\n"
-                "warning: [XKB-362] Unsupported legacy action type \"RedirectKey\".\n",
+                "warning: [XKB-362] Unsupported legacy action type \"DeviceButton\".\n",
             .error = false
         },
         /* Invalid global var */
@@ -331,7 +332,7 @@ test_compose(void)
     xkb_context_set_log_fn(ctx, log_fn);
 
     xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_WARNING);
-    xkb_context_set_log_verbosity(ctx, 10);
+    xkb_context_set_log_verbosity(ctx, XKB_LOG_VERBOSITY_VERBOSE);
 
     const struct test_data composes[] = {
         {

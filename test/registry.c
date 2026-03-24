@@ -4,6 +4,7 @@
  */
 
 #include "config.h"
+#include "test-config.h"
 
 #include <assert.h>
 #if HAVE_UNISTD_H
@@ -1125,6 +1126,10 @@ int
 main(void)
 {
     test_init();
+
+    /* Reject unsupported flags */
+    assert(!rxkb_context_new(-1));
+    assert(!rxkb_context_new(0xffff));
 
     test_xml_error_handler();
     test_no_include_paths();

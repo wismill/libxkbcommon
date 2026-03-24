@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include "config.h"
+
 #include <assert.h>
 #include <stdbool.h>
 
@@ -13,6 +15,7 @@
 #define _XKBCOMMON_COMPAT_H
 #include "xkbcommon/xkbcommon.h"
 #include "xkbcommon/xkbcommon-compose.h"
+#include "src/messages-codes.h"
 #include "utils.h"
 
 /* Automake test exit code to signify SKIP (à la PASS, FAIL, etc).
@@ -34,7 +37,14 @@
 #define assert_eq(test_name, expected, got, format, ...) \
     assert_printf(expected == got, \
                   test_name ". Expected " format ", got: " format "\n", \
-                  __VA_ARGS__, expected, got)
+                  ##__VA_ARGS__, expected, got)
+
+#define TEST_KEYMAP_COMPILE_FLAGS XKB_KEYMAP_COMPILE_STRICT_MODE
+
+#define TEST_KEYMAP_SERIALIZE_FLAGS (    \
+    XKB_KEYMAP_SERIALIZE_PRETTY |        \
+    XKB_KEYMAP_SERIALIZE_KEEP_UNUSED     \
+)
 
 void
 test_init(void);
@@ -59,7 +69,12 @@ int
 test_key_seq(struct xkb_keymap *keymap, ...);
 
 int
-test_key_seq_va(struct xkb_keymap *keymap, va_list args);
+test_key_seq2(struct xkb_keymap *keymap, struct xkb_machine *sm,
+              struct xkb_events *events, ...);
+
+int
+test_key_seq_va(struct xkb_keymap *keymap, struct xkb_machine * sm,
+                struct xkb_events *events, va_list args);
 
 char *
 test_makedir(const char *parent, const char *path);
@@ -69,6 +84,9 @@ test_maketempdir(const char *template);
 
 char *
 test_get_path(const char *path_rel);
+
+char *
+read_file(const char *path, FILE *file);
 
 char *
 test_read_file(const char *path_rel);
@@ -93,6 +111,11 @@ struct xkb_keymap *
 test_compile_buffer(struct xkb_context *context, enum xkb_keymap_format format,
                     const char *buf, size_t len);
 
+struct xkb_keymap *
+test_compile_buffer2(struct xkb_context *context, enum xkb_keymap_format format,
+                     enum xkb_keymap_compile_flags flags,
+                     const char *buf, size_t len);
+
 typedef struct xkb_keymap * (*test_compile_buffer_t)(struct xkb_context *context,
                                                      enum xkb_keymap_format format,
                                                      const char *buf, size_t len,
@@ -105,6 +128,16 @@ test_compile_output(struct xkb_context *ctx, enum xkb_keymap_format input_format
                     void *compile_buffer_private, const char *test_title,
                     const char *keymap_str, size_t keymap_len,
                     const char *rel_path, bool update_output_files);
+
+bool
+test_compile_output2(struct xkb_context *ctx,
+                     enum xkb_keymap_format input_format,
+                     enum xkb_keymap_format output_format,
+                     enum xkb_keymap_serialize_flags serialize_flags,
+                     test_compile_buffer_t compile_buffer,
+                     void *compile_buffer_private, const char *test_title,
+                     const char *keymap_str, size_t keymap_len,
+                     const char *rel_path, bool update_output_files);
 
 typedef int (*test_third_party_compile_buffer_t)(const char *buf, size_t len,
                                                  void *private,
@@ -127,6 +160,12 @@ test_compile_rules(struct xkb_context *context, enum xkb_keymap_format format,
                    const char *rules, const char *model, const char *layout,
                    const char *variant, const char *options);
 
+static inline void
+xkb_enable_quiet_logging(struct xkb_context *ctx)
+{
+    xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_CRITICAL);
+    xkb_context_set_log_verbosity(ctx, XKB_LOG_VERBOSITY_MINIMAL);
+}
 
 #ifdef _WIN32
 #define setenv(varname, value, overwrite) _putenv_s((varname), (value))

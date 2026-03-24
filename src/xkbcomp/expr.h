@@ -4,11 +4,14 @@
  */
 #pragma once
 
+#include "config.h"
+
 #include "xkbcommon/xkbcommon.h"
 
 #include "ast.h"
 #include "keymap.h"
 #include "text.h"
+#include "xkbcomp-priv.h"
 
 bool
 ExprResolveLhs(struct xkb_context *ctx, const ExprDef *expr,
@@ -37,13 +40,15 @@ bool
 ExprResolveLevel(struct xkb_context *ctx, const ExprDef *expr,
                  xkb_level_index_t *level_rtrn);
 
-bool
-ExprResolveGroup(struct xkb_context *ctx, xkb_layout_index_t max_groups,
-                 const ExprDef *expr, xkb_layout_index_t *group_rtrn);
+enum xkb_parser_error
+ExprResolveGroup(const struct xkb_keymap_info *keymap_info,
+                 const ExprDef *expr, bool absolute,
+                 xkb_layout_index_t *group_rtrn, bool *pending_rtrn);
 
 bool
-ExprResolveGroupMask(struct xkb_context *ctx, xkb_layout_index_t max_groups,
-                     const ExprDef *expr, xkb_layout_index_t *group_rtrn);
+ExprResolveGroupMask(const struct xkb_keymap_info *keymap_info,
+                     const ExprDef *expr, xkb_layout_mask_t *group_rtrn,
+                     bool *pending_rtrn);
 
 bool
 ExprResolveButton(struct xkb_context *ctx, const ExprDef *expr,

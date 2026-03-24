@@ -6,11 +6,13 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #if HAVE_UNISTD_H
 # include <unistd.h>
@@ -32,10 +34,20 @@
 # ifndef S_ISREG
 #  define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 # endif
+# ifndef STDIN_FILENO
+#  define STDIN_FILENO 0
+# endif
+#ifdef _MSC_VER
 typedef SSIZE_T ssize_t;
 #endif
+#endif
 
-#include "darray.h"
+static inline bool
+is_aligned(const void *restrict pointer, size_t byte_count)
+{
+    return (uintptr_t) pointer % byte_count == 0;
+}
+
 
 #define ARRAY_SIZE(arr) ((sizeof(arr) / sizeof(*(arr))))
 
@@ -112,6 +124,18 @@ istrneq(const char *s1, const char *s2, size_t len)
 }
 
 #define istreq_prefix(s1, s2) istrneq(s1, s2, sizeof(s1) - 1)
+
+static inline char *
+strcpy_safe(char *dest, size_t size, const char *src) {
+    if (!dest || !size || !src)
+        return NULL;
+    const char * const limit = dest + size - 1;
+    while (dest < limit && *src) {
+        *dest++ = *src++;
+    }
+    *dest = '\0';
+    return *src ? NULL : dest;
+}
 
 static inline char *
 strdup_safe(const char *s)
@@ -322,6 +346,12 @@ open_file(const char *path);
 #define ATTR_PACKED
 #endif
 
+#if defined(HAVE_ATTR_COUNTED_BY) && HAVE_ATTR_COUNTED_BY
+# define ATTR_COUNTED_BY(count) __attribute__((counted_by(count)))
+#else
+# define ATTR_COUNTED_BY(count)
+#endif
+
 #if !(defined(HAVE_ASPRINTF) && HAVE_ASPRINTF)
 XKB_EXPORT_PRIVATE int asprintf(char **strp, const char *fmt, ...) ATTR_PRINTF(2, 3);
 # if !(defined(HAVE_VASPRINTF) && HAVE_VASPRINTF)
@@ -375,3 +405,29 @@ asprintf_safe(const char *fmt, ...)
 
     return str;
 }
+
+#ifdef NDEBUG
+    #if defined(__GNUC__) || defined(__clang__)
+        #define PANIC_UNREACHABLE() __builtin_unreachable()
+    #elif defined(_MSC_VER)
+        #define PANIC_UNREACHABLE() __assume(0)
+    #else
+        #define PANIC_UNREACHABLE() abort()
+    #endif
+#else
+    #define PANIC_UNREACHABLE() \
+        do { \
+            fprintf(stderr, "Critical Error: Reached unreachable line in %s at %d\n", __FILE__, __LINE__); \
+            abort(); \
+        } while (0)
+#endif
+
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
+#  define NOINLINE [[noinline]]
+#elif defined(__GNUC__) || defined(__clang__)
+#  define NOINLINE __attribute__((noinline))
+#elif defined(_MSC_VER)
+#  define NOINLINE __declspec(noinline)
+#else
+#  define NOINLINE
+#endif

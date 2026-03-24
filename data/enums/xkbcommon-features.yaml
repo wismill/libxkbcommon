@@ -1,0 +1,51 @@
+# Extracted Enums from: include/xkbcommon/xkbcommon-features.h
+
+xkb_feature:
+  - name: XKB_FEATURE_ENUM_FEATURE
+    value: 1000
+  - name: XKB_FEATURE_ENUM_CONTEXT_FLAGS
+    value: 1100
+  - name: XKB_FEATURE_ENUM_LOG_LEVEL
+    value: 1110
+  - name: XKB_FEATURE_ENUM_ERROR_CODE
+    value: 1200
+  - name: XKB_FEATURE_ENUM_KEYMAP_FORMAT
+    value: 2000
+  - name: XKB_FEATURE_ENUM_KEYMAP_COMPILE_FLAGS
+    value: 2010
+  - name: XKB_FEATURE_ENUM_RMLVO_BUILDER_FLAGS
+    value: 2020
+  - name: XKB_FEATURE_ENUM_KEYMAP_SERIALIZE_FLAGS
+    value: 2100
+  - name: XKB_FEATURE_ENUM_KEYMAP_KEY_ITERATOR_FLAGS
+    value: 2200
+  - name: XKB_FEATURE_ENUM_KEYSYM_FLAGS
+    value: 2300
+  - name: XKB_FEATURE_ENUM_STATE_COMPONENT
+    value: 3000
+  - name: XKB_FEATURE_ENUM_KEYBOARD_CONTROL_FLAGS
+    value: 3020
+  - name: XKB_FEATURE_ENUM_A11Y_FLAGS
+    value: 3100
+  - name: XKB_FEATURE_ENUM_LAYOUT_OUT_OF_RANGE_POLICY
+    value: 3110
+  - name: XKB_FEATURE_ENUM_EVENT_TYPE
+    value: 3200
+  - name: XKB_FEATURE_ENUM_EVENTS_FLAGS
+    value: 3210
+  - name: XKB_FEATURE_ENUM_KEY_DIRECTION
+    value: 3300
+  - name: XKB_FEATURE_ENUM_STATE_MATCH
+    value: 3400
+  - name: XKB_FEATURE_ENUM_CONSUMED_MODE
+    value: 3410
+  - name: XKB_FEATURE_ENUM_COMPOSE_FORMAT
+    value: 4000
+  - name: XKB_FEATURE_ENUM_COMPOSE_COMPILE_FLAGS
+    value: 4010
+  - name: XKB_FEATURE_ENUM_COMPOSE_STATE_FLAGS
+    value: 4100
+  - name: XKB_FEATURE_ENUM_COMPOSE_STATUS
+    value: 4200
+  - name: XKB_FEATURE_ENUM_COMPOSE_FEED_RESULT
+    value: 4210

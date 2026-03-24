@@ -2,6 +2,8 @@
 //       Do not edit manually!
 #pragma once
 
+#include "config.h"
+
 #include <stdint.h>
 
 /*
@@ -34,6 +36,19 @@
 #define PREPEND_MESSAGE_ID(id, fmt) JOIN(FORMAT_MESSAGE_, CHECK_ID(id))(id, fmt)
 
 /**
+ * Set of verbosity levels
+ */
+enum xkb_log_verbosity {
+    XKB_LOG_VERBOSITY_SILENT = -1,
+    XKB_LOG_VERBOSITY_MINIMAL = 0,
+    XKB_LOG_VERBOSITY_BRIEF = 1,
+    XKB_LOG_VERBOSITY_DETAILED = 5,
+    XKB_LOG_VERBOSITY_VERBOSE = 10,
+    XKB_LOG_VERBOSITY_COMPREHENSIVE = 11,
+    XKB_LOG_VERBOSITY_DEFAULT = XKB_LOG_VERBOSITY_MINIMAL,
+};
+
+/**
  * Special case when no message identifier is defined.
  */
 #define XKB_LOG_MESSAGE_NO_ID 0
@@ -45,9 +60,7 @@ enum xkb_message_code {
     _XKB_LOG_MESSAGE_MIN_CODE = {{ entries[0].code }},
     {% for entry in entries %}
     /** {{ entry.description }} */
-    {{ entry.message_code_constant }} = {{ entry.code }},
+    {{ entry.message_code_constant(visibility) }} = {{ entry.code }},
     {% endfor %}
     _XKB_LOG_MESSAGE_MAX_CODE = {{ entries[-1].code }}
 };
-
-typedef uint32_t xkb_message_code_t;
