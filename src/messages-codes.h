@@ -156,6 +156,8 @@ enum xkb_message_code {
     XKB_ERROR_INVALID_OPERATION = 478,
     /** Warn on numeric keysym (other than 0-9) */
     XKB_WARNING_NUMERIC_KEYSYM = 489,
+    /** Unsupported xkb_machine_builder update type */
+    XKB_ERROR_UNSUPPORTED_MACHINE_BUILDER_UPDATE_ = 502,
     /** TODO: add description */
     XKB_WARNING_EXTRA_SYMBOLS_IGNORED = 516,
     /** Conflicting definitions of a key name or alias */

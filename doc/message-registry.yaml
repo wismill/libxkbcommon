@@ -472,6 +472,12 @@
         // or
         key <AE01> { [ U1ED0 ] };
         ```
+- id: "unsupported-machine-builder-update"
+  code: 502
+  type: error
+  added: 1.14.0
+  visibility: public
+  description: "Unsupported xkb_machine_builder update type"
 - id: "extra-symbols-ignored"
   code: 516
   added: ALWAYS

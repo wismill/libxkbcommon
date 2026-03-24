@@ -69,6 +69,7 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_WARNING_CONFLICTING_KEY_SYMBOL, "Conflicting key symbol"},
     {XKB_ERROR_INVALID_OPERATION, "Invalid operation"},
     {XKB_WARNING_NUMERIC_KEYSYM, "Numeric keysym"},
+    {XKB_ERROR_UNSUPPORTED_MACHINE_BUILDER_UPDATE_, "Unsupported machine builder update"},
     {XKB_WARNING_EXTRA_SYMBOLS_IGNORED, "Extra symbols ignored"},
     {XKB_WARNING_CONFLICTING_KEY_NAME, "Conflicting key name"},
     {XKB_ERROR_INVALID_FILE_ENCODING, "Invalid file encoding"},
