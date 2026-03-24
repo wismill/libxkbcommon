@@ -657,7 +657,6 @@ tools_shared_lib = static_library(
         'src/utf8-decoding.c',
     ],
     include_directories: include_directories('include', 'src', 'tools'),
-    dependencies: dep_libxkbcommon,
 )
 build_tools = get_option('enable-tools') and cc.has_header_symbol(
     'getopt.h',
