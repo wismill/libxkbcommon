@@ -3156,6 +3156,21 @@ machine_set_shortcuts(struct xkb_machine * restrict sm,
     return true;
 }
 
+enum xkb_error_code
+xkb_machine_builder_update(struct xkb_machine_builder *builder,
+                           enum xkb_machine_builder_update_type type,
+                           const void *update)
+{
+    switch (type) {
+    default:
+        log_err_func(builder->keymap->ctx,
+                     XKB_ERROR_UNSUPPORTED_MACHINE_BUILDER_UPDATE_,
+                     "unsupported xkb_machine_builder update type: %#x\n",
+                     type);
+        return XKB_ERROR_UNSUPPORTED_MACHINE_BUILDER_UPDATE;
+    }
+}
+
 struct xkb_machine *
 xkb_machine_new(const struct xkb_machine_builder *builder)
 {

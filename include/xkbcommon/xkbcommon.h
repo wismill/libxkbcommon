@@ -3027,6 +3027,48 @@ xkb_machine_builder_get_keymap(const struct xkb_machine_builder *builder);
 enum xkb_machine_builder_update_type: int; /*  TODO */
 
 /**
+ * Update an `xkb_machine_builder` object.
+ *
+ * @param[in,out] builder The `xkb_machine` builder object to modify.
+ * @param[in]     type    The type of update.
+ * @param[in]     update  The pointer to the update object.
+ *
+ * @since 1.14.0
+ * @sa `xkb_machine_builder_update_generic()`
+ * @sa `xkb_machine_builder_a11y_update`
+ * @todo other updates
+ *
+ * @memberof xkb_machine_builder
+ */
+XKB_EXPORT enum xkb_error_code
+xkb_machine_builder_update(struct xkb_machine_builder *builder,
+                           enum xkb_machine_builder_update_type type,
+                           const void *update);
+
+/* Helpers for C Callers */
+#ifndef __cplusplus
+#define XKB_GET_MACHINE_BUILDER_UPDATE_TYPE(ptr) _Generic((ptr)  \
+)
+
+/**
+ * Type-safe variant of `xkb_machine_builder_update()`
+ *
+ * @param[in,out] builder The `xkb_machine` builder object to modify.
+ * @param[in]     update  The pointer to the update object.
+ *
+ * @memberof xkb_machine_builder
+ *
+ * @since 1.14.0
+ */
+#define xkb_machine_builder_update_generic(builder, update) \
+    xkb_machine_builder_update(                             \
+        (builder),                                          \
+        XKB_GET_MACHINE_BUILDER_UPDATE_TYPE(update),        \
+        (const void *)(update)                              \
+    )
+#endif
+
+/**
  * @enum xkb_a11y_flags
  * Flags for
  * `xkb_machine_builder::xkb_machine_builder_update_a11y_flags()`.
