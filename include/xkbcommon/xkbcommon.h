@@ -3043,6 +3043,12 @@ enum xkb_machine_builder_update_type {
      * @since 1.14.0
      */
     XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS,
+    /**
+     * The update type is `xkb_machine_builder_shortcut_layout_update`.
+     *
+     * @since 1.14.0
+     */
+    XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_LAYOUT,
 };
 
 /**
@@ -3057,7 +3063,7 @@ enum xkb_machine_builder_update_type {
  * @sa `xkb_machine_builder_a11y_update`
  * @sa `xkb_machine_builder_mods_remap_update`
  * @sa `xkb_machine_builder_shortcut_mods_update`
- * @todo other updates
+ * @sa `xkb_machine_builder_shortcut_layout_update`
  *
  * @memberof xkb_machine_builder
  */
@@ -3080,7 +3086,11 @@ xkb_machine_builder_update(struct xkb_machine_builder *builder,
     struct xkb_machine_builder_shortcut_mods_update* :            \
         XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS,                 \
     const struct xkb_machine_builder_shortcut_mods_update* :      \
-        XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS                  \
+        XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS,                 \
+    struct xkb_machine_builder_shortcut_layout_update* :          \
+        XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_LAYOUT,               \
+    const struct xkb_machine_builder_shortcut_layout_update* :    \
+        XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_LAYOUT                \
 )
 
 /**
@@ -3296,7 +3306,7 @@ struct xkb_machine_builder_mods_remap_update {
  *
  * When any of the specified modifiers is active, the effective layout
  * is substituted according to the mapping set by the corresponding
- * <!-- FIXME: `xkb_machine_builder_remap_shortcut_layout()` -->.
+ * `xkb_machine_builder_shortcut_layout_update`.
  * This ensures a consistent user experience with keyboard shortcuts
  * across the layouts.
  *
@@ -3308,6 +3318,7 @@ struct xkb_machine_builder_mods_remap_update {
  *
  * @sa `::XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS`
  * @sa `xkb_keymap::xkb_keymap_mod_get_mask()`
+ * @sa `xkb_machine_builder_shortcut_layout_update`
  * @sa `xkb_machine_builder::xkb_machine_builder_update()`
  *
  * @since 1.14.0
@@ -3344,28 +3355,53 @@ struct xkb_machine_builder_shortcut_mods_update {
 };
 
 /**
- * Set a layout substitution for the shortcut layout override.
+ * @struct xkb_machine_builder_shortcut_layout_update
  *
- * When any modifier set via `xkb_machine_builder_update_shortcut_mods()` is
- * active, the effective layout @p source is substituted with layout @p target
- * in key processing. This allows shortcuts defined in layout @p target
- * (typically a Latin layout) to remain reachable when layout @p source is
+ * Update a layout substitution of the shortcut layout overrides for
+ * `xkb_machine_builder::xkb_machine_builder_update()`
+ *
+ * When any modifier set via `xkb_machine_builder_shortcut_mods_update` is
+ * active, the effective layout #source is substituted with layout #target
+ * in key processing. This allows shortcuts defined in layout #target
+ * (typically a Latin layout) to remain reachable when layout #source is
  * active.
  *
- * @param[in,out] builder The `xkb_machine` builder object to modify.
- * @param[in]     source  Source layout to substitute.
- * @param[in]     target  Target layout to use instead of @p source.
+ * @figure@figcaption
+ * Example: substitute layout #1 for layout #0 when modifiers trigger shortcut overrides.
+ * @endfigcaption
+ * @snippet "test/server-state.c" xkb_machine_builder_shortcut_layout_update_example_1
+ * @endfigure
  *
- * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ * @sa `::XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_LAYOUT`
+ * @sa `xkb_machine_builder_shortcut_mods_update`
+ * @sa `xkb_machine_builder::xkb_machine_builder_update()`
  *
  * @since 1.14.0
- * @sa `xkb_machine_builder_update_shortcut_mods()`
- * @memberof xkb_machine_builder
  */
-XKB_EXPORT enum xkb_error_code
-xkb_machine_builder_remap_shortcut_layout(struct xkb_machine_builder *builder,
-                                          xkb_layout_index_t source,
-                                          xkb_layout_index_t target);
+struct xkb_machine_builder_shortcut_layout_update {
+    /**
+     * Size of this structure, for forward-compatibility.
+     *
+     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
+     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
+     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Source layout to substitute.
+     *
+     * @since 1.14.0
+     */
+    xkb_layout_index_t source;
+    /**
+     * Target layout to use instead of #source.
+     *
+     * @since 1.14.0
+     */
+    xkb_layout_index_t target;
+};
 
 /**
  * Create a new keyboard state machine object.

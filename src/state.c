@@ -2991,43 +2991,46 @@ machine_builder_update_shortcut_mods(
     return XKB_SUCCESS;
 }
 
-enum xkb_error_code
-xkb_machine_builder_remap_shortcut_layout(struct xkb_machine_builder *builder,
-                                          xkb_layout_index_t source,
-                                          xkb_layout_index_t target)
+static enum xkb_error_code
+machine_builder_remap_shortcut_layout(
+    struct xkb_machine_builder *builder,
+    register const char *func,
+    register const struct xkb_machine_builder_shortcut_layout_update *update
+)
 {
-    if (source >= builder->keymap->num_groups) {
+    if (update->source >= builder->keymap->num_groups) {
         log_err(builder->keymap->ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX_,
                 "%s: Invalid source layout: "
                 "expected index in range 1..%"PRIu32", but got %"PRIu32"\n",
-                __func__, builder->keymap->num_groups, source + 1);
+                func, builder->keymap->num_groups, update->source + 1);
         return XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX;
     }
-    if (target >= builder->keymap->num_groups) {
+    if (update->target >= builder->keymap->num_groups) {
         log_err(builder->keymap->ctx, XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX_,
                 "%s: Invalid target layout: "
                 "expected index in range 1..%"PRIu32", but got %"PRIu32"\n",
-                __func__, builder->keymap->num_groups, target + 1);
+                func, builder->keymap->num_groups, update->target + 1);
         return XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX;
     }
 
     struct xkb_shortcuts_config_options * const config = &builder->shortcuts;
 
     /* Resize array & initialize new entries, if relevant */
-    if (source >= darray_size(config->targets)) {
-        if (target == source) {
+    if (update->source >= darray_size(config->targets)) {
+        if (update->target == update->source) {
             /* Skip default setting */
             return XKB_SUCCESS;
         }
         xkb_layout_index_t new = darray_size(config->targets);
-        darray_resize(config->targets, source + 1);
-        for (; new < source; new++)
+        darray_resize(config->targets, update->source + 1);
+        for (; new < update->source; new++)
             darray_item(config->targets, new) = XKB_LAYOUT_INVALID;
     }
 
-    darray_item(config->targets, source) = (source == target)
+    darray_item(config->targets, update->source)
+        = (update->source == update->target)
         ? XKB_LAYOUT_INVALID
-        : target;
+        : update->target;
     return XKB_SUCCESS;
 }
 
@@ -3177,6 +3180,8 @@ xkb_machine_builder_update(struct xkb_machine_builder *builder,
         return machine_builder_remap_mods(builder, __func__, update);
     case XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS:
         return machine_builder_update_shortcut_mods(builder, __func__, update);
+    case XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_LAYOUT:
+        return machine_builder_remap_shortcut_layout(builder, __func__, update);
     default:
         log_err_func(builder->keymap->ctx,
                      XKB_ERROR_UNSUPPORTED_MACHINE_BUILDER_UPDATE_,

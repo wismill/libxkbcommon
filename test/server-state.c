@@ -3369,6 +3369,63 @@ test_xkb_machine_builder_mods_remap_update(struct xkb_context *context)
     xkb_keymap_unref(keymap_);
 }
 
+/* Example from the public header */
+static void
+test_machine_builder_shortcut_layout_update(struct xkb_context *context)
+{
+    struct xkb_keymap * const keymap_ =
+        test_compile_rules(context, XKB_KEYMAP_FORMAT_TEXT_V2,
+                           "evdev", "pc104", "us,de", ",T3",
+                           "grp:menu_toggle,grp:alt_caps_toggle,"
+                           "terminate:ctrl_alt_bksp,ctrl:copy");
+    assert(keymap_);
+
+    struct xkb_machine_builder *builder =
+        xkb_machine_builder_new(keymap_, XKB_MACHINE_BUILDER_NO_FLAGS);
+    assert(builder);
+
+    {
+//! [xkb_machine_builder_shortcut_layout_update_example_1]
+    const struct xkb_machine_builder_shortcut_layout_update update = {
+        .size = sizeof(update),
+        .source = 0,
+        .target = 1
+    };
+    const enum xkb_error_code error =
+        xkb_machine_builder_update_generic(builder, &update);
+    if (error != XKB_SUCCESS) {
+        // handle error
+        assert(!"error");
+    }
+//! [xkb_machine_builder_shortcut_layout_update_example_1]
+    }
+
+    {
+    /* Use another variable `keymap` for the snippet */
+//! [xkb_machine_builder_shortcut_layout_update_example_2]
+    struct xkb_keymap *keymap = xkb_machine_builder_get_keymap(builder);
+    const xkb_layout_index_t num_layouts = xkb_keymap_num_layouts(keymap);
+    for (xkb_layout_index_t source = 1; source < num_layouts; source++) {
+
+        const struct xkb_machine_builder_shortcut_layout_update update = {
+            .size = sizeof(update),
+            .source = source,
+            .target = 0
+        };
+        const enum xkb_error_code error =
+            xkb_machine_builder_update_generic(builder, &update);
+        if (error != XKB_SUCCESS) {
+            // handle error
+            assert(!"error");
+        }
+    }
+//! [xkb_machine_builder_shortcut_layout_update_example_2]
+    }
+
+    xkb_machine_builder_destroy(builder);
+    xkb_keymap_unref(keymap_);
+}
+
 int
 main(void)
 {
@@ -3399,6 +3456,7 @@ main(void)
     test_shortcuts_tweak(context);
     test_xkb_machine_builder_mods_remap_update(context);
     test_machine_builder_shortcut_mods_update(context);
+    test_machine_builder_shortcut_layout_update(context);
 
     xkb_context_unref(context);
     return EXIT_SUCCESS;

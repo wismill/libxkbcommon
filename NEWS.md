@@ -22,7 +22,7 @@ libxkbcommon [1.14.0-beta1] – 2026-07-22
 [supported features]: @ref xkb_feature
 [lenient keymap parser]: @ref XKB_KEYMAP_COMPILE_STRICT_MODE
 [keyboard overlays]: @ref key-behavior-overlay
-[reference layout for keyboard shortcuts]: @ref xkb_machine_builder::xkb_machine_builder_remap_shortcut_layout
+[reference layout for keyboard shortcuts]: @ref xkb_machine_builder_shortcut_layout_update
 [modifier-remapping]: @ref xkb_machine_builder_mods_remap_update
 [sticky keys]: @ref XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS
 
@@ -240,7 +240,7 @@ libxkbcommon [1.14.0-beta1] – 2026-07-22
       - `struct xkb_machine_builder_a11y_update`
       - `struct xkb_machine_builder_mods_remap_update`
       - `struct xkb_machine_builder_shortcut_mods_update`
-    - `xkb_machine_builder::xkb_machine_builder_remap_shortcut_layout()`
+      - `struct xkb_machine_builder_shortcut_layout_update`
   - `enum xkb_machine_builder_flags` (new)
   - `enum xkb_events_flags` (new)
   - `struct xkb_events` (new):
@@ -313,7 +313,7 @@ libxkbcommon [1.14.0-beta1] – 2026-07-22
 
   See the new API:
   - `xkb_machine_builder_shortcut_mods_update`
-  - `xkb_machine_builder::xkb_machine_builder_remap_shortcut_layout()`
+  - `xkb_machine_builder_shortcut_layout_update`
 
   ([#753](https://github.com/xkbcommon/libxkbcommon/issues/753))
 - Added `xkb_machine_builder_mods_remap_update` to enable remapping

@@ -133,5 +133,37 @@ xkb_machine_builder_update_shortcut_mods(struct xkb_machine_builder *builder,
         .mask = mask
     };
     return xkb_machine_builder_update_generic(builder, &update);
+}
+
+/**
+ * Set a layout substitution for the shortcut layout override.
+ *
+ * When any modifier set via `xkb_machine_builder_update_shortcut_mods()` is
+ * active, the effective layout @p source is substituted with layout @p target
+ * in key processing. This allows shortcuts defined in layout @p target
+ * (typically a Latin layout) to remain reachable when layout @p source is
+ * active.
+ *
+ * @param[in,out] builder The `xkb_machine` builder object to modify.
+ * @param[in]     source  Source layout to substitute.
+ * @param[in]     target  Target layout to use instead of @p source.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ *
+ * @since 1.14.0
+ * @sa `xkb_machine_builder_update_shortcut_mods()`
+ * @memberof xkb_machine_builder
+ */
+static inline enum xkb_error_code
+xkb_machine_builder_remap_shortcut_layout(struct xkb_machine_builder *builder,
+                                          xkb_layout_index_t source,
+                                          xkb_layout_index_t target)
+{
+    const struct xkb_machine_builder_shortcut_layout_update update = {
+        .size = sizeof(update),
+        .source = source,
+        .target = target
+    };
+    return xkb_machine_builder_update_generic(builder, &update);
 
 }
