@@ -3018,6 +3018,15 @@ XKB_EXPORT struct xkb_keymap *
 xkb_machine_builder_get_keymap(const struct xkb_machine_builder *builder);
 
 /**
+ * @enum xkb_machine_builder_update_type
+ *
+ * Type of update passed to `xkb_machine_builder::xkb_machine_builder_update()`.
+ *
+ * @since 1.14.0
+ */
+enum xkb_machine_builder_update_type: int; /*  TODO */
+
+/**
  * @enum xkb_a11y_flags
  * Flags for
  * `xkb_machine_builder::xkb_machine_builder_update_a11y_flags()`.

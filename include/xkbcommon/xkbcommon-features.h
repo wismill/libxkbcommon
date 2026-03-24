@@ -205,6 +205,12 @@ enum xkb_feature {
      */
     XKB_FEATURE_ENUM_MACHINE_BUILDER_FLAGS = 25200,
     /**
+     * The enumeration @ref xkb_machine_builder_update_type
+     *
+     * @since 1.14.0
+     */
+    XKB_FEATURE_ENUM_MACHINE_BUILDER_UPDATE_TYPE = 25300,
+    /**
      * The enumeration @ref xkb_event_type
      *
      * @since 1.14.0
