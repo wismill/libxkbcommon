@@ -3024,7 +3024,14 @@ xkb_machine_builder_get_keymap(const struct xkb_machine_builder *builder);
  *
  * @since 1.14.0
  */
-enum xkb_machine_builder_update_type: int; /*  TODO */
+enum xkb_machine_builder_update_type {
+    /**
+     * The update type is `xkb_machine_builder_a11y_update`.
+     *
+     * @since 1.14.0
+     */
+    XKB_MACHINE_BUILDER_UPDATE_A11Y = 1,
+};
 
 /**
  * Update an `xkb_machine_builder` object.
@@ -3047,7 +3054,11 @@ xkb_machine_builder_update(struct xkb_machine_builder *builder,
 
 /* Helpers for C Callers */
 #ifndef __cplusplus
-#define XKB_GET_MACHINE_BUILDER_UPDATE_TYPE(ptr) _Generic((ptr)  \
+#define XKB_GET_MACHINE_BUILDER_UPDATE_TYPE(ptr) _Generic((ptr), \
+    struct xkb_machine_builder_a11y_update*:                     \
+        XKB_MACHINE_BUILDER_UPDATE_A11Y,                         \
+    const struct xkb_machine_builder_a11y_update* :              \
+        XKB_MACHINE_BUILDER_UPDATE_A11Y                          \
 )
 
 /**
@@ -3070,8 +3081,7 @@ xkb_machine_builder_update(struct xkb_machine_builder *builder,
 
 /**
  * @enum xkb_a11y_flags
- * Flags for
- * `xkb_machine_builder::xkb_machine_builder_update_a11y_flags()`.
+ * Flags for `xkb_machine_builder_a11y_update`.
  *
  * These flags configure the accessibility (*a11y*) features.
  *
@@ -3148,26 +3158,49 @@ enum xkb_a11y_flags {
 };
 
 /**
- * Update the accessibility flags of an `xkb_machine_builder` object.
+ * @struct xkb_machine_builder_a11y_update
  *
- * @param[in,out] builder The `xkb_machine` builder object to modify.
- * @param[in]     affect  Accessibility flags to modify.
- * @param[in]     flags   Accessibility flags to set or unset.
- *                        Flags in @p affect but not in @p flags are cleared.
- *                        Flags outside @p affect are not changed.
+ * Accessibility flags update for
+ * `xkb_machine_builder::xkb_machine_builder_update()`
  *
- * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ * @sa `::XKB_MACHINE_BUILDER_UPDATE_A11Y`
+ * @sa `xkb_machine_builder::xkb_machine_builder_update()`
  *
  * @since 1.14.0
  *
- * @memberof xkb_machine_builder
+ * [accessibility flags]: @ref xkb_a11y_flags
  */
-XKB_EXPORT enum xkb_error_code
-xkb_machine_builder_update_a11y_flags(
-    struct xkb_machine_builder *builder,
-    enum xkb_a11y_flags affect,
-    enum xkb_a11y_flags flags
-);
+struct xkb_machine_builder_a11y_update {
+    /**
+     * Size of this structure, for forward-compatibility.
+     *
+     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
+     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
+     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Mask of [accessibility flags] to modify.
+     *
+     * @since 1.14.0
+     *
+     * [accessibility flags]: @ref xkb_a11y_flags
+     */
+    uint32_t affect;
+    /**
+     * Mask of [accessibility flags] to to set or unset.
+     *
+     * Flags in #affect but not in #flags are cleared.
+     * Flags outside #affect are not changed.
+     *
+     * @since 1.14.0
+     *
+     * [accessibility flags]: @ref xkb_a11y_flags
+     */
+    uint32_t flags;
+};
 
 /**
  * Remap a modifier combination, e.g. to make `Control+Alt` act as

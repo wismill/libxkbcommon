@@ -21,6 +21,7 @@
 #include "src/keysym.h"
 #include "src/keymap.h"
 #include "src/state-priv.h"
+#include "src/state.h"
 #include "state.h"
 #include "test.h"
 #include "utils.h"

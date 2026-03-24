@@ -40,6 +40,7 @@
 #include "src/keysym.h"
 #include "src/keymap.h"
 #include "src/messages-codes.h"
+#include "src/state.h"
 #include "src/utils.h"
 #include "src/utils-numbers.h"
 #include "src/utf8-decoding.h"
