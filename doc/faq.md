@@ -576,26 +576,21 @@ keyboard database, [xkeyboard-config].
 ##### Custom and consistent shortcuts behavior using libxkbcommon
 
 Since libxkbcommon 1.14, tweaking the keyboard shortcuts can be achieved by using
-the following functions from the `xkb_machine` API:
+the following features from the `xkb_machine` API:
 
 <dl>
 <dt>
-`xkb_machine_builder::xkb_machine_builder_update_shortcut_mods()`
+`xkb_machine_builder_shortcut_mods_update`
 </dt>
 <dd>
 Set the modifiers that will trigger the shortcuts tweak, typically
 `Control+Alt+Super`.
 
-```c
-const xkb_mod_mask_t ctrl = xkb_keymap_mod_get_mask(keymap, XKB_MOD_NAME_CTRL);
-const xkb_mod_mask_t alt = xkb_keymap_mod_get_mask(keymap, XKB_VMOD_NAME_ALT);
-const xkb_mod_mask_t super = xkb_keymap_mod_get_mask(keymap, XKB_VMOD_NAME_SUPER);
-const xkb_mod_mask_t shortcuts_mask = ctrl | alt | super;
-if (xkb_machine_builder_update_shortcut_mods(options, shortcuts_mask, shortcuts_mask)) {
-    /* handle error */
-    …
-}
-```
+@figure@figcaption
+Example to set `Control`, `Alt` and `Super` to trigger shortcut overrides.
+@endfigcaption
+@snippet "test/server-state.c" xkb_machine_builder_shortcut_mods_update_snippet
+@endfigure
 </dd>
 <dt>
 `xkb_machine_builder::xkb_machine_builder_remap_shortcut_layout()`

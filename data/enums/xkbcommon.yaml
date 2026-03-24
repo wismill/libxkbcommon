@@ -122,6 +122,8 @@ xkb_machine_builder_update_type:
     value: 1
   - name: XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP
     value: 2
+  - name: XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS
+    value: 3
 xkb_a11y_flags:
   - name: XKB_A11Y_NO_FLAGS
     value: 0

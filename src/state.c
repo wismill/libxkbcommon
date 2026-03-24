@@ -2964,28 +2964,30 @@ machine_builder_remap_mods(
     return XKB_SUCCESS;
 }
 
-enum xkb_error_code
-xkb_machine_builder_update_shortcut_mods(struct xkb_machine_builder *builder,
-                                         xkb_mod_mask_t affect,
-                                         xkb_mod_mask_t mask)
+static enum xkb_error_code
+machine_builder_update_shortcut_mods(
+    struct xkb_machine_builder *builder,
+    register const char *func,
+    register const struct xkb_machine_builder_shortcut_mods_update *update
+)
 {
     /* Check the modifiers against the keymap */
     const xkb_mod_mask_t invalid = ~builder->keymap->canonical_state_mask;
-    if ((affect & invalid)) {
+    if ((update->affect & invalid)) {
         log_err(builder->keymap->ctx, XKB_ERROR_UNSUPPORTED_MODIFIER_MASK,
                 "%s: Invalid affected modifiers: 0x%"PRIx32"\n",
-                __func__, affect);
+                func, update->affect);
         return XKB_ERROR_UNSUPPORTED_MODIFIER_MASK;
     }
-    if ((mask & invalid)) {
+    if ((update->mask & invalid)) {
         log_err(builder->keymap->ctx, XKB_ERROR_UNSUPPORTED_MODIFIER_MASK,
                 "%s: Invalid modifiers: 0x%"PRIx32"\n",
-                __func__, mask);
+                func, update->mask);
         return XKB_ERROR_UNSUPPORTED_MODIFIER_MASK;
     }
 
-    builder->shortcuts.mask &= ~affect;
-    builder->shortcuts.mask |= (mask & affect);
+    builder->shortcuts.mask &= ~update->affect;
+    builder->shortcuts.mask |= (update->mask & update->affect);
     return XKB_SUCCESS;
 }
 
@@ -3173,6 +3175,8 @@ xkb_machine_builder_update(struct xkb_machine_builder *builder,
         return machine_builder_update_a11y(builder, __func__, update);
     case XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP:
         return machine_builder_remap_mods(builder, __func__, update);
+    case XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS:
+        return machine_builder_update_shortcut_mods(builder, __func__, update);
     default:
         log_err_func(builder->keymap->ctx,
                      XKB_ERROR_UNSUPPORTED_MACHINE_BUILDER_UPDATE_,

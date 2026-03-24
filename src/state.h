@@ -97,3 +97,41 @@ xkb_machine_builder_remap_mods(
     };
     return xkb_machine_builder_update_generic(builder, &update);
 }
+
+/**
+ * Set the modifiers that trigger the keyboard shortcut overrides.
+ *
+ * When any of the specified modifiers is active, the effective layout
+ * is substituted according to the mapping set by
+ * `xkb_machine_builder_remap_shortcut_layout()`.
+ * This ensures a consistent user experience with keyboard shortcuts
+ * across the layouts.
+ *
+ * @param[in,out] builder The `xkb_machine` builder object to modify.
+ * @param[in]     affect  Modifiers to consider, using their [encoding].
+ * @param[in]     mask    Modifiers to set or unset, using their [encoding].
+ *                        Modifiers in @p affect but not in @p mask are cleared.
+ *                        Modifiers outside @p affect are not changed.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ *
+ * @sa `xkb_machine_builder_remap_shortcut_layout()`
+ * @sa `xkb_keymap::xkb_keymap_mod_get_mask()`
+ * @since 1.14.0
+ * @memberof xkb_machine_builder
+ *
+ * [encoding]: @ref modifiers-encoding
+ */
+static inline enum xkb_error_code
+xkb_machine_builder_update_shortcut_mods(struct xkb_machine_builder *builder,
+                                         xkb_mod_mask_t affect,
+                                         xkb_mod_mask_t mask)
+{
+    const struct xkb_machine_builder_shortcut_mods_update update = {
+        .size = sizeof(update),
+        .affect = affect,
+        .mask = mask
+    };
+    return xkb_machine_builder_update_generic(builder, &update);
+
+}

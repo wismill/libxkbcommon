@@ -3037,6 +3037,12 @@ enum xkb_machine_builder_update_type {
      * @since 1.14.0
      */
     XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP,
+    /**
+     * The update type is `xkb_machine_builder_shortcut_mods_update`.
+     *
+     * @since 1.14.0
+     */
+    XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS,
 };
 
 /**
@@ -3050,6 +3056,7 @@ enum xkb_machine_builder_update_type {
  * @sa `xkb_machine_builder_update_generic()`
  * @sa `xkb_machine_builder_a11y_update`
  * @sa `xkb_machine_builder_mods_remap_update`
+ * @sa `xkb_machine_builder_shortcut_mods_update`
  * @todo other updates
  *
  * @memberof xkb_machine_builder
@@ -3069,7 +3076,11 @@ xkb_machine_builder_update(struct xkb_machine_builder *builder,
     struct xkb_machine_builder_mods_remap_update* :              \
         XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP,                   \
     const struct xkb_machine_builder_mods_remap_update* :        \
-        XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP                    \
+        XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP,                   \
+    struct xkb_machine_builder_shortcut_mods_update* :            \
+        XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS,                 \
+    const struct xkb_machine_builder_shortcut_mods_update* :      \
+        XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS                  \
 )
 
 /**
@@ -3278,33 +3289,59 @@ struct xkb_machine_builder_mods_remap_update {
 };
 
 /**
- * Set the modifiers that trigger the keyboard shortcut overrides.
+ * @struct xkb_machine_builder_shortcut_mods_update
+ *
+ * Update of the modifiers that trigger the keyboard shortcut overrides for
+ * `xkb_machine_builder::xkb_machine_builder_update()`
  *
  * When any of the specified modifiers is active, the effective layout
- * is substituted according to the mapping set by
- * `xkb_machine_builder_remap_shortcut_layout()`.
+ * is substituted according to the mapping set by the corresponding
+ * <!-- FIXME: `xkb_machine_builder_remap_shortcut_layout()` -->.
  * This ensures a consistent user experience with keyboard shortcuts
  * across the layouts.
  *
- * @param[in,out] builder The `xkb_machine` builder object to modify.
- * @param[in]     affect  Modifiers to consider, using their [encoding].
- * @param[in]     mask    Modifiers to set or unset, using their [encoding].
- *                        Modifiers in @p affect but not in @p mask are cleared.
- *                        Modifiers outside @p affect are not changed.
+ * @figure@figcaption
+ * Example to set `Control`, `Alt` and `Super` to trigger shortcut overrides.
+ * @endfigcaption
+ * @snippet "test/server-state.c" xkb_machine_builder_shortcut_mods_update_snippet
+ * @endfigure
  *
- * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ * @sa `::XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS`
+ * @sa `xkb_keymap::xkb_keymap_mod_get_mask()`
+ * @sa `xkb_machine_builder::xkb_machine_builder_update()`
  *
- * @sa `xkb_machine_builder_remap_shortcut_layout()`
- * @sa `xkb_keymap::xkb_keymap_mod_get_mask2()`
  * @since 1.14.0
- * @memberof xkb_machine_builder
- *
- * [encoding]: @ref modifiers-encoding
  */
-XKB_EXPORT enum xkb_error_code
-xkb_machine_builder_update_shortcut_mods(struct xkb_machine_builder *builder,
-                                         xkb_mod_mask_t affect,
-                                         xkb_mod_mask_t mask);
+struct xkb_machine_builder_shortcut_mods_update {
+    /**
+     * Size of this structure, for forward-compatibility.
+     *
+     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
+     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
+     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Modifiers to consider, using their [encoding].
+     *
+     * @since 1.14.0
+     *
+     * [encoding]: @ref modifiers-encoding
+     */
+    xkb_mod_mask_t affect;
+    /**
+     * Modifiers to set or unset, using their [encoding].
+     * Modifiers in #affect but not in #mask are cleared.
+     * Modifiers outside #affect are not changed.
+     *
+     * @since 1.14.0
+     *
+     * [encoding]: @ref modifiers-encoding
+     */
+    xkb_mod_mask_t mask;
+};
 
 /**
  * Set a layout substitution for the shortcut layout override.

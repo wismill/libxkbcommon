@@ -46,6 +46,8 @@ static_assert(XKB_MACHINE_BUILDER_UPDATE_A11Y >= 0 &&
               XKB_MACHINE_BUILDER_UPDATE_A11Y < UINT32_WIDTH, "");
 static_assert(XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP >= 0 &&
               XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP < UINT32_WIDTH, "");
+static_assert(XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS >= 0 &&
+              XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS < UINT32_WIDTH, "");
 static_assert(XKB_KEY_UP >= 0 &&
               XKB_KEY_UP < UINT32_WIDTH, "");
 static_assert(XKB_KEY_DOWN >= 0 &&
@@ -158,6 +160,7 @@ enum xkb_enumerations_values {
     XKB_MACHINE_BUILDER_UPDATE_TYPE_VALUES
         = (1u << XKB_MACHINE_BUILDER_UPDATE_A11Y)
         | (1u << XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP)
+        | (1u << XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS)
     ,
     XKB_A11Y_FLAGS_VALUES
         = XKB_A11Y_NO_FLAGS
@@ -333,6 +336,7 @@ static const uint32_t xkb_machine_builder_flags_values[] = {
 static const uint32_t xkb_machine_builder_update_type_values[] = {
     XKB_MACHINE_BUILDER_UPDATE_A11Y,
     XKB_MACHINE_BUILDER_UPDATE_MODS_REMAP,
+    XKB_MACHINE_BUILDER_UPDATE_SHORTCUT_MODS,
 };
 #endif
 

@@ -239,7 +239,7 @@ libxkbcommon [1.14.0-beta1] – 2026-07-22
     - `xkb_machine_builder::xkb_machine_builder_update()`
       - `struct xkb_machine_builder_a11y_update`
       - `struct xkb_machine_builder_mods_remap_update`
-    - `xkb_machine_builder::xkb_machine_builder_update_shortcut_mods()`
+      - `struct xkb_machine_builder_shortcut_mods_update`
     - `xkb_machine_builder::xkb_machine_builder_remap_shortcut_layout()`
   - `enum xkb_machine_builder_flags` (new)
   - `enum xkb_events_flags` (new)
@@ -312,7 +312,7 @@ libxkbcommon [1.14.0-beta1] – 2026-07-22
   in the mapping, if any, otherwise it is left unchanged.
 
   See the new API:
-  - `xkb_machine_builder::xkb_machine_builder_update_shortcut_mods()`
+  - `xkb_machine_builder_shortcut_mods_update`
   - `xkb_machine_builder::xkb_machine_builder_remap_shortcut_layout()`
 
   ([#753](https://github.com/xkbcommon/libxkbcommon/issues/753))
