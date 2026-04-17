@@ -453,7 +453,7 @@ usage(FILE *fp, char *progname)
             " --legacy-state-api[=true|false]\n"
             "    Use legacy state API instead of event API\n"
             " --controls\n"
-            "    Keyboard controls: sticky-keys, latch-to-lock, latch-simultaneous, overlay{1-8}\n"
+            "    Keyboard controls: sticky-keys, latch-no-simultaneous, latch-to-lock, latch-simultaneous, overlay{1-8}\n"
             " --modifiers-mapping <MAPPING>\n"
             "    Remap the modifiers\n"
             " --shortcuts-mask <MASK>\n"
