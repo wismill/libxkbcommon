@@ -1253,13 +1253,13 @@ xkb_filter_apply_all(struct xkb_server_state *state,
             if (filter->action.type == ACTION_TYPE_MOD_SET) {
                 /* Convert modifier set action to a latch */
                 filter->action.type = ACTION_TYPE_MOD_LATCH;
-                if (state->flags & XKB_A11Y_LATCH_TO_LOCK) {
+                if (state->flags & XKB_A11Y_STICKY_KEYS_LATCH_TO_LOCK) {
                     filter->action.mods.flags |= ACTION_LATCH_TO_LOCK;
                 }
             } else if (filter->action.type == ACTION_TYPE_GROUP_SET) {
                 /* Convert group set action to a latch */
                 filter->action.type = ACTION_TYPE_GROUP_LATCH;
-                if (state->flags & XKB_A11Y_LATCH_TO_LOCK) {
+                if (state->flags & XKB_A11Y_STICKY_KEYS_LATCH_TO_LOCK) {
                     filter->action.group.flags |= ACTION_LATCH_TO_LOCK;
                 }
             }
@@ -3596,6 +3596,16 @@ xkb_machine_process_key(struct xkb_machine *sm,
         return XKB_SUCCESS;
 
     const struct state_components previous_components = state->base.components;
+
+    if (direction == XKB_KEY_DOWN &&
+        (sm->base.base.components.controls & XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS) &&
+        (sm->base.flags & XKB_A11Y_STICKY_KEYS_NO_SIMULTANEOUS_KEYS) &&
+        state->base.components.base_mods) {
+        /* Deactivate sticky keys if a modifier was already held down*/
+        state_update_enabled_controls(state,
+                                      XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS,
+                                      0, events);
+    }
 
     if (key->overlays)
         key = process_overlayable_key(sm, key, direction);
