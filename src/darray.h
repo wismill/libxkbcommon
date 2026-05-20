@@ -18,6 +18,15 @@
 
 #include "utils.h"
 
+/* FIXME: remove GCC hack */
+#if defined(__GNUC__) && !defined(__clang__)
+#  define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
+#  define REQUIRE_GCC_HACK (GCC_VERSION >= 1601)
+#else
+#  define GCC_VERSION 0
+#  define REQUIRE_GCC_HACK 0
+#endif
+
 typedef unsigned int darray_size_t;
 #define darray_max_alloc(item_size) (UINT_MAX / (item_size))
 
@@ -381,9 +390,19 @@ darray_prepends_nullterminate(darray_char * restrict arr, const char * restrict 
     if ((arr).item) \
     for ((i) = &(arr).item[0]; (i) < &(arr).item[(arr).size]; (i)++)
 
+#if REQUIRE_GCC_HACK
+
+#define darray_foreach_from(i, arr, from) \
+    if ((from) < (arr).size && (arr).item) \
+    for ((i) = (void*)((char*)(arr).item + (from) * sizeof(*(arr).item)); (i) < &(arr).item[(arr).size]; (i)++)
+
+#else
+
 #define darray_foreach_from(i, arr, from) \
     if ((from) < (arr).size && (arr).item) \
     for ((i) = &(arr).item[from]; (i) < &(arr).item[(arr).size]; (i)++)
+
+#endif
 
 /* Iterate on index and value at the same time, like Python's enumerate. */
 #define darray_enumerate(idx, val, arr) \
@@ -392,11 +411,23 @@ darray_prepends_nullterminate(darray_char * restrict arr, const char * restrict 
          (idx) < (arr).size; \
          (idx)++, (val)++)
 
+#if REQUIRE_GCC_HACK
+
+#define darray_enumerate_from(idx, val, arr, from) \
+    if ((from) < (arr).size && (arr).item) \
+    for ((idx) = (from), (val) = (void*)((char*)(arr).item + sizeof(*(arr).item)); \
+         (idx) < (arr).size; \
+         (idx)++, (val)++)
+
+#else
+
 #define darray_enumerate_from(idx, val, arr, from) \
     if ((from) < (arr).size && (arr).item) \
     for ((idx) = (from), (val) = &(arr).item[from]; \
          (idx) < (arr).size; \
          (idx)++, (val)++)
+
+#endif
 
 #define darray_foreach_reverse(i, arr) \
     if ((arr).size && (arr).item) \

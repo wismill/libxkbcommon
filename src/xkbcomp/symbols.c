@@ -2170,6 +2170,20 @@ FindAutomaticType(struct xkb_context *ctx, GroupInfo *groupi)
     if (width <= 1)
         return xkb_atom_intern_literal(ctx, "ONE_LEVEL");
 
+#if REQUIRE_GCC_HACK
+
+    const struct xkb_level *levels = darray_items(groupi->levels);
+
+#define GET_SYM(level) \
+    (levels[(level)].num_syms == 0 ? \
+        XKB_KEY_NoSymbol : \
+     levels[(level)].num_syms == 1 ? \
+        levels[(level)].s.sym : \
+        /* num_syms > 1 */ \
+        levels[(level)].s.syms[0])
+
+#else
+
 #define GET_SYM(level) \
     (darray_item(groupi->levels, (level)).num_syms == 0 ? \
         XKB_KEY_NoSymbol : \
@@ -2178,6 +2192,7 @@ FindAutomaticType(struct xkb_context *ctx, GroupInfo *groupi)
         /* num_syms > 1 */ \
         darray_item(groupi->levels, (level)).s.syms[0]))
 
+#endif
     const xkb_keysym_t sym0 = GET_SYM(0);
     const xkb_keysym_t sym1 = GET_SYM(1);
 
