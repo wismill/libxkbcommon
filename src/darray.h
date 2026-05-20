@@ -102,6 +102,11 @@ typedef darray (unsigned long)  darray_ulong;
 
 /*** Size management ***/
 
+#define darray_die(fmt, ...) do { \
+    fprintf(stderr, fmt "\n", ##__VA_ARGS__); \
+    exit(EXIT_FAILURE); \
+} while (0)
+
 ATTRIBS(NODISCARD) bool
 darray_heap_grow(void ** restrict data, size_t item_size,
                  darray_size_t * restrict capacity,
@@ -117,8 +122,10 @@ darray_resize_(void ** restrict data, size_t item_size,
                darray_size_t * restrict capacity, darray_size_t * restrict size,
                darray_size_t need)
 {
-    if (unlikely(!darray_heap_grow(data, item_size, capacity, need)))
-        return false;
+    if (unlikely(!darray_heap_grow(data, item_size, capacity, need))) {
+        darray_die("ERROR: failed to allocate in %s()\n", __func__);
+        // return false;
+    }
 
     *size = need;
     return true;
