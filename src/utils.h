@@ -423,11 +423,59 @@ asprintf_safe(const char *fmt, ...)
 #endif
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
-#  define NOINLINE [[noinline]]
+#  define NOINLINE noinline
 #elif defined(__GNUC__) || defined(__clang__)
-#  define NOINLINE __attribute__((noinline))
+#  define NOINLINE noinline
 #elif defined(_MSC_VER)
 #  define NOINLINE __declspec(noinline)
 #else
 #  define NOINLINE
+#endif
+
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
+#  define NODISCARD nodiscard
+#elif defined(__GNUC__) || defined(__clang__)
+#  define NODISCARD warn_unused_result
+#elif defined(_MSC_VER)
+#  include <sal.h>
+#  define NODISCARD _Check_return_
+#else
+#  define NODISCARD
+#endif
+
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
+    /* C23 standard attribute */
+    #define MAYBE_UNUSED maybe_unused
+#elif defined(__GNUC__) || defined(__clang__)
+    /* GCC and Clang legacy attribute */
+    #define MAYBE_UNUSED unused
+#else
+    /* Fallback for other compilers */
+    #define MAYBE_UNUSED
+#endif
+
+/* Note: no C23 standard attribute */
+#if defined(__GNUC__) || defined(__clang__)
+    #define ALWAYS_INLINE always_inline
+#elif defined(_MSC_VER)
+    #define ALWAYS_INLINE __forceinline
+#else
+    #define ALWAYS_INLINE
+#endif
+
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
+    #define ATTRIBS(...) [[__VA_ARGS__]]
+#elif defined(__GNUC__) || defined(__clang__)
+    #define ATTRIBS(...) __attribute__((__VA_ARGS__))
+#elif defined(_MSC_VER)
+    #define ATTRIB_APPLY_1(a)          a
+    #define ATTRIB_APPLY_2(a, b)       a b
+    #define ATTRIB_APPLY_3(a, b, c)    a b c
+    #define ATTRIB_APPLY_4(a, b, c, d) a b c d
+
+    #define ATTRIB_COUNT(_1, _2, _3, _4N, ...) N
+    #define ATTRIBS(...) ATTRIB_COUNT(__VA_ARGS__, \
+        ATTRIB_APPLY_4, ATTRIB_APPLY_3, ATTRIB_APPLY_2, ATTRIB_APPLY_1)(__VA_ARGS__)
+#else
+    #define ATTRIBS(...)
 #endif
