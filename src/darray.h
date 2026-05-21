@@ -46,10 +46,10 @@ enum {
     darray_init(arr); \
 } while (0)
 
-#define darray_steal(arr, to, to_size) do { \
+#define darray_steal(arr, to, ...) do { \
     *(to) = (arr).item; \
-    if (to_size) \
-        *(darray_size_t *) (to_size) = (arr).size; \
+    __VA_OPT__(if (__VA_ARGS__) \
+        *(__VA_ARGS__) = (arr).size;) \
     darray_init(arr); \
 } while (0)
 

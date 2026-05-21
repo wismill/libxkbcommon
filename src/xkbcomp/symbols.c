@@ -1248,7 +1248,7 @@ AddSymbolsToKey(SymbolsInfo *info, KeyInfo *keyi, ExprDef *arrayNdx,
             break;
         default:
             darray_shrink(keysymList->syms);
-            darray_steal(keysymList->syms, &leveli->s.syms, NULL);
+            darray_steal(keysymList->syms, &leveli->s.syms);
 #ifndef NDEBUG
             /* Canonical list: all NoSymbol were dropped */
             for (xkb_keysym_count_t k = 0; k < leveli->num_syms; k++)
@@ -1361,7 +1361,7 @@ AddActionsToKey(SymbolsInfo *info, KeyInfo *keyi, ExprDef *arrayNdx,
         } else if (likely(darray_size(actions) > 1)) {
             leveli->num_actions = (xkb_action_count_t) darray_size(actions);
             darray_shrink(actions);
-            darray_steal(actions, &leveli->a.actions, NULL);
+            darray_steal(actions, &leveli->a.actions);
 #ifndef NDEBUG
             /* Canonical list: all NoAction() were dropped */
             for (xkb_action_count_t k = 0; k < leveli->num_actions; k++)
@@ -2401,7 +2401,7 @@ CopySymbolsDefToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info,
         }
 
         /* Copy the level */
-        darray_steal(groupi->levels, &key->groups[i].levels, NULL);
+        darray_steal(groupi->levels, &key->groups[i].levels);
         if (key->groups[i].type->num_levels > 1 ||
             key->groups[i].levels[0].num_syms > 0) {
             key->groups[i].explicit_symbols = true;
@@ -2524,7 +2524,7 @@ CopySymbolsToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info)
     keymap->mods = info->mods;
 
     keymap->num_group_names = (xkb_layout_index_t)darray_size(info->group_names);
-    darray_steal(info->group_names, &keymap->group_names, NULL);
+    darray_steal(info->group_names, &keymap->group_names);
 
     darray_foreach(keyi, info->keys)
         if (!CopySymbolsDefToKeymap(keymap, info, keyi))

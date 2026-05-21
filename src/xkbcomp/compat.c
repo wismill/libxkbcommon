@@ -571,7 +571,7 @@ SetInterpField(CompatInfo *info, SymInterpInfo *si, const char *field,
                 darray_shrink(actions);
                 si->interp.num_actions =
                     (xkb_action_count_t) darray_size(actions);
-                darray_steal(actions, &si->interp.a.actions, NULL);
+                darray_steal(actions, &si->interp.a.actions);
             }
         }
         else {

@@ -2030,11 +2030,11 @@ xkb_resolve_rules(struct xkb_context *ctx,
         goto err_out;
     }
 
-    darray_steal(matcher->kccgst[KCCGST_KEYCODES], &out->keycodes, NULL);
-    darray_steal(matcher->kccgst[KCCGST_TYPES], &out->types, NULL);
-    darray_steal(matcher->kccgst[KCCGST_COMPAT], &out->compatibility, NULL);
-    darray_steal(matcher->kccgst[KCCGST_SYMBOLS], &out->symbols, NULL);
-    darray_steal(matcher->kccgst[KCCGST_GEOMETRY], &out->geometry, NULL);
+    darray_steal(matcher->kccgst[KCCGST_KEYCODES], &out->keycodes);
+    darray_steal(matcher->kccgst[KCCGST_TYPES], &out->types);
+    darray_steal(matcher->kccgst[KCCGST_COMPAT], &out->compatibility);
+    darray_steal(matcher->kccgst[KCCGST_SYMBOLS], &out->symbols);
+    darray_steal(matcher->kccgst[KCCGST_GEOMETRY], &out->geometry);
 
     struct matched_sval *mval = &matcher->rmlvo.model;
     if (!mval->matched && mval->sval.len > 0)

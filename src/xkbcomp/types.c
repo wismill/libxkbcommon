@@ -9,6 +9,7 @@
 
 #include "xkbcommon/xkbcommon.h"
 #include "xkbcommon/xkbcommon-errors.h"
+#include "darray.h"
 #include "xkbcomp-priv.h"
 #include "text.h"
 #include "vmod.h"
@@ -834,7 +835,7 @@ CopyKeyTypesToKeymap(struct xkb_keymap *keymap, KeyTypesInfo *info)
             type->num_levels = def->num_levels;
             type->num_level_names =
                 (xkb_level_index_t) darray_size(def->level_names);
-            darray_steal(def->level_names, &type->level_names, NULL);
+            darray_steal(def->level_names, &type->level_names);
             darray_steal(def->entries, &type->entries, &type->num_entries);
             type->required = false;
 

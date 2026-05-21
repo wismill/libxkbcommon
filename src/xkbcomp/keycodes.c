@@ -1021,8 +1021,7 @@ CopyKeycodeNameLUT(struct xkb_keymap *keymap, KeyNamesInfo *info)
     }
 
     darray_shrink(info->keycodes.names);
-    keymap->num_key_names = darray_size(info->keycodes.names);
-    darray_steal(info->keycodes.names, &keymap->key_names, NULL);
+    darray_steal(info->keycodes.names, &keymap->key_names, &keymap->num_key_names);
     darray_init(info->keycodes.names);
     return true;
 }

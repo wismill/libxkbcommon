@@ -113,7 +113,7 @@ compile_with(const char* compiler_name, const char* const *compiler_argv,
     if (size > 0 && darray_item(stdout, size - 1) != '\0')
         darray_resize0(stdout, size + 1);
 
-    darray_steal(stdout, keymap_out, NULL);
+    darray_steal(stdout, keymap_out);
     *keymap_size_out = size;
 
     /* Wait for compiler to complete */
