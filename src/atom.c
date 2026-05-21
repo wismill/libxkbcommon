@@ -53,7 +53,11 @@ atom_table_new(void)
         return NULL;
 
     darray_init(table->strings);
-    darray_append(table->strings, (char *){NULL});
+    if (!darray_append(table->strings, (char *){NULL})) {
+        atom_table_free(table);
+        return NULL;
+    }
+
     table->index_size = 4;
     table->index = calloc(table->index_size, sizeof(*table->index));
 
@@ -129,7 +133,8 @@ atom_intern(struct atom_table *table, const char *string, size_t len, bool add)
                 char *s = strndup(string, len);
                 if (!s)
                     return XKB_ATOM_NONE;
-                darray_append(table->strings, s);
+                if (!darray_append(table->strings, s))
+                    return XKB_ATOM_NONE;
                 table->index[index_pos] = new_atom;
                 return new_atom;
             } else {

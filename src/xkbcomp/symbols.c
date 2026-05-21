@@ -181,27 +181,37 @@ ClearGroupInfo(GroupInfo *groupi)
     darray_free(groupi->levels);
 }
 
-static void
+ATTRIBS(NODISCARD) static bool
 CopyGroupInfo(GroupInfo *to, const GroupInfo *from)
 {
     to->defined = from->defined;
     to->type = from->type;
     darray_init(to->levels);
-    darray_copy(to->levels, from->levels);
+    if (!darray_copy(to->levels, from->levels))
+        return false;
     for (xkb_level_index_t j = 0; j < darray_size(to->levels); j++) {
         if (darray_item(from->levels, j).num_syms > 1) {
             darray_item(to->levels, j).s.syms =
                 memdup(darray_item(from->levels, j).s.syms,
                        darray_item(from->levels, j).num_syms,
                        sizeof(xkb_keysym_t));
+            if (!darray_item(to->levels, j).s.syms) {
+                darray_item(to->levels, j).num_syms = 0;
+                return false;
+            }
         }
         if (darray_item(from->levels, j).num_actions > 1) {
             darray_item(to->levels, j).a.actions =
                 memdup(darray_item(from->levels, j).a.actions,
                        darray_item(from->levels, j).num_actions,
                        sizeof(union xkb_action));
+            if (!darray_item(to->levels, j).a.actions) {
+                darray_item(to->levels, j).num_actions = 0;
+                return false;
+            }
         }
     }
+    return true;
 }
 
 static void
@@ -2316,7 +2326,8 @@ CopySymbolsDefToKeymap(struct xkb_keymap *keymap, SymbolsInfo *info,
         if (groupi->defined)
             continue;
 
-        CopyGroupInfo(groupi, group0);
+        if (!CopyGroupInfo(groupi, group0))
+            return false;
     }
 
     key->groups = calloc(key->num_groups, sizeof(*key->groups));
