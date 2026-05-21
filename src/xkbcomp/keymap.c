@@ -747,7 +747,7 @@ static const compile_file_fn compile_file_fns[LAST_KEYMAP_FILE_TYPE + 1] = {
 };
 
 static void
-pending_computations_array_free(pending_computation_array *p)
+pending_computations_array_free(darray_pending_computation *p)
 {
     struct pending_computation *pc;
     darray_foreach(pc, *p)
@@ -793,7 +793,7 @@ CompileKeymap(XkbFile *file, struct xkb_keymap *keymap)
     /*
      * Keymap augmented with compilation-specific data
      */
-    pending_computation_array pending_computations = darray_new();
+    darray_pending_computation pending_computations = darray_new();
     struct xkb_keymap_info info = {
         /* Copy the keymap */
         .keymap = *keymap,

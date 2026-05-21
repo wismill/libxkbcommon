@@ -30,8 +30,8 @@ struct xkb_context {
 
     struct xkb_rule_names names_dflt;
 
-    darray(char *) includes;
-    darray(char *) failed_includes;
+    darray_string includes;
+    darray_string failed_includes;
 
     struct atom_table *atom_table;
 

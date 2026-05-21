@@ -91,7 +91,8 @@ struct pending_computation {
     bool computed;
     uint32_t value;
 };
-typedef darray(struct pending_computation) pending_computation_array;
+
+typedef darray(struct pending_computation) darray_pending_computation;
 
 /** Keymap augmented with miscellaneous data used during compilation */
 struct xkb_keymap_info {
@@ -124,7 +125,7 @@ struct xkb_keymap_info {
     } lookup;
 
     /** Pending computations */
-    pending_computation_array *pending_computations;
+    darray_pending_computation *pending_computations;
 };
 
 char *

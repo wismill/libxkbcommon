@@ -42,7 +42,7 @@ hash_buf(const char *string, size_t len)
 struct atom_table {
     xkb_atom_t *index;
     size_t index_size;
-    darray(char *) strings;
+    darray_string strings;
 };
 
 struct atom_table *

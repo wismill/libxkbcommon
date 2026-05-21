@@ -69,7 +69,7 @@ struct rxkb_context {
     struct list layouts;        /* list of struct rxkb_layouts */
     struct list option_groups;  /* list of struct rxkb_option_group */
 
-    darray(char *) includes;
+    darray_string includes;
 
 
     ATTR_PRINTF(3, 0) void (*log_fn)(struct rxkb_context *ctx,
