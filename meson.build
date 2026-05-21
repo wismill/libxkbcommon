@@ -407,6 +407,7 @@ libxkbcommon_sources = [
     'src/atom.c',
     'src/context.c',
     'src/context-priv.c',
+    'src/darray/common.c',
     'src/features.c',
     'src/keysym.c',
     'src/keysym-case-mappings.c',
@@ -510,6 +511,7 @@ You can disable X11 support with -Denable-x11=false.''',
         'src/atom.c',
         'src/context-priv.c',
         'src/context.c',
+        'src/darray/common.c',
         'src/keymap-priv.c',
         'src/utils.c',
         'src/x11/keymap.c',
@@ -605,6 +607,7 @@ if get_option('enable-xkbregistry')
     deps_libxkbregistry = [dep_libxml]
     libxkbregistry_sources = [
         'src/registry.c',
+        'src/darray/common.c',
         'src/utils.c',
         'src/util-list.c',
     ]
@@ -659,6 +662,7 @@ tools_shared_lib = static_library(
     'tools-shared',
     sources: [
         'tools/tools-common.c',
+        'src/darray/common.c',
         'src/keymap-formats.c',
         'src/utf8-decoding.c',
     ],

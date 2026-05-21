@@ -141,8 +141,10 @@ keycode_store_insert_key(KeycodeStore *store, xkb_keycode_t kc, xkb_atom_t name)
                 darray_item(store->names, entry->name).key.index++;
             }
 
-            darray_insert(store->high, lower,
-                          (HighKeycodeEntry){.keycode = kc, .name = name});
+            darray_insert(
+                store->high, lower,
+                ((HighKeycodeEntry){.keycode = kc, .name = name})
+            );
             darray_item(store->names, name) = (KeycodeMatch) {
                 .key = {
                     .found = true,
@@ -153,8 +155,9 @@ keycode_store_insert_key(KeycodeStore *store, xkb_keycode_t kc, xkb_atom_t name)
             };
         } else {
             /* Fast path: no need to sort */
-            darray_append(store->high,
-                          (HighKeycodeEntry){.keycode = kc, .name = name});
+            darray_append(
+                store->high, ((HighKeycodeEntry){.keycode = kc, .name = name})
+            );
             darray_item(store->names, name) = (KeycodeMatch) {
                 .key = {
                     .found = true,

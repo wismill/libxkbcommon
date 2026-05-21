@@ -69,7 +69,7 @@ strip_lines(const char *input, size_t input_length, const char *prefix)
         darray_append_items(buf, start, (darray_size_t) count);
     }
 
-    darray_append(buf, '\0');
+    darray_append(buf, (char){'\0'});
     return darray_items(buf);
 }
 
@@ -105,7 +105,7 @@ uncomment(const char *input, size_t input_length, const char *prefix)
         darray_append_items(buf, start, (darray_size_t) count);
     }
 
-    darray_append(buf, '\0');
+    darray_append(buf, (char){'\0'});
     return darray_items(buf);
 }
 

@@ -1217,7 +1217,7 @@ tools_parse_raw_mod_mask(const char *raw, size_t length,
             return 0;
         const darray_size_t idx = darray_size(raw_mask->names);
         darray_append_items(raw_mask->names, buf, (darray_size_t)len);
-        darray_append(raw_mask->names, '\0');
+        darray_append(raw_mask->names, (char){'\0'});
         darray_append(raw_mask->indices, idx);
 
 next:

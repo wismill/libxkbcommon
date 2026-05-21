@@ -53,7 +53,7 @@ atom_table_new(void)
         return NULL;
 
     darray_init(table->strings);
-    darray_append(table->strings, NULL);
+    darray_append(table->strings, (char *){NULL});
     table->index_size = 4;
     table->index = calloc(table->index_size, sizeof(*table->index));
 

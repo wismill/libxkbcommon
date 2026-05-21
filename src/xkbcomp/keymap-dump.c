@@ -274,11 +274,11 @@ rename_long_keys(struct xkb_keymap *keymap,
         const size_t len = strlen_safe(name);
         if (len > 4) {
             /* Key name too long: append key, pending for renaming */
-            darray_append(*substitutions, (struct key_name_substitution) {
+            darray_append(*substitutions, ((struct key_name_substitution) {
                 .source = key->name,
                 .keycode = key->keycode,
                 .target = key->name
-            });
+            }));
         } else if (len == 4 && name[0] >= first && name[0] <= last) {
             /* Potential name conflict: deactivate this prefix */
             prefixes[name[0] - first] = invalid;
@@ -292,11 +292,11 @@ rename_long_keys(struct xkb_keymap *keymap,
         const size_t len = strlen_safe(name);
         if (len > 4) {
             /* Alias name too long: append alias, pending for renaming */
-            darray_append(*substitutions, (struct key_name_substitution) {
+            darray_append(*substitutions, ((struct key_name_substitution) {
                 .source = alias->alias,
                 .keycode = XKB_KEYCODE_INVALID, /* Too expensive to lookup */
                 .target = alias->alias
-            });
+            }));
         } else if (len == 4 && name[0] >= first && name[0] <= last) {
             /* Potential conflict with names substitutes: deactivate prefix */
             prefixes[name[0] - first] = invalid;

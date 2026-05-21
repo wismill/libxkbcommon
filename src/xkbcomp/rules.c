@@ -1194,7 +1194,7 @@ expand_rmlvo_in_kccgst_value(struct matcher *m, struct scanner *s,
         const int count = snprintf(index_str, sizeof(index_str), "%"PRIu32,
                                    layout_idx + 1);
         assert(count > 0); /* See MAX_LAYOUT_INDEX_STR_LENGTH */
-        darray_appends_nullterminate(*expanded, index_str, (darray_size_t)count);
+        darray_appends_nullterminate(expanded, index_str, (darray_size_t)count);
         return true;
     }
 
@@ -1282,12 +1282,12 @@ expand_rmlvo_in_kccgst_value(struct matcher *m, struct scanner *s,
     }
 
     if (pfx != 0)
-        darray_appends_nullterminate(*expanded, &pfx, 1);
-    darray_appends_nullterminate(*expanded,
+        darray_appends_nullterminate(expanded, &pfx, 1);
+    darray_appends_nullterminate(expanded,
                                  expanded_value->sval.start,
                                  (darray_size_t) expanded_value->sval.len);
     if (sfx != 0)
-        darray_appends_nullterminate(*expanded, &sfx, 1);
+        darray_appends_nullterminate(expanded, &sfx, 1);
     expanded_value->matched = true;
 
     return true;
@@ -1320,7 +1320,7 @@ expand_qualifier_in_kccgst_value(
                         "Using :all qualifier with indices range "
                         "is not recommended.");
         /* Add at least one layout */
-        darray_appends_nullterminate(*expanded, "1", 1);
+        darray_appends_nullterminate(expanded, "1", 1);
         /* Check for more layouts (slow path) */
         if (darray_size(m->rmlvo.layouts) > 1) {
             char layout_index[MAX_LAYOUT_INDEX_STR_LENGTH + 1];
@@ -1331,16 +1331,14 @@ expand_qualifier_in_kccgst_value(
                  l++)
             {
                 if (!has_separator)
-                    darray_append(*expanded, MERGE_DEFAULT_PREFIX);
+                    darray_append(*expanded, (char){MERGE_DEFAULT_PREFIX});
                 /* Append prefix */
-                darray_appends_nullterminate(*expanded,
-                                             &darray_item(*expanded, prefix_idx),
-                                             prefix_length);
+                darray_concat_self(*expanded, prefix_idx, prefix_length);
                 /* Append index */
                 const int count = snprintf(layout_index, sizeof(layout_index),
                                            "%"PRIu32, l + 1);
                 assert(count > 0); /* See MAX_LAYOUT_INDEX_STR_LENGTH */
-                darray_appends_nullterminate(*expanded, layout_index,
+                darray_appends_nullterminate(expanded, layout_index,
                                              (darray_size_t)count);
             }
         }
@@ -1363,13 +1361,13 @@ concat_kccgst(darray_char *into, darray_size_t size, const char from[static size
      */
     const bool from_plus = is_merge_mode_prefix(from[0]);
     if (from_plus || darray_empty(*into)) {
-        darray_appends_nullterminate(*into, from, size);
+        darray_appends_nullterminate(into, from, size);
     } else {
         const char ch =
             (char) (darray_empty(*into) ? '\0' : darray_item(*into, 0));
         const bool into_plus = is_merge_mode_prefix(ch);
         if (into_plus)
-            darray_prepends_nullterminate(*into, from, size);
+            darray_prepends_nullterminate(into, from, size);
     }
 }
 
@@ -1392,7 +1390,7 @@ append_expanded_kccgst_value(struct matcher *m, struct scanner *s,
         switch (str[i]) {
             /* Qualifier */
             case ':':
-                darray_appends_nullterminate(expanded, &str[i++], 1);
+                darray_appends_nullterminate(&expanded, &str[i++], 1);
                 expand_qualifier_in_kccgst_value(m, s, value, &expanded,
                                                  m->mapping.has_layout_idx_range,
                                                  has_separator,
@@ -1410,13 +1408,13 @@ append_expanded_kccgst_value(struct matcher *m, struct scanner *s,
             case MERGE_OVERRIDE_PREFIX:
             case MERGE_AUGMENT_PREFIX:
             case MERGE_REPLACE_PREFIX:
-                darray_appends_nullterminate(expanded, &str[i++], 1);
+                darray_appends_nullterminate(&expanded, &str[i++], 1);
                 last_item_idx = darray_size(expanded) - 1;
                 has_separator = true;
                 break;
             /* Just a normal character. */
             default:
-                darray_appends_nullterminate(expanded, &str[i++], 1);
+                darray_appends_nullterminate(&expanded, &str[i++], 1);
         }
     }
 

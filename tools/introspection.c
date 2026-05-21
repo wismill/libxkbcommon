@@ -440,7 +440,7 @@ print_dot(struct xkb_context *ctx,
             /* Root node set for each keymap */
             assert(is_composite_file);
             darray_copy(root_node, parent_node);
-            darray_append(root_node, '\0');
+            darray_append(root_node, (char){'\0'});
         }
 
         /* Node label */
@@ -696,7 +696,7 @@ print_rdf(struct xkb_context *ctx,
                 /* Backup keymap node */
                 darray_size(keymap) = 0;
                 darray_copy(keymap, node);
-                darray_append(keymap, '\0');
+                darray_append(keymap, (char){'\0'});
             } else {
                 /* Link component to parent keymap */
                 printf("<%s>\txkb:includes\t<%s> .\n\n",

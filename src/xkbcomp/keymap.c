@@ -168,7 +168,7 @@ FindInterpForKey(struct xkb_keymap *keymap, const struct xkb_key *key,
         }
         if (!found)
 not_found:
-            darray_append(*interprets, &default_interpret);
+            darray_append(*interprets, (const struct xkb_sym_interpret *){&default_interpret});
     }
     return true;
 }

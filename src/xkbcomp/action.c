@@ -402,11 +402,11 @@ CheckGroupField(const struct xkb_keymap_info *keymap_info,
             darray_size(*keymap_info->pending_computations);
         darray_append(
             *keymap_info->pending_computations,
-            (struct pending_computation) {
+            ((struct pending_computation) {
                 .expr = *value_ptr,
                 .computed = false,
                 .value = 0,
-            }
+            })
         );
         *value_ptr = NULL;
         static_assert(sizeof(pending_index) == sizeof(*group_rtrn),

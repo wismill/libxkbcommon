@@ -201,7 +201,7 @@ xkb_file_section_init(struct xkb_file_section *section)
     darray_init(section->include_groups);
     darray_init(section->includes);
     darray_init(section->buffer);
-    darray_append(section->buffer, '\0');
+    darray_append(section->buffer, (char){'\0'});
 }
 
 static void
@@ -307,7 +307,7 @@ xkb_file_section_append_includes(struct xkb_context *ctx,
                     darray_size(section->include_groups);
                 darray_append(
                     section->include_groups,
-                    (struct xkb_file_include_group) {.start = idx, .end = idx}
+                    ((struct xkb_file_include_group) {.start = idx, .end = idx})
                 );
                 group = &darray_item(section->include_groups, group_idx);
             } else {

@@ -1716,11 +1716,11 @@ SetSymbolsField(SymbolsInfo *info, KeyInfo *keyi, const char *field,
                 darray_size(*info->keymap_info->pending_computations);
             darray_append(
                 *info->keymap_info->pending_computations,
-                (struct pending_computation) {
+                ((struct pending_computation) {
                     .expr = *value_ptr,
                     .computed = false,
                     .value = 0,
-                }
+                })
             );
             *value_ptr = NULL;
             static_assert(sizeof(keyi->out_of_range_group_number) ==
