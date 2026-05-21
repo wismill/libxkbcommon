@@ -436,8 +436,7 @@ add_production(struct xkb_compose_table *table, struct scanner *s,
                 } else {
                     /* Cannot reuse string: allocate new one */
                     node->leaf.utf8 = darray_size(table->utf8);
-                    darray_append_items(table->utf8, production->string,
-                                        (darray_size_t)strlen(production->string) + 1);
+                    darray_append_string0(table->utf8, production->string);
                 }
             } else {
                 /* Ensure we reset possible previous entry */

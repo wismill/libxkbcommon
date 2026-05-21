@@ -7,8 +7,9 @@
 #include "config.h"
 
 #include "xkbcommon/xkbcommon-compose.h"
-#include "src/utils.h"
 #include "src/context.h"
+#include "src/darray.h"
+#include "src/utils.h"
 
 /*
  * The compose table data structure is a ternary search tree.

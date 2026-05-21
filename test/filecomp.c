@@ -12,6 +12,7 @@
 static int
 test_file(struct xkb_context *ctx, const char *path_rel)
 {
+    fprintf(stderr, "\n------ File: %s ------\n", path_rel);
     struct xkb_keymap *keymap =
         test_compile_file( ctx, XKB_KEYMAP_FORMAT_TEXT_V1, path_rel);
 

@@ -197,6 +197,7 @@ struct matched_sval {
     /* Used for layout-specific options */
     xkb_layout_index_t layout:31;
 };
+
 typedef darray(struct matched_sval) darray_matched_sval;
 
 /*
@@ -1319,13 +1320,12 @@ expand_qualifier_in_kccgst_value(
             scanner_vrb(s, XKB_LOG_VERBOSITY_DETAILED, XKB_LOG_MESSAGE_NO_ID,
                         "Using :all qualifier with indices range "
                         "is not recommended.");
+        const darray_size_t prefix_length = darray_size(*expanded) - prefix_idx;
         /* Add at least one layout */
         darray_appends_nullterminate(expanded, "1", 1);
         /* Check for more layouts (slow path) */
         if (darray_size(m->rmlvo.layouts) > 1) {
             char layout_index[MAX_LAYOUT_INDEX_STR_LENGTH + 1];
-            const darray_size_t prefix_length =
-                darray_size(*expanded) - prefix_idx - 1;
             for (xkb_layout_index_t l = 1;
                  l < MIN(XKB_MAX_GROUPS, darray_size(m->rmlvo.layouts));
                  l++)

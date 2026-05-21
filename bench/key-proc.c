@@ -17,7 +17,7 @@
 
 #define BENCHMARK_ITERATIONS 3000000
 
-NOINLINE static void
+ATTRIBS(NOINLINE) static unsigned long
 bench_legacy_api(struct xkb_state *state)
 {
     bool keys[256] = { 0 };
@@ -40,9 +40,11 @@ bench_legacy_api(struct xkb_state *state)
 
         keys[keycode] = !keys[keycode];
     }
+
+    return acc_changed + acc_keysym;
 }
 
-NOINLINE static void
+ATTRIBS(NOINLINE) static unsigned long
 bench_modern_api(struct xkb_machine *sm,
                  struct xkb_events *events,
                  struct xkb_state *state)
@@ -74,6 +76,8 @@ bench_modern_api(struct xkb_machine *sm,
 
         keys[keycode] = !keys[keycode];
     }
+
+    return acc_ret + acc_changed + acc_keysym;
 }
 
 int

@@ -10,13 +10,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "darray.h"
-#include "utils-paths.h"
 #include "xkbcommon/xkbcommon.h"
+#include "src/darray.h"
 #include "src/xkbcomp/keymap-file-iterator.h"
 #include "src/xkbcomp/ast.h"
 #include "test.h"
 #include "utils.h"
+#include "utils-paths.h"
 
 struct file_include_test_data {
     bool valid:1;

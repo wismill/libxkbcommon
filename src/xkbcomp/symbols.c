@@ -194,7 +194,7 @@ CopyGroupInfo(GroupInfo *to, const GroupInfo *from)
             darray_item(to->levels, j).s.syms =
                 memdup(darray_item(from->levels, j).s.syms,
                        darray_item(from->levels, j).num_syms,
-                       sizeof(xkb_keysym_t));
+                       sizeof(*darray_item(to->levels, j).s.syms));
             if (!darray_item(to->levels, j).s.syms) {
                 darray_item(to->levels, j).num_syms = 0;
                 return false;
@@ -204,7 +204,7 @@ CopyGroupInfo(GroupInfo *to, const GroupInfo *from)
             darray_item(to->levels, j).a.actions =
                 memdup(darray_item(from->levels, j).a.actions,
                        darray_item(from->levels, j).num_actions,
-                       sizeof(union xkb_action));
+                       sizeof(*darray_item(from->levels, j).a.actions));
             if (!darray_item(to->levels, j).a.actions) {
                 darray_item(to->levels, j).num_actions = 0;
                 return false;
@@ -2166,22 +2166,20 @@ FindKeyForSymbol(struct xkb_keymap *keymap, xkb_keysym_t sym)
 static xkb_atom_t
 FindAutomaticType(struct xkb_context *ctx, GroupInfo *groupi)
 {
-    xkb_keysym_t sym0, sym1;
     const xkb_level_index_t width = darray_size(groupi->levels);
-
-#define GET_SYM(level) \
-    (darray_item(groupi->levels, level).num_syms == 0 ? \
-        XKB_KEY_NoSymbol : \
-     darray_item(groupi->levels, level).num_syms == 1 ? \
-        darray_item(groupi->levels, level).s.sym : \
-     /* num_syms > 1 */ \
-        darray_item(groupi->levels, level).s.syms[0])
-
-    if (width == 1 || width <= 0)
+    if (width <= 1)
         return xkb_atom_intern_literal(ctx, "ONE_LEVEL");
 
-    sym0 = GET_SYM(0);
-    sym1 = GET_SYM(1);
+#define GET_SYM(level) \
+    (darray_item(groupi->levels, (level)).num_syms == 0 ? \
+        XKB_KEY_NoSymbol : \
+     (darray_item(groupi->levels, (level)).num_syms == 1 ? \
+        darray_item(groupi->levels, (level)).s.sym : \
+        /* num_syms > 1 */ \
+        darray_item(groupi->levels, (level)).s.syms[0]))
+
+    const xkb_keysym_t sym0 = GET_SYM(0);
+    const xkb_keysym_t sym1 = GET_SYM(1);
 
     if (width == 2) {
         if (xkb_keysym_is_lower(sym0) && xkb_keysym_is_upper_or_title(sym1))
