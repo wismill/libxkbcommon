@@ -46,9 +46,16 @@ static_assert(darray_max_alloc(1000) > 1000, "darray_size_t too small");
 
 #define darray_new() { 0, 0, NULL }
 
-#define darray_init(arr) do { \
+#define darray_init_without_capacity(arr) do { \
     (arr).item = NULL; (arr).size = 0; (arr).alloc = 0; \
 } while (0)
+
+#define DARRAY_ROUTE_ARGS(_1, _2, name, ...) name
+#define darray_init(...) DARRAY_ROUTE_ARGS( \
+    __VA_ARGS__, \
+    darray_init_with_capacity, \
+    darray_init_without_capacity \
+)(__VA_ARGS__)
 
 #define darray_free(arr) do { \
     free((arr).item); \
@@ -117,6 +124,24 @@ ATTRIBS(NODISCARD) bool
 darray_heap_shrink(void ** restrict data, size_t item_size,
                    darray_size_t * restrict capacity,
                    darray_size_t size);
+
+ATTRIBS(NODISCARD, MAYBE_UNUSED, ALWAYS_INLINE) static inline bool
+darray_init_with_capacity_(void ** restrict data, size_t item_size,
+                           darray_size_t * restrict capacity,
+                           darray_size_t * restrict size, darray_size_t need)
+{
+    *data = NULL;
+    *capacity = 0;
+    *size = 0;
+    return (
+        !need ||
+        unlikely(!darray_heap_grow(data, item_size, capacity, need))
+    );
+}
+
+#define darray_init_with_capacity(arr, need) \
+    darray_init_with_capacity_((void **)&(arr).item, sizeof(*(arr).item), \
+                               &(arr).alloc, &(arr).size, (need))
 
 ATTRIBS(NODISCARD, MAYBE_UNUSED, ALWAYS_INLINE) static inline bool
 darray_resize_(void ** restrict data, size_t item_size,
