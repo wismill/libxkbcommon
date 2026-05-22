@@ -10,11 +10,11 @@
 /* Originally taken from: https://ccodearchive.net/info/darray.html
  * But modified for libxkbcommon. */
 
+#include <assert.h>
+#include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include <limits.h>
 
 #include "utils.h"
 
