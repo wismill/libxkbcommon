@@ -9,6 +9,28 @@
 #include <fcntl.h>
 #include "utils.h"
 
+#if !(defined(HAVE_REALLOCARRAY) && HAVE_REALLOCARRAY)
+# ifdef _MSC_VER
+        #defined reallocarray _recalloc
+# else
+void *
+reallocarray(void *ptr, size_t nmemb, size_t size)
+{
+    if (nmemb == 0 || size == 0) {
+            free(ptr);
+            return NULL;
+        }
+
+        if (nmemb > SIZE_MAX / size) {
+            errno = ENOMEM;
+            return NULL;
+        }
+
+        return realloc(ptr, nmemb * size);
+}
+# endif
+#endif
+
 #if HAVE_MMAP
 
 #include <unistd.h>

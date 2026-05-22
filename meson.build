@@ -251,6 +251,9 @@ if cc.compiles(
 )
     configh_data.set10('HAVE_ATTR_COUNTED_BY', true)
 endif
+if cc.has_header_symbol('stdlib.h', 'reallocarray', prefix: system_ext_define)
+    configh_data.set10('HAVE_REALLOCARRAY', true)
+endif
 if cc.has_header_symbol('unistd.h', 'eaccess', prefix: system_ext_define)
     configh_data.set10('HAVE_EACCESS', true)
 endif

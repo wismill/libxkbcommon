@@ -42,6 +42,16 @@ typedef SSIZE_T ssize_t;
 #endif
 #endif
 
+#if !(defined(HAVE_REALLOCARRAY) && HAVE_REALLOCARRAY)
+# ifdef _MSC_VER
+#  include <malloc.h>
+   #defined reallocarray _recalloc
+# else
+void *
+reallocarray(void *ptr, size_t nmemb, size_t size);
+# endif
+#endif
+
 static inline bool
 is_aligned(const void *restrict pointer, size_t byte_count)
 {
