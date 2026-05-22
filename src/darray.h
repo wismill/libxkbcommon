@@ -28,7 +28,12 @@
 #endif
 
 typedef unsigned int darray_size_t;
-#define darray_max_alloc(item_size) (UINT_MAX / (item_size))
+enum {
+    DARRAY_SIZE_WIDTH = sizeof(darray_size_t) * CHAR_BIT,
+    DARRAY_SIZE_MAX = UINT_MAX
+};
+#define darray_max_alloc(item_size) (SIZE_MAX / (item_size))
+static_assert(darray_max_alloc(1000) > 1000, "darray_size_t too small");
 
 #define darray(type) struct {         \
     /** Count of allocated items */   \
@@ -38,11 +43,6 @@ typedef unsigned int darray_size_t;
     /** Array of items */             \
     type *item ATTR_COUNTED_BY(size); \
 }
-
-enum {
-    DARRAY_SIZE_T_WIDTH = sizeof(darray_size_t) * CHAR_BIT,
-    DARRAY_SIZE_MAX = UINT_MAX
-};
 
 #define darray_new() { 0, 0, NULL }
 
@@ -107,6 +107,7 @@ typedef darray (unsigned long)  darray_ulong;
     exit(EXIT_FAILURE); \
 } while (0)
 
+
 ATTRIBS(NODISCARD) bool
 darray_heap_grow(void ** restrict data, size_t item_size,
                  darray_size_t * restrict capacity,
@@ -122,9 +123,11 @@ darray_resize_(void ** restrict data, size_t item_size,
                darray_size_t * restrict capacity, darray_size_t * restrict size,
                darray_size_t need)
 {
-    if (unlikely(!darray_heap_grow(data, item_size, capacity, need))) {
-        darray_die("ERROR: failed to allocate in %s()\n", __func__);
-        // return false;
+    if (likely(need > *capacity)) {
+        if (unlikely(!darray_heap_grow(data, item_size, capacity, need))) {
+            darray_die("ERROR: failed to allocate in %s()\n", __func__);
+            // return false;
+        }
     }
 
     *size = need;

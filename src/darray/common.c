@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include "darray.h"
+#include "utils.h"
 
 bool
 darray_heap_grow(void ** restrict data, size_t item_size,
@@ -20,25 +21,23 @@ darray_heap_grow(void ** restrict data, size_t item_size,
     const darray_size_t need_max = darray_max_alloc(item_size);
     darray_size_t new = *capacity;
 
-    if (need > new) {
-        if (new == 0) {
-            new = 4;
-        } else if (need > need_max / 2) {
-            return false;
-        }
-
-        while (new < need) {
-            new *= 2;
-        }
-
-        void * tmp = realloc(*data, new * item_size);
-        if (!tmp) {
-            return false;
-        }
-
-        *capacity = new;
-        *data = tmp;
+    if (new == 0) {
+        new = 4;
+    } else if (unlikely(need > need_max / 2)) {
+        return false;
     }
+
+    while (new < need) {
+        new *= 2;
+    }
+
+    void * tmp = realloc(*data, new * item_size);
+    if (unlikely(!tmp)) {
+        return false;
+    }
+
+    *capacity = new;
+    *data = tmp;
 
     return true;
 }
@@ -50,7 +49,7 @@ darray_heap_shrink(void ** restrict data, size_t item_size,
 {
     if (size > 0) {
         void * tmp = realloc(*data, size * item_size);
-        if (!tmp) {
+        if (unlikely(!tmp)) {
             return false;
         }
 

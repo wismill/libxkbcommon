@@ -607,10 +607,8 @@ struct xkb_mod_set {
 #define XKB_KEYCODE_MAX_CONTIGUOUS 0xfff
 static_assert(XKB_KEYCODE_MAX_CONTIGUOUS < XKB_KEYCODE_MAX,
               "Valid keycodes");
-static_assert(XKB_KEYCODE_MAX_CONTIGUOUS < darray_max_alloc(sizeof(xkb_atom_t)),
-              "Max keycodes names");
-static_assert(XKB_KEYCODE_MAX_CONTIGUOUS < darray_max_alloc(sizeof(struct xkb_key)),
-              "Max keymap keys");
+static_assert(XKB_KEYCODE_MAX_CONTIGUOUS < DARRAY_SIZE_MAX,
+              "Max keycodes names & keymap keys");
 
 /*
  * Our current implementation with continuous arrays does not allow efficient
@@ -622,12 +620,10 @@ static_assert(XKB_KEYCODE_MAX_CONTIGUOUS < darray_max_alloc(sizeof(struct xkb_ke
 #define XKB_LEVEL_MAX_IMPL 2048
 static_assert(XKB_LEVEL_MAX_IMPL < XKB_LEVEL_INVALID,
               "Valid levels");
-static_assert(XKB_LEVEL_MAX_IMPL < darray_max_alloc(sizeof(xkb_atom_t)),
-              "Max key types level names");
-static_assert(XKB_LEVEL_MAX_IMPL < darray_max_alloc(sizeof(struct xkb_level)),
-              "Max keys levels");
+static_assert(XKB_LEVEL_MAX_IMPL < DARRAY_SIZE_MAX,
+              "Max key types level names & key levels");
 
-static_assert((1LLU << (DARRAY_SIZE_T_WIDTH - 3)) - 1 >=
+static_assert((1LLU << (DARRAY_SIZE_WIDTH - 3)) - 1 >=
               XKB_KEYCODE_MAX_CONTIGUOUS,
               "Cannot store low keycodes");
 
@@ -639,7 +635,7 @@ typedef union {
         bool:1;
         /** Whether the corresponding entry is an alias */
         bool is_alias:1;
-        darray_size_t:(DARRAY_SIZE_T_WIDTH - 3);
+        darray_size_t:(DARRAY_SIZE_WIDTH - 3);
     };
     /* Only if is_alias = false, for better semantics */
     struct {
@@ -654,7 +650,7 @@ typedef union {
          * - xkb_keycodes: index of the entry in the keycode store
          * - xkb_symbols: index of the entry in xkb_keymap::keys array
          */
-        darray_size_t index:(DARRAY_SIZE_T_WIDTH - 3);
+        darray_size_t index:(DARRAY_SIZE_WIDTH - 3);
     } key;
     /* Only if is_alias = true, for better semantics */
     struct {
@@ -662,7 +658,7 @@ typedef union {
         bool:1;
         bool is_alias:1;
         /** Real name of the target key */
-        xkb_atom_t real:(DARRAY_SIZE_T_WIDTH - 3);
+        xkb_atom_t real:(DARRAY_SIZE_WIDTH - 3);
     } alias;
 } KeycodeMatch;
 
