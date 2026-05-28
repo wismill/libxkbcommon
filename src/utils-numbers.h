@@ -115,6 +115,8 @@ MAKE_PARSE_HEX_TO(uint32_t, UINT32_MAX)
  */
 MAKE_PARSE_HEX_TO(uint64_t, UINT64_MAX)
 
+#undef MAKE_PARSE_HEX_TO
+
 static inline unsigned int
 popcount32(uint32_t x)
 {
@@ -136,16 +138,22 @@ popcount32(uint32_t x)
 static inline unsigned int
 next_pow2(unsigned int x)
 {
+#ifndef UINT_WIDTH
+    enum { UINT_WIDTH = sizeof(unsigned) * CHAR_BIT };
+#endif
 #if defined(__GNUC__) || defined(__clang__)
-    if (x <= 1) return 1u;
-    return 1u << ((int)sizeof(unsigned) * CHAR_BIT - __builtin_clz(x - 1));
+    if (x <= 1)
+        return 1u;
+    /* If the highest bit is set, the next power of 2 overflows */
+    if (unlikely(x & (1u << (UINT_WIDTH - 1))))
+    // if (unlikely(!__builtin_clz(x - 1)))
+        return 0u;
+    return 1u << (UINT_WIDTH - __builtin_clz(x - 1));
 #else
     if (x <= 1u) return 1u;
     x--;
-    for (unsigned s = 1; s < (unsigned)sizeof(x)*CHAR_BIT; s <<= 1)
+    for (unsigned s = 1; s < (unsigned)UINT_WIDTH; s <<= 1)
         x |= x >> s;
     return x + 1u;
 #endif
 }
-
-#undef MAKE_PARSE_HEX_TO

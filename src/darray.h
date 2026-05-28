@@ -143,17 +143,45 @@ darray_init_with_capacity_(void ** restrict data, size_t item_size,
     darray_init_with_capacity_((void **)&(arr).item, sizeof(*(arr).item), \
                                &(arr).alloc, &(arr).size, (need))
 
+#define plouf (0)
+
 ATTRIBS(NODISCARD, MAYBE_UNUSED, ALWAYS_INLINE) static inline bool
 darray_resize_(void ** restrict data, size_t item_size,
                darray_size_t * restrict capacity, darray_size_t * restrict size,
                darray_size_t need)
 {
+#if plouf == 0
+    if (need > *capacity &&
+        unlikely(!darray_heap_grow(data, item_size, capacity, need))) {
+            // darray_die("ERROR: failed to allocate in %s()\n", __func__);
+            return false;
+    }
+#elif plouf == 1
     if (likely(need > *capacity)) {
         if (unlikely(!darray_heap_grow(data, item_size, capacity, need))) {
-            darray_die("ERROR: failed to allocate in %s()\n", __func__);
-            // return false;
+            // darray_die("ERROR: failed to allocate in %s()\n", __func__);
+            return false;
         }
     }
+#elif plouf == 2
+    if (need > *capacity) {
+        if (unlikely(!darray_heap_grow(data, item_size, capacity, need))) {
+            // darray_die("ERROR: failed to allocate in %s()\n", __func__);
+            return false;
+        }
+    }
+#elif plouf == 3
+    if (unlikely(need > *capacity &&
+                 !darray_heap_grow(data, item_size, capacity, need))) {
+        // darray_die("ERROR: failed to allocate in %s()\n", __func__);
+        return false;
+    }
+#elif plouf < 0
+    if (unlikely(!darray_heap_grow(data, item_size, capacity, need))) {
+        // darray_die("ERROR: failed to allocate in %s()\n", __func__);
+        return false;
+    }
+#endif
 
     *size = need;
     return true;

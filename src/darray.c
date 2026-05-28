@@ -73,7 +73,7 @@ typedef unsigned int darray_size_t;
 #define darray_max_alloc(item_size) (UINT_MAX / (item_size))
 
 enum {
-    DARRAY_SIZE_T_WIDTH = sizeof(darray_size_t) * CHAR_BIT,
+    DARRAY_SIZE_WIDTH = sizeof(darray_size_t) * CHAR_BIT,
     DARRAY_SIZE_MAX = UINT_MAX
 };
 
