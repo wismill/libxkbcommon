@@ -75,6 +75,10 @@ xkb_feature_supported(enum xkb_feature feature, uint32_t value)
         return is_supported_flag_value(
             XKB_KEYMAP_COMPILE_FLAGS_VALUES, true, value
         );
+    case XKB_FEATURE_ENUM_KEYMAP_COPY_FLAGS:
+        return is_supported_flag_value(
+            XKB_KEYMAP_COPY_FLAGS_VALUES, true, value
+        );
     case XKB_FEATURE_ENUM_KEYMAP_SERIALIZE_FLAGS:
         return is_supported_flag_value(
             XKB_KEYMAP_SERIALIZE_FLAGS_VALUES, true, value

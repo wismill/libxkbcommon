@@ -38,6 +38,9 @@ xkb_keymap_format:
     value: 1
   - name: XKB_KEYMAP_FORMAT_TEXT_V2
     value: 2
+xkb_keymap_copy_flags:
+  - name: XKB_KEYMAP_COPY_NO_FLAGS
+    value: 0
 xkb_keymap_serialize_flags:
   - name: XKB_KEYMAP_SERIALIZE_NO_FLAGS
     value: 0

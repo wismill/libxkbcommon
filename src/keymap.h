@@ -971,6 +971,9 @@ struct xkb_keymap_format_ops {
     bool (*keymap_new_from_string)(struct xkb_keymap *keymap,
                                    const char *string, size_t length);
     bool (*keymap_new_from_file)(struct xkb_keymap *keymap, FILE *file);
+    bool (*keymap_new_copy)(struct xkb_keymap *keymap,
+                            const struct xkb_keymap *source,
+                            const struct xkb_keymap_copy_options *options);
     char *(*keymap_get_as_string)(struct xkb_keymap *keymap,
                                   enum xkb_keymap_format format,
                                   enum xkb_keymap_serialize_flags flags);

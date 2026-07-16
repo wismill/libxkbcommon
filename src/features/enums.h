@@ -101,6 +101,9 @@ enum xkb_enumerations_values {
         = (1u << XKB_KEYMAP_FORMAT_TEXT_V1)
         | (1u << XKB_KEYMAP_FORMAT_TEXT_V2)
     ,
+    XKB_KEYMAP_COPY_FLAGS_VALUES
+        = XKB_KEYMAP_COPY_NO_FLAGS
+    ,
     XKB_KEYMAP_SERIALIZE_FLAGS_VALUES
         = XKB_KEYMAP_SERIALIZE_NO_FLAGS
         | XKB_KEYMAP_SERIALIZE_PRETTY
@@ -244,6 +247,12 @@ static const uint32_t xkb_keymap_compile_flags_values[] = {
 static const uint32_t xkb_keymap_format_values[] = {
     XKB_KEYMAP_FORMAT_TEXT_V1,
     XKB_KEYMAP_FORMAT_TEXT_V2,
+};
+#endif
+
+#ifdef ENABLE_PRIVATE_APIS
+static const uint32_t xkb_keymap_copy_flags_values[] = {
+    XKB_KEYMAP_COPY_NO_FLAGS,
 };
 #endif
 
@@ -419,6 +428,7 @@ static const uint32_t xkb_feature_values[] = {
     XKB_FEATURE_ENUM_RMLVO_BUILDER_FLAGS,
     XKB_FEATURE_ENUM_KEYMAP_FORMAT,
     XKB_FEATURE_ENUM_KEYMAP_COMPILE_FLAGS,
+    XKB_FEATURE_ENUM_KEYMAP_COPY_FLAGS,
     XKB_FEATURE_ENUM_KEYMAP_SERIALIZE_FLAGS,
     XKB_FEATURE_ENUM_KEYMAP_KEY_ITERATOR_FLAGS,
     XKB_FEATURE_ENUM_STATE_COMPONENT,

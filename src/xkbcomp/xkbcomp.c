@@ -241,10 +241,18 @@ text_v1_keymap_new_from_file(struct xkb_keymap *keymap, FILE *file)
     return ok;
 }
 
+static bool
+v1_keymap_new_copy(struct xkb_keymap *keymap, const struct xkb_keymap *source,
+                   const struct xkb_keymap_copy_options *options)
+{
+
+}
+
 const struct xkb_keymap_format_ops text_v1_keymap_format_ops = {
     .keymap_new_from_rmlvo = text_v1_keymap_new_from_rmlvo,
     .keymap_new_from_names = text_v1_keymap_new_from_names,
     .keymap_new_from_string = text_v1_keymap_new_from_string,
     .keymap_new_from_file = text_v1_keymap_new_from_file,
+    .keymap_new_copy = v1_keymap_new_copy,
     .keymap_get_as_string = text_v1_keymap_get_as_string,
 };

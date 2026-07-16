@@ -1515,6 +1515,9 @@ xkb_keymap_new_from_file(struct xkb_context *context, FILE *file,
  * This is just like `xkb_keymap_new_from_file()`, but instead of a file, gets
  * the keymap as one enormous string.
  *
+ * @returns A keymap compiled from the given string, or `NULL` if
+ * the compilation failed.
+ *
  * @since 1.14.0 Parser is lenient by default.
  * @see `xkb_keymap_new_from_file()`
  * @memberof xkb_keymap
@@ -1530,6 +1533,9 @@ xkb_keymap_new_from_string(struct xkb_context *context, const char *string,
  * This is just like `xkb_keymap_new_from_string()`, but takes a @p length
  * argument so the input string does not have to be zero-terminated.
  *
+ * @returns A keymap compiled from the given buffer, or `NULL` if
+ * the compilation failed.
+ *
  * @since 0.3.0
  * @since 1.14.0 Parser is lenient by default.
  * @see `xkb_keymap_new_from_string()`
@@ -1539,6 +1545,64 @@ XKB_EXPORT struct xkb_keymap *
 xkb_keymap_new_from_buffer(struct xkb_context *context, const char *buffer,
                            size_t length, enum xkb_keymap_format format,
                            enum xkb_keymap_compile_flags flags);
+
+/**
+ * @enum xkb_keymap_copy_flags
+ *
+ * Flags for `xkb_keymap_copy_options`
+ *
+ * @since 1.14.0
+ * @see `xkb_keymap::xkb_keymap_new_copy()`
+ */
+enum xkb_keymap_copy_flags {
+    XKB_KEYMAP_COPY_NO_FLAGS = 0
+};
+
+/**
+ * @struct xkb_keymap_copy_options
+ *
+ * Options for `xkb_keymap::xkb_keymap_new_copy()`
+ *
+ * @since 1.14.0
+ */
+struct xkb_keymap_copy_options {
+    /**
+     * Size of this structure, for forward-compatibility.
+     *
+     * @sa `::XKB_ERROR_ABI_INVALID_STRUCT_SIZE`
+     * @sa `::XKB_ERROR_ABI_BACKWARD_COMPAT`
+     * @sa `::XKB_ERROR_ABI_FORWARD_COMPAT`
+     */
+    size_t size;
+    /** General copy options */
+    enum xkb_keymap_copy_flags flags;
+    /** Target keymap format */
+    enum xkb_keymap_format format;
+    /** List of layouts to copy */
+    const xkb_layout_index_t *layouts;
+    /** Number of @c layouts */
+    xkb_layout_index_t num_layouts;
+};
+
+/**
+ * Create a copy of a keymap
+ *
+ * @param[in]  source       The keymap to copy.
+ * @param[in]  options      Configuration properties guiding the copy mutation,
+ * or `NULL` to perform a default complete 1:1 copy.
+ * @param[out] destination  The destination pointer address where the newly
+ * allocated keymap will be stored. On failure, the variable pointed to by
+ * this argument is set to `NULL`.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an error code.
+ *
+ * @since 1.14.0
+ * @memberof xkb_keymap
+ */
+XKB_EXPORT enum xkb_error_code
+xkb_keymap_new_copy(const struct xkb_keymap *source,
+                    const struct xkb_keymap_copy_options *options,
+                    struct xkb_keymap **destination);
 
 /**
  * Take a new reference on a keymap.

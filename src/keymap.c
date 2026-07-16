@@ -17,9 +17,11 @@
 #include <stdint.h>
 
 #include "xkbcommon/xkbcommon.h"
+#include "abi-check.h"
 #include "atom.h"
 #include "features/enums.h"
 #include "keymap.h"
+#include "keymap-priv.h"
 #include "messages-codes.h"
 #include "text.h"
 
@@ -250,6 +252,38 @@ xkb_keymap_new_from_file(struct xkb_context *ctx,
     }
 
     return keymap;
+}
+
+/* Check ABI compatibility */
+static enum xkb_error_code
+check_keymap_copy_options_abi_(struct xkb_context * restrict ctx,
+                               const char * restrict func,
+                               const struct xkb_keymap_copy_options * restrict options)
+{
+    enum xkb_error_code error = XKB_SUCCESS;
+    if ((error = xkb_check_keymap_copy_options_size(options))) {
+        xkb_log_abi_error(ctx, func, error);
+    }
+    return error;
+}
+
+#define check_keymap_copy_options_abi(ctx, update) \
+    check_keymap_copy_options_abi_(ctx, __func__, update)
+
+enum xkb_error_code
+xkb_keymap_new_copy(const struct xkb_keymap *source,
+                    const struct xkb_keymap_copy_options *options,
+                    struct xkb_keymap **destination)
+{
+    /* Check ABI compatibility */
+    enum xkb_error_code error =
+        check_keymap_copy_options_abi(source->ctx, options);
+    if (error)
+        return error;
+
+
+
+    return XKB_SUCCESS;
 }
 
 char *

@@ -145,6 +145,12 @@ enum xkb_feature {
      */
     XKB_FEATURE_ENUM_KEYMAP_COMPILE_FLAGS = 21200,
     /**
+     * The enumeration @ref xkb_keymap_copy_flags
+     *
+     * @since 1.14.0
+     */
+    XKB_FEATURE_ENUM_KEYMAP_COPY_FLAGS = 21220,
+    /**
      * The enumeration @ref xkb_keymap_serialize_flags
      *
      * @since 1.14.0
