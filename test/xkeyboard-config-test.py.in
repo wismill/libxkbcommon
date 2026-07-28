@@ -473,12 +473,12 @@ class Registry:
         paths: Sequence[Path],
         tool: type[Invocation],
         rules: str | None,
-        model: str | None,
+        input_models: tuple[str, ...],
         layout: str | None,
         variant: str | None,
         option: str | None,
     ) -> tuple[int, Iterator[Invocation]]:
-        models: tuple[str, ...] = ()
+        models: tuple[str, ...] = input_models
         layouts: tuple[Layout, ...] = ()
         options: tuple[str, ...] = ()
 
@@ -489,14 +489,12 @@ class Registry:
             root = ET.fromstring(path.read_text(encoding="utf-8"))
 
             # Models
-            if model is None:
+            if not input_models:
                 models += tuple(
                     e.text
                     for e in root.findall("modelList/model/configItem/name")
                     if e.text
                 )
-            elif not models:
-                models += (model,)
 
             # Layouts/variants
             if layout:
@@ -730,7 +728,7 @@ def main() -> NoReturn:
         "--rules", default=RMLVO.DEFAULT_RULES, type=str, help="Rule set to use"
     )
     parser.add_argument(
-        "--model", default="", type=str, help="Only test the given model"
+        "--model", default=("",), type=str, help="Only test the given model", nargs="+"
     )
     parser.add_argument(
         "--layout", default=WILDCARD, type=str, help="Only test the given layout"
@@ -761,7 +759,7 @@ def main() -> NoReturn:
     # NOTE: We test only one set of rules; handle wild card only for consistency
     #       with other components.
     rules: str | None = None if args.rules == WILDCARD else args.rules
-    model: str | None = None if args.model == WILDCARD else args.model
+    models: tuple[str, ...] = () if WILDCARD in args.model else args.model
     layout: str | None = None if args.layout == WILDCARD else args.layout
     variant: str | None = None if args.variant == WILDCARD else args.variant
     option: str | None = None if args.option == WILDCARD else args.option
@@ -782,7 +780,7 @@ def main() -> NoReturn:
             combos = (
                 tool.from_rmlvo(
                     rules=rules,
-                    model=model,
+                    model=models[0] if models else None,
                     layout=layout,
                     variant=variant,
                     option=option,
@@ -792,7 +790,7 @@ def main() -> NoReturn:
             iter_combos = iter(combos)
         else:
             count, iter_combos = Registry.parse(
-                paths, tool, rules, model, layout, variant, option
+                paths, tool, rules, models, layout, variant, option
             )
 
     # This need to be valid YAML. Currently unused, so left as comments
