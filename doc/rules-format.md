@@ -223,8 +223,10 @@ SpecialIndex ::= "single" | "first" | "later" | "multiple" | "any"
 Kccgst       ::= "keycodes" | "symbols" | "types" | "compat" | "geometry"
 
 Rule         ::= MlvoValue { MlvoValue } "=" KccgstValue { KccgstValue } "\n"
-MlvoValue    ::= Wildcard | GroupName | <ident>
+MlvoValue    ::= Wildcard | MatchExpr | GroupName | <ident>
 Wildcard     ::= "*" | "<none>" | "<some>" | "<any>"
+MatchExpr    ::= MatchOp "(" MlvoValue { "," MlvoValue } ")"
+MatchOp      ::= "not" | "all" | "some"
 KccgstValue  ::= <kccgst-value>
 ```
 

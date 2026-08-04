@@ -48,6 +48,11 @@ enum rules_token {
     TOK_WILD_CARD_NONE,
     TOK_WILD_CARD_SOME,
     TOK_WILD_CARD_ANY,
+    TOK_EXPR_NOT,
+    TOK_EXPR_SOME,
+    TOK_EXPR_ALL,
+    /** Identifier on the RHS of a rule, error otherwise */
+    TOK_EXPR_MALFORMED,
     TOK_INCLUDE,
     TOK_ERROR
 };
@@ -119,9 +124,139 @@ skip_more_whitespace_and_comments:
         token = TOK_GROUP_NAME;
     }
 
-    /* Identifier */
     val->string.start = s->s + s->pos;
     val->string.len = 0;
+
+    /*
+     * Check for match expressions: all(...), some(...), not(...)
+     *
+     * The approach here is: “parse, don’t validate”. Lex returns a match
+     * expression token if:
+     * - it contains only valid match characters;
+     * - the parentheses are balanced;
+     * - comma-separated lists have no empty value; trailing comma is valid
+     *
+     * However the check is limited to the *shape* of the expression: the inner
+     * value may still contain invalid match operators, e.g. `alligator(xxx)`.
+     * This will be catched when the match expression is evaluate, if ever.
+     *
+     * NOTE: Lexer fallbacks to an identifier token if it found a malformed
+     * match expression that is still a valid identifier.
+     *
+     * NOTE: A match expression in the RHS of a rule will be interpreted as
+     * an identifier later in the parser.
+     */
+    if (token == TOK_IDENTIFIER && scanner_lower(s)) {
+        val->string.len++;
+
+        while (scanner_lower(s)) val->string.len++;
+
+        assert(is_ident('('));
+        assert(is_ident(')'));
+        assert(is_ident(','));
+
+        if (!scanner_chr(s, '('))
+            goto parse_identifier;
+        val->string.len++;
+
+        switch (val->string.len) {
+        case 4:
+            if (memcmp(val->string.start, "all", 3) == 0) {
+                token = TOK_EXPR_ALL;
+            } else if (memcmp(val->string.start, "not", 3) == 0) {
+                token = TOK_EXPR_NOT;
+            } else {
+                goto parse_identifier;
+            }
+            break;
+        case 5:
+            if (memcmp(val->string.start, "some", 4) == 0) {
+                token = TOK_EXPR_SOME;
+            } else {
+                goto parse_identifier;
+            }
+            break;
+        default:
+            goto parse_identifier;
+        }
+
+        enum {
+            EXPR_NO_ERROR = 0,
+            EXPR_UNBALANCED_PARENTHESES = (1 << 0),
+            EXPR_INVALID_COMMAS = (1 << 1)
+        } syntax_errors = EXPR_NO_ERROR;
+        /* Check matching parentheses */
+        int parentheses_depth = 1;
+        const char* inner_expr_start = s->s + s->pos;
+        // TODO: bool has_space = true;
+        char prev = '(';
+        char c;
+        while ((c = scanner_next(s))) {
+            switch (c) {
+            case '(':
+                parentheses_depth++;
+                break;
+            case ')':
+                parentheses_depth--;
+                if (parentheses_depth < 0) {
+                    syntax_errors |= EXPR_UNBALANCED_PARENTHESES;
+                }
+                break;
+            case ',':
+                /*
+                 * Check for empty value, but trailing commas are valid within
+                 * parentheses. Any comma after the last closing parenthese
+                 * will be catched after this loop.
+                 */
+                if (prev == ',' || prev == '(') {
+                    syntax_errors |= EXPR_INVALID_COMMAS;
+                }
+                break;
+            default:
+                if (!is_ident(c)) {
+                    /* Backtrack */
+                    s->pos--;
+                    goto check_malformed;
+                }
+            }
+            val->string.len++;
+            prev = c;
+        }
+
+        if (parentheses_depth != 0)
+            syntax_errors |= EXPR_UNBALANCED_PARENTHESES;
+
+check_malformed:
+        if (!syntax_errors) {
+            /* Balanced parentheses; check it ends with a closing one */
+            if (val->string.start[val->string.len - 1] == ')') {
+                /*
+                 * Match expression is correctly formed:
+                 * make `val` points to the inner expressions sequence
+                 */
+                val->string.len -=
+                    (size_t)(inner_expr_start - val->string.start) + 1;
+                val->string.start = inner_expr_start;
+                return token;
+            } else {
+                /* Invalid if LHS of a rule, valid if RHS */
+                return TOK_EXPR_MALFORMED;
+            }
+        } else if (syntax_errors & EXPR_UNBALANCED_PARENTHESES) {
+            scanner_warn(s, XKB_ERROR_INVALID_RULES_SYNTAX,
+                         "unbalanced parentheses in MLVO value: \"%.*s\"",
+                         (unsigned)val->string.len, val->string.start);
+        } else {
+            scanner_warn(s, XKB_ERROR_INVALID_RULES_SYNTAX,
+                         "invalid commas in MLVO value: \"%.*s\"",
+                         (unsigned)val->string.len, val->string.start);
+        }
+        /* Invalid if LHS of a rule, valid if RHS (but suspicious) */
+        return TOK_EXPR_MALFORMED;
+    }
+
+parse_identifier:
+    /* Identifier */
     if (is_ident(scanner_peek(s))) {
         while (is_ident(scanner_peek(s))) {
             scanner_next(s);
@@ -2050,6 +2185,16 @@ rule_mlvo_no_tok:
         if (!m->rule.skip)
             matcher_rule_set_mlvo_group(m, s, m->val.string);
         goto rule_mlvo;
+    // FIXME
+    // case TOK_EXPR_NOT:
+    // case TOK_EXPR_ALL:
+    // case TOK_EXPR_SOME:
+    //     break;
+    case TOK_EXPR_MALFORMED:
+        scanner_err(s, XKB_ERROR_INVALID_RULES_SYNTAX,
+                    "malformed match expression: \"%.*s\"",
+                    (unsigned)m->val.string.len, m->val.string.start);
+        goto error;
     case TOK_EQUALS:
         goto rule_kccgst;
     default:
@@ -2059,6 +2204,7 @@ rule_mlvo_no_tok:
 rule_kccgst:
     switch (tok = gettok(m, s)) {
     case TOK_IDENTIFIER:
+    case TOK_EXPR_MALFORMED:
         if (!m->rule.skip)
             matcher_rule_set_kccgst(m, s, m->val.string);
         goto rule_kccgst;
@@ -2085,7 +2231,7 @@ finish:
 
 state_error:
     scanner_err(s, XKB_ERROR_INVALID_RULES_SYNTAX,
-                "unexpected token");
+                "unexpected token (0x%x)", tok);
 error:
     return false;
 }

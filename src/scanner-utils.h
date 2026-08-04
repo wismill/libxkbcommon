@@ -161,6 +161,16 @@ scanner_chr(struct scanner *s, char ch)
 }
 
 static inline bool
+scanner_lower(struct scanner *s)
+{
+    const char ch = scanner_peek(s);
+    if (ch < 'a' || ch > 'z')
+        return false;
+    s->pos++;
+    return true;
+}
+
+static inline bool
 scanner_str(struct scanner *s, const char *string, size_t len)
 {
     if (s->len - s->pos < len)
