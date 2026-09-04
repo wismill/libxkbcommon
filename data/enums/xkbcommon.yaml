@@ -105,6 +105,8 @@ xkb_state_component:
     value: 256
   - name: XKB_STATE_CONTROLS_EFFECTIVE
     value: 4096
+  - name: XKB_STATE_OVERLAYS_EFFECTIVE
+    value: 65536
 xkb_keyboard_control_flags:
   - name: XKB_KEYBOARD_CONTROL_NO_FLAGS
     value: 0

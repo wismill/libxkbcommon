@@ -323,6 +323,9 @@ libxkbcommon [1.14.0-beta1] – 2026-07-22
 
   Also added the respective [keyboard controls](@ref xkb_keyboard_control_flags).
 
+  Added new enumeration constant `XKB_STATE_OVERLAYS_EFFECTIVE` in
+  `xkb_state_component`.
+
   This feature requires the [`xkb_machine` API](@ref server-client-state).
 
   ([#124](https://github.com/xkbcommon/libxkbcommon/issues/124))

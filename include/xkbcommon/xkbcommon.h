@@ -2963,7 +2963,8 @@ xkb_event_get_keycode(const struct xkb_event *event,
  *
  * In XKB, the `DEPRESSED` components are also known as *base*.
  *
- * @remark Values `0x200..0x800` are reserved for future use.
+ * @remark Values `0x0200..0x0800` are reserved for future use.
+ * @remark Values `0x2000..0x8000` are reserved for future use.
  *
  * [modifier]: @ref modifier-def
  * [layout]: @ref layout-def
@@ -3065,6 +3066,14 @@ enum xkb_state_component {
      * [keyboard controls]: @ref xkb_keyboard_control_flags
      */
     XKB_STATE_CONTROLS_EFFECTIVE = (1 << 12),
+    /**
+     * Effective [key overlays].
+     *
+     * @since 1.14.0
+     *
+     * [key overlays]: @ref key-behavior-overlay
+     */
+    XKB_STATE_OVERLAYS_EFFECTIVE = (1 << 16),
 };
 
 /**
