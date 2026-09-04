@@ -533,7 +533,8 @@
   code: 588
   added: 1.14.0
   type: error
-  description: "Overlay index is not in the supported range"
+  visibility: public
+  description: "Overlay index is not in the supported range 1..8"
 - id: "cannot-resolve-rmlvo"
   code: 595
   added: ALWAYS

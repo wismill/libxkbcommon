@@ -1500,7 +1500,7 @@ write_key(const struct xkb_keymap *keymap,
             (xkb_overlay_mask_t)((1u << overlay_max) - 1u);
         remaining &= valid;
         if (remaining != key->overlays) {
-            log_warn(keymap->ctx, XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX,
+            log_warn(keymap->ctx, XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX_,
                      "Overlays indices > %u in %s require using "
                      "keymap format >= v2; "
                      "keep overlays 0x%08x and discard overlays 0x%08x\n",

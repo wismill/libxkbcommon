@@ -179,6 +179,12 @@ enum xkb_error_code {
      */
     XKB_ERROR_ALLOCATION_FAILURE = 550,
     /**
+     * Overlay index is not in the supported range 1..8
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX = 588,
+    /**
      * Unsupported `xkb_events_flags` value
      *
      * Use the following to check if the linked libxkbcommon library supports a

@@ -172,8 +172,8 @@ enum xkb_message_code {
     XKB_ERROR_INVALID_ACTION_FIELD = 563,
     /** Warn when a field has not the expected type */
     XKB_ERROR_WRONG_FIELD_TYPE = 578,
-    /** Overlay index is not in the supported range */
-    XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX = 588,
+    /** Overlay index is not in the supported range 1..8 */
+    XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX_ = 588,
     /** Cannot resolve a given (Rules, Model, Layout, Variant, Options) configuration */
     XKB_ERROR_CANNOT_RESOLVE_RMLVO = 595,
     /** Invalid Unicode escape sequence */

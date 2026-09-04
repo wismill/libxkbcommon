@@ -27,6 +27,8 @@ xkb_error_code:
     value: 450
   - name: XKB_ERROR_ALLOCATION_FAILURE
     value: 550
+  - name: XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX
+    value: 588
   - name: XKB_ERROR_UNSUPPORTED_EVENTS_FLAGS
     value: 611
   - name: XKB_ERROR_UNSUPPORTED_MACHINE_FLAGS

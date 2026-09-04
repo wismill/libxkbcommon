@@ -1418,7 +1418,7 @@ ExprResolveOverlayEntry(const struct xkb_keymap_info *keymap_info,
     if (parse_dec_to_uint64_t(field + prefix, len, (uint64_t *)&raw_overlay)
         != (int)len || raw_overlay < 1 ||
         raw_overlay > (int64_t)keymap_info->features.max_overlays) {
-        log_err(keymap_info->keymap.ctx, XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX,
+        log_err(keymap_info->keymap.ctx, XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX_,
                 "Unsupported overlay index \"%s\" field for %s: "
                 "expected 1..%u, got: %"PRId64"; ignored\n",
                 field, KeyNameText(keymap_info->keymap.ctx, keyi->name),

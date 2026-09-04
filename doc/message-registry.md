@@ -71,7 +71,7 @@ There are currently 96 entries.
 | [XKB-550] | `allocation-failure` | Cannot allocate memory | Error |
 | [XKB-563] | `invalid-action-field` | Unknown or unsupported action field | Error |
 | [XKB-578] | `wrong-field-type` | Warn when a field has not the expected type | Error |
-| [XKB-588] | `unsupported-overlay-index` | Overlay index is not in the supported range | Error |
+| [XKB-588] | `unsupported-overlay-index` | Overlay index is not in the supported range 1..8 | Error |
 | [XKB-595] | `cannot-resolve-rmlvo` | Cannot resolve a given (Rules, Model, Layout, Variant, Options) configuration | Error |
 | [XKB-607] | `invalid-unicode-escape-sequence` | Invalid Unicode escape sequence | Warning |
 | [XKB-611] | `unsupported-events-flags` | Unsupported `xkb_events_flags` value | Error |
@@ -848,7 +848,7 @@ key <AE01> { [ U1ED0 ] };
 <dl>
   <dt>Since</dt><dd>1.14.0</dd>
   <dt>Type</dt><dd>Error</dd>
-  <dt>Summary</dt><dd>Overlay index is not in the supported range</dd>
+  <dt>Summary</dt><dd>Overlay index is not in the supported range 1..8</dd>
 </dl>
 
 ### XKB-595 – Cannot resolve rmlvo {#XKB-595}

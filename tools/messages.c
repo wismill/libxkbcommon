@@ -77,7 +77,7 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_ERROR_ALLOCATION_FAILURE_, "Allocation failure"},
     {XKB_ERROR_INVALID_ACTION_FIELD, "Invalid action field"},
     {XKB_ERROR_WRONG_FIELD_TYPE, "Wrong field type"},
-    {XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX, "Unsupported overlay index"},
+    {XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX_, "Unsupported overlay index"},
     {XKB_ERROR_CANNOT_RESOLVE_RMLVO, "Cannot resolve rmlvo"},
     {XKB_WARNING_INVALID_UNICODE_ESCAPE_SEQUENCE, "Invalid unicode escape sequence"},
     {XKB_ERROR_UNSUPPORTED_EVENTS_FLAGS_, "Unsupported events flags"},
