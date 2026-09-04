@@ -165,6 +165,8 @@ enum xkb_action_controls {
     CONTROL_BELL = (1 << 19),
     CONTROL_IGNORE_GROUP_LOCK = (1 << 20),
 
+    _CONTROL_MAX = CONTROL_IGNORE_GROUP_LOCK,
+
     /**
      * All the XKB Controls. If we ever introduce *internal* controls, this mask
      * should not include them.
@@ -265,18 +267,21 @@ typedef uint8_t xkb_overlay_index_t;
 /** Maximum number of keymap v1 overlays (X11 limit) */
 #define XKB_OVERLAY_MAX_X11 2
 /** Maximum number of keymap v2+ overlays */
-#define XKB_OVERLAY_MAX (sizeof(xkb_overlay_mask_t) * CHAR_BIT)
+#define XKB_OVERLAY_MAX XKB_OVERLAY_MASK_WIDTH
 #define XKB_OVERLAY_INVALID (UINT8_MAX)
 
 /** Keyboard overlay mask */
 typedef uint8_t xkb_overlay_mask_t;
+enum {
+    XKB_OVERLAY_MASK_WIDTH = sizeof(xkb_overlay_mask_t) * CHAR_BIT,
+    XKB_OVERLAY_INDEX_MIN_WIDTH = 4,
+};
 /** Mask of all valid keymap v1 overlays (X11 limit) */
 #define XKB_OVERLAY_ALL_X11 0x3
 /** Mask of all valid keymap v2+ overlays */
 #define XKB_OVERLAY_ALL UINT8_MAX
 static_assert(XKB_OVERLAY_MAX < XKB_OVERLAY_INVALID, "");
 static_assert(XKB_OVERLAY_ALL == ((UINT16_C(1) << XKB_OVERLAY_MAX) - 1), "");
-enum { XKB_OVERLAY_INDEX_MIN_WIDTH = 4 };
 static_assert(XKB_OVERLAY_MAX <= (1u << XKB_OVERLAY_INDEX_MIN_WIDTH) - 1,
               "Cannot encode overlay index or count");
 

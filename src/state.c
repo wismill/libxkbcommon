@@ -3603,6 +3603,7 @@ machine_update_overlays(struct xkb_machine *sm)
 
     sm->overlays.order = order;
     sm->overlays.enabled = mask;
+    sm->base.base.components.overlays = mask;
 }
 
 enum xkb_error_code

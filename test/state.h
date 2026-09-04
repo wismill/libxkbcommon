@@ -202,7 +202,8 @@ print_event(const char *prefix, const struct xkb_event *event)
                 "\tgroup: %"PRId32" %"PRId32" %"PRId32" %"PRIu32"\n"
                 "\tmods: 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" %08"PRIx32"\n"
                 "\tleds: 0x%08"PRIx32"\n"
-                "\tcontrols: 0x%08"PRIx32"\n",
+                "\tcontrols: 0x%08"PRIx32"\n"
+                "\toverlays: 0x%04"PRIx32"\n",
                 event->components.changed,
                 event->components.components.base_group,
                 event->components.components.latched_group,
@@ -213,7 +214,8 @@ print_event(const char *prefix, const struct xkb_event *event)
                 event->components.components.locked_mods,
                 event->components.components.mods,
                 event->components.components.leds,
-                event->components.components.controls);
+                event->components.components.controls,
+                event->components.components.overlays);
         break;
     case XKB_EVENT_TYPE_POINTER_MOTION:
         fprintf(stderr,

@@ -7,6 +7,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <stdalign.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -15,6 +16,14 @@
 #include "xkbcommon/xkbcommon.h"
 #include "abi-check.h"
 #include "keymap.h"
+
+enum {
+    XKB_ACTION_CONTROLS_WIDTH = sizeof(enum xkb_action_controls) * CHAR_BIT,
+    CONTROL_LOG2_MAX = 20,
+};
+static_assert(_CONTROL_MAX == (1 << CONTROL_LOG2_MAX), "");
+static_assert(XKB_ACTION_CONTROLS_WIDTH - XKB_OVERLAY_MASK_WIDTH >= CONTROL_LOG2_MAX,
+              "Cannot encode controls");
 
 /** Core keyboard state components */
 struct state_components {
@@ -31,7 +40,10 @@ struct state_components {
 
     xkb_led_mask_t leds;
 
-    enum xkb_action_controls controls; /**< effective */
+    enum xkb_action_controls controls:(
+        XKB_ACTION_CONTROLS_WIDTH - XKB_OVERLAY_MASK_WIDTH
+    ); /**< effective */
+    xkb_overlay_mask_t overlays:XKB_OVERLAY_MASK_WIDTH;
 };
 
 struct xkb_event {
