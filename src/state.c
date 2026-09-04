@@ -3560,17 +3560,48 @@ xkb_machine_get_state(struct xkb_machine *sm)
     return (struct xkb_state *)sm;
 }
 
-static void
-machine_update_overlays(struct xkb_machine *sm)
+static bool
+check_overlay_mask(struct xkb_context *ctx, const char *func,
+                   const char *field, uint32_t overlays)
+{
+    const uint32_t invalid_mask = (overlays & ~XKB_OVERLAY_ALL);
+    if (invalid_mask) {
+        log_err(ctx, XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX_,
+                "%s: Unsupported %s mask: 0x%04"PRIx32" (invalid) | "
+                "0x%04"PRIu32" (valid)\n",
+                func, field, invalid_mask, (overlays & XKB_OVERLAY_ALL));
+        return false;
+    }
+    return true;
+}
+
+static enum xkb_error_code
+machine_update_overlays(struct xkb_machine *sm,
+                        const char *func,
+                        uint32_t affect_overlays,
+                        uint32_t overlays,
+                        enum xkb_state_component *changed)
 {
     /*
      * Overlays indices are stored 1-indexed in nibbles: the lowest
      * nibble corresponds to the latest activated index.
      */
 
-    const xkb_overlay_mask_t mask =
-        OVERLAYS_FROM_CONTROLS(sm->base.base.components.controls);
-    xkb_overlay_mask_t added = mask & ~sm->overlays.enabled;
+    /* Sanitize input */
+    if (!check_overlay_mask(sm->base.base.keymap->ctx, func,
+                            "affect overlay", affect_overlays) ||
+        !check_overlay_mask(sm->base.base.keymap->ctx, func,
+                            "overlay", overlays)) {
+        return XKB_ERROR_UNSUPPORTED_OVERLAY_INDEX;
+    }
+
+    const xkb_overlay_mask_t enabled = (
+        (sm->overlays.enabled & ~affect_overlays) |
+        (overlays & affect_overlays)
+    );
+    if (enabled == sm->overlays.enabled)
+        return XKB_SUCCESS;
+    xkb_overlay_mask_t added = (enabled & ~sm->overlays.enabled);
 
     /* Remove overlays no longer enabled and keep relative order */
     uint32_t order = sm->overlays.order;
@@ -3582,7 +3613,7 @@ machine_update_overlays(struct xkb_machine *sm)
             break;
         const xkb_overlay_mask_t overlay_mask =
             (xkb_overlay_mask_t)(1u << (overlay_idx - 1u) /* k is 1-indexed */);
-        if (overlay_mask & mask) {
+        if (overlay_mask & enabled) {
             /* no duplicates */
             added &= ~overlay_mask;
             n++;
@@ -3602,8 +3633,10 @@ machine_update_overlays(struct xkb_machine *sm)
     }
 
     sm->overlays.order = order;
-    sm->overlays.enabled = mask;
-    sm->base.base.components.overlays = mask;
+    *changed |= XKB_STATE_OVERLAYS_EFFECTIVE;
+    sm->overlays.enabled = enabled;
+    sm->base.base.components.overlays = enabled;
+    return XKB_SUCCESS;
 }
 
 enum xkb_error_code
@@ -3633,6 +3666,7 @@ xkb_machine_process_synthetic(struct xkb_machine *sm,
             return error;
     }
 
+    enum xkb_state_component changed = 0;
     if (update->components) {
         const struct xkb_state_components_update * const components =
             update->components;
@@ -3643,20 +3677,34 @@ xkb_machine_process_synthetic(struct xkb_machine *sm,
                                           components->controls, events);
         }
 
+        if (components->components & XKB_STATE_OVERLAYS_EFFECTIVE) {
+            error = machine_update_overlays(sm, __func__,
+                                            components->affect_overlays,
+                                            components->overlays,
+                                            &changed);
+            if (error)
+                return error;
+        }
+
         state_update_latched_locked(state, components, events);
     }
 
     xkb_state_update_derived(&state->base);
 
-    const enum xkb_state_component changed = get_state_component_changes(
-        &previous_components, &state->base.components
-    );
+    changed |= get_state_component_changes(&previous_components,
+                                           &state->base.components);
+    /* Create event only if some component actually changed */
     if (changed) {
-        // TODO: latch controls
-        if (changed & XKB_STATE_CONTROLS_EFFECTIVE)
-            machine_update_overlays(sm);
+        if (changed & XKB_STATE_CONTROLS_EFFECTIVE) {
+            error = machine_update_overlays(
+                sm, __func__, XKB_OVERLAY_ALL,
+                OVERLAYS_FROM_CONTROLS(sm->base.base.components.controls),
+                &changed
+            );
+            if (error)
+                return error;
+        }
 
-        /* Create event only if some component actually changed */
         darray_append(events->queue, (struct xkb_event) {
             .ctx = events->ctx, /* borrowed from events */
             .type = XKB_EVENT_TYPE_STATE_COMPONENTS,
@@ -4006,12 +4054,20 @@ xkb_machine_process_key(struct xkb_machine *sm,
         undo_tweaks(&state->base, &previous_components, events);
     }
 
-    const enum xkb_state_component changed = get_state_component_changes(
+    enum xkb_state_component changed = get_state_component_changes(
         &previous_components, &state->base.components
     );
+    /* Create event only if some component actually changed */
     if (changed) {
-        if (changed & XKB_STATE_CONTROLS_EFFECTIVE)
-            machine_update_overlays(sm);
+        if (changed & XKB_STATE_CONTROLS_EFFECTIVE) {
+            const enum xkb_error_code error = machine_update_overlays(
+                sm, __func__, XKB_OVERLAY_ALL,
+                OVERLAYS_FROM_CONTROLS(sm->base.base.components.controls),
+                &changed
+            );
+            if (error)
+                return error;
+        }
 
         darray_append(events->queue, (struct xkb_event) {
             .ctx = events->ctx, /* borrowed from events */
