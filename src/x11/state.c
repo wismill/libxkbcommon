@@ -5,6 +5,7 @@
 
 #include "config.h"
 
+#include "keymap.h"
 #include "x11-priv.h"
 #include "xkbcommon/xkbcommon.h"
 
@@ -32,12 +33,20 @@ update_initial_state(struct xkb_state *state, xcb_connection_t *conn,
     if (!reply)
         return false;
 
+    /* Handle overlays separately from other controls */
+    static const enum xkb_action_controls overlay_mask = CONTROL_OVERLAY1
+                                                       | CONTROL_OVERLAY2;
+    const uint32_t overlays = ((controls & overlay_mask) >> 1);
+    controls &= ~overlay_mask;
+
     /* NOTE: Use the public API with private enum values */
     const struct xkb_state_components_update components = {
         .size = sizeof(components),
         .components = XKB_STATE_CONTROLS_EFFECTIVE,
         .affect_controls = (enum xkb_keyboard_control_flags) controls,
         .controls = (enum xkb_keyboard_control_flags) controls,
+        .affect_overlays = overlays,
+        .overlays = overlays,
     };
     const struct xkb_state_update update = {
         .size = sizeof(update),
