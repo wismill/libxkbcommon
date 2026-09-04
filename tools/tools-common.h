@@ -137,6 +137,7 @@ struct xkb_machine_options {
             enum xkb_a11y_flags affect_flags;
             enum xkb_a11y_flags flags;
         } a11y; /**< Initial A11Y flags */
+        xkb_overlay_mask_t overlays;
     } controls;
 
     struct {

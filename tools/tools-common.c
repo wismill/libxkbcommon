@@ -17,6 +17,7 @@
 #include <limits.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1182,6 +1183,17 @@ xkb_machine_options_update_boolean_ctrls(struct xkb_machine_options *options,
 }
 
 static bool
+xkb_machine_options_update_overlays(struct xkb_machine_options *options,
+                                    xkb_overlay_mask_t overlays, bool disable)
+{
+    if (disable)
+        options->controls.overlays &= ~overlays;
+    else
+        options->controls.overlays |= overlays;
+    return true;
+}
+
+static bool
 xkb_machine_options_update_a11y_flags(struct xkb_machine_options *options,
                                       enum xkb_a11y_flags flags,
                                       bool disable)
@@ -1287,34 +1299,18 @@ tools_parse_controls(const char *raw, struct xkb_machine_options *options)
             case CONTROL_FIELD_OVERLAY6:
             case CONTROL_FIELD_OVERLAY7:
             case CONTROL_FIELD_OVERLAY8: {
-                static_assert(CONTROL_FIELD_OVERLAY1 == 0, "");
-                static_assert(
-                    XKB_KEYBOARD_CONTROL_OVERLAY1 ==
-                    (XKB_KEYBOARD_CONTROL_OVERLAY1 << CONTROL_FIELD_OVERLAY1),
-                    ""
-                );
-                static_assert(CONTROL_FIELD_OVERLAY2 == 1, "");
-                static_assert(
-                    XKB_KEYBOARD_CONTROL_OVERLAY2 ==
-                    (XKB_KEYBOARD_CONTROL_OVERLAY1 << CONTROL_FIELD_OVERLAY2),
-                    ""
-                );
-                static_assert(CONTROL_FIELD_OVERLAY3 == 2, "");
-                static_assert(
-                    XKB_KEYBOARD_CONTROL_OVERLAY3 ==
-                    (XKB_KEYBOARD_CONTROL_OVERLAY1 << CONTROL_FIELD_OVERLAY3),
-                    ""
-                );
-                static_assert(CONTROL_FIELD_OVERLAY8 == 7, "");
-                static_assert(
-                    XKB_KEYBOARD_CONTROL_OVERLAY8 ==
-                    (XKB_KEYBOARD_CONTROL_OVERLAY1 << CONTROL_FIELD_OVERLAY8),
-                    ""
-                );
-                const enum xkb_keyboard_control_flags flag =
-                    XKB_KEYBOARD_CONTROL_OVERLAY1 << type;
-                ok = xkb_machine_options_update_boolean_ctrls(
-                    options, flag, disable
+                static_assert(CONTROL_FIELD_OVERLAY1 == 0 &&
+                              CONTROL_FIELD_OVERLAY1 < CONTROL_FIELD_OVERLAY2 &&
+                              CONTROL_FIELD_OVERLAY2 < CONTROL_FIELD_OVERLAY3 &&
+                              CONTROL_FIELD_OVERLAY3 < CONTROL_FIELD_OVERLAY4 &&
+                              CONTROL_FIELD_OVERLAY4 < CONTROL_FIELD_OVERLAY5 &&
+                              CONTROL_FIELD_OVERLAY5 < CONTROL_FIELD_OVERLAY6 &&
+                              CONTROL_FIELD_OVERLAY6 < CONTROL_FIELD_OVERLAY7 &&
+                              CONTROL_FIELD_OVERLAY7 < CONTROL_FIELD_OVERLAY8 &&
+                              CONTROL_FIELD_OVERLAY8 == 7, "");
+                xkb_overlay_mask_t overlay = (UINT8_C(1) << type);
+                ok = xkb_machine_options_update_overlays(
+                    options, overlay, disable
                 );
                 break;
             }

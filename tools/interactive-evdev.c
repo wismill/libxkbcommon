@@ -149,6 +149,8 @@ keyboard_new(struct dirent *ent,
         .components = XKB_STATE_CONTROLS_EFFECTIVE,
         .affect_controls = options->controls.boolean.affect_flags,
         .controls = options->controls.boolean.flags,
+        .affect_overlays = XKB_OVERLAY_ALL,
+        .overlays = options->controls.overlays,
     };
     const struct xkb_state_update update = {
         .size = sizeof(update),
