@@ -4674,7 +4674,9 @@ test_shortcuts_tweak(struct xkb_context *context)
 static void
 test_overlays(struct xkb_context *context)
 {
-    /* Check controls → overlay mask conversion */
+    /*
+     * Check controls → overlay mask conversion
+     */
     static const struct {
         enum xkb_action_controls controls;
         xkb_overlay_mask_t overlays;
@@ -4697,25 +4699,58 @@ test_overlays(struct xkb_context *context)
                   (uint8_t)OVERLAYS_FROM_CONTROLS(controls_tests[t].controls),
                   "0x%02x");
     }
-
-    /* Check overlapping overlays */
     struct xkb_keymap * const keymap = test_compile_file(
         context, XKB_KEYMAP_FORMAT_TEXT_V2,
         GOLDEN_TESTS_OUTPUTS "overlays-v2-2.xkb");
     assert(keymap);
-
     struct xkb_machine_builder *builder =
         xkb_machine_builder_new(keymap, NULL, NULL);
     assert(builder);
-    struct xkb_machine * const sm1 = xkb_machine_new(builder, NULL);
-    assert(sm1);
-    struct xkb_machine * const sm2 = xkb_machine_new(builder, NULL);
-    assert(sm2);
+    struct xkb_machine * const sm = xkb_machine_new(builder, NULL);
+    assert(sm);
     xkb_machine_builder_unref(builder);
-    struct xkb_events * events1 = xkb_events_new(context, NULL, NULL);
-    assert(events1);
-    struct xkb_events * events2 = xkb_events_new(context, NULL, NULL);
-    assert(events2);
+    struct xkb_events * events = xkb_events_new(context, NULL, NULL);
+    assert(events);
+
+    /*
+     * Controls cannot update overlays
+     */
+    struct xkb_state_components_update components_update = {
+        .size = sizeof(components_update),
+        .components = XKB_STATE_CONTROLS_EFFECTIVE,
+        .affect_controls = UINT32_MAX,
+        .controls = (uint32_t)CONTROL_OVERLAY1
+    };
+    const struct xkb_state_update state_update = {
+        .size = sizeof(state_update),
+        .components = &components_update
+    };
+    assert(xkb_machine_process_synthetic(sm, &state_update, events) ==
+           XKB_SUCCESS);
+    struct xkb_event event = {
+        .ctx = context,
+        .type = XKB_EVENT_TYPE_NONE,
+        /* Used only when setting type = XKB_EVENT_TYPE_STATE_COMPONENTS */
+        .components = {
+            .changed = XKB_STATE_CONTROLS_EFFECTIVE,
+            .components = { .controls = 0 },
+        }
+    };
+    check_events_(events, event);
+    components_update.controls =
+        (uint32_t)(CONTROL_STICKY_KEYS | CONTROL_OVERLAY2);
+    assert(xkb_machine_process_synthetic(sm, &state_update, events) ==
+           XKB_SUCCESS);
+    event.type = XKB_EVENT_TYPE_STATE_COMPONENTS;
+    event.components.components.controls = CONTROL_STICKY_KEYS;
+    check_events_(events, event);
+
+    /* Reset controls */
+    components_update.controls = 0;
+    assert(xkb_machine_process_synthetic(sm, &state_update, events) ==
+           XKB_SUCCESS);
+    event.components.components.controls = 0;
+    check_events_(events, event);
 
     /*
      * Updates via key actions
@@ -4815,12 +4850,12 @@ test_overlays(struct xkb_context *context)
 
         if (actions_tests[t].direction & XKB_KEY_PRESS) {
             assert(xkb_machine_process_key(
-                sm1, actions_tests[t].kc_in + EVDEV_OFFSET, XKB_KEY_DOWN, events1
+                sm, actions_tests[t].kc_in + EVDEV_OFFSET, XKB_KEY_DOWN, events
             ) == XKB_SUCCESS);
             if (changed && added) {
-                check_events_(events1, event1, event2);
+                check_events_(events, event1, event2);
             } else {
-                check_events_(events1, event1);
+                check_events_(events, event1);
             }
         }
 
@@ -4828,13 +4863,13 @@ test_overlays(struct xkb_context *context)
 
         if (actions_tests[t].direction & XKB_KEY_RELEASE) {
             assert(xkb_machine_process_key(
-                sm1, actions_tests[t].kc_in + EVDEV_OFFSET, XKB_KEY_UP, events1
+                sm, actions_tests[t].kc_in + EVDEV_OFFSET, XKB_KEY_UP, events
             ) == XKB_SUCCESS);
             event1.key.direction = XKB_KEY_UP;
             if (changed && !added) {
-                check_events_(events1, event1, event2);
+                check_events_(events, event1, event2);
             } else {
-                check_events_(events1, event1);
+                check_events_(events, event1);
             }
         }
 
@@ -4908,21 +4943,17 @@ test_overlays(struct xkb_context *context)
     for (size_t t = 0; t < ARRAY_SIZE(api_tests); t++) {
         fprintf(stderr, "------\n*** %s: API #%zu ***\n", __func__, t);
 
-        const struct xkb_state_components_update components_update = {
+        components_update = (struct xkb_state_components_update) {
             .size = sizeof(components_update),
             .components = XKB_STATE_OVERLAYS_EFFECTIVE,
             .affect_overlays = XKB_OVERLAY_ALL,
             .overlays = api_tests[t].overlays
         };
-        const struct xkb_state_update state_update = {
-            .size = sizeof(state_update),
-            .components = &components_update
-        };
-        assert(xkb_machine_process_synthetic(sm1, &state_update, events1) ==
+        assert(xkb_machine_process_synthetic(sm, &state_update, events) ==
                XKB_SUCCESS);
 
         const bool changed = (api_tests[t].overlays != previous);
-        struct xkb_event event1 = {
+        event = (struct xkb_event) {
             .ctx = context,
             .type = changed ? XKB_EVENT_TYPE_STATE_COMPONENTS : XKB_EVENT_TYPE_NONE,
             .components = {
@@ -4930,13 +4961,13 @@ test_overlays(struct xkb_context *context)
                 .components = { .overlays = api_tests[t].overlays },
             }
         };
-        check_events_(events1, event1);
-        if (xkb_event_get_type(&event1) == XKB_EVENT_TYPE_STATE_COMPONENTS) {
+        check_events_(events, event);
+        if (xkb_event_get_type(&event) == XKB_EVENT_TYPE_STATE_COMPONENTS) {
             assert(changed);
             struct xkb_event_components components = {
                 .size = sizeof(components)
             };
-            assert(xkb_event_get_components(&event1, &components) ==
+            assert(xkb_event_get_components(&event, &components) ==
                    XKB_SUCCESS);
             assert_eq("overlay component", components.overlays,
                     api_tests[t].overlays, "%08"PRIx32);
@@ -4946,22 +4977,15 @@ test_overlays(struct xkb_context *context)
 
         previous = api_tests[t].overlays;
 
-        assert(xkb_machine_update_enabled_controls(
-                sm2, events2, 0xffff,
-                (enum xkb_keyboard_control_flags)(api_tests[t].overlays << 1)
-        ) == XKB_SUCCESS);
 
         if (!api_tests[t].kc)
             continue;
 
-        for (uint8_t k = 0; k < 2; k++){
-        struct xkb_machine *sm = k ? sm1 : sm2;
-        struct xkb_events *events = k ? events1 : events2;
         assert(xkb_machine_process_key(
             sm, KEY_J + EVDEV_OFFSET, api_tests[t].direction, events
         ) == XKB_SUCCESS);
 
-        event1 = (struct xkb_event) {
+        event = (struct xkb_event) {
             .ctx = context,
             .type = api_tests[t].kc ? XKB_EVENT_TYPE_KEY : XKB_EVENT_TYPE_NONE,
             .key = {
@@ -4969,14 +4993,11 @@ test_overlays(struct xkb_context *context)
                 .direction = api_tests[t].direction
             }
         };
-        check_events_(events, event1);
-        }
+        check_events_(events, event);
     }
 
-    xkb_events_unref(events1);
-    xkb_events_unref(events2);
-    xkb_machine_unref(sm1);
-    xkb_machine_unref(sm2);
+    xkb_events_unref(events);
+    xkb_machine_unref(sm);
     xkb_keymap_unref(keymap);
 }
 

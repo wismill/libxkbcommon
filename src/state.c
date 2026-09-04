@@ -1734,9 +1734,12 @@ state_update_enabled_controls(struct xkb_server_state *state,
      * Enable using the public API with the all the Control values, except
      * the internal ones, if any.
      */
-    affect_controls =
-        ( affect_controls
-        & (enum xkb_keyboard_control_flags)CONTROL_ALL_BOOLEAN );
+    affect_controls = (
+        affect_controls &
+        (enum xkb_keyboard_control_flags)CONTROL_ALL_BOOLEAN &
+        /* Private */
+        ~CONTROL_OVERLAY_ALL
+    );
     state->base.components.controls &=
         (enum xkb_action_controls)~affect_controls;
     state->base.components.controls |=

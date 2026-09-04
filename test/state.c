@@ -3751,6 +3751,36 @@ test_layout_index_named_bounds(struct xkb_context *ctx)
     xkb_keymap_unref(keymap);
 }
 
+static void
+test_no_overlay_update_via_controls(struct xkb_context *ctx)
+{
+    struct xkb_keymap * keymap = test_compile_rules(
+        ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
+        "evdev", "pc104", "empty", NULL, ""
+    );
+    assert(keymap);
+    struct xkb_state * state = xkb_state_new(keymap);
+    assert(state);
+
+    struct xkb_state_components_update components_update = {
+        .size = sizeof(components_update),
+        .components = XKB_STATE_CONTROLS_EFFECTIVE,
+        .affect_controls = UINT32_MAX,
+        .controls = (uint32_t)CONTROL_OVERLAY1
+    };
+    const struct xkb_state_update state_update = {
+        .size = sizeof(state_update),
+        .components = &components_update
+    };
+    enum xkb_state_component changed;
+    assert(xkb_state_update_synthetic(state, &state_update, &changed) ==
+           XKB_SUCCESS);
+    assert(changed == 0);
+
+    xkb_state_unref(state);
+    xkb_keymap_unref(keymap);
+}
+
 int
 main(void)
 {
@@ -3803,6 +3833,7 @@ main(void)
     test_void_action(context);
     test_extended_layout_indices(context);
     test_layout_index_named_bounds(context);
+    test_no_overlay_update_via_controls(context);
 
     xkb_context_unref(context);
     return EXIT_SUCCESS;
