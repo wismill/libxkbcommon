@@ -4661,6 +4661,33 @@ struct xkb_state_components_update {
      * [keyboard controls]: @ref xkb_keyboard_control_flags
      */
     uint32_t controls;
+    /**
+     * Mask of [key overlays] to affect.
+     *
+     * Only overlays present in this mask are considered when updating
+     * `#overlays`. Only considered if `::XKB_STATE_OVERLAYS_EFFECTIVE`
+     * is set in `#components`.
+     *
+     * <!-- TODO: ref to overlay API (index, mask, order) -->
+     *
+     * @since 1.14.0
+     *
+     * [key overlays]: @ref key-behavior-overlay
+     */
+    uint32_t affect_overlays;
+    /**
+     * Mask of [key overlays] to enable or disable.
+     *
+     * Only overlays in `#affect_overlays` are considered. Only considered
+     * if `::XKB_STATE_EFFECTIVE_OVERLAY` is set in `#components`.
+     *
+     * <!-- TODO: ref to overlay API (index, mask, order) -->
+     *
+     * @since 1.14.0
+     *
+     * [key overlays]: @ref key-behavior-overlay
+     */
+    uint32_t overlays;
 };
 
 /**

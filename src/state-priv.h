@@ -248,6 +248,8 @@ struct xkb_state_components_update_v1 {
     int32_t locked_layout;
     uint32_t affect_controls;
     uint32_t controls;
+    uint32_t affect_overlays;
+    uint32_t overlays;
 };
 
 /* Ensure there is no implicit padding */
@@ -260,7 +262,9 @@ assert_no_padding(struct xkb_state_components_update, locked_mods, latched_layou
 assert_no_padding(struct xkb_state_components_update, latched_layout, locked_layout);
 assert_no_padding(struct xkb_state_components_update, locked_layout, affect_controls);
 assert_no_padding(struct xkb_state_components_update, affect_controls, controls);
-assert_no_padding(struct xkb_state_components_update, controls);
+assert_no_padding(struct xkb_state_components_update, controls, affect_overlays);
+assert_no_padding(struct xkb_state_components_update, affect_overlays, overlays);
+assert_no_padding(struct xkb_state_components_update, overlays);
 
 /* Current version is 1 */
 static_assert(sizeof(struct xkb_state_components_update) ==
@@ -275,6 +279,8 @@ assert_same_field(struct xkb_state_components_update, _v1, latched_layout);
 assert_same_field(struct xkb_state_components_update, _v1, locked_layout);
 assert_same_field(struct xkb_state_components_update, _v1, affect_controls);
 assert_same_field(struct xkb_state_components_update, _v1, controls);
+assert_same_field(struct xkb_state_components_update, _v1, affect_overlays);
+assert_same_field(struct xkb_state_components_update, _v1, overlays);
 
 /* Ensure reasonable margin to the upper size limit */
 static_assert(sizeof(struct xkb_state_components_update) * 30 <=
