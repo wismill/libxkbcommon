@@ -4152,6 +4152,7 @@ xkb_event_get_components(const struct xkb_event * restrict event,
     components->layout = event->components.components.group;
     components->leds = event->components.components.leds;
     components->controls = (uint32_t)event->components.components.controls;
+    components->overlays = (uint32_t)event->components.components.overlays;
 
     return XKB_SUCCESS;
 }

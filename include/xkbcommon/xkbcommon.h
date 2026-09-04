@@ -3311,6 +3311,17 @@ struct xkb_event_components {
      * [keyboard controls]: @ref xkb_keyboard_control_flags
      */
     uint32_t controls;
+    /**
+     * Serialized [key overlays].
+     *
+     * <!-- TODO -->
+     * @todo `XKB_STATE_KEY_OVERLAYS`
+     *
+     * @since 1.14.0
+     *
+     * [key overlays]: @ref key-behavior-overlay
+     */
+    uint32_t overlays;
 };
 
 /**

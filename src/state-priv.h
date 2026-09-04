@@ -121,6 +121,7 @@ struct xkb_event_components_v1 {
     xkb_layout_index_t layout;
     xkb_led_mask_t leds;
     uint32_t controls;
+    uint32_t overlays;
 };
 
 /* Ensure there is no implicit padding */
@@ -135,7 +136,8 @@ assert_no_padding(struct xkb_event_components, latched_layout, locked_layout);
 assert_no_padding(struct xkb_event_components, locked_layout, layout);
 assert_no_padding(struct xkb_event_components, layout, leds);
 assert_no_padding(struct xkb_event_components, leds, controls);
-assert_no_padding(struct xkb_event_components, controls);
+assert_no_padding(struct xkb_event_components, controls, overlays);
+assert_no_padding(struct xkb_event_components, overlays);
 
 /* Current version is 1 */
 static_assert(sizeof(struct xkb_event_components) ==
@@ -152,6 +154,7 @@ assert_same_field(struct xkb_event_components, _v1, locked_layout);
 assert_same_field(struct xkb_event_components, _v1, layout);
 assert_same_field(struct xkb_event_components, _v1, leds);
 assert_same_field(struct xkb_event_components, _v1, controls);
+assert_same_field(struct xkb_event_components, _v1, overlays);
 
 /* Ensure reasonable margin to the upper size limit */
 static_assert(sizeof(struct xkb_event_components) * 30 <=
