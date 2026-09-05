@@ -4717,11 +4717,138 @@ test_overlays(struct xkb_context *context)
     struct xkb_events * events2 = xkb_events_new(context, NULL, NULL);
     assert(events2);
 
+    /*
+     * Updates via key actions
+     */
+    static const struct {
+        uint32_t overlays;
+        xkb_keycode_t kc_in;
+        xkb_keycode_t kc_out;
+        enum key_directions direction;
+    } actions_tests[] = {
+        /* No overlay */
+        { 0x00, KEY_J, KEY_J, XKB_KEY_TAP },
+        { 0x00, KEY_J, KEY_J, XKB_KEY_PRESS },
+        /* Overlay enabled while key pressed: no effect */
+        { 0x01, KEY_1, KEY_1, XKB_KEY_TAP },
+        { 0x01, KEY_J, KEY_J, XKB_KEY_RELEASE },
+        /* Overlay enabled before and after key press: effectual */
+        { 0x01, KEY_J, KEY_KP1, XKB_KEY_TAP },
+        /* Overlay enabled before key press and disable before release : effectual */
+        { 0x01, KEY_J, KEY_KP1, XKB_KEY_PRESS },
+        { 0x00, KEY_1, KEY_1, XKB_KEY_TAP },
+        { 0x00, KEY_J, KEY_KP1, XKB_KEY_RELEASE },
+        /* Key does not belong to overlay: not effect */
+        // TODO
+        // { 0x80, KEY_J, KEY_J, XKB_KEY_TAP },
+        /* Overlay activation order matters */
+        { 0x01, KEY_1, KEY_1, XKB_KEY_TAP },
+        { 0x03, KEY_2, KEY_2, XKB_KEY_TAP },
+        { 0x03, KEY_J, KEY_LEFT, XKB_KEY_TAP },
+        { 0x03, KEY_J, KEY_LEFT, XKB_KEY_PRESS },
+        { 0x01, KEY_2, KEY_2, XKB_KEY_TAP },
+        { 0x01, KEY_J, KEY_LEFT, XKB_KEY_RELEASE },
+        { 0x03, KEY_2, KEY_2, XKB_KEY_TAP },
+        { 0x03, KEY_J, KEY_LEFT, XKB_KEY_PRESS },
+        { 0x02, KEY_1, KEY_1, XKB_KEY_TAP },
+        { 0x02, KEY_J, KEY_LEFT, XKB_KEY_RELEASE },
+        { 0x03, KEY_1, KEY_1, XKB_KEY_TAP },
+        { 0x03, KEY_J, KEY_KP1, XKB_KEY_TAP },
+        { 0x07, KEY_3, KEY_3, XKB_KEY_TAP },
+        { 0x07, KEY_J, KEY_F1, XKB_KEY_TAP },
+        { 0x0f, KEY_4, KEY_4, XKB_KEY_TAP },
+        { 0x0f, KEY_J, KEY_F10, XKB_KEY_TAP },
+        { 0x0b, KEY_3, KEY_3, XKB_KEY_TAP },
+        { 0x0b, KEY_J, KEY_F10, XKB_KEY_TAP },
+        { 0x09, KEY_2, KEY_2, XKB_KEY_TAP },
+        { 0x09, KEY_J, KEY_F10, XKB_KEY_TAP },
+        { 0x01, KEY_4, KEY_4, XKB_KEY_TAP },
+        { 0x01, KEY_J, KEY_KP1, XKB_KEY_TAP },
+        /* Multiple physical keys with same keycode */
+        { 0x01, KEY_J, KEY_KP1, XKB_KEY_PRESS },
+        { 0x01, KEY_J, KEY_KP1, XKB_KEY_PRESS },   /* key still uses overlay 1 */
+        { 0x00, KEY_1, KEY_1, XKB_KEY_TAP },
+        { 0x00, KEY_J, KEY_KP1, XKB_KEY_RELEASE }, /* key still uses overlay 1 */
+        { 0x00, KEY_J, KEY_KP1, XKB_KEY_RELEASE }, /* key still uses overlay 1 */
+        { 0x00, KEY_J, KEY_J, XKB_KEY_PRESS },
+        { 0x01, KEY_1, KEY_1, XKB_KEY_TAP },
+        { 0x01, KEY_J, KEY_J, XKB_KEY_PRESS },     /* No effect: key already down */
+        { 0x01, KEY_J, KEY_J, XKB_KEY_RELEASE },   /* No effect: all keys must be depressed */
+        { 0x01, KEY_J, KEY_J, XKB_KEY_RELEASE },   /* No effect: all keys must be depressed */
+        { 0x01, KEY_J, KEY_KP1, XKB_KEY_PRESS },
+        { 0x00, KEY_1, KEY_1, XKB_KEY_TAP },
+        { 0x02, KEY_2, KEY_2, XKB_KEY_TAP },
+        { 0x02, KEY_J, KEY_KP1, XKB_KEY_PRESS },   /* key still uses overlay 1 */
+        { 0x02, KEY_J, KEY_KP1, XKB_KEY_RELEASE }, /* key still uses overlay 1 */
+        { 0x02, KEY_J, KEY_KP1, XKB_KEY_RELEASE }, /* key still uses overlay 1 */
+        { 0x00, KEY_2, KEY_2, XKB_KEY_TAP },
+    };
+
+    uint32_t previous = 0x00;
+    for (size_t t = 0; t < ARRAY_SIZE(actions_tests); t++) {
+        fprintf(stderr, "------\n*** %s: key actions #%zu ***\n", __func__, t);
+
+        const bool changed = (actions_tests[t].overlays != previous);
+
+        struct xkb_event event1 = {
+            .ctx = context,
+            .type = XKB_EVENT_TYPE_KEY,
+            .key = {
+                .keycode = actions_tests[t].kc_out + EVDEV_OFFSET,
+                .direction = XKB_KEY_DOWN
+            }
+        };
+        const struct xkb_event event2 = {
+            .ctx = context,
+            .type = XKB_EVENT_TYPE_STATE_COMPONENTS,
+            .components = {
+                .changed = XKB_STATE_OVERLAYS_EFFECTIVE
+                            | XKB_STATE_CONTROLS_EFFECTIVE,
+                .components = {
+                    .controls = (actions_tests[t].overlays << 1),
+                    .overlays = actions_tests[t].overlays
+                },
+            }
+        };
+
+        const uint32_t added = (actions_tests[t].overlays & ~previous);
+
+        if (actions_tests[t].direction & XKB_KEY_PRESS) {
+            assert(xkb_machine_process_key(
+                sm1, actions_tests[t].kc_in + EVDEV_OFFSET, XKB_KEY_DOWN, events1
+            ) == XKB_SUCCESS);
+            if (changed && added) {
+                check_events_(events1, event1, event2);
+            } else {
+                check_events_(events1, event1);
+            }
+        }
+
+        assert(!(actions_tests[t].direction & XKB_KEY_REPEAT));
+
+        if (actions_tests[t].direction & XKB_KEY_RELEASE) {
+            assert(xkb_machine_process_key(
+                sm1, actions_tests[t].kc_in + EVDEV_OFFSET, XKB_KEY_UP, events1
+            ) == XKB_SUCCESS);
+            event1.key.direction = XKB_KEY_UP;
+            if (changed && !added) {
+                check_events_(events1, event1, event2);
+            } else {
+                check_events_(events1, event1);
+            }
+        }
+
+        previous = actions_tests[t].overlays;
+    }
+
+    /*
+     * Updates via API
+     */
     static const struct {
         uint32_t overlays;
         xkb_keycode_t kc;
         enum xkb_key_direction direction;
-    } keycode_tests[] = {
+    } api_tests[] = {
         /* No overlay */
         { 0x00, KEY_J, XKB_KEY_DOWN },
         { 0x00, KEY_J, XKB_KEY_UP },
@@ -4777,15 +4904,15 @@ test_overlays(struct xkb_context *context)
         { 0x02, KEY_KP1, XKB_KEY_UP },   /* key still uses overlay 1 */
     };
 
-    uint32_t previous = 0x00;
-    for (size_t t = 0; t < ARRAY_SIZE(keycode_tests); t++) {
-        fprintf(stderr, "------\n*** %s: keycodes #%zu ***\n", __func__, t);
+    previous = 0x00;
+    for (size_t t = 0; t < ARRAY_SIZE(api_tests); t++) {
+        fprintf(stderr, "------\n*** %s: API #%zu ***\n", __func__, t);
 
         const struct xkb_state_components_update components_update = {
             .size = sizeof(components_update),
             .components = XKB_STATE_OVERLAYS_EFFECTIVE,
             .affect_overlays = XKB_OVERLAY_ALL,
-            .overlays = keycode_tests[t].overlays
+            .overlays = api_tests[t].overlays
         };
         const struct xkb_state_update state_update = {
             .size = sizeof(state_update),
@@ -4794,13 +4921,13 @@ test_overlays(struct xkb_context *context)
         assert(xkb_machine_process_synthetic(sm1, &state_update, events1) ==
                XKB_SUCCESS);
 
-        const bool changed = (keycode_tests[t].overlays != previous);
+        const bool changed = (api_tests[t].overlays != previous);
         struct xkb_event event1 = {
             .ctx = context,
             .type = changed ? XKB_EVENT_TYPE_STATE_COMPONENTS : XKB_EVENT_TYPE_NONE,
             .components = {
                 .changed = changed ? XKB_STATE_OVERLAYS_EFFECTIVE : 0,
-                .components = { .overlays = keycode_tests[t].overlays },
+                .components = { .overlays = api_tests[t].overlays },
             }
         };
         check_events_(events1, event1);
@@ -4812,34 +4939,34 @@ test_overlays(struct xkb_context *context)
             assert(xkb_event_get_components(&event1, &components) ==
                    XKB_SUCCESS);
             assert_eq("overlay component", components.overlays,
-                    keycode_tests[t].overlays, "%08"PRIx32);
+                    api_tests[t].overlays, "%08"PRIx32);
         } else {
             assert(!changed);
         }
 
-        previous = keycode_tests[t].overlays;
+        previous = api_tests[t].overlays;
 
         assert(xkb_machine_update_enabled_controls(
                 sm2, events2, 0xffff,
-                (enum xkb_keyboard_control_flags)(keycode_tests[t].overlays << 1)
+                (enum xkb_keyboard_control_flags)(api_tests[t].overlays << 1)
         ) == XKB_SUCCESS);
 
-        if (!keycode_tests[t].kc)
+        if (!api_tests[t].kc)
             continue;
 
         for (uint8_t k = 0; k < 2; k++){
         struct xkb_machine *sm = k ? sm1 : sm2;
         struct xkb_events *events = k ? events1 : events2;
         assert(xkb_machine_process_key(
-            sm, KEY_J + EVDEV_OFFSET, keycode_tests[t].direction, events
+            sm, KEY_J + EVDEV_OFFSET, api_tests[t].direction, events
         ) == XKB_SUCCESS);
 
         event1 = (struct xkb_event) {
             .ctx = context,
-            .type = keycode_tests[t].kc ? XKB_EVENT_TYPE_KEY : XKB_EVENT_TYPE_NONE,
+            .type = api_tests[t].kc ? XKB_EVENT_TYPE_KEY : XKB_EVENT_TYPE_NONE,
             .key = {
-                .keycode = keycode_tests[t].kc + EVDEV_OFFSET,
-                .direction = keycode_tests[t].direction
+                .keycode = api_tests[t].kc + EVDEV_OFFSET,
+                .direction = api_tests[t].direction
             }
         };
         check_events_(events, event1);
