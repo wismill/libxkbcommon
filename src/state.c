@@ -1736,9 +1736,7 @@ state_update_enabled_controls(struct xkb_server_state *state,
      */
     affect_controls = (
         affect_controls &
-        (enum xkb_keyboard_control_flags)CONTROL_ALL_BOOLEAN &
-        /* Private */
-        ~CONTROL_OVERLAY_ALL
+        (enum xkb_keyboard_control_flags)CONTROL_API_BOOLEAN
     );
     state->base.components.controls &=
         (enum xkb_action_controls)~affect_controls;
@@ -4210,7 +4208,8 @@ xkb_event_get_components(const struct xkb_event * restrict event,
     components->locked_layout = event->components.components.locked_group;
     components->layout = event->components.components.group;
     components->leds = event->components.components.leds;
-    components->controls = (uint32_t)event->components.components.controls;
+    components->controls = (uint32_t)event->components.components.controls
+                         & (uint32_t)CONTROL_ALL_BOOLEAN;
     components->overlays = (uint32_t)event->components.components.overlays;
 
     return XKB_SUCCESS;

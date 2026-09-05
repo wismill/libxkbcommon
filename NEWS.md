@@ -321,9 +321,6 @@ libxkbcommon [1.14.0-beta1] – 2026-07-22
   - [keymap format v2](@ref XKB_KEYMAP_FORMAT_TEXT_V2) supports up to
     **8** [*overlappable*](@ref overlapping-overlays) overlays.
 
-  <!-- FIXME: remove -->
-  Also added the respective [keyboard controls](@ref xkb_keyboard_control_flags).
-
   Added new enumeration constant `XKB_STATE_OVERLAYS_EFFECTIVE` in
   `xkb_state_component`.
 

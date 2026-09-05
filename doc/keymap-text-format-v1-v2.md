@@ -2219,7 +2219,7 @@ Press and release events are processed normally.
 <dt>Overlays @anchor key-behavior-overlay</dt>
 <dd>
 A *keyboard overlay* allows some subset of the keyboard to report *alternate keycodes*
-when the corresponding [overlay control](@ref XKB_KEYBOARD_CONTROL_OVERLAY1) is
+when the corresponding [overlay control](@ref keyboard-controls-enumeration) is
 enabled.
 
 For example a keyboard overlay can be used to *simulate* a numeric or editing
@@ -2331,9 +2331,9 @@ Given the following activation sequence:
 </table>
 
 [Key behaviors]: https://www.x.org/releases/current/doc/kbproto/xkbproto.html#Key_Behavior
-[Overlay1]: @ref XKB_KEYBOARD_CONTROL_OVERLAY1
-[Overlay2]: @ref XKB_KEYBOARD_CONTROL_OVERLAY2
-[Overlay8]: @ref XKB_KEYBOARD_CONTROL_OVERLAY8
+[Overlay1]: @ref overlay-1
+[Overlay2]: @ref overlay-2
+[Overlay8]: @ref overlay-8
 [keyboard controls]: @ref xkb_keyboard_control_flags
 [keymap formats]: @ref xkb_keymap_format
 <!-- blank required by Doxygen -->

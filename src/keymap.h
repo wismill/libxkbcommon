@@ -143,6 +143,9 @@ enum xkb_action_controls {
     CONTROL_NONE = 0,
     /* Public API */
     CONTROL_STICKY_KEYS = (1 << 0),
+    CONTROL_MOUSE_KEYS = (1 << 14),
+
+    /* Private API */
     CONTROL_OVERLAY1 = (1 << 1),
     CONTROL_OVERLAY2 = (1 << 2),
     CONTROL_OVERLAY3 = (1 << 3),
@@ -151,9 +154,6 @@ enum xkb_action_controls {
     CONTROL_OVERLAY6 = (1 << 6),
     CONTROL_OVERLAY7 = (1 << 7),
     CONTROL_OVERLAY8 = (1 << 8),
-    CONTROL_MOUSE_KEYS = (1 << 14),
-
-    /* Private API */
     CONTROL_GROUPS_WRAP = (1 << 9),
     CONTROL_REPEAT = (1 << 10),
     CONTROL_SLOW = (1 << 11),
@@ -198,10 +198,10 @@ enum xkb_action_controls {
          CONTROL_AX | CONTROL_AX_TIMEOUT | CONTROL_AX_FEEDBACK |
          CONTROL_BELL | CONTROL_OVERLAY1 | CONTROL_OVERLAY2 |
          CONTROL_IGNORE_GROUP_LOCK),
-    CONTROL_ALL_BOOLEAN =
-        (CONTROL_ALL_BOOLEAN_V1 |
-         CONTROL_OVERLAY3 | CONTROL_OVERLAY4 | CONTROL_OVERLAY5 |
-         CONTROL_OVERLAY6 | CONTROL_OVERLAY7 | CONTROL_OVERLAY8),
+    CONTROL_ALL_BOOLEAN = (CONTROL_ALL_BOOLEAN_V1 | CONTROL_OVERLAY_ALL),
+    /* All the boolean controls modifiable via the API */
+    CONTROL_API_BOOLEAN = (CONTROL_ALL_BOOLEAN & ~CONTROL_OVERLAY_ALL),
+
 };
 
 static_assert(sizeof(enum xkb_action_controls) >= 3, "truncated enum");
@@ -217,26 +217,6 @@ format_boolean_controls(enum xkb_keymap_format format)
 static_assert(
     CONTROL_STICKY_KEYS ==
     (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_A11Y_STICKY_KEYS,
-    "Private value should match public API"
-);
-
-static_assert(
-    CONTROL_OVERLAY1 ==
-    (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_OVERLAY1 &&
-    CONTROL_OVERLAY2 ==
-    (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_OVERLAY2 &&
-    CONTROL_OVERLAY3 ==
-    (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_OVERLAY3 &&
-    CONTROL_OVERLAY4 ==
-    (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_OVERLAY4 &&
-    CONTROL_OVERLAY5 ==
-    (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_OVERLAY5 &&
-    CONTROL_OVERLAY6 ==
-    (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_OVERLAY6 &&
-    CONTROL_OVERLAY7 ==
-    (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_OVERLAY7 &&
-    CONTROL_OVERLAY8 ==
-    (enum xkb_action_controls) XKB_KEYBOARD_CONTROL_OVERLAY8,
     "Private value should match public API"
 );
 
