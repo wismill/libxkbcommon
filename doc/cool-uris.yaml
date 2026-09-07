@@ -9,6 +9,7 @@ __optional__:
 - meson_options.html
 annotated.html: []
 classes.html: []
+coding-conventions.html: []
 custom-configuration.html:
 - user-configuration.html
 - md_doc_user_configuration.html

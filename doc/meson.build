@@ -18,6 +18,7 @@ doxygen_input = [
     'LICENSE',
     'NEWS.md',
     'meson.options',
+    'doc/coding-style.md',
     'doc/compatibility.md',
     'doc/custom-configuration.md',
     'doc/debugging.md',
