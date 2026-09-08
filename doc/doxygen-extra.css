@@ -1,6 +1,10 @@
 html.dark-mode {
     --page-background-color: #000410;
     --fragment-background-color: #192027;
+    --table-cell-border-color: oklch(
+        from var(--table-header-background-color)
+        clamp(0, l * 0.9, 1) c h
+    );
 }
 
 div#top, div.header, div.contents {
@@ -9,7 +13,7 @@ div#top, div.header, div.contents {
     max-width: 960px;
 }
 
-.footer {
+#nav-path, .footer {
     display: none;
 }
 
