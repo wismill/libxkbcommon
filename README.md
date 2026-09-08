@@ -38,7 +38,14 @@ keymap is built.
 
 [API Documentation](https://xkbcommon.org/doc/current/topics.html)
 </dt>
-<dd>Full API reference</dd>
+<dd>
+
+Full API reference.
+
+While xkbcommon’s API is somewhat derived from the classic XKB API as found
+in `X11/extensions/XKB.h` and friends, it has been substantially reworked to
+expose fewer internal details to clients.
+</dd>
 <dt>
 
 [Release notes](doc/release-notes.md)
@@ -76,46 +83,22 @@ keymap is built.
 <dd>Frequently Asked Questions</dd>
 </dl>
 
-## Building
+## Source code
 
-xkbcommon requires:
+<dl>
+<dt>Repository</dt>
+<dd>https://github.com/xkbcommon/libxkbcommon</dd>
+<dt>Releases</dt>
+<dd>
+For a list of current and past releases visit: <https://xkbcommon.org/>.
 
-- a C compiler supporting C11
-- XKB registry (optional): `libxml2`
-- X11 features (optional): `libxcb` and `libxcb-xkb`
-- Wayland features (optional): `wayland-client`, `wayland-protocols`, `wayland-scanner`
-
-xkbcommon is built with [Meson](http://mesonbuild.com):
-
-```shell
-meson setup build
-meson compile -C build
-meson test -C build # Run the tests.
-```
-
-To build for use with Wayland, you can disable X11 support while still
-using the X11 keyboard configuration resource files thusly:
-
-```shell
-meson setup build \
-      -Denable-x11=false \
-      -Dxkb-config-root=/usr/share/X11/xkb \
-      -Dx-locale-root=/usr/share/X11/locale
-meson compile -C build
-```
-
-<details>
-<summary>Complete list of user options</summary>
-@include meson.options
-</details>
-
-## API
-
-While libxkbcommon’s API is somewhat derived from the classic XKB API as found
-in `X11/extensions/XKB.h` and friends, it has been substantially reworked to
-expose fewer internal details to clients.
-
-See the [API Documentation](https://xkbcommon.org/doc/current/topics.html).
+See also the [release notes](doc/release-notes.md).
+</dd>
+<dt>Build instructions</dt>
+<dd>
+See the [Build instructions](doc/building.md) page.
+</dd>
+</dl>
 
 ## Tools
 
@@ -177,7 +160,7 @@ See the [Compatibility](doc/compatibility.md) page for further details.
 <dt>Project’s homepage</dt>
 <dd>https://xkbcommon.org</dd>
 <dt>Repository</dt>
-<dd>https://github.com/xkbcommon/libxkbcommon</dd>
+<dd><https://github.com/xkbcommon/libxkbcommon></dd>
 <dt>Contributions</dt>
 <dd>
 
