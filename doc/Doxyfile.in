@@ -57,13 +57,19 @@ IGNORE_PREFIX          = xkb_ \
 
 DISABLE_INDEX          = NO
 
-GENERATE_TREEVIEW      = NO
+GENERATE_TREEVIEW      = YES
 
-FULL_SIDEBAR           = NO
+FULL_SIDEBAR           = YES
+
+PAGE_OUTLINE_PANEL     = NO
 
 HTML_EXTRA_STYLESHEET  = doc/doxygen-extra.css
 
 HTML_COLORSTYLE        = TOGGLE
+
+HTML_COLORSTYLE_SAT    = 90
+
+HTML_COLORSTYLE_GAMMA  = 60
 
 TIMESTAMP              = NO
 
