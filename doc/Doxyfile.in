@@ -98,3 +98,22 @@ ALIASES                += figcaption="@htmlonly[block]<figcaption>@endhtmlonly"
 ALIASES                += endfigcaption="@htmlonly[block]</figcaption>@endhtmlonly"
 ALIASES                += rawHtml="@htmlonly<!--"
 ALIASES                += endRawHtml="-->@endhtmlonly"
+ALIASES                += borrows{2}="**Borrows** the `\2` passed during initialization. ^^ ^^ \
+                          @invariant The *borrowed* `\2` must remain \
+                          valid for the entire lifetime of an `\1` instance."
+ALIASES                += ownership{1}="@xrefitem ownership \"Ownership\" \
+                          \"Ownership Reference\" \1"
+ALIASES                += heap_single_ownership{1}="@heap_single_ownership{\1_new,\1_destroy}"
+ALIASES                += heap_single_ownership{2}="@ownership{\
+                            **Single ownership**. *Heap-allocated* by `\1()` and \
+                            freed exclusively by calling exactly *once* `\2()`. \
+                          }"
+ALIASES                += transient_single_ownership{1}="@ownership{ \
+                            **Single ownership**. Instances are allocated and \
+                            managed by the caller (typically on the stack) and \
+                            must be initialized using `\1()`. No explicit \
+                            destruction is required by xkbcommon. \
+                          }"
+ALIASES                += transient_single_ownership{2}="@transient_single_ownership{\1,\1_init,\2}"
+ALIASES                += transient_single_ownership{3}="@transient_single_ownership{\2} ^^ ^^ \
+                          @borrows{\1,\3}"
