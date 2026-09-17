@@ -3496,7 +3496,7 @@ xkb_event_get_pointer_motion(const struct xkb_event *event,
 
 /**
  * @enum xkb_pointer_button_state
- * Specifies the direction of a button (press/release).
+ * Specifies the state of a button (pressed/released).
  *
  * @sa `struct xkb_event_pointer_button`
  *
@@ -3552,6 +3552,9 @@ struct xkb_event_pointer_button {
      * - `0` denotes a plain press/release described in `#state`.
      * - A value greater than `0` denotes a complete press-release cycle:
      *   `1` for a single click, `2` for a double-click, etc.
+     *
+     *   *Timing* considerations (e.g. durations between each atomic button
+     *   state change) are the responsibility of the display server.
      *
      * @since 1.14.0
      */
@@ -3648,7 +3651,7 @@ xkb_event_get_virtual_console(const struct xkb_event *event,
  * Opaque keyboard event collection object.
  *
  * An `xkb_events` batch collects [keyboard events](@ref xkb_event)
- * produced atomically by a single call to an `process_*` function such as
+ * produced atomically by a single call to a `process_*` function such as
  * `xkb_machine::xkb_machine_process_key()`. Events are consumed
  * sequentially via `xkb_events_next()`. The collection is reset on each
  * `process_*` call.
