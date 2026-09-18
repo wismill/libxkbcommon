@@ -698,7 +698,7 @@ keymap_key_iterator_config_check(
         return abi_error;
     }
 
-    /* Sanitize input */
+    /* Sanitize input: flags */
     const uint32_t invalid_flags =
         (config->flags & ~(uint32_t)XKB_KEYMAP_KEY_ITERATOR_FLAGS_VALUES);
     if (invalid_flags) {
@@ -707,6 +707,10 @@ keymap_key_iterator_config_check(
                 func, invalid_flags);
         return XKB_ERROR_UNSUPPORTED_KEY_ITERATOR_FLAGS;
     }
+
+    /* Sanitize input: start */
+    if (config->start > XKB_KEYCODE_MAX)
+        return XKB_ERROR_INVALID_KEYCODE;
 
     return XKB_SUCCESS;
 }
@@ -781,11 +785,27 @@ xkb_keymap_key_iterator_init(
 
     if (config->flags & XKB_KEYMAP_KEY_ITERATOR_DESCENDING_ORDER) {
         iter_set_increment(iter, INT32_C(-1));
-        iter_set_next(iter, max);
+        if (!config->start || config->start > keymap->max_key_code) {
+            iter_set_next(iter, max);
+        } else {
+            /*
+             * May still fail *safely* if start < keymap->min_key_code:
+             * there will be simply no key to iterate over.
+             */
+            iter_set_next(iter, XkbKey(keymap, config->start));
+        }
         iter_set_last(iter, min);
     } else {
         iter_set_increment(iter, INT32_C(1));
-        iter_set_next(iter, min);
+        if (!config->start || config->start < keymap->min_key_code) {
+            iter_set_next(iter, min);
+        } else {
+            /*
+             * May still fail *safely* if start > keymap->max_key_code:
+             * there will be simply no key to iterate over.
+             */
+            iter_set_next(iter, XkbKey(keymap, config->start));
+        }
         iter_set_last(iter, max);
     };
 

@@ -769,6 +769,10 @@ test_key_iterator(void)
     config.flags = UINT32_MAX;
     assert(xkb_keymap_key_iterator_init(&iter, keymap, &config) ==
            XKB_ERROR_UNSUPPORTED_KEY_ITERATOR_FLAGS);
+    /* Reject invalid keycode */
+    config.start = XKB_KEYCODE_INVALID;
+    assert(xkb_keymap_key_iterator_init(&iter, keymap, &config) ==
+           XKB_ERROR_UNSUPPORTED_KEY_ITERATOR_FLAGS);
 
     xkb_keymap_unref(keymap);
 

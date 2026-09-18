@@ -2236,6 +2236,24 @@ struct xkb_keymap_key_iterator_config {
      * [Flags]: @ref xkb_keymap_key_iterator_flags
      */
     uint32_t flags;
+    /**
+     * [Keycode] to start the iteration from.
+     *
+     * This field is ignored if set to `0`, in which case it defaults to:
+     * - the *highest* keycode defined in the corresponding keymap if `#flags`
+     *   contains `::XKB_KEYMAP_KEY_ITERATOR_DESCENDING_ORDER`;
+     * - otherwise the *lowest* defined keycode in the keymap.
+     *
+     * @remark The resulting #start keycode is *not* guaranteed to be returned
+     * by `xkb_keymap_key_iterator::xkb_keymap_key_iterator_next()`: it depends
+     * on the rest of the configuration, e.g.
+     * `::XKB_KEYMAP_KEY_ITERATOR_INCLUDE_UNBOUND`
+     *
+     * @since 1.14.0
+     *
+     * [Keycode]: @ref xkb_keycode_t
+     */
+    xkb_keycode_t start;
 };
 
 /**
