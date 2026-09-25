@@ -4058,6 +4058,17 @@ xkb_machine_process_key(struct xkb_machine *sm,
             }
         });
     }
+
+    if (!darray_empty(events->queue) &&
+        darray_item(events->queue, darray_size(events->queue) - 1).type !=
+        XKB_EVENT_TYPE_FRAME)
+    {
+        darray_append(events->queue, (struct xkb_event) {
+            .ctx = events->ctx, /* borrowed from events */
+            .type = XKB_EVENT_TYPE_FRAME,
+        });
+    }
+
     return XKB_SUCCESS;
 }
 
