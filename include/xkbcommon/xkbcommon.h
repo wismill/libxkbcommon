@@ -3434,6 +3434,18 @@ enum xkb_event_type {
      */
     XKB_EVENT_TYPE_INVALID = 0,
     /**
+     * **Frame** boundary.
+     *
+     * This is *not* a real event type but an indicator for the server
+     * to commit current transaction.
+     *
+     * @sa [Frame](@ref @ref frame-def) definition
+     * @sa [Frame-borrowed](@ref transfer-framed)
+     *
+     * @since 1.14.0
+     */
+    XKB_EVENT_TYPE_FRAME,
+    /**
      * **Key** event
      *
      * @sa `xkb_event::xkb_event_get_keycode()`
