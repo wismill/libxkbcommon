@@ -1577,6 +1577,28 @@ xkb_state_ref(struct xkb_state *state)
     return state;
 }
 
+void
+xkb_state_reset(struct xkb_state *state)
+{
+    struct xkb_server_state prev;
+    if (state->mode < LEGACY_MIXED_STATE) {
+        static_assert(sizeof(*state) == sizeof(struct xkb_client_state),
+                      "Not a mere wrapper");
+        prev.base = *state;
+        memset(state, 0, sizeof(*state));
+    } else {
+        struct xkb_server_state *state_ = (struct xkb_server_state *)state;
+        prev = *state_;
+        memset(state_, 0, sizeof(*state_));
+        darray_size(prev.filters) = 0;
+
+        state_->flags = prev.flags;
+        state_->filters = prev.filters;
+    }
+    memset(&prev.base.components, 0, sizeof(prev.base.components));
+    *state = prev.base;
+}
+
 static inline void
 xkb_state_destroy(struct xkb_state *state)
 {
