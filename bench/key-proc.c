@@ -5,6 +5,7 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <getopt.h>
 #include <limits.h>
@@ -17,9 +18,10 @@
 #endif
 
 #include "xkbcommon/xkbcommon.h"
+#include "bench.h"
+#include "src/typing.h"
 #include "test/test.h"
 #include "tools/tools-common.h"
-#include "bench.h"
 #include "utils.h"
 #include "util-random.h"
 
@@ -32,6 +34,12 @@ enum api {
     API_LEGACY = (1u << 0),
     API_MODERN = (1u << 1),
     API_ALL = API_LEGACY | API_MODERN,
+};
+
+enum typing_mode {
+    TYPING_MODE_SYNTHETIC,
+    TYPING_MODE_REALISTIC,
+    _NUM_TYPING_MODE,
 };
 
 static bool
@@ -74,7 +82,16 @@ usage(FILE *fp, char **argv)
            "    Bench legacy server API (xkb_state)\n"
            " --modern\n"
            "    Bench modern server API (xkb_machine)\n"
-           "Note: --iter and --stdev are mutually exclusive.\n"
+           " --realistic-typing\n"
+           "    Bench realistic typing: generates key sequences using realistic\n"
+           "    proportions for character, modifier, and misc keys, with\n"
+           "    stateful modifier mechanics (set, latch, lock).\n"
+           " --synthetic-typing\n"
+           "    Bench synthetic typing: generates uniform random key sequences\n"
+           "    without realistic category weighting or modifier state flows.\n"
+           "Mutually exclusive groups:\n"
+           " * --iter, --stdev\n"
+           " * --realistic-typing, --synthetic-typing\n"
            "\n",
            argv[0], DEFAULT_WARM_UP, DEFAULT_ITERATIONS, DEFAULT_STDEV * 100);
 }
@@ -82,7 +99,7 @@ usage(FILE *fp, char **argv)
 static void
 parse_args(int argc, char **argv, unsigned int *warm_up_iter,
            unsigned int *max_iterations, double *stdev,
-           unsigned int *seed, enum api *api)
+           unsigned int *seed, enum api *api, enum typing_mode *typing_mode)
 {
     enum options {
         OPT_WARM_UP,
@@ -91,6 +108,8 @@ parse_args(int argc, char **argv, unsigned int *warm_up_iter,
         OPT_SEED,
         OPT_LEGACY_API,
         OPT_MODERN_API,
+        OPT_REALISTIC_TYPING,
+        OPT_SYNTHETIC_TYPING,
     };
 
     static struct option opts[] = {
@@ -101,6 +120,8 @@ parse_args(int argc, char **argv, unsigned int *warm_up_iter,
         {"seed",             required_argument,      0, OPT_SEED},
         {"legacy",           no_argument,            0, OPT_LEGACY_API},
         {"modern",           no_argument,            0, OPT_MODERN_API},
+        {"realistic-typing", no_argument,            0, OPT_REALISTIC_TYPING},
+        {"synthetic-typing", no_argument,            0, OPT_SYNTHETIC_TYPING},
         {0, 0, 0, 0},
     };
 
@@ -185,6 +206,12 @@ parse_args(int argc, char **argv, unsigned int *warm_up_iter,
             break;
         case OPT_MODERN_API:
             *api |= API_MODERN;
+            break;
+        case OPT_REALISTIC_TYPING:
+            *typing_mode = TYPING_MODE_REALISTIC;
+            break;
+        case OPT_SYNTHETIC_TYPING:
+            *typing_mode = TYPING_MODE_SYNTHETIC;
             break;
         default:
             usage(stderr, argv);
@@ -408,6 +435,12 @@ bench_modern_api(bool warm_up, unsigned int max_iterations, double stdev,
     xkb_machine_unref(sm);
 }
 
+static long
+prng(void *state)
+{
+    return random();
+}
+
 int
 main(int argc, char **argv)
 {
@@ -416,8 +449,10 @@ main(int argc, char **argv)
     double stdev = DEFAULT_STDEV;
     unsigned int seed = (unsigned int)time(NULL);
     enum api api = API_NONE;
+    enum typing_mode typing_mode = TYPING_MODE_REALISTIC;
 
-    parse_args(argc, argv, &warm_up_iter, &max_iterations, &stdev, &seed, &api);
+    parse_args(argc, argv, &warm_up_iter, &max_iterations,
+               &stdev, &seed, &api, &typing_mode);
 
     struct xkb_context *ctx = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
     if (!ctx)
@@ -462,6 +497,10 @@ main(int argc, char **argv)
         /** Small sample to fit 50% of 512KiB L2 cache */
         DEFAULT_SAMPLE_SIZE = 0x8000 / sizeof(struct xkb_typing_event)
     };
+    struct xkb_key_set set;
+    enum xkb_status status = xkb_key_set_init(&set, keymap, NULL);
+    if (status != XKB_SUCCESS)
+        exit(EXIT_FAILURE);
 
     struct xkb_typing_input input;
 
@@ -470,21 +509,42 @@ main(int argc, char **argv)
     if (!input.events)
         exit(EXIT_FAILURE);
 
-    enum { KEY_COUNT = 256 };
-    bool keys[KEY_COUNT] = { 0 };
-    const xkb_keycode_t min = MAX(8, xkb_keymap_min_keycode(keymap));
-    const xkb_keycode_t max = MIN(KEY_COUNT - 1, xkb_keymap_max_keycode(keymap));
-    for (size_t e = 0; e < input.num_events; e++) {
-        const xkb_keycode_t keycode = (random() % (max - min + 1)) + min;
-        const enum xkb_key_direction direction = (keys[keycode])
-            ? XKB_KEY_UP
-            : XKB_KEY_DOWN;
-        input.events[e] = (struct xkb_typing_event) {
-            .keycode = keycode,
-            .direction = direction,
-        };
-        keys[keycode] = !keys[keycode];
+    switch (typing_mode) {
+    case TYPING_MODE_SYNTHETIC: {
+        enum { KEY_COUNT = 256 };
+        bool keys[KEY_COUNT] = { 0 };
+        const xkb_keycode_t min = MAX(8, xkb_keymap_min_keycode(keymap));
+        const xkb_keycode_t max =
+            MIN(KEY_COUNT - 1, xkb_keymap_max_keycode(keymap));
+        for (size_t e = 0; e < input.num_events; e++) {
+            const xkb_keycode_t keycode = (random() % (max - min + 1)) + min;
+            const enum xkb_key_direction direction = (keys[keycode])
+                ? XKB_KEY_UP
+                : XKB_KEY_DOWN;
+            input.events[e] = (struct xkb_typing_event) {
+                .keycode = keycode,
+                .direction = direction,
+            };
+            keys[keycode] = !keys[keycode];
+        }
+        break;
     }
+    case TYPING_MODE_REALISTIC: {
+        struct xkb_typing_input_config input_config = {
+            .prng = &prng,
+            .prng_state = NULL,
+            .input_length = DEFAULT_SAMPLE_SIZE,
+        };
+        status = xkb_typing_input_init(&input, &set, &input_config);
+        xkb_key_set_destroy(&set);
+        if (status != XKB_SUCCESS)
+            exit(EXIT_FAILURE);
+        break;
+    }
+    default: {
+        static_assert(TYPING_MODE_REALISTIC == 1 &&
+                      TYPING_MODE_REALISTIC == _NUM_TYPING_MODE - 1, "");
+    }}
 
     /*
      * Run the benchmark
