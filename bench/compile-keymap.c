@@ -367,14 +367,14 @@ main(int argc, char **argv)
     } else {
         bench_start2(&bench);
 #ifdef KEYMAP_DUMP
-        BENCH(stdev, max_iterations, elapsed, est,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
             char *s = xkb_keymap_get_as_string2(keymap, keymap_output_format,
                                                 serialize_flags);
             assert(s);
             free(s);
         );
 #else
-        BENCH(stdev, max_iterations, elapsed, est,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
             keymap = xkb_keymap_new_from_buffer(
                 context, keymap_str, keymap_str_length,
                 keymap_input_format, XKB_KEYMAP_COMPILE_NO_FLAGS

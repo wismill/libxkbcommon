@@ -49,16 +49,18 @@ char *
 bench_elapsed_str(const struct bench *bench);
 
 /* Bench method adapted from: https://hackage.haskell.org/package/tasty-bench */
-#define BENCH(target_stdev, n, time, est, ...) do {                               \
+#define BENCH(target_stdev, n, time, est, reset, ...) do {                        \
     struct bench _bench;                                                          \
     struct bench_time _t1;                                                        \
     struct bench_time _t2;                                                        \
     n = 1;                                                                        \
+    reset;                                                                        \
     bench_start2(&_bench);                                                        \
     do { __VA_ARGS__ } while (0);                                                 \
     bench_stop2(&_bench);                                                         \
     bench_elapsed(&_bench, &_t1);                                                 \
     do {                                                                          \
+        reset;                                                                    \
         bench_start2(&_bench);                                                    \
         for (unsigned int k = 0; k < 2 * n; k++) {                                \
             __VA_ARGS__                                                           \

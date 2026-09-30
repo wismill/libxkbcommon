@@ -199,7 +199,7 @@ main(int argc, char *argv[])
         est.stdev = 0;
     } else {
         bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
             struct xkb_component_names kccgst;
 
             assert(xkb_components_from_rules_names(context, &rmlvo, &kccgst, NULL));
