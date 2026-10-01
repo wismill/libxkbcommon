@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <getopt.h>
 #include <limits.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,11 +37,15 @@ enum api {
     API_ALL = API_LEGACY | API_MODERN,
 };
 
+// NOLINTBEGIN(readability-enum-initial-value)
 enum typing_mode {
     TYPING_MODE_SYNTHETIC,
     TYPING_MODE_REALISTIC,
     _NUM_TYPING_MODE,
+    TYPING_MODE_UNKNOWN = _NUM_TYPING_MODE,
+    TYPING_MODE_DEFAULT = TYPING_MODE_REALISTIC,
 };
+// NOLINTEND(readability-enum-initial-value)
 
 static bool
 parse_uint(const char *name, unsigned int min, unsigned int max,
@@ -180,7 +185,9 @@ parse_args(int argc, char **argv, unsigned int *warm_up_iter,
                 errno = 0;
                 char *endp = optarg;
                 *stdev = strtod(optarg, &endp) / 100;
-                if (errno || optarg == endp || *endp != '\0' || *stdev <= 0) {
+                if (errno || optarg == endp || *endp != '\0' || *stdev <= 0 ||
+                    !isfinite(*stdev))
+                {
                     fprintf(stderr, "ERROR: invalid 'stdev' parameter\n");
                     usage(stderr, argv);
                     exit(EXIT_INVALID_USAGE);
@@ -208,9 +215,13 @@ parse_args(int argc, char **argv, unsigned int *warm_up_iter,
             *api |= API_MODERN;
             break;
         case OPT_REALISTIC_TYPING:
+            if (*typing_mode == TYPING_MODE_SYNTHETIC)
+                goto mutually_exclusive_type_mode;
             *typing_mode = TYPING_MODE_REALISTIC;
             break;
         case OPT_SYNTHETIC_TYPING:
+            if (*typing_mode == TYPING_MODE_REALISTIC)
+                goto mutually_exclusive_type_mode;
             *typing_mode = TYPING_MODE_SYNTHETIC;
             break;
         default:
@@ -229,10 +240,21 @@ parse_args(int argc, char **argv, unsigned int *warm_up_iter,
     if (!*api) {
         *api = API_ALL;
     }
+
+    if (*typing_mode == TYPING_MODE_UNKNOWN)
+        *typing_mode = TYPING_MODE_DEFAULT;
+
     return;
 
 mutually_exclusive_iter_stdev:
     fprintf(stderr, "ERROR: --iter and --stdev are mutually exclusive\n");
+    usage(stderr, argv);
+    exit(EXIT_INVALID_USAGE);
+
+mutually_exclusive_type_mode:
+    fprintf(stderr,
+            "ERROR: --synthetic-typing and --realistic-typing "
+            "are mutually exclusive\n");
     usage(stderr, argv);
     exit(EXIT_INVALID_USAGE);
 }
@@ -450,7 +472,7 @@ main(int argc, char **argv)
     double stdev = DEFAULT_STDEV;
     unsigned int seed = (unsigned int)time(NULL);
     enum api api = API_NONE;
-    enum typing_mode typing_mode = TYPING_MODE_REALISTIC;
+    enum typing_mode typing_mode = TYPING_MODE_UNKNOWN;
 
     parse_args(argc, argv, &warm_up_iter, &max_iterations,
                &stdev, &seed, &api, &typing_mode);
