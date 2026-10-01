@@ -495,7 +495,7 @@ main(int argc, char **argv)
 
     enum {
         /** Small sample to fit 50% of 512KiB L2 cache */
-        DEFAULT_SAMPLE_SIZE = 0x8000 / sizeof(struct xkb_typing_event)
+        DEFAULT_SAMPLE_SIZE = 0x40000 / sizeof(struct xkb_typing_event)
     };
     struct xkb_key_set set;
     enum xkb_status status = xkb_key_set_init(&set, keymap, NULL);
@@ -504,28 +504,38 @@ main(int argc, char **argv)
 
     struct xkb_typing_input input;
 
-    input.num_events = DEFAULT_SAMPLE_SIZE;
-    input.events = calloc(DEFAULT_SAMPLE_SIZE, sizeof(*input.events));
-    if (!input.events)
-        exit(EXIT_FAILURE);
-
     switch (typing_mode) {
     case TYPING_MODE_SYNTHETIC: {
+        input.num_events = DEFAULT_SAMPLE_SIZE;
+        input.events = calloc(DEFAULT_SAMPLE_SIZE, sizeof(*input.events));
+        if (!input.events)
+            exit(EXIT_FAILURE);
         enum { KEY_COUNT = 256 };
         bool keys[KEY_COUNT] = { 0 };
         const xkb_keycode_t min = MAX(8, xkb_keymap_min_keycode(keymap));
         const xkb_keycode_t max =
             MIN(KEY_COUNT - 1, xkb_keymap_max_keycode(keymap));
+        size_t down = 0;
+        xkb_keycode_t keycode = min;
         for (size_t e = 0; e < input.num_events; e++) {
-            const xkb_keycode_t keycode = (random() % (max - min + 1)) + min;
-            const enum xkb_key_direction direction = (keys[keycode])
+            if (input.num_events - e <= down) {
+                /* Only enough room left to release held keys */
+                if (++keycode > max)
+                    keycode = min;
+                while (!keys[keycode]) keycode++;
+            } else {
+                keycode = (random() % (max - min + 1)) + min;
+            }
+            const bool is_down = keys[keycode];
+            const enum xkb_key_direction direction = is_down
                 ? XKB_KEY_UP
                 : XKB_KEY_DOWN;
             input.events[e] = (struct xkb_typing_event) {
                 .keycode = keycode,
                 .direction = direction,
             };
-            keys[keycode] = !keys[keycode];
+            keys[keycode] = !is_down;
+            down += is_down ? -1 : 1;
         }
         break;
     }
@@ -571,6 +581,7 @@ main(int argc, char **argv)
         bench_modern_api(false, max_iterations, stdev, &input, ctx, keymap);
     }
 
+    xkb_typing_input_destroy(&input);
     xkb_keymap_unref(keymap);
     xkb_context_unref(ctx);
 
