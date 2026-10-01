@@ -7,7 +7,6 @@
 
 #include "config.h"
 
-#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -33,6 +32,7 @@ enum xkb_key_kind {
 
 struct xkb_modifier_key {
     xkb_keycode_t keycode;
+    xkb_mod_mask_t mods;
     enum xkb_modifier_kind kind;
 };
 
@@ -70,10 +70,11 @@ typedef darray(struct xkb_typing_event) xkb_typing_events;
 
 struct xkb_pending_typing_event {
     struct xkb_typing_event event;
+    xkb_mod_mask_t mods;
     uint8_t counter;
 };
 
-/** PRNG: returns values must be between 0 and 2^31 - 1 (see random()) */
+/** PRNG: return values must be between 0 and 2^31 - 1 (see random()) */
 typedef long (*xkb_prng_t)(void *);
 
 struct xkb_typing_state {
@@ -90,11 +91,16 @@ struct xkb_typing_state {
     /** Pending events */
     darray(struct xkb_pending_typing_event) pending;
     darray_size_t num_pending;
+    /** Effective mods */
+    xkb_mod_mask_t mods;
 };
 
 enum {
-    XKB_TYPING_EVENT_PRINTABLE_MAX_PENDING_TURNS = 2,
-    XKB_TYPING_EVENT_MODIFIER_MAX_PENDING_TURNS = 12,
+    XKB_TYPING_EVENT_PRINTABLE_IMMEDIATE_RELEASE_PERCENT = 75,
+    XKB_TYPING_EVENT_PRINTABLE_MAX_PENDING_TURNS = 1,
+    XKB_TYPING_EVENT_MODIFIER_MIN_PENDING_TURNS = 2,
+    XKB_TYPING_EVENT_MODIFIER_MAX_PENDING_TURNS = 10,
+    XKB_TYPING_EVENT_MISC_IMMEDIATE_RELEASE_PERCENT = 100,
     XKB_TYPING_EVENT_MISC_MAX_PENDING_TURNS = 0,
 };
 

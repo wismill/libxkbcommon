@@ -97,7 +97,10 @@ xkb_key_set_init(struct xkb_key_set *set,
 
         enum xkb_state_component changed =
             xkb_state_update_key(state, k, XKB_KEY_DOWN);
+        xkb_mod_mask_t mods =
+            xkb_state_serialize_mods(state, XKB_STATE_MODS_EFFECTIVE);
         changed |= xkb_state_update_key(state, k, XKB_KEY_UP);
+        mods |= xkb_state_serialize_mods(state, XKB_STATE_MODS_EFFECTIVE);
 
         if (changed & XKB_STATE_MODS_EFFECTIVE) {
             /* Modifier key */
@@ -109,8 +112,12 @@ xkb_key_set_init(struct xkb_key_set *set,
             } else {
                 kind = XKB_MOD_SET;
             }
+            mods &= ~numlock;
+            if (!mods)
+                mods = numlock;
             darray_append(set->modifiers, (struct xkb_modifier_key) {
                 .keycode = k,
+                .mods = mods,
                 .kind = kind,
             });
             continue;
@@ -182,8 +189,11 @@ add_pending_events(struct xkb_typing_state * restrict state,
             }
         }
         /* No free slot found: append new one */
+        idx = darray_size(state->pending);
         darray_append(state->pending, events[e]);
-        next: ;
+    next:
+        /* Avoid immediate consumption */
+        darray_item(state->pending, idx).counter++;
     }
     state->num_pending += count;
 
@@ -211,6 +221,7 @@ next_pending_events(struct xkb_typing_state * restrict state,
         /* Resize array if it was the last element */
         if (idx + 1 == darray_size(state->pending))
             darray_size(state->pending)--;
+        state->mods &= ~pending->mods;
     }
 
     return XKB_SUCCESS;
@@ -230,9 +241,13 @@ add_modifier_key(struct xkb_typing_state * restrict state, size_t * restrict e)
     for (int tries = 0; tries < KEY_CHOICE_MAX_TRIES; tries++) {
         idx = state->prng(state->prng_state)
             % darray_size(state->keys->modifiers);
-        /* Ensure key is not already down */
+        /*
+         * Ensure key is not already down and its modifier mask is not active,
+         * i.e. to avoid simultaneous keys with the same modifier.
+         */
         if (!bit_array_get(state->keys_state,
-                           darray_item(state->keys->modifiers, idx).keycode))
+                           darray_item(state->keys->modifiers, idx).keycode) &&
+            !(state->mods & darray_item(state->keys->modifiers, idx).mods))
         {
             break;
         }
@@ -244,7 +259,10 @@ add_modifier_key(struct xkb_typing_state * restrict state, size_t * restrict e)
         /* No released key found: fall back to linear search */
         const struct xkb_modifier_key *key_;
         darray_foreach(key_, state->keys->modifiers) {
-            if (!bit_array_get(state->keys_state, key_->keycode)) {
+            /* See test doc above */
+            if (!bit_array_get(state->keys_state, key_->keycode) &&
+                !(state->mods & key_->mods))
+            {
                 key = *key_;
                 idx = 0;
                 break;
@@ -268,10 +286,14 @@ add_modifier_key(struct xkb_typing_state * restrict state, size_t * restrict e)
         {
             /* Delay SetMods release or LockMods unlock */
             const size_t max_turns = MIN(
-                (size_t)XKB_TYPING_EVENT_MODIFIER_MAX_PENDING_TURNS,
-                remaining_events
+                (size_t)(
+                    XKB_TYPING_EVENT_MODIFIER_MAX_PENDING_TURNS -
+                    XKB_TYPING_EVENT_MODIFIER_MIN_PENDING_TURNS
+                 ),
+                remaining_events + state->num_pending
             );
-            pending_turns = (size_t)state->prng(state->prng_state)
+            pending_turns = XKB_TYPING_EVENT_MODIFIER_MIN_PENDING_TURNS
+                          + (size_t)state->prng(state->prng_state)
                           % (max_turns + 1);
         }
     } else {
@@ -296,6 +318,7 @@ add_modifier_key(struct xkb_typing_state * restrict state, size_t * restrict e)
                 .keycode = key.keycode,
                 .direction = XKB_KEY_UP,
             },
+            .mods = key.mods,
             .counter = (uint8_t)pending_turns,
         },
     };
@@ -324,9 +347,11 @@ add_modifier_key(struct xkb_typing_state * restrict state, size_t * restrict e)
             /* Register pressed state */
             bit_array_set(state->keys_state, key.keycode);
         }
+        state->mods |= key.mods;
     } else {
         /* Immediate release */
         state->events[(*e)++] = pending[1].event;
+        /* TODO: add latched modifier to mask state. */
     }
 
     return XKB_SUCCESS;
@@ -335,7 +360,7 @@ add_modifier_key(struct xkb_typing_state * restrict state, size_t * restrict e)
 static enum xkb_status
 add_other_key(struct xkb_typing_state * restrict state,
               const xkb_keycodes_t * restrict keycodes, size_t * restrict e,
-              uint8_t max_pending_turns)
+              uint8_t immediate_release_prob, uint8_t max_pending_turns)
 {
     /* Choose a random key */
     long idx = -1;
@@ -374,10 +399,21 @@ add_other_key(struct xkb_typing_state * restrict state,
     size_t pending_turns;
 
     if (remaining_events >= 2) {
-        const size_t max_turns = MIN((size_t)max_pending_turns,
-                                     remaining_events);
-        pending_turns = (size_t)state->prng(state->prng_state)
-                      % (max_turns + 1);
+        const size_t max_turns = MIN(
+            (size_t)max_pending_turns,
+            remaining_events + state->num_pending
+        );
+        const bool immediate_release = (
+            (immediate_release_prob >= 100) ||
+            !max_turns ||
+            (state->prng(state->prng_state) % 100) < immediate_release_prob
+        );
+        if (immediate_release) {
+            pending_turns = 0;
+        } else {
+            pending_turns = 1 + (size_t)state->prng(state->prng_state)
+                          % max_turns;
+        }
     } else {
         return XKB_ERROR_INVALID;
     }
@@ -411,9 +447,9 @@ static enum xkb_key_kind
 pick_key_kind(xkb_prng_t prng, void *prng_state)
 {
     static const uint8_t weights[_NUM_XKB_KEY_KIND] = {
-        [XKB_KEY_PRINTABLE] = 51,
-        [XKB_KEY_MODIFIER] = 40,
-        [XKB_KEY_MISC] = 9,
+        [XKB_KEY_PRINTABLE] = 60,
+        [XKB_KEY_MODIFIER] = 30,
+        [XKB_KEY_MISC] = 10,
     };
     static_assert(XKB_KEY_MISC == 2 &&
                   XKB_KEY_MISC == _NUM_XKB_KEY_KIND - 1, "");
@@ -531,15 +567,21 @@ xkb_typing_input_init(struct xkb_typing_input * restrict typing,
             pick_key_kind(config->prng, config->prng_state);
         switch (key_kind) {
         case XKB_KEY_PRINTABLE:
-            status = add_other_key(&state, &state.keys->printable, &e,
-                                   XKB_TYPING_EVENT_PRINTABLE_MAX_PENDING_TURNS);
+            status = add_other_key(
+                &state, &state.keys->printable, &e,
+                XKB_TYPING_EVENT_PRINTABLE_IMMEDIATE_RELEASE_PERCENT,
+                XKB_TYPING_EVENT_PRINTABLE_MAX_PENDING_TURNS
+            );
             break;
         case XKB_KEY_MODIFIER:
             status = add_modifier_key(&state, &e);
             break;
         case XKB_KEY_MISC:
-            status = add_other_key(&state, &state.keys->misc, &e,
-                                   XKB_TYPING_EVENT_MISC_MAX_PENDING_TURNS);
+            status = add_other_key(
+                &state, &state.keys->misc, &e,
+                XKB_TYPING_EVENT_MISC_IMMEDIATE_RELEASE_PERCENT,
+                XKB_TYPING_EVENT_MISC_MAX_PENDING_TURNS
+            );
             break;
         default: {
             static_assert(XKB_KEY_MISC == 2 &&
