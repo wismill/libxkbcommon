@@ -438,6 +438,7 @@ bench_modern_api(bool warm_up, unsigned int max_iterations, double stdev,
 static long
 prng(void *state)
 {
+    (void)state;
     return random();
 }
 
