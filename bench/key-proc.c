@@ -20,6 +20,7 @@
 
 #include "xkbcommon/xkbcommon.h"
 #include "bench.h"
+#include "bench-utils.h"
 #include "src/typing.h"
 #include "test/test.h"
 #include "tools/tools-common.h"
@@ -320,7 +321,7 @@ bench_legacy_api(bool warm_up, unsigned int max_iterations, double stdev,
     struct bench bench;
     struct bench_time elapsed;
     struct estimate est;
-    volatile unsigned long acc = 0;
+    unsigned long acc = 0;
     size_t input_idx = 0;
     const size_t input_size = input->num_events;
 
@@ -357,7 +358,8 @@ bench_legacy_api(bool warm_up, unsigned int max_iterations, double stdev,
         }
     }
 
-    (void)acc;
+    if (!warm_up)
+        fprintf(stderr, "Checksum: 0x%lx\n", acc);
 
     xkb_state_unref(state);
 }
@@ -413,7 +415,7 @@ bench_modern_api(bool warm_up, unsigned int max_iterations, double stdev,
     struct bench bench;
     struct bench_time elapsed;
     struct estimate est;
-    volatile unsigned long acc = 0;
+    unsigned long acc = 0;
     size_t input_idx = 0;
     const size_t input_size = input->num_events;
 
@@ -450,7 +452,8 @@ bench_modern_api(bool warm_up, unsigned int max_iterations, double stdev,
         }
     }
 
-    (void)acc;
+    if (!warm_up)
+        fprintf(stderr, "Checksum: 0x%lx\n", acc);
 
     xkb_state_unref(state);
     xkb_events_destroy(events);
@@ -520,10 +523,6 @@ main(int argc, char **argv)
         /** Small sample to fit 50% of 512KiB L2 cache */
         DEFAULT_SAMPLE_SIZE = 0x40000 / sizeof(struct xkb_typing_event)
     };
-    struct xkb_key_set set;
-    enum xkb_status status = xkb_key_set_init(&set, keymap, NULL);
-    if (status != XKB_SUCCESS)
-        exit(EXIT_FAILURE);
 
     struct xkb_typing_input input;
 
@@ -538,14 +537,15 @@ main(int argc, char **argv)
         const xkb_keycode_t min = MAX(8, xkb_keymap_min_keycode(keymap));
         const xkb_keycode_t max =
             MIN(KEY_COUNT - 1, xkb_keymap_max_keycode(keymap));
-        size_t down = 0;
+        ssize_t down = 0;
         xkb_keycode_t keycode = min;
         for (size_t e = 0; e < input.num_events; e++) {
-            if (input.num_events - e <= down) {
+            if ((ssize_t)(input.num_events - e) <= down) {
                 /* Only enough room left to release held keys */
-                if (++keycode > max)
-                    keycode = min;
-                while (!keys[keycode]) keycode++;
+                do {
+                    if (++keycode > max)
+                        keycode = min;
+                } while (!keys[keycode]);
             } else {
                 keycode = (random() % (max - min + 1)) + min;
             }
@@ -563,6 +563,11 @@ main(int argc, char **argv)
         break;
     }
     case TYPING_MODE_REALISTIC: {
+        struct xkb_key_set set;
+        enum xkb_status status = xkb_key_set_init(&set, keymap, NULL);
+        if (status != XKB_SUCCESS)
+            exit(EXIT_FAILURE);
+
         struct xkb_typing_input_config input_config = {
             .prng = &prng,
             .prng_state = NULL,
@@ -577,6 +582,7 @@ main(int argc, char **argv)
     default: {
         static_assert(TYPING_MODE_REALISTIC == 1 &&
                       TYPING_MODE_REALISTIC == _NUM_TYPING_MODE - 1, "");
+        exit(EXIT_FAILURE);
     }}
 
     /*
