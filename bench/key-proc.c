@@ -325,6 +325,9 @@ bench_legacy_api(bool warm_up, unsigned int max_iterations, double stdev,
     size_t input_idx = 0;
     const size_t input_size = input->num_events;
 
+    bench_opaque_input(input);
+    bench_opaque_input(state);
+
     if (max_iterations) {
         bench_start2(&bench);
         for (size_t i = 0; i < max_iterations; i++) {
@@ -335,6 +338,7 @@ bench_legacy_api(bool warm_up, unsigned int max_iterations, double stdev,
                       ? 0
                       : input_idx + 1;
         }
+        bench_do_not_optimize(acc);
         bench_stop2(&bench);
         bench_elapsed(&bench, &elapsed);
         est.elapsed = bench_time_elapsed_nanoseconds(&elapsed) / max_iterations;
@@ -352,6 +356,7 @@ bench_legacy_api(bool warm_up, unsigned int max_iterations, double stdev,
                       ? 0
                       : input_idx + 1;
         );
+        bench_do_not_optimize(acc);
         bench_stop2(&bench);
         if (!warm_up) {
             report_stdev(max_iterations, stdev, &bench, &elapsed, &est);
@@ -365,10 +370,10 @@ bench_legacy_api(bool warm_up, unsigned int max_iterations, double stdev,
 }
 
 static unsigned long
-bench_modern_api_loop(const struct xkb_typing_event key,
-                      struct xkb_machine *sm,
+bench_modern_api_loop(struct xkb_machine *sm,
                       struct xkb_events *events,
-                      struct xkb_state *state)
+                      struct xkb_state *state,
+                      const struct xkb_typing_event key)
 {
     unsigned long acc = 0;
     const enum xkb_status ret =
@@ -419,16 +424,22 @@ bench_modern_api(bool warm_up, unsigned int max_iterations, double stdev,
     size_t input_idx = 0;
     const size_t input_size = input->num_events;
 
+    bench_opaque_input(input);
+    bench_opaque_input(sm);
+    bench_opaque_input(events);
+    bench_opaque_input(state);
+
     if (max_iterations) {
         bench_start2(&bench);
         for (size_t i = 0; i < max_iterations; i++) {
             const struct xkb_typing_event key = input->events[input_idx];
-            acc += bench_modern_api_loop(key, sm, events, state);
+            acc += bench_modern_api_loop(sm, events, state, key);
             /* Wrap input */
             input_idx = (input_idx + 1 == input_size)
                       ? 0
                       : input_idx + 1;
         }
+        bench_do_not_optimize(acc);
         bench_stop2(&bench);
         bench_elapsed(&bench, &elapsed);
         est.elapsed = bench_time_elapsed_nanoseconds(&elapsed) / max_iterations;
@@ -440,12 +451,13 @@ bench_modern_api(bool warm_up, unsigned int max_iterations, double stdev,
         bench_start2(&bench);
         BENCH(stdev, max_iterations, elapsed, est, input_idx = 0,
             const struct xkb_typing_event key = input->events[input_idx];
-            acc += bench_modern_api_loop(key, sm, events, state);
+            acc += bench_modern_api_loop(sm, events, state, key);
             /* Wrap input */
             input_idx = (input_idx + 1 == input_size)
                       ? 0
                       : input_idx + 1;
         );
+        bench_do_not_optimize(acc);
         bench_stop2(&bench);
         if (!warm_up) {
             report_stdev(max_iterations, stdev, &bench, &elapsed, &est);
