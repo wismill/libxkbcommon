@@ -199,7 +199,7 @@ main(int argc, char *argv[])
         est.stdev = 0;
     } else {
         bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */, /* empty */,
             struct xkb_component_names kccgst;
 
             assert(xkb_components_from_rules_names(context, &rmlvo, &kccgst, NULL));
@@ -218,7 +218,7 @@ main(int argc, char *argv[])
         fprintf(stderr,
                 "mean: %lld µs; compiled %u rules in %ld.%06lds\n",
                 est.elapsed / 1000, max_iterations,
-                total_elapsed.seconds, total_elapsed.nanoseconds / 1000);
+                total_elapsed.seconds, total_elapsed.picoseconds / 1000);
     } else {
         fprintf(stderr,
                 "mean: %lld µs; stdev: %Lf%% (target: %f%%); "
@@ -226,8 +226,8 @@ main(int argc, char *argv[])
                 "total time: %ld.%06lds\n", est.elapsed / 1000,
                 (long double) est.stdev * 100.0 / (long double) est.elapsed,
                 stdev * 100,
-                max_iterations, elapsed.seconds, elapsed.nanoseconds / 1000,
-                total_elapsed.seconds, total_elapsed.nanoseconds / 1000);
+                max_iterations, elapsed.seconds, elapsed.picoseconds / 1000,
+                total_elapsed.seconds, total_elapsed.picoseconds / 1000);
     }
 
     xkb_context_unref(context);

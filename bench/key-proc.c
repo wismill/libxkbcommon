@@ -27,8 +27,8 @@
 #include "utils.h"
 #include "util-random.h"
 
-#define DEFAULT_ITERATIONS 6000000
-#define DEFAULT_WARM_UP (DEFAULT_ITERATIONS / 100)
+#define DEFAULT_ITERATIONS 20000000
+#define DEFAULT_WARM_UP (DEFAULT_ITERATIONS / 20)
 #define DEFAULT_STDEV 0.05
 
 enum api {
@@ -268,9 +268,9 @@ report_iterations(unsigned int iterations,
     struct bench_time total_elapsed;
     bench_elapsed(bench, &total_elapsed);
     fprintf(stdout,
-            "mean: %lld ns; processed %u input events in %ld.%06lds\n",
-            est->elapsed, iterations,
-            total_elapsed.seconds, total_elapsed.nanoseconds / 1000);
+            "mean: %lld ns; processed %u input events in %ld.%06llds\n",
+            bench_pico_to_nano(est->elapsed), iterations,
+            total_elapsed.seconds, bench_pico_to_micro(total_elapsed.picoseconds));
 }
 
 static void
@@ -284,16 +284,16 @@ report_stdev(unsigned int iterations,
     bench_elapsed(bench, &total_elapsed);
     fprintf(stdout,
             "mean: %lld ns; stdev: %Lf%% (target: %f%%); "
-            "last run: processed %u input events in %ld.%06lds; "
-            "total time: %ld.%06lds\n",
-            est->elapsed,
+            "last run: processed %u input events in %ld.%06llds; "
+            "total time: %ld.%06llds\n",
+            bench_pico_to_nano(est->elapsed),
             (long double) est->stdev * 100.0 / (long double) est->elapsed,
             stdev * 100.0, iterations,
-            elapsed->seconds, elapsed->nanoseconds / 1000,
-            total_elapsed.seconds, total_elapsed.nanoseconds / 1000);
+            elapsed->seconds, bench_pico_to_micro(elapsed->picoseconds),
+            total_elapsed.seconds, bench_pico_to_micro(total_elapsed.picoseconds));
 }
 
-static unsigned long
+static unsigned long BENCH_NOINLINE
 bench_legacy_api_loop(struct xkb_typing_event key, struct xkb_state *state)
 {
     const enum xkb_state_component changed =
@@ -325,10 +325,10 @@ bench_legacy_api(bool warm_up, unsigned int max_iterations, double stdev,
     size_t input_idx = 0;
     const size_t input_size = input->num_events;
 
-    bench_opaque_input(input);
-    bench_opaque_input(state);
 
     if (max_iterations) {
+        bench_opaque_input(input);
+        bench_opaque_input(state);
         bench_start2(&bench);
         for (size_t i = 0; i < max_iterations; i++) {
             const struct xkb_typing_event key = input->events[input_idx];
@@ -341,14 +341,29 @@ bench_legacy_api(bool warm_up, unsigned int max_iterations, double stdev,
         bench_do_not_optimize(acc);
         bench_stop2(&bench);
         bench_elapsed(&bench, &elapsed);
-        est.elapsed = bench_time_elapsed_nanoseconds(&elapsed) / max_iterations;
+        est.elapsed = bench_time_elapsed_picoseconds(&elapsed) / max_iterations;
         est.stdev = 0; /* unused */
         if (!warm_up) {
             report_iterations(max_iterations, &bench, &est);
         }
     } else {
         bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est, input_idx = 0,
+        BENCH(stdev, max_iterations, elapsed, est,
+            /*
+             * Pre
+             */
+            input_idx = 0;
+            bench_opaque_input(input);
+            bench_opaque_input(state),
+
+            /*
+             * Post
+             */
+            bench_do_not_optimize(acc),
+
+            /*
+             * Benched code
+             */
             const struct xkb_typing_event key = input->events[input_idx];
             acc += bench_legacy_api_loop(key, state);
             /* Wrap input */
@@ -356,20 +371,19 @@ bench_legacy_api(bool warm_up, unsigned int max_iterations, double stdev,
                       ? 0
                       : input_idx + 1;
         );
-        bench_do_not_optimize(acc);
         bench_stop2(&bench);
         if (!warm_up) {
             report_stdev(max_iterations, stdev, &bench, &elapsed, &est);
         }
     }
 
-    if (!warm_up)
-        fprintf(stderr, "Checksum: 0x%lx\n", acc);
+    // if (!warm_up)
+    //     fprintf(stderr, "Checksum: 0x%lx\n", acc);
 
     xkb_state_unref(state);
 }
 
-static unsigned long
+static unsigned long BENCH_NOINLINE
 bench_modern_api_loop(struct xkb_machine *sm,
                       struct xkb_events *events,
                       struct xkb_state *state,
@@ -424,12 +438,12 @@ bench_modern_api(bool warm_up, unsigned int max_iterations, double stdev,
     size_t input_idx = 0;
     const size_t input_size = input->num_events;
 
-    bench_opaque_input(input);
-    bench_opaque_input(sm);
-    bench_opaque_input(events);
-    bench_opaque_input(state);
 
     if (max_iterations) {
+        bench_opaque_input(input);
+        bench_opaque_input(sm);
+        bench_opaque_input(events);
+        bench_opaque_input(state);
         bench_start2(&bench);
         for (size_t i = 0; i < max_iterations; i++) {
             const struct xkb_typing_event key = input->events[input_idx];
@@ -442,14 +456,31 @@ bench_modern_api(bool warm_up, unsigned int max_iterations, double stdev,
         bench_do_not_optimize(acc);
         bench_stop2(&bench);
         bench_elapsed(&bench, &elapsed);
-        est.elapsed = bench_time_elapsed_nanoseconds(&elapsed) / max_iterations;
+        est.elapsed = bench_time_elapsed_picoseconds(&elapsed) / max_iterations;
         est.stdev = 0; /* unused */
         if (!warm_up) {
             report_iterations(max_iterations, &bench, &est);
         }
     } else {
         bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est, input_idx = 0,
+        BENCH(stdev, max_iterations, elapsed, est,
+            /*
+             * Pre
+             */
+            input_idx = 0;
+            bench_opaque_input(input);
+            bench_opaque_input(sm);
+            bench_opaque_input(events);
+            bench_opaque_input(state),
+
+            /*
+             * Post
+             */
+            bench_do_not_optimize(acc),
+
+            /*
+             * Benched code
+             */
             const struct xkb_typing_event key = input->events[input_idx];
             acc += bench_modern_api_loop(sm, events, state, key);
             /* Wrap input */
@@ -457,15 +488,14 @@ bench_modern_api(bool warm_up, unsigned int max_iterations, double stdev,
                       ? 0
                       : input_idx + 1;
         );
-        bench_do_not_optimize(acc);
         bench_stop2(&bench);
         if (!warm_up) {
             report_stdev(max_iterations, stdev, &bench, &elapsed, &est);
         }
     }
 
-    if (!warm_up)
-        fprintf(stderr, "Checksum: 0x%lx\n", acc);
+    // if (!warm_up)
+    //     fprintf(stderr, "Checksum: 0x%lx\n", acc);
 
     xkb_state_unref(state);
     xkb_events_destroy(events);

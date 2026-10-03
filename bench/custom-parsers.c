@@ -47,8 +47,8 @@ print_stats(double stdev, unsigned int max_iterations,
             "total time: %ld.%06lds\n", est->elapsed / 1000,
             (long double) est->stdev * 100.0 / (long double) est->elapsed,
             stdev * 100,
-            max_iterations, elapsed->seconds, elapsed->nanoseconds / 1000,
-            total_elapsed.seconds, total_elapsed.nanoseconds / 1000);
+            max_iterations, elapsed->seconds, elapsed->picoseconds / 1000,
+            total_elapsed.seconds, total_elapsed.picoseconds / 1000);
 }
 
 /* NOTE: Old parser, for comparison */
@@ -192,7 +192,7 @@ main(int argc, char **argv)
 
     printf("*** parse_hex_to_uint32_t ***\n");
     bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */,  /* empty */,
             for (size_t n = 0; n < size; n++) {
                 uint32_t val = 0;
                 parse_hex_to_uint32_t(content + n, 8, &val);
@@ -204,7 +204,7 @@ main(int argc, char **argv)
 
     printf("*** parse_keysym_hex ***\n");
     bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */, /* empty */,
             for (size_t n = 0; n < size; n++) {
                 uint32_t val = 0;
                 parse_keysym_hex(content + n, &val);
@@ -216,7 +216,7 @@ main(int argc, char **argv)
 
     printf("*** parse_dec_to_uint64_t ***\n");
     bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */, /* empty */,
             for (size_t n = 0; n < size; n++) {
                 uint64_t val = 0;
                 parse_dec_to_uint64_t(content + n, size - n, &val);
@@ -228,7 +228,7 @@ main(int argc, char **argv)
 
     printf("*** strtol, base 10 ***\n");
     bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */, /* empty */,
             for (size_t n = 0; n < size; n++) {
                 dummy64 += (uint64_t)strtol(content + n, NULL, 10);
             }
@@ -239,7 +239,7 @@ main(int argc, char **argv)
 
     printf("*** parse_hex_to_uint64_t ***\n");
     bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */, /* empty */,
             for (size_t n = 0; n < size; n++) {
                 uint64_t val = 0;
                 parse_hex_to_uint64_t(content + n, size - n, &val);
@@ -252,7 +252,7 @@ main(int argc, char **argv)
 
     printf("*** strtol, base 16 ***\n");
     bench_start2(&bench);
-        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */, /* empty */,
             for (size_t n = 0; n < size; n++) {
                 dummy64 += (uint64_t)strtol(content + n, NULL, 16);
             }

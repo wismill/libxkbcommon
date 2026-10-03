@@ -374,7 +374,7 @@ main(int argc, char **argv)
             free(s);
         );
 #else
-        BENCH(stdev, max_iterations, elapsed, est, /* empty */,
+        BENCH(stdev, max_iterations, elapsed, est, /* empty */, /* empty */,
             keymap = xkb_keymap_new_from_buffer(
                 context, keymap_str, keymap_str_length,
                 keymap_input_format, XKB_KEYMAP_COMPILE_NO_FLAGS
@@ -411,7 +411,7 @@ main(int argc, char **argv)
         fprintf(stderr,
                 "mean: %lld µs; compiled %u keymaps in %ld.%06lds\n",
                 est.elapsed / 1000, max_iterations,
-                total_elapsed.seconds, total_elapsed.nanoseconds / 1000);
+                total_elapsed.seconds, total_elapsed.picoseconds / 1000);
     } else {
         fprintf(stderr,
                 "mean: %lld µs; stdev: %Lf%% (target: %f%%); "
@@ -419,8 +419,8 @@ main(int argc, char **argv)
                 "total time: %ld.%06lds\n", est.elapsed / 1000,
                 (long double) est.stdev * 100.0 / (long double) est.elapsed,
                 stdev * 100,
-                max_iterations, elapsed.seconds, elapsed.nanoseconds / 1000,
-                total_elapsed.seconds, total_elapsed.nanoseconds / 1000);
+                max_iterations, elapsed.seconds, elapsed.picoseconds / 1000,
+                total_elapsed.seconds, total_elapsed.picoseconds / 1000);
     }
 
 keymap_error:
