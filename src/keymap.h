@@ -874,6 +874,16 @@ struct xkb_keymap {
          (iter) < (keymap)->keys + (keymap)->num_keys; \
          (iter)++)
 
+#define xkb_level_foreach_action(iter, level) \
+    for (union xkb_action *_foreach_action_start = ((level)->num_actions <= 1 \
+            ? &(level)->a.action \
+            : (level)->a.actions), \
+         *_foreach_action_end = ((level)->num_actions <= 1 \
+            ? &(level)->a.action \
+            : (level)->a.actions + (level)->num_actions); \
+         ((iter) = _foreach_action_start) < _foreach_action_end; \
+         _foreach_action_start++)
+
 #define xkb_mods_foreach(iter, mods_) \
     for ((iter) = (mods_)->mods; \
          (iter) < (mods_)->mods + (mods_)->num_mods; \
