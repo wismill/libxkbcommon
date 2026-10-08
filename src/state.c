@@ -156,6 +156,7 @@ struct xkb_client_state {
 enum state_flags {
     STATE_NO_FLAGS = 0,
     STATE_REQUIRE_KEY_EVENT = (1 << 0),
+    STATE_AUTO_FIX_LAYOUT_SWITCH_ON_MODIFIER_KEY = (1 << 1),
 };
 
 /**
@@ -1442,6 +1443,15 @@ xkb_filter_apply_all(struct xkb_server_state *state,
                 if (state->flags & XKB_A11Y_STICKY_KEYS_LATCH_TO_LOCK) {
                     filter->action.group.flags |= ACTION_LATCH_TO_LOCK;
                 }
+            }
+            break;
+        case ACTION_TYPE_GROUP_LOCK:
+            if ((filter->action.group.flags &
+                 ACTION_AUTO_GROUP_LOCK_ON_MODIFIER_RELEASE) &&
+                (state->update_flags &
+                 STATE_AUTO_FIX_LAYOUT_SWITCH_ON_MODIFIER_KEY))
+            {
+                filter->action.group.flags |= ACTION_LOCK_ON_RELEASE;
             }
             break;
         case ACTION_TYPE_PTR_MOVE:
@@ -3537,6 +3547,12 @@ xkb_machine_new(const struct xkb_machine_builder * restrict builder,
                           builder->controls.a11y.affect_flags,
                           builder->controls.a11y.flags);
     machine->flags = builder->machine_flags;
+    if (!(machine->flags &
+          XKB_MACHINE_NO_AUTO_FIX_LAYOUT_SWITCH_ON_MODIFIER_KEY))
+    {
+        machine->base.update_flags |=
+            STATE_AUTO_FIX_LAYOUT_SWITCH_ON_MODIFIER_KEY;
+    }
 
     enum xkb_status status_;
     if ((status_ = machine_set_mods(machine, &builder->mods)) != XKB_SUCCESS ||
@@ -4033,7 +4049,7 @@ xkb_machine_process_key(struct xkb_machine *sm,
         });
     }
 
-    state->update_flags = STATE_REQUIRE_KEY_EVENT;
+    state->update_flags |= STATE_REQUIRE_KEY_EVENT;
     state->set_mods = 0;
     state->clear_mods = 0;
 

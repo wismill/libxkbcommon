@@ -99,6 +99,41 @@ struct xkb_keymap;
  *
  * This is the authoritative object for *server-side* XKB processing.
  *
+ * @section xkb-machine-auto-fixes Automatic behavior fixes
+ *
+ * xkbcommon automatically fixes some usual shortcomings of classic XKB:
+ *
+ * <table>
+ * <caption>Automatic behavior fixes</caption>
+ * <thead>
+ * <tr>
+ * <th>Title</th>
+ * <th>Description</th>
+ * </tr>
+ * </thead>
+ * <tbody>
+ *
+ * <tr>
+ * <th>
+ * Layout switch on modifier key @anchor auto-fix-layout-switch-on-modifier-key
+ * </th>
+ * <td>
+ * Add [`lockOnRelease=true`][lockOnRelease] to [`LockGroup`][LockGroup] actions
+ * that satisfies the following conditions:
+ * - it has no explicit [`lockOnRelease`][lockOnRelease];
+ * - it is located on a level ≥ 2 (1-indexed);
+ * - it is localed on a key with a [modifier action] on its level 1.
+ *
+ * It may be deactivated using:
+ * `::XKB_MACHINE_NO_AUTO_FIX_LAYOUT_SWITCH_ON_MODIFIER_KEY`.
+ * </td>
+ * </tr>
+ *
+ * </tbody>
+ * </table>
+ *
+ * @section xkb-machine-querying-state Query the keyboard state
+ *
  * @note To query the resulting keyboard state (active modifiers, current
  * layout, LED states, etc.), pair this object with an `xkb_state` created via
  * `xkb_state::xkb_state_new_from_machine()` and updated via
@@ -106,6 +141,8 @@ struct xkb_keymap;
  * *observable state* of the machine and provides the full query API.
  *
  * See @ref server-client-state for details.
+ *
+ * @section xkb-machine-examples Examples
  *
  * See the [example for a Wayland server] in the quick guide.
  *
@@ -117,6 +154,9 @@ struct xkb_keymap;
  * [keycode]: @ref xkb_keycode_t
  * [direction]: @ref xkb_key_direction
  * [keyboard events]: @ref xkb_event
+ * [modifier action]: @ref modifiers-actions
+ * [lockOnRelease]: @ref lockOnRelease
+ * [LockGroup]: @ref lock-group-action
  * [example for a Wayland server]: @ref quick-guide-wayland-server
  */
 struct xkb_machine;
@@ -4353,6 +4393,15 @@ enum xkb_machine_flags {
      * [server actions]: @ref server-actions
      */
     XKB_MACHINE_SERVER_ACTIONS = (1 << 0),
+    /**
+     * Disable automated fix for keys combining modifiers and layout switch.
+     *
+     * See @ref auto-fix-layout-switch-on-modifier-key "Automatic behavior fixes"
+     * for further details.
+     *
+     * @since 1.14.0
+     */
+    XKB_MACHINE_NO_AUTO_FIX_LAYOUT_SWITCH_ON_MODIFIER_KEY = (1 << 1),
 };
 
 /**

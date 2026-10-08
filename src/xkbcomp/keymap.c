@@ -476,6 +476,37 @@ enum {
     GROUP_MASK_NAME_LAST = 3,
 };
 
+static void
+update_auto_group_lock_on_modifier_release(struct xkb_level * restrict level0,
+                                           xkb_level_index_t l,
+                                           union xkb_action * restrict action)
+{
+    if (!(/* Must be level index 1+ */
+        l != 0 &&
+        /* LockGroup() action */
+        action->type == ACTION_TYPE_GROUP_LOCK &&
+        /* unLockOnPress not set explicitly */
+        !(action->group.flags & ACTION_EXPLICIT_UNLOCK_ON_PRESS)))
+    {
+        return;
+    }
+
+    /* There must be some modifier action on level 0 */
+    union xkb_action *action0;
+    xkb_level_foreach_action(action0, level0) {
+        switch (action0->type) {
+        case ACTION_TYPE_MOD_SET:
+        case ACTION_TYPE_MOD_LATCH:
+        case ACTION_TYPE_MOD_LOCK:
+            break;
+        default:
+            return;
+        }
+    }
+
+    action->group.flags |= ACTION_AUTO_GROUP_LOCK_ON_MODIFIER_RELEASE;
+}
+
 /**
  * This collects a bunch of disparate functions which was done in the server
  * at various points that really should've been done within xkbcomp.  Turns out
@@ -699,7 +730,7 @@ UpdateDerivedKeymapFields(struct xkb_keymap_info *info)
     /* Update action modifiers and fields with pending computations. */
     xkb_keys_foreach(key, keymap) {
         if (!update_pending_key_fields(info, key))
-                return false;
+            return false;
         for (xkb_layout_index_t i = 0; i < key->num_groups; i++) {
             for (xkb_level_index_t j = 0; j < XkbKeyNumLevels(key, i); j++) {
                 if (key->groups[i].levels[j].num_actions <= 1) {
@@ -709,7 +740,12 @@ UpdateDerivedKeymapFields(struct xkb_keymap_info *info)
                     if ((pending_computations ||
                          act->type == ACTION_TYPE_REDIRECT_KEY) &&
                         !update_pending_action_fields(info, key->keycode, act))
+                    {
                         return false;
+                    }
+                    update_auto_group_lock_on_modifier_release(
+                        &key->groups[i].levels[j], j, act
+                    );
                 } else {
                     for (xkb_action_count_t k = 0;
                          k < key->groups[i].levels[j].num_actions; k++) {
@@ -720,7 +756,9 @@ UpdateDerivedKeymapFields(struct xkb_keymap_info *info)
                              act->type == ACTION_TYPE_REDIRECT_KEY) &&
                             !update_pending_action_fields(info, key->keycode,
                                                           act))
+                        {
                             return false;
+                        }
                     }
                 }
             }
