@@ -160,6 +160,9 @@ enum state_flags {
     STATE_UNLOCK_MODS_ON_PRESS = (1 << 2),
 };
 
+static_assert(XKB_MAX_GROUPS <= UINT8_MAX,
+              "Cannot encode group indices in xkb_group_history");
+
 /**
  * Legacy server state, used for `LEGACY_MIXED_STATE` and `LEGACY_SERVER_STATE`
  * modes.
@@ -196,6 +199,32 @@ struct xkb_server_state {
      * the modifier should still be set. This keeps the count.
      */
     int16_t mod_key_count[XKB_MAX_MODS];
+
+    /**
+     * Group history
+     *
+     * Note: `groups->history` shares the allocation of its owner,
+     * thus it is not freed manually.
+     */
+    struct xkb_group_history {
+        /* NOTE: Store layout indices compactly as uint8_t */
+
+        /** Cursor of the main group list, while cycling */
+        uint8_t cursor;
+        /** Count of all keymap groups */
+        uint8_t num_all;
+        /** Main groups count */
+        uint8_t num_main;
+
+        /**
+         * An array of #num_all group indices:
+         * - 0..main - 1: main groups
+         * - main..num - 1: spare groups, if any
+         *
+         * Each slice is ordered from more recently to least recently used.
+         */
+        uint8_t history[] ATTR_COUNTED_BY(num_all);
+    } *groups;
 };
 
 /** Entry to keep track of the state of an overlaid key */
@@ -1935,6 +1964,31 @@ xkb_client_state_init(struct xkb_client_state * restrict state,
     xkb_state_init(&state->base, keymap);
 }
 
+static void
+xkb_server_init_history(struct xkb_server_state * restrict state,
+                        xkb_layout_mask_t main)
+{
+    if (!state->groups)
+        return;
+
+    assert(state->groups);
+    struct xkb_group_history * const groups = state->groups;
+    groups->cursor = 0;
+
+    /* Sanitize input */
+    assert(groups->num_all == state->base.keymap->num_groups);
+    const xkb_layout_mask_t all = (UINT64_C(1) << groups->num_all) - 1;
+    main &= all;
+    assert(main);
+
+    groups->num_main = (uint8_t)popcount32(main);
+    assert(groups->num_main <= groups->num_all);
+
+    /* Initialize layout history with the keymap order */
+    for (uint8_t l = 0; l < groups->num_all; l++)
+        groups->history[l] = l;
+}
+
 static inline enum xkb_status
 xkb_server_state_init(struct xkb_server_state * restrict state,
                       struct xkb_keymap * restrict keymap,
@@ -1950,18 +2004,47 @@ xkb_server_state_init(struct xkb_server_state * restrict state,
              state->a11y_flags |= XKB_A11Y_LATCH_SIMULTANEOUS_KEYS;
     }
 
+    const xkb_layout_mask_t main_groups = keymap->num_groups
+        ? (UINT64_C(1) << keymap->num_groups) - 1
+        : 0;
+    xkb_server_init_history(state, main_groups);
+
     return XKB_SUCCESS;
 }
 
 /**
- * Allocate server state (xkb_server_state or xkb_machine)
+ * Allocate server state (xkb_server_state or xkb_machine) and its pointers
+ * to a contiguous memory region to avoid cache misses.
  */
 #define xkb_server_alloc(state, mode, mode_val, groups, keymap) do { \
     (void)&(state);                                                  \
     const size_t state_size = sizeof(*(state));                      \
-    (state) = calloc(1, state_size);                                 \
-    if (state)                                                       \
+    if ((mode_val) <= SERVER_COMPANION || (keymap)->num_groups < 2) {\
+        /* Do not allocate history */                                \
+        (state) = calloc(1, state_size);                             \
+        if (state)                                                   \
+            (mode) = (mode_val);                                     \
+        break;                                                       \
+    }                                                                \
+    const size_t layout_offset = ALIGN_UP(                           \
+        state_size,                                                  \
+        struct xkb_group_history                                     \
+    );                                                               \
+    const size_t alloc                                               \
+        /* struct xkb_server_state + padding */                      \
+        = layout_offset                                              \
+        /* struct xkb_group_history + flexible array */              \
+        + sizeof(struct xkb_group_history)                           \
+        + sizeof(*((struct xkb_group_history*)0)->history)           \
+        * (keymap)->num_groups;                                      \
+    (state) = calloc(1, alloc);                                      \
+    if (state) {                                                     \
         (mode) = (mode_val);                                         \
+        (groups) = (struct xkb_group_history*)                       \
+                   ((uint8_t*)(state) + layout_offset);              \
+        static_assert(XKB_MAX_GROUPS <= UINT8_MAX, "");              \
+        (groups)->num_all = (uint8_t)(keymap)->num_groups;           \
+    }                                                                \
 } while (0)
 
 static struct xkb_server_state *
@@ -2066,6 +2149,9 @@ xkb_state_ref(struct xkb_state *state)
     return state;
 }
 
+static void
+state_sync_group_history(struct xkb_server_state * restrict state);
+
 void
 xkb_state_reset(struct xkb_state *base_state)
 {
@@ -2078,12 +2164,19 @@ xkb_state_reset(struct xkb_state *base_state)
     } else {
         struct xkb_server_state *state = (struct xkb_server_state *)base_state;
         const struct xkb_server_state prev = *state;
+        struct xkb_group_history *history = state->groups;
         memset(state, 0, sizeof(*state));
 
         state->base = prev.base;
         state->a11y_flags = prev.a11y_flags;
         state->filters = prev.filters;
         darray_size(state->filters) = 0;
+        state->groups = history;
+        const xkb_layout_mask_t main_groups = base_state->keymap->num_groups
+            ? (UINT64_C(1) << base_state->keymap->num_groups) - 1
+            : 0;
+        xkb_server_init_history(state, main_groups);
+        state_sync_group_history(state);
     }
 }
 
@@ -2091,8 +2184,10 @@ static inline void
 xkb_state_destroy(struct xkb_state *state)
 {
     xkb_keymap_unref(state->keymap);
-    if (state->mode > SERVER_COMPANION)
+    if (state->mode > SERVER_COMPANION) {
         darray_free(((struct xkb_server_state *)state)->filters);
+        /* `state->groups` shares the same allocation than its owner. */
+    }
 }
 
 void
@@ -2233,6 +2328,51 @@ xkb_state_update_derived(struct xkb_state *state)
     xkb_state_led_update_all(state);
 }
 
+/**
+ * Restore the invariant `xkb_server_state::groups.history[0] == locked_group`.
+ *
+ * If the locked layout changed by any other means than the “recent” lock action
+ * (e.g. another group action, a synthetic update, a policy wrap), treat it as a
+ * manual selection: move it to the front of the history and break the running
+ * cycle, if any.
+ *
+ * If the new layout was a spare one, the least recently used main layout
+ * becomes the first spare layout; the order of the spares does not matter.
+ */
+static void
+state_sync_group_history(struct xkb_server_state * restrict state)
+{
+    if (!state->groups) {
+        /* Degenerated keymap: no layout! */
+        return;
+    }
+
+    /* Locked group is in range after updating derived components */
+    assert(state->base.components.locked_group >= 0);
+    const uint8_t locked_group = (uint8_t)state->base.components.locked_group;
+    struct xkb_group_history *groups = state->groups;
+    uint8_t * const history = groups->history;
+
+    if (history[0] == locked_group)
+        return;
+
+    /* `locked_group` is in the history, but not at index 0 */
+    uint8_t idx = 1;
+    while (idx < groups->num_all && history[idx] != locked_group) idx++;
+    assert(history[idx] == locked_group);
+
+    memmove(&history[1], &history[0], idx * sizeof(*history));
+    history[0] = locked_group;
+    groups->cursor = 0;
+}
+
+static void
+xkb_server_state_update_derived(struct xkb_server_state * restrict state)
+{
+    xkb_state_update_derived(&state->base);   /* wraps locked_group into range */
+    state_sync_group_history(state);  /* then restore history[0] == locked */
+}
+
 static void
 state_update_enabled_controls(struct xkb_server_state *state,
                               enum xkb_keyboard_control_flags affect_controls,
@@ -2260,7 +2400,7 @@ state_update_enabled_controls(struct xkb_server_state *state,
         clear_all_latches_and_locks(state, events);
     }
 
-    xkb_state_update_derived(&state->base);
+    xkb_server_state_update_derived(state);
 }
 
 /**
@@ -2325,7 +2465,7 @@ xkb_state_update_key(struct xkb_state *base_state, xkb_keycode_t kc,
         }
     }
 
-    xkb_state_update_derived(&state->base);
+    xkb_server_state_update_derived(state);
 
     return get_state_component_changes(&prev_components, &state->base.components);
 }
@@ -2537,7 +2677,7 @@ xkb_state_update_latched_locked(struct xkb_state *base_state,
         .locked_layout = locked_layout
     };
     state_update_latched_locked(state, &update, NULL);
-    xkb_state_update_derived(&state->base);
+    xkb_server_state_update_derived(state);
     return get_state_component_changes(&previous_components,
                                        &state->base.components);
 }
@@ -2623,7 +2763,7 @@ xkb_state_update_synthetic(struct xkb_state * base_state,
         state_update_latched_locked(state, components, NULL);
     }
 
-    xkb_state_update_derived(&state->base);
+    xkb_server_state_update_derived(state);
 
     if (changed) {
         *changed = get_state_component_changes(&previous_components,
@@ -2654,7 +2794,7 @@ state_update_layout_out_of_range_policy(
             }
         }
         state->base.out_of_range_group.mode = policy->mode;
-        xkb_state_update_derived(&state->base);
+        xkb_server_state_update_derived(state);
         return XKB_SUCCESS;
     } else {
         log_err(state->base.keymap->ctx,
@@ -2721,7 +2861,10 @@ xkb_state_update_mask(struct xkb_state *base_state,
     state->base.components.latched_group = (int32_t) latched_group;
     state->base.components.locked_group = (int32_t) locked_group;
 
-    xkb_state_update_derived(&state->base);
+    if (state->base.mode > SERVER_COMPANION)
+        xkb_server_state_update_derived((struct xkb_server_state *)state);
+    else
+        xkb_state_update_derived(&state->base);
 
     return get_state_component_changes(&prev_components, &state->base.components);
 }
@@ -4167,7 +4310,7 @@ xkb_machine_process_synthetic(struct xkb_machine *sm,
         state_update_latched_locked(state, components, events);
     }
 
-    xkb_state_update_derived(&state->base);
+    xkb_server_state_update_derived(&sm->base);
 
     const enum xkb_state_component changed = get_state_component_changes(
         &previous_components, &state->base.components
@@ -4540,6 +4683,9 @@ xkb_machine_process_key(struct xkb_machine *sm,
         // FIXME: fragile if last state change does not restore the state to the remap event
         undo_tweaks(&state->base, &initial_components, events);
     }
+
+    /* Must be after undoing the tweaks, which may alter the locked layout */
+    state_sync_group_history(&sm->base);
 
     const enum xkb_state_component changed = get_state_component_changes(
         &initial_components, &state->base.components

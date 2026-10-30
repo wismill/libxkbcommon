@@ -74,3 +74,12 @@ xkb_pointer_get_tag(const void *ptr)
 {
     return ((uintptr_t)ptr & XKB_POINTER_TAG_MASK);
 }
+
+/**
+ * Helper to align a size up to a specific boundary
+ *
+ * @warning Only pass lvalue as #offset. The guard does not
+ * protect against expression like (x++).
+ */
+#define ALIGN_UP(offset, type) \
+    ((void)&(offset), (((offset) + alignof(type) - 1) & ~(alignof(type) - 1)))
