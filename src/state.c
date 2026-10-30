@@ -2218,7 +2218,7 @@ xkb_state_update_key(struct xkb_state *base_state, xkb_keycode_t kc,
     /* Guard against client-only state */
     assert(base_state->mode > SERVER_COMPANION);
     if (base_state->mode <= SERVER_COMPANION) {
-        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE,
+        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE_,
                 "%s: Unexpected state type %d\n", __func__, base_state->mode);
         return 0;
     }
@@ -2456,7 +2456,7 @@ xkb_state_update_latched_locked(struct xkb_state *base_state,
     /* Guard against client-only state */
     assert(base_state->mode > SERVER_COMPANION);
     if (base_state->mode <= SERVER_COMPANION) {
-        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE,
+        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE_,
                 "%s: Unexpected state type %d\n", __func__, base_state->mode);
         return 0;
     }
@@ -2566,7 +2566,7 @@ xkb_state_update_synthetic(struct xkb_state * base_state,
 {
     /* Guard against client-only state */
     if (base_state->mode <= SERVER_COMPANION) {
-        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE,
+        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE_,
                 "%s: Unexpected state type %d\n", __func__, base_state->mode);
         return XKB_ERROR_UNEXPECTED_STATE_MODE;
     }
@@ -2635,7 +2635,7 @@ xkb_state_update_mask(struct xkb_state *base_state,
            base_state->mode == LEGACY_MIXED_STATE);
     if (base_state->mode != CLIENT_STATE &&
         base_state->mode != LEGACY_MIXED_STATE) {
-        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE,
+        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE_,
                 "%s: Unexpected state type %d\n", __func__, base_state->mode);
         return 0;
     }
