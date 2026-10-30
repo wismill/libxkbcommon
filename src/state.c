@@ -540,14 +540,122 @@ get_state_component_changes(const struct state_components *a,
 }
 
 static void
+xkb_filter_group_lock_recent(struct xkb_server_state * restrict state,
+                             bool reverse)
+{
+    struct xkb_group_history *groups = state->groups;
+    if (!groups) {
+        /* Nothing to cycle through */
+        return;
+    }
+
+    const uint8_t num_main = groups->num_main;
+    uint8_t * const history = groups->history;
+
+    assert(num_main <= groups->num_all);
+    assert(groups->cursor < num_main);
+    uint8_t c = groups->cursor;
+
+    if (reverse) {
+        if (!c) {
+            /* Reverse cycling starts at the end */
+            c = num_main;
+        }
+        if (c - 1 > 0) {
+            /* Next step of the cycle */
+            c--;
+            // TODO
+        } else {
+            /* Wrap */
+            // TODO
+        }
+    } else {
+        if (c + 1 < num_main) {
+            /*
+             * Next step of the cycle: moving the next snapshot entry to the
+             * front (after undoing the previous move) amounts to swapping it
+             * with the current head.
+             */
+            c++;
+            const uint8_t tmp = history[0];
+            history[0] = history[c];
+            history[c] = tmp;
+            groups->cursor = c;
+        } else {
+            /*
+             * Wrap: restore the snapshot, i.e. the history before the cycle.
+             * Rotate [0..c] left by one: the head goes back to index c.
+             */
+            const uint8_t head = history[0];
+            for (uint8_t i = 0; i < c; i++)
+                history[i] = history[i + 1];
+            history[c] = head;
+            groups->cursor = 0;
+        }
+    }
+
+    /* Keeps `history[0] == locked_group`, so the sync is a no-op */
+    static_assert(XKB_MAX_GROUPS < INT32_MAX, "Max groups don't fit");
+    state->base.components.locked_group = (int32_t)history[0];
+}
+
+/* Apply the lock, either on key press or on key release */
+static inline void
+xkb_filter_group_lock_apply(struct xkb_server_state *state,
+                            struct xkb_filter *filter)
+{
+    if (filter->action.group.flags & ACTION_USE_HISTORY) {
+        xkb_filter_group_lock_recent(state, (filter->action.group.group < 0));
+    } else {
+        apply_group_delta(filter, &state->base, locked_group);
+    }
+}
+
+/* `xkb_filter.priv` bits for group lock filters with ACTION_USE_HISTORY */
+enum {
+    GROUP_LOCK_CYCLE,
+    /* Another key was pressed while the key was held: the cycle is broken */
+    GROUP_LOCK_BROKEN,
+};
+
+/*
+ * Check that the key still has the same action as the filter, i.e. that
+ * pressing the key again continues the same "last used" cycle.
+ *
+ * Ignore ACTION_LOCK_ON_RELEASE: it is a runtime flag, which may have been
+ * added by the modifier-key fix or removed by a cancellation.
+ */
+static bool
+xkb_filter_group_lock_same_action(struct xkb_server_state *state,
+                                  const struct xkb_filter *filter,
+                                  const struct xkb_key *key)
+{
+    const union xkb_action *actions = NULL;
+    const xkb_action_count_t count =
+        xkb_key_get_actions(&state->base, key, &actions);
+    for (xkb_action_count_t k = 0; k < count; k++) {
+        if (actions[k].type == filter->action.type &&
+            actions[k].group.group == filter->action.group.group &&
+            !((actions[k].group.flags ^ filter->action.group.flags) &
+            ~ACTION_LOCK_ON_RELEASE))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void
 xkb_filter_group_lock_new(struct xkb_server_state *state,
                           struct xkb_events *events,
                           struct xkb_filter *filter)
 {
-    // FIXME: implement
     if (filter->action.group.flags & ACTION_USE_HISTORY) {
-        filter->func = NULL;
-        return;
+        if (!state->groups) {
+            filter->func = NULL;
+            return;
+        }
+        filter->priv = GROUP_LOCK_CYCLE;
     }
 
     if (filter->action.group.flags & ACTION_LOCK_ON_RELEASE) {
@@ -559,7 +667,7 @@ xkb_filter_group_lock_new(struct xkb_server_state *state,
         return;
     } else {
         /* Lock on key press */
-        apply_group_delta(filter, &state->base, locked_group);
+        xkb_filter_group_lock_apply(state, filter);
     }
 }
 
@@ -570,9 +678,32 @@ xkb_filter_group_lock_func(struct xkb_server_state *state,
                            const struct xkb_key *key,
                            enum xkb_key_direction direction)
 {
+    /*
+     * A “last used’ filter outlives the release of its key while a cycle is
+     * running, in order to detect the next key press, which either continues
+     * or breaks the cycle. Such a *released* filter has `refcnt == 0`.
+     */
+    const bool use_history = (filter->action.group.flags & ACTION_USE_HISTORY);
+    const bool released = use_history && filter->refcnt <= 0;
+    assert(!released || state->groups);
+
     if (key != filter->key) {
-        if ((filter->action.group.flags & ACTION_LOCK_ON_RELEASE) &&
-            direction == XKB_KEY_DOWN) {
+        if (direction != XKB_KEY_DOWN)
+            return XKB_FILTER_CONTINUE;
+
+        /* Another key has been pressed */
+        if (use_history) {
+            /* Break the cycle */
+            state->groups->cursor = 0;
+            if (released) {
+                filter->func = NULL;
+                return XKB_FILTER_CONTINUE;
+            }
+            /* Key still held: wait for its release to clean up */
+            filter->priv = GROUP_LOCK_BROKEN;
+        }
+
+        if (filter->action.group.flags & ACTION_LOCK_ON_RELEASE) {
             /*
              * Another key has been pressed after the locking key:
              * cancel group lock on release.
@@ -580,7 +711,26 @@ xkb_filter_group_lock_func(struct xkb_server_state *state,
              * This is a keymap v2 extension.
              */
             filter->action.group.flags &= ~ACTION_LOCK_ON_RELEASE;
+        } else {
+            /* Already locked on key press: nothing to cancel */
         }
+
+        return XKB_FILTER_CONTINUE;
+    }
+
+    if (released) {
+        /* The key was already released: only a new key press matters */
+        if (direction != XKB_KEY_DOWN)
+            return XKB_FILTER_CONTINUE;
+        /*
+         * The key is pressed again. Do NOT consume the event: the key may
+         * have other actions that need their own filters. Instead, hand over
+         * to the filter that the regular action processing will create: it
+         * continues the cycle iff the cursor is kept.
+         */
+        if (!xkb_filter_group_lock_same_action(state, filter, key))
+            state->groups->cursor = 0;
+        filter->func = NULL;
         return XKB_FILTER_CONTINUE;
     }
 
@@ -595,17 +745,27 @@ xkb_filter_group_lock_func(struct xkb_server_state *state,
             return XKB_FILTER_CONSUME;
     }
 
+    /* Key fully released */
+
     if (filter->action.group.flags & ACTION_LOCK_ON_RELEASE) {
         /*
          * Lock on key release
          *
          * This is a keymap v2 extension.
          */
-        apply_group_delta(filter, &state->base, locked_group);
+        xkb_filter_group_lock_apply(state, filter);
     } else {
         /* Lock on key press: do nothing on key release. */
     }
-    filter->func = NULL;
+
+    if (use_history && state->groups->cursor != 0 &&
+        filter->priv == GROUP_LOCK_CYCLE)
+    {
+        /* Cycle running: linger as a released filter: `refcnt <= 0` */
+    } else {
+        filter->func = NULL;
+    }
+
     return XKB_FILTER_CONTINUE;
 }
 
