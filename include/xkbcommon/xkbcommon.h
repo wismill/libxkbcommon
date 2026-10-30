@@ -5169,6 +5169,343 @@ xkb_machine_set_layout_out_of_range_policy(
 );
 
 /**
+ * @enum xkb_layout_cycle_policy_flags
+ * Flags to control the layout policy update.
+ *
+ * @since 1.14.0
+ */
+enum xkb_layout_cycle_policy_flags {
+    /**
+     * Defaut behavior:
+     * - Preserve history on update.
+     *
+     * @since 1.14.0
+     */
+    XKB_LAYOUT_CYCLE_POLICY_NONE = 0,
+    /**
+     * Reset the history on update.
+     *
+     * Do not preserve previous [main] layouts, expect the [locked] layout.
+     *
+     * @since 1.14.0
+     *
+     * [main]: @ref main-layouts-def
+     * [locked]: @ref locked-group-def
+     */
+    XKB_LAYOUT_CYCLE_POLICY_RESET_HISTORY = (1 << 0),
+};
+
+/**
+ * @struct xkb_layout_cycle_policy
+ * Policy governing how a machine cycles through, and switches between,
+ * the layouts of its keymap.
+ *
+ * ## Model
+ *
+ * The layouts of a keymap are partitioned into a **main** set, which the
+ * last-used action cycles through, and a **spare** set, which is reachable by
+ * direct selection only. The main set is further partitioned into **core**
+ * layouts, which a spare never displaces, and **adjunct** layouts, which it may:
+ *
+ *     layouts = main ⊔ spare
+ *     main    = core ⊔ adjunct
+ *
+ * Both partitions are *exhaustive* and *disjoint*. Equivalently:
+ *
+ *     spare   = layouts ∖ main
+ *     adjunct = main ∖ core
+ *
+ * ## Terminology
+ *
+ * <dl>
+ * <dt>Layouts</dt>
+ * <dd>All the layouts of the keymap, indexed from 0.</dd>
+ *
+ * <dt>Main @anchor main-layouts-def</dt>
+ * <dd>The layouts that the last-used action cycles through.</dd>
+ *
+ * <dt>Spare @anchor spare-layouts-def</dt>
+ * <dd>
+ * The layouts outside the cycle. A spare joins [main] layouts only when
+ * it is selected explicitly.
+ * </dd>
+ *
+ * <dt>Core @anchor core-layouts-def</dt>
+ * <dd>
+ * [Main][main] layouts that a [spare] never displaces. A core layout may
+ * change position in the cycle, but it stays in [main] layouts as long as
+ * the policy is unchanged.
+ * </dd>
+ *
+ * <dt>Adjunct @anchor adjunct-layouts-def</dt>
+ * <dd>[Main][main] layouts that a [spare] may displace.</dd>
+ *
+ * <dt>History @anchor layout-history-def</dt>
+ * <dd>
+ * The order of all the layouts: first the [main] layouts, from
+ * the most to the least recently used, then the [spare] layouts, in no
+ * specified order. Every entry is unique.
+ * </dd>
+ * </dl>
+ *
+ * [main]: @ref main-layouts-def
+ * [spare]: @ref spare-layouts-def
+ * [core]: @ref core-layouts-def
+ * [adjunct]: @ref adjunct-layouts-def
+ * [history]: @ref layout-history-def
+ *
+ * Transitions are named as follows:
+ *
+ * <dl>
+ * <dt>Promote @anchor layout-promotion-def</dt>
+ * <dd>A layout moves from [spare] to [main] layouts.</dd>
+ * <dt>Demote @anchor layout-demotion-def</dt>
+ * <dd>A layout moves from [main] to [spare] layouts.</dd>
+ * </dl>
+ *
+ * [promotes]: @ref layout-promotion-def
+ * [promoted]: @ref layout-promotion-def
+ * [demotes]: @ref layout-demotion-def
+ * [demoted]: @ref layout-demotion-def
+ *
+ * ## History
+ *
+ *     history = [ main layouts | spare layouts ]
+ *                ^^^^^^^^^^^^^   ^^^^^^^^^^^^^
+ *                0 .. |main|-1   |main| .. |layouts|-1
+ *
+ * The [locked layout] is always `history[0]`. Whenever the [locked layout]
+ * changes, by any means other than the last-used action itself (a key, a
+ * synthetic update, etc.), it is moved to the front of `history`: the relative
+ * order of the other [main] layouts is preserved. If the layout was a [spare], it
+ * is [promoted] (see: @ref selecting-a-spare "").
+ *
+ * [locked layout]: @ref locked-group-def
+ *
+ * ## Cycling
+ *
+ * Cycling is driven by an action that locks the special group `Recent`, e.g.
+ * `LockGroup(group=Recent)`. A **cycle** is a run of consecutive activations of
+ * the same key:
+ *
+ * - The *first* activation freezes the order of the main layouts.
+ * - The *n-th* activation locks the n-th most recently used [main] layout of
+ *   that frozen order, counting the [locked layout] as the 0-th, and wrapping
+ *   around after the last one.
+ * - Whenever the cycle ends, the [locked layout] is the most recently used one
+ *   and the other [main] layouts keep their relative order.
+ *
+ * Example, with [main] layouts A, B, C (A locked) and no interruption:
+ *
+ *     A B C → B A C → C A B → A B C → …
+ *
+ * If another key is pressed in between, the next activation starts a new cycle,
+ * so it switches to the previously used layout:
+ *
+ *     A B C → B A C → (other key) → A B C
+ *
+ * If `|main| = 1`, the action does nothing.
+ *
+ * A cycle is interrupted when any of the following happens:
+ *
+ * - another key is pressed (key repeats and key releases do not count);
+ * - the [locked layout] changes by any means other than the cycle itself,
+ *   e.g. a lock action on another key or a synthetic update;
+ * - the key is pressed again, but its action at the current level is no
+ *   longer the action that started the cycle;
+ * - a policy is applied that changes the history or `|main|`.
+ *
+ * ## Selecting a spare
+ *
+ * A [spare] layout may be selected manually, e.g. via a shortcut or a user
+ * interface, or programmatically. It is never selected by the last-used action.
+ *
+ * Selecting a [spare] [promotes][promoted] it into `main` and locks it, so it
+ * becomes `history[0]`. To keep `|main|` constant, the *last [adjunct]* of
+ * [`history`][history], i.e. the least recently used one, is demoted in
+ * exchange. If the only [adjunct] is the layout locked until now, that one is
+ * [demoted]. The demoted layout takes an unspecified position among the spares.
+ *
+ * Example, with `main = {A, B, C}`, `core = {C}`, `history = A B C | D E`:
+ *
+ *     select E → E A C | D B     (B is the last adjunct)
+ *     select D → D E C | A B     (A is the last adjunct)
+ *     select C → C D E | A B     (C is already main: nothing is demoted)
+ *
+ * @remark The order of the [spare] layouts shown after `|` is only an
+ * illustration. Spare layouts have no meaningful order.
+ *
+ * ## Default policy
+ *
+ * Until a policy is applied, every layout is main and no layout is core: the
+ * cycle goes through all the layouts in recency order, and nothing is spare.
+ *
+ * ## Initial order
+ *
+ * The policy carries no explicit order. When a policy is applied to a machine
+ * that has no [history] yet, the initial [history] is derived as follows:
+ *
+ * 1. the [locked layout];
+ * 2. then the other [main] layouts, in layout index order;
+ * 3. then the [spare] layouts, in layout index order.
+ *
+ * ## Applying a policy to a machine that already has one
+ *
+ * The machine does not retain the structure nor the pointer to it. It retains
+ * the derived state: the number of [main] layouts and the set of [core] layouts.
+ * Every call supplies a complete policy: there is no partial update.
+ *
+ * The [history] is preserved as far as the new policy allows:
+ *
+ * 1. The count of [main] layouts is set to `|main|`.
+ * 2. The [core] layouts are guaranteed to be in main.
+ * 3. The [locked layout] is guaranteed to be main.
+ * 4. Guarantees 2–3 are hard; the rules below fill the remaining slots,
+ *    in order.
+ * 5. If `::XKB_LAYOUT_CYCLE_POLICY_RESET_HISTORY` is set, the history is
+ *    reinitialized with the new [main] and [core], then sync with the
+ *    [locked layout]. Rules 6–9 do not apply.
+ * 6. Otherwise the [history] is rebuilt only when `|main|` grows or a [core]
+ *    layout lies outside the first `|main|` entries. Then: layouts that leave
+ *    [main] are retained while [adjunct] capacity allows, in previous-[main]
+ *    order (most recent first), each displacing the remaining [adjunct] with
+ *    the highest layout index; the remaining slots are filled by entering
+ *    [core] layouts, then entering policy mains in layout index order; kept
+ *    layouts preserve their previous relative order, entrants are appended in
+ *    layout index order.
+ * 7. Otherwise the current order is preserved and the block is truncated to the
+ *    new `|main|`.
+ * 8. A layout that stays in the policy’s [main] may still be [demoted] in favor of
+ *    a retained leaver: only [core] and [locked layout] are guaranteed.
+ * 9. Resulting [main] is ordered as:
+ *    1. [locked layout];
+ *    2. layouts from the previous [main], if any, in their original order;
+ *    3. remaining layouts, if any, in RMLVO order.
+ * 10. Applying a policy that changes neither the [history] nor `|main|` does not
+ *    interrupt a running cycle.
+ *
+ * @note Applying a policy and locking a layout are two separate operations. To
+ * avoid displacing a layout twice, lock a layout that is [main] in the new
+ * policy before applying it, or accept that the previously [locked layout]
+ * remains [main] if it was not.
+ *
+ * ## Validation
+ *
+ * A policy is rejected unless all the following hold:
+ *
+ * - the machine’s keymap has at most 32 layouts, the width of the masks;
+ * - every bit set in either mask denotes an existing layout;
+ * - #main_mask is not empty;
+ * - #core_mask is a subset of #main_mask;
+ * - if there is at least one [spare] layout, #core_mask is a proper subset of
+ *   #main_mask: at least one [adjunct] must exist, otherwise there would be no
+ *   layout to displace when a [spare] is selected.
+ *
+ * ## Degenerated configurations
+ *
+ * - If there is no [spare] layout, every layout is [main], [`core`][core] may
+ *   equal [`main`][main], and nothing is ever displaced.
+ * - If [`core`][core] is empty, no layout is protected: the cycle is a pure
+ *   recency order and the whole [main] set behaves as [adjunct].
+ * - If `|main| = 1`, the last-used action does nothing, but [spare] layouts can
+ *   still be selected and displace the single [adjunct], if any.
+ *
+ * @since 1.14.0
+ *
+ * @sa `xkb_machine::xkb_machine_set_layout_cycle_policy()`
+ */
+struct xkb_layout_cycle_policy {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Mask of [policy flags].
+     *
+     * @sa xkb_layout_cycle_policy_flags
+     *
+     * @since 1.14.0
+     *
+     * [policy flags]: @ref xkb_layout_cycle_policy_flags
+     */
+    uint32_t flags;
+    /**
+     * Mask of the <strong>[main]</strong> layouts.
+     *
+     * Bit @c i set means that layout @c i is a main layout. It must not be
+     * empty, and bits of layouts that do not exist in the keymap must be clear.
+     *
+     * @since 1.14.0
+     *
+     * [main]: @ref main-layouts-def
+     */
+    xkb_layout_mask_t main_mask;
+    /**
+     * Mask of the <strong>[core]</strong> layouts, i.e. the [main] layouts
+     * that a [spare] never displaces.
+     *
+     * Must be a subset of #main_mask, and a proper subset of it if the
+     * keymap has at least one [spare] layout.
+     *
+     * @since 1.14.0
+     *
+     * [core]: @ref core-layouts-def
+     * [main]: @ref main-layouts-def
+     * [spare]: @ref spare-layouts-def
+     */
+    xkb_layout_mask_t core_mask;
+};
+
+/**
+ * Apply a [layout cycle policy][policy] to a [state machine].
+ * @memberof xkb_machine
+ *
+ * Updates the machine’s layout cycling state according to @p policy. The
+ * machine does not retain @p policy, but only the state derived from it. If the
+ * machine already has a history, it is migrated as described in
+ * @ref xkb_layout_cycle_policy.
+ *
+ * @note This function tries to retain as much history as possible, except if
+ * `::XKB_LAYOUT_CYCLE_POLICY_RESET_HISTORY` was set.
+ * @note In order to force a specific order, use
+ * `struct xkb_layout_history_update`
+ * via `xkb_machine::xkb_machine_process_synthetic()`.
+ *
+ * @param[in,out] machine
+ *   The `xkb_machine` object to modify.
+ * @param[in] policy
+ *   The [policy] to apply.
+ *
+ * @pre @p policy must point to a zero-initialized struct with
+ * [`policy->size`](@ref xkb_layout_cycle_policy::size) set per
+ * @ref abi-struct-contract.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code].
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution
+ * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX`
+ *
+ * @post On failure, the machine is left unchanged.
+ *
+ * @sa `struct xkb_layout_cycle_policy`
+ *
+ * @since 1.14.0
+ *
+ * [error code]: @ref xkb_status
+ * [state machine]: @ref xkb_machine
+ * [policy]: @ref xkb_layout_cycle_policy
+ */
+XKB_EXPORT enum xkb_status
+xkb_machine_set_layout_cycle_policy(
+    struct xkb_machine *machine,
+    const struct xkb_layout_cycle_policy *policy
+);
+
+/**
  * Process a key event – a pair ([keycode], [direction]) – through the XKB
  * [state machine], and collect the resulting [keyboard events] into an
  * [event batch].
@@ -5369,6 +5706,7 @@ struct xkb_state_components_update {
  * @sa `struct xkb_synthetic_update`
  * @sa `xkb_state::xkb_state_update_synthetic()`
  * @sa `xkb_machine::xkb_machine_process_synthetic()`
+ * @sa `xkb_machine::xkb_machine_set_layout_cycle_policy()`.
  *
  * @since 1.14.0
  */

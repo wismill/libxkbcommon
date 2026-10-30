@@ -187,6 +187,12 @@ enum xkb_feature {
      */
     XKB_FEATURE_ENUM_STATE_MODE = 24200,
     /**
+     * The enumeration @ref xkb_layout_cycle_policy_flags
+     *
+     * @since 1.14.0
+     */
+    XKB_FEATURE_ENUM_LAYOUT_CYCLE_POLICY_FLAGS = 24320,
+    /**
      * The enumeration @ref xkb_state_match
      *
      * @since 1.14.0

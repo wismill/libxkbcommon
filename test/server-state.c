@@ -7119,6 +7119,249 @@ test_machine_builder_shortcut_layout_update(struct xkb_context *context)
     }
 }
 
+static void
+test_layout_cycle_policy(struct xkb_context *ctx)
+{
+    struct xkb_events * const events = xkb_events_new(ctx, NULL, NULL);
+
+    enum { max_history = 4 };
+    struct policy_test {
+        struct xkb_layout_cycle_policy policy;
+        enum xkb_status status;
+        xkb_layout_index_t history[max_history];
+        // TODO: reset history
+    };
+
+    static const struct policy_test degenerated_keymap[] = {
+        {
+            .policy = {
+                .main_mask = 0x0,
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
+        },
+        {
+            .policy = {
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
+        },
+    };
+
+    static const struct policy_test simple_keymap[] = {
+        {
+            .policy = {
+                .main_mask = 0x0, /* invalid */
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
+        },
+        {
+            /* |main| = 1 */
+            .policy = {
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 1, 2, 3},
+        },
+        {
+            /* |main| = 1 */
+            .policy = {
+                .main_mask = 0x2,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            .policy = {
+                .main_mask = 0x20,  /* invalid */
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
+        },
+        {
+            .policy = {
+                .main_mask = 0x1,
+                .core_mask = 0x1,  /* invalid (not a proper subset) */
+            },
+            .status = XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX,
+        },
+        {
+            /* |main| = 2 (increase) */
+            .policy = {
+                .main_mask = 0x3,
+                .core_mask = 0x1,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 2 */
+            .policy = {
+                .main_mask = 0x3,
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 2 */
+            .policy = {
+                .main_mask = 0x6, /* #0 not included */
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 2 */
+            .policy = {
+                .main_mask = 0x5, /* #1 not included */
+                .core_mask = 0x1, /* #0 */
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 2 */
+            .policy = {
+                .main_mask = 0x5,
+                .core_mask = 0x4, /* #2 not in previous main */
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 2, 1, 3}, /* changed: core requirement */
+        },
+        {
+            /* |main| = 3 (increase) */
+            .policy = {
+                .main_mask = 0x7,
+                .core_mask = 0x4,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 2, 1, 3}, /* changed: promotion in RMLVO order */
+        },
+        {
+            /* |main| = 2 (decrease) */
+            .policy = {
+                .main_mask = 0x6,
+                .core_mask = 0x4,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 2, 1, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 3 (increase) */
+            .policy = {
+                .main_mask = 0xe,
+                .core_mask = 0xc,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 2, 3, 1}, /* changed: core requirement */
+        },
+        {
+            /* |main| = 2 (decrease) */
+            .policy = {
+                .main_mask = 0x6,
+                .core_mask = 0x4,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 2, 3, 1}, /* unchanged */
+        },
+        {
+            /* |main| = 4 (increase) */
+            .policy = {
+                .main_mask = 0xf,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .history = {0, 2, 1, 3}, /* changed: promoted in RMLVO order */
+        },
+    };
+
+    static const struct {
+        const char *keymap;
+        size_t num_policies;
+        const struct policy_test *policies ATTR_COUNTED_BY(num_policies);
+    } tests[] = {
+        /* Degenerated keymap */
+        {
+            .keymap = "xkb_keymap {};",
+            .num_policies = ARRAY_SIZE(degenerated_keymap),
+            .policies = degenerated_keymap,
+        },
+        /* Simple keymap */
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes { <> = 1; };\n"
+                "  xkb_symbols { key <> {[0], [1], [2], [3]}; };\n"
+                "};",
+            .num_policies = ARRAY_SIZE(simple_keymap),
+            .policies = simple_keymap,
+        },
+    };
+
+    xkb_layout_index_t history[max_history] = {0};
+
+    for (size_t t = 0; t < ARRAY_SIZE(tests); t++) {
+        struct xkb_keymap * const keymap = xkb_keymap_new_from_buffer(
+            ctx, tests[t].keymap, strlen(tests[t].keymap),
+            XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS
+        );
+        assert(keymap);
+        struct xkb_machine_builder *builder =
+            xkb_machine_builder_new(keymap, NULL, NULL);
+        assert(builder);
+        struct xkb_machine *sm = xkb_machine_new(builder, NULL);
+        assert(sm);
+        struct xkb_state *state = xkb_machine_get_state(sm);
+        const xkb_layout_index_t num_layouts = xkb_keymap_num_layouts(keymap);
+        /* This enables to check also the hidden spares */
+        assert((size_t)num_layouts <= ARRAY_SIZE(tests[t].policies[0].history));
+
+        for (size_t p = 0; p < tests[t].num_policies; p++) {
+            fprintf(stderr, "------\n*** %s: keymap #%zu, policy %zu ***\n",
+                    __func__, t, p);
+            const struct policy_test * const policy_test = &tests[t].policies[p];
+            struct xkb_layout_cycle_policy policy = {
+                .size = sizeof(policy),
+                .flags = 0x100,
+                .main_mask = policy_test->policy.main_mask,
+                .core_mask = policy_test->policy.core_mask,
+            };
+            assert(xkb_machine_set_layout_cycle_policy(sm, &policy) ==
+                   XKB_ERROR_INVALID);
+            policy.flags = 0;
+            assert(xkb_machine_set_layout_cycle_policy(sm, &policy) ==
+                   policy_test->status);
+            if (policy_test->status != XKB_SUCCESS)
+                continue;
+            xkb_layout_index_t count = 0;
+            const enum xkb_status status = xkb_state_get_layout_history(
+                state, history, ARRAY_SIZE(history), &count
+            );
+            assert(status == XKB_SUCCESS ||
+                   status == XKB_ERROR_INVALID);
+            if (status != XKB_SUCCESS)
+                continue;
+            assert((size_t)count <= ARRAY_SIZE(policy_test->history));
+            assert_buffer_eq("history", policy_test->history, history,
+                             num_layouts, "%"PRIu32);
+        }
+
+        xkb_machine_builder_unref(builder);
+        xkb_machine_unref(sm);
+        xkb_keymap_unref(keymap);
+    }
+
+    // TODO: test XKB_LAYOUT_CYCLE_POLICY_RESET_HISTORY
+
+    xkb_events_destroy(events);
+}
+
 int
 main(void)
 {
@@ -7180,6 +7423,7 @@ main(void)
     test_shortcuts_tweak(context);
     test_xkb_machine_builder_mods_remap_update(context);
     test_machine_builder_shortcut_layout_update(context);
+    test_layout_cycle_policy(context);
 
     xkb_context_unref(context);
     return EXIT_SUCCESS;

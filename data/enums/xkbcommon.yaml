@@ -159,6 +159,11 @@ xkb_layout_out_of_range_mode:
     value: 1
   - name: XKB_LAYOUT_OUT_OF_RANGE_REDIRECT
     value: 2
+xkb_layout_cycle_policy_flags:
+  - name: XKB_LAYOUT_CYCLE_POLICY_NONE
+    value: 0
+  - name: XKB_LAYOUT_CYCLE_POLICY_RESET_HISTORY
+    value: 1
 xkb_state_mode:
   - name: XKB_STATE_MODE_CLIENT
     value: 0

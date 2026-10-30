@@ -193,6 +193,10 @@ enum xkb_enumerations_values {
         | (1u << XKB_LAYOUT_OUT_OF_RANGE_CLAMP)
         | (1u << XKB_LAYOUT_OUT_OF_RANGE_REDIRECT)
     ,
+    XKB_LAYOUT_CYCLE_POLICY_FLAGS_VALUES
+        = XKB_LAYOUT_CYCLE_POLICY_NONE
+        | XKB_LAYOUT_CYCLE_POLICY_RESET_HISTORY
+    ,
     XKB_STATE_MODE_VALUES
         = (1u << XKB_STATE_MODE_CLIENT)
         | (1u << XKB_STATE_MODE_SERVER_QUERY)
@@ -500,6 +504,18 @@ enum xkb_layout_out_of_range_mode_bounds {
 };
 
 #ifdef ENABLE_PRIVATE_APIS
+static const uint32_t xkb_layout_cycle_policy_flags_values[] = {
+    XKB_LAYOUT_CYCLE_POLICY_NONE,
+    XKB_LAYOUT_CYCLE_POLICY_RESET_HISTORY,
+};
+#endif
+
+enum xkb_layout_cycle_policy_flags_bounds {
+    _XKB_LAYOUT_CYCLE_POLICY_FLAGS_MIN = XKB_LAYOUT_CYCLE_POLICY_NONE,
+    _XKB_LAYOUT_CYCLE_POLICY_FLAGS_MAX = XKB_LAYOUT_CYCLE_POLICY_RESET_HISTORY,
+};
+
+#ifdef ENABLE_PRIVATE_APIS
 static const uint32_t xkb_state_mode_values[] = {
     XKB_STATE_MODE_CLIENT,
     XKB_STATE_MODE_SERVER_QUERY,
@@ -645,6 +661,7 @@ static const uint32_t xkb_feature_values[] = {
     XKB_FEATURE_ENUM_A11Y_FLAGS,
     XKB_FEATURE_ENUM_KEYBOARD_CONTROL_FLAGS,
     XKB_FEATURE_ENUM_STATE_MODE,
+    XKB_FEATURE_ENUM_LAYOUT_CYCLE_POLICY_FLAGS,
     XKB_FEATURE_ENUM_STATE_MATCH,
     XKB_FEATURE_ENUM_CONSUMED_MODE,
     XKB_FEATURE_ENUM_MACHINE_BUILDER_FLAGS,
@@ -664,5 +681,5 @@ static const uint32_t xkb_feature_values[] = {
 enum xkb_feature_bounds {
     _XKB_FEATURE_MIN = XKB_FEATURE_ENUM_FEATURE,
     _XKB_FEATURE_MAX = XKB_FEATURE_ENUM_COMPOSE_FEED_RESULT,
-    _XKB_FEATURE_NUM = 29,
+    _XKB_FEATURE_NUM = 30,
 };
