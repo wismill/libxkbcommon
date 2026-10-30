@@ -3792,7 +3792,7 @@ Group index:
 
   @since 1.14
   </dd>
-  <dt>`Recent`</dt>
+  <dt>`Recent` @anchor recent-group-index-def</dt>
   <dd>
   Denotes either the *previously used* group (`+Recent`, `Recent`) or
   the *least recently used* group (`-Recent`), depending on the sign before it.
