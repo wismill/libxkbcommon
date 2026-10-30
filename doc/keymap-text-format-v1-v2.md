@@ -3792,6 +3792,14 @@ Group index:
 
   @since 1.14
   </dd>
+  <dt>`Recent`</dt>
+  <dd>
+  Denotes either the *most* (`+Recent`) or the *least* (`-Recent`) recent
+  group, depending on the sign before it. It has no fixed value: it depends on
+  the group *history*.
+
+  @since 1.14
+  </dd>
   </dl>
 - either absolute (no sign) or relative (`+`/`-` sign)
 </td>
@@ -3899,6 +3907,8 @@ See further details [hereinafter](@ref lock-group-action-effects)
 <th>`SetGroup` @anchor set-group-action-effects</th>
 <td>
 
+@todo Recent
+
 - If the `group` parameter is *absolute*, key press events sets the *base*
   keyboard group to `group`.
 - Otherwise, it adds `group` to the *base* keyboard group.
@@ -3916,6 +3926,8 @@ parameter is set, key release also sets the *locked* keyboard group to `Group1`.
 <tr>
 <th>`LatchGroup` @anchor latch-group-action-effects</th>
 <td>
+
+@todo Recent
 Same as `SetGroup`.
 </td>
 <td>
@@ -3942,6 +3954,13 @@ additional effects:
 
 - If `lockOnRelease` is set, then key press has no effect.
 - Otherwise:
+  - if `group` is `Recent`:
+    - if no group cycle is active, then a cycle is started and the action
+      actuates as if `group` was set to the relative value resulting in the
+      effective group equal to the *most-recent* group.
+      The cycle is broken whenever another key is pressed.
+    - otherwise the cycle continues with the next group in group history.
+      After iterating all groups, the cycle restarts at the *most-recent* group.
   - if the `group` is absolute, key press sets the *locked* keyboard group to
     `group`;
   - otherwise, key press adds `group` to the *locked* keyboard group.

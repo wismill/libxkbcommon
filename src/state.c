@@ -433,6 +433,12 @@ xkb_filter_group_set_new(struct xkb_server_state *state,
                          struct xkb_events *events,
                          struct xkb_filter *filter)
 {
+    // FIXME: implement
+    if (filter->action.group.flags & ACTION_USE_HISTORY) {
+        filter->func = NULL;
+        return;
+    }
+
     static_assert(sizeof(state->base.components.base_group) ==
                   sizeof(filter->priv),
                   "Max groups don't fit");
@@ -509,6 +515,12 @@ xkb_filter_group_lock_new(struct xkb_server_state *state,
                           struct xkb_events *events,
                           struct xkb_filter *filter)
 {
+    // FIXME: implement
+    if (filter->action.group.flags & ACTION_USE_HISTORY) {
+        filter->func = NULL;
+        return;
+    }
+
     if (filter->action.group.flags & ACTION_LOCK_ON_RELEASE) {
         /*
          * Lock on key release: do nothing on key press.
@@ -632,6 +644,12 @@ xkb_filter_group_latch_new(struct xkb_server_state *state,
                            struct xkb_events *events,
                            struct xkb_filter *filter)
 {
+    // FIXME: implement
+    if (filter->action.group.flags & ACTION_USE_HISTORY) {
+        filter->func = NULL;
+        return;
+    }
+
     const union group_latch_priv priv = {
         .latch = LATCH_KEY_DOWN,
         .group_delta = (filter->action.group.flags & ACTION_ABSOLUTE_SWITCH)

@@ -17,15 +17,16 @@
 #include <assert.h>
 
 #include "xkbcommon/xkbcommon.h"
+#include "action.h"
 #include "context.h"
 #include "darray.h"
+#include "expr.h"
 #include "keymap.h"
 #include "messages-codes.h"
+#include "xkbcomp/ast.h"
 #include "xkbcomp-priv.h"
 #include "text.h"
-#include "expr.h"
-#include "xkbcomp/ast.h"
-#include "action.h"
+#include "utils.h"
 
 static const ExprBoolean constTrue = {
     .common = { .type = STMT_EXPR_BOOLEAN_LITERAL, .next = NULL },
@@ -379,6 +380,7 @@ CheckGroupField(const struct xkb_keymap_info *keymap_info,
         return ReportActionNotArray(keymap_info->keymap.ctx, action,
                                     ACTION_FIELD_GROUP, keymap_info->strict);
 
+    /* Check relative or absolute */
     if (value->common.type == STMT_EXPR_NEGATE ||
         value->common.type == STMT_EXPR_UNARY_PLUS) {
         flags &= ~ACTION_ABSOLUTE_SWITCH;
@@ -388,6 +390,41 @@ CheckGroupField(const struct xkb_keymap_info *keymap_info,
         flags |= ACTION_ABSOLUTE_SWITCH;
         spec = value;
     }
+
+    /* Check special values */
+    if (spec->common.type == STMT_EXPR_IDENT) {
+        const char *str = xkb_atom_text(keymap_info->keymap.ctx,
+                                        spec->ident.ident);
+        if (istreq(str, GROUP_RECENT_INDEX_NAME)) {
+            /* Special value: Recent */
+            if (keymap_info->features.flags & FEATURE_GROUP_USE_HISTORY) {
+                flags |= ACTION_USE_HISTORY;
+                /* Force relative value */
+                flags &= ~ACTION_ABSOLUTE_SWITCH;
+                /* Save sign */
+                if (value->common.type == STMT_EXPR_NEGATE)
+                    *group_rtrn = -1;
+                else
+                    *group_rtrn = 1;
+                goto out;
+            } else {
+                log_err(keymap_info->keymap.ctx,
+                        XKB_ERROR_INCOMPATIBLE_KEYMAP_TEXT_FORMAT,
+                        "%s(%s=%s" GROUP_RECENT_INDEX_NAME ") "
+                        "requires keymap text format v2, but got: %d; "
+                        "Action definition ignored\n",
+                        ActionTypeText(action), fieldText(ACTION_FIELD_GROUP),
+                        (value->common.type == STMT_EXPR_NEGATE) ? "-" : "",
+                        keymap_info->keymap.format);
+                return (keymap_info->strict & PARSER_NO_UNKNOWN_ACTION_FIELDS)
+                    ? PARSER_FATAL_ERROR
+                    /* No error reported: field is just ignored */
+                    : PARSER_SUCCESS;
+            }
+        }
+    }
+
+    flags &= ~ACTION_USE_HISTORY;
 
     const bool absolute = (flags & ACTION_ABSOLUTE_SWITCH);
     bool pending = false;
@@ -428,6 +465,7 @@ CheckGroupField(const struct xkb_keymap_info *keymap_info,
         }
     }
 
+out:
     *flags_inout = flags;
     return PARSER_SUCCESS;
 }

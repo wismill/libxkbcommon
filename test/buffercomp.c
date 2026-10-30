@@ -2877,6 +2877,154 @@ test_keymap_from_rules(struct xkb_context *ctx)
 }
 
 static void
+test_recent_group(struct xkb_context *ctx, bool update_output_files)
+{
+    struct {
+        const char * const keymap;
+        const char * const v1;
+        const char * const v2;
+        const char * const v2_v1;
+    } tests[] = {
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes { <> = 1; };\n"
+                "  xkb_symbols {\n"
+                "    key <> {\n"
+                "      [SetGroup(group=Recent)],\n"
+                "      [LatchGroup(group=Recent)],\n"
+                "      [LockGroup(group=Recent)]\n"
+                "    };\n"
+                "  };\n"
+                "};",
+            .v1 = NULL,
+            .v2 = GOLDEN_TESTS_OUTPUTS "recent-group-v2.xkb",
+            .v2_v1 = GOLDEN_TESTS_OUTPUTS "recent-group-v2-v1.xkb",
+        },
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes { <> = 1; };\n"
+                "  xkb_symbols {\n"
+                "    key <> {\n"
+                "      [SetGroup(group=+Recent)],\n"
+                "      [LatchGroup(group=+Recent)],\n"
+                "      [LockGroup(group=+Recent)]\n"
+                "    };\n"
+                "  };\n"
+                "};",
+            .v1 = NULL,
+            .v2 = GOLDEN_TESTS_OUTPUTS "recent-group-v2.xkb",
+            .v2_v1 = GOLDEN_TESTS_OUTPUTS "recent-group-v2-v1.xkb",
+        },
+        {
+            .keymap =
+            "xkb_keymap {\n"
+            "  xkb_keycodes { <> = 1; };\n"
+            "  xkb_symbols {\n"
+            "    key <> {\n"
+            "      [SetGroup(group=-Recent)],\n"
+            "      [LatchGroup(group=-Recent)],\n"
+            "      [LockGroup(group=-Recent)]\n"
+            "    };\n"
+            "  };\n"
+            "};",
+            .v1 = NULL,
+            .v2 = GOLDEN_TESTS_OUTPUTS "recent-group-v2-signed.xkb",
+            .v2_v1 = GOLDEN_TESTS_OUTPUTS "recent-group-v2-v1.xkb",
+        },
+        {
+            // TODO: This should be accepted
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes { <> = 1; };\n"
+                "  xkb_symbols {\n"
+                "    key <> {\n"
+                "      [SetGroup(group=(Recent))],\n"
+                "      [LatchGroup(group=(Recent))],\n"
+                "      [LockGroup(group=(Recent))]\n"
+                "    };\n"
+                "  };\n"
+                "};",
+            .v1 = NULL,
+            .v2 = GOLDEN_TESTS_OUTPUTS "recent-group-v2.xkb",
+            .v2_v1 = GOLDEN_TESTS_OUTPUTS "recent-group-v2-v1.xkb",
+        },
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes { <> = 1; };\n"
+                "  xkb_symbols {\n"
+                "    key <> {\n"
+                "      [SetGroup(group=-(Recent))],\n"
+                "      [LatchGroup(group=-(Recent))],\n"
+                "      [LockGroup(group=-(Recent))]\n"
+                "    };\n"
+                "  };\n"
+                "};",
+            .v1 = NULL,
+            .v2 = GOLDEN_TESTS_OUTPUTS "recent-group-v2-signed.xkb",
+            .v2_v1 = GOLDEN_TESTS_OUTPUTS "recent-group-v2-v1.xkb",
+        },
+        {
+            .keymap =
+                "xkb_keymap {\n"
+                "  xkb_keycodes { <> = 1; };\n"
+                "  xkb_symbols {\n"
+                "    key <> {\n"
+                "      [SetGroup(group=(-Recent))],\n"
+                "      [LatchGroup(group=(-Recent))],\n"
+                "      [LockGroup(group=(-Recent))]\n"
+                "    };\n"
+                "  };\n"
+                "};",
+            .v1 = NULL,
+            .v2 = GOLDEN_TESTS_OUTPUTS "recent-group-v2-signed.xkb",
+            .v2_v1 = GOLDEN_TESTS_OUTPUTS "recent-group-v2-v1.xkb",
+        },
+        {
+            .keymap =
+            "xkb_keymap {\n"
+            "  xkb_keycodes { <> = 1; };\n"
+            "  xkb_symbols { key <> { [SetGroup(group=1+Recent)] }; };\n"
+            "};",
+            .v1 = NULL,
+            .v2 = NULL,
+            .v2_v1 = NULL,
+        },
+        {
+            .keymap =
+            "xkb_keymap {\n"
+            "  xkb_keycodes { <> = 1; };\n"
+            "  xkb_symbols { key <> { [SetGroup(group=Recent + 1)] }; };\n"
+            "};",
+            .v1 = NULL,
+            .v2 = NULL,
+            .v2_v1 = NULL,
+        },
+    };
+
+    for (unsigned int t = 0; t < ARRAY_SIZE(tests); t++) {
+        fprintf(stderr, "------\n*** %s: #%u ***\n", __func__, t);
+        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V1,
+                                   XKB_KEYMAP_FORMAT_TEXT_V1,
+                                   compile_buffer, NULL, __func__,
+                                   tests[t].keymap, strlen(tests[t].keymap),
+                                   tests[t].v1, update_output_files));
+        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
+                                   XKB_KEYMAP_FORMAT_TEXT_V2,
+                                   compile_buffer, NULL, __func__,
+                                   tests[t].keymap, strlen(tests[t].keymap),
+                                   tests[t].v2, update_output_files));
+        assert(test_compile_output(ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
+                                   XKB_KEYMAP_FORMAT_TEXT_V1,
+                                   compile_buffer, NULL, __func__,
+                                   tests[t].keymap, strlen(tests[t].keymap),
+                                   tests[t].v2_v1, update_output_files));
+    }
+}
+
+static void
 test_redirect_key(struct xkb_context *ctx, bool update_output_files)
 {
     const struct keymap_test_data tests[] = {
@@ -3533,6 +3681,7 @@ main(int argc, char *argv[])
     test_no_action_void_action(ctx, update_output_files);
     test_prebuilt_keymap_roundtrip(ctx, update_output_files);
     test_keymap_from_rules(ctx);
+    test_recent_group(ctx, update_output_files);
     test_redirect_key(ctx, update_output_files);
     test_unsupported_legacy_x11_actions(ctx, update_output_files);
     test_overlays(ctx, update_output_files);

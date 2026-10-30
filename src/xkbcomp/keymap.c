@@ -805,6 +805,8 @@ CompileKeymap(XkbFile *file, struct xkb_keymap *keymap)
     enum keymap_features features = FEATURE_NONE;
     if (isGroupLockOnReleaseSupported(keymap->format))
         features |= FEATURE_GROUP_LOCK_ON_RELEASE;
+    if (isRecentGroupSupported(keymap->format))
+        features |= FEATURE_GROUP_USE_HISTORY;
     if (isModsUnLockOnPressSupported(keymap->format))
         features |= FEATURE_MODS_UNLOCK_ON_PRESS;
     if (isModsLatchOnPressSupported(keymap->format))

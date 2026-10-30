@@ -743,13 +743,36 @@ write_action(const struct xkb_keymap *keymap, enum xkb_keymap_format format,
                         "in keymap format %d\n", format);
                 lockOnRelease = false;
             }
-            write_buf(buf, "%s%s(group=%s%"PRId32"%s%s%s)%s", prefix, type,
-                      (!(action->group.flags & ACTION_ABSOLUTE_SWITCH) && action->group.group >= 0) ? "+" : "",
-                      (action->group.flags & ACTION_ABSOLUTE_SWITCH) ? action->group.group + 1 : action->group.group,
-                      (action->type != ACTION_TYPE_GROUP_LOCK && (action->group.flags & ACTION_LOCK_CLEAR)) ? ",clearLocks" : "",
-                      (action->type == ACTION_TYPE_GROUP_LATCH && (action->group.flags & ACTION_LATCH_TO_LOCK)) ? ",latchToLock" : "",
-                      (lockOnRelease) ? ",lockOnRelease" : "",
-                      suffix);
+            write_buf(buf, "%s%s(group=", prefix, type);
+            if (action->group.flags & ACTION_USE_HISTORY) {
+                if (isRecentGroupSupported(format)) {
+                    if (action->group.group < 0)
+                        copy_to_buf(buf, "-");
+                    copy_to_buf(buf, GROUP_RECENT_INDEX_NAME);
+                } else {
+                    log_err(keymap->ctx, XKB_ERROR_INCOMPATIBLE_KEYMAP_TEXT_FORMAT,
+                            "Cannot use \"%s(group="GROUP_RECENT_INDEX_NAME")\" "
+                            "in keymap format %d\n", type, format);
+                    copy_to_buf(buf, "+0");
+                }
+            } else {
+                if (!(action->group.flags & ACTION_ABSOLUTE_SWITCH) &&
+                    action->group.group >= 0)
+                {
+                    copy_to_buf(buf, "+");
+                }
+                write_buf(buf, "%"PRId32,
+                          (action->group.flags & ACTION_ABSOLUTE_SWITCH)
+                              ? action->group.group + 1
+                              : action->group.group);
+            }
+            if (action->type != ACTION_TYPE_GROUP_LOCK && (action->group.flags & ACTION_LOCK_CLEAR))
+                copy_to_buf(buf, ",clearLocks");
+            if (action->type == ACTION_TYPE_GROUP_LATCH && (action->group.flags & ACTION_LATCH_TO_LOCK))
+                copy_to_buf(buf, ",latchToLock");
+            if (lockOnRelease)
+                copy_to_buf(buf, ",lockOnRelease");
+            write_buf(buf, ")%s", suffix);
         } else {
             /* Unsupported group index: degrade to VoidAction() */
             log_warn(keymap->ctx, XKB_LOG_MESSAGE_NO_ID,

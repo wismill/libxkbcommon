@@ -89,6 +89,7 @@ enum keymap_features {
     FEATURE_NONE = 0,
     /* Actions */
     FEATURE_GROUP_LOCK_ON_RELEASE = (1u << 0),
+    FEATURE_GROUP_USE_HISTORY = (1u << 1),
     FEATURE_MODS_UNLOCK_ON_PRESS = (1u << 6),
     FEATURE_MODS_LATCH_ON_PRESS = (1u << 7),
     /* Overlays */

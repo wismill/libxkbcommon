@@ -148,6 +148,7 @@ enum xkb_action_flags {
      * Used *after* keymap compilation.
      */
     ACTION_AUTO_GROUP_LOCK_ON_MODIFIER_RELEASE = (1 << 16),
+    ACTION_USE_HISTORY = (1 << 17),
 };
 
 enum {
@@ -1164,6 +1165,13 @@ isModsLatchOnPressSupported(enum xkb_keymap_format format)
 
 static inline bool
 isGroupLockOnReleaseSupported(enum xkb_keymap_format format)
+{
+    /* Lax bound */
+    return format >= XKB_KEYMAP_FORMAT_TEXT_V2;
+}
+
+static inline bool
+isRecentGroupSupported(enum xkb_keymap_format format)
 {
     /* Lax bound */
     return format >= XKB_KEYMAP_FORMAT_TEXT_V2;
