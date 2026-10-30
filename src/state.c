@@ -2984,6 +2984,96 @@ clear_all_latches_and_locks(struct xkb_server_state *state,
     state_update_latched_locked(state, &update, events);
 }
 
+static enum xkb_status
+state_update_layout_history(struct xkb_server_state * restrict state,
+                            const struct xkb_layout_history_update *update)
+{
+    /*
+     * Check input
+     */
+
+    if (!update->main_layouts)
+        return XKB_ERROR_INVALID;
+
+    if (!state->groups) {
+        if (state->base.keymap->num_groups == 1 &&
+            update->num_main_layouts == 1 &&
+            update->main_layouts[0] == 0)
+        {
+            return XKB_SUCCESS;
+        } else {
+            return XKB_ERROR_INVALID; // FIXME
+        }
+    }
+
+    struct xkb_group_history *groups = state->groups;
+    assert(groups->num_all > 1);
+    if (update->num_main_layouts != groups->num_main) {
+        // TODO error message
+        return XKB_ERROR_INVALID; // FIXME
+    }
+
+    /* Check groups validity and compute resulting mask */
+    assert(groups->num_all <= XKB_MAX_GROUPS);
+    xkb_layout_mask_t new_main = 0;
+    for (xkb_layout_index_t l = 0; l < update->num_main_layouts; l++) {
+        if (update->main_layouts[l] >= groups->num_all) {
+            // TODO error message
+            return XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX;
+        }
+        static_assert(XKB_MAX_GROUPS == 32, "invalid shift");
+        const xkb_layout_mask_t mask = (UINT32_C(1) << update->main_layouts[l]);
+        if (new_main & mask) {
+            /* Repeated layout */
+            // TODO error message
+            return XKB_ERROR_INVALID;
+        }
+        new_main |= mask;
+    }
+
+    const xkb_layout_mask_t missing_core = (groups->core & ~new_main);
+    if (missing_core) {
+        // TODO error message
+        return XKB_ERROR_INVALID; // FIXME
+    }
+
+    /*
+     * Update history
+     */
+
+    /* Copy new main groups */
+    static_assert(sizeof(*update->main_layouts) != sizeof(*groups->history),
+                  "Incompatible types: cannot use memcpy");
+    for (uint8_t l = 0; l < groups->num_main; l++) {
+        groups->history[l] = (uint8_t)update->main_layouts[l];
+    }
+
+    /* Set spare groups, if any */
+    for (uint8_t l = 0, *spares = groups->history + groups->num_main;
+         l < groups->num_all; l++)
+    {
+        static_assert(XKB_MAX_GROUPS == 32, "invalid shift");
+        const xkb_layout_mask_t mask = (UINT32_C(1) << l);
+        if (mask & new_main)
+            continue;
+        *spares++ = l;
+    }
+
+    /* Sync locked group */
+    if ((int32_t)groups->history[0] != state->base.components.locked_group) {
+        const struct xkb_state_components_update update_components = {
+            .size = sizeof(update_components),
+            .components = XKB_STATE_LAYOUT_LOCKED,
+            .locked_layout = (int32_t)groups->history[0],
+        };
+        state_update_latched_locked(state, &update_components, NULL);
+    }
+
+    groups->cursor = 0;
+
+    return XKB_SUCCESS;
+}
+
 /** Check ABI compatibility */
 // NOLINTBEGIN(bugprone-assignment-in-selection-statement)
 static enum xkb_status
@@ -2996,7 +3086,9 @@ check_state_update_abi_(struct xkb_context * restrict ctx,
         (update->reserved0 != 0 &&
          (status = XKB_ERROR_ABI_FORWARD_COMPAT)) ||
         (update->components &&
-         (status = xkb_check_state_abi(update->components)))) {
+         (status = xkb_check_state_abi(update->components))) ||
+        (update->layout_history &&
+         (status = xkb_check_state_abi(update->layout_history)))) {
         xkb_log_abi_error(ctx, func, status);
     }
     return status;
@@ -3031,6 +3123,12 @@ xkb_state_update_synthetic(struct xkb_state * base_state,
 
     // TODO: use a *transaction* mechanism: either the whole update succeeds
     //       or rollback
+
+    if (update->layout_history) {
+        status = state_update_layout_history(state, update->layout_history);
+        if (status != XKB_SUCCESS)
+            return status;
+    }
 
     if (update->components) {
         const struct xkb_state_components_update * const components =
@@ -4578,6 +4676,12 @@ xkb_machine_process_synthetic(struct xkb_machine *sm,
 
     darray_size(events->queue) = 0;
     events->next = 0;
+
+    if (update->layout_history) {
+        status = state_update_layout_history(state, update->layout_history);
+        if (status != XKB_SUCCESS)
+            return status;
+    }
 
     if (update->components) {
         const struct xkb_state_components_update * const components =

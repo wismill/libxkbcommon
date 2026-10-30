@@ -233,7 +233,11 @@ xkbcommon [1.14.0-beta2] – 2026-09-10
   `xkb_state_mode` enumeration. They enable creating `xkb_state` objects
   with smaller memory footprint and protect against state corruption by
   disallowing mixing server and client APIs.
-- Added `xkb_state::xkb_state_update_synthetic()` for out-of-band updates.
+- Added API for out-of-band updates:
+  - `xkb_state::xkb_state_update_synthetic()`
+  - `struct xkb_synthetic_update`
+  - `struct xkb_state_components_update`
+  - `struct xkb_layout_history_update`
 - Added API to change controls of the keyboard state:
   - new enumeration `xkb_keyboard_control_flags`
   - new function `xkb_state::xkb_state_serialize_controls()`

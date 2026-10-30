@@ -5228,6 +5228,7 @@ xkb_machine_process_key(struct xkb_machine *machine,
  * see @ref abi-struct-contract for further details.
  *
  * @sa `struct xkb_synthetic_update`
+ * @sa `xkb_state::xkb_state_update_synthetic()`
  * @sa `xkb_machine::xkb_machine_process_synthetic()`
  *
  * @since 1.14.0
@@ -5358,6 +5359,55 @@ struct xkb_state_components_update {
 };
 
 /**
+ * @struct xkb_layout_history_update
+ * @ingroup abi-struct-contract
+ * Request to update an out-of-band layout history update.
+ *
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `struct xkb_synthetic_update`
+ * @sa `xkb_state::xkb_state_update_synthetic()`
+ * @sa `xkb_machine::xkb_machine_process_synthetic()`
+ *
+ * @since 1.14.0
+ */
+struct xkb_layout_history_update {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Element count of the #main_layouts buffer.
+     *
+     * @pre It must be equal to the current number of [main layouts],
+     * which is by default the total number of layouts in the keymap.
+     *
+     * @since 1.14.0
+     *
+     * [main layouts]: @ref main-layouts-def
+     */
+    xkb_layout_index_t num_main_layouts;
+    /**
+     * [Main layouts].
+     *
+     * @pre The order is most-recent-first.
+     * @pre All [core layouts] must be included. By default there is no
+     * core layout set.
+     *
+     * @since 1.14.0
+     *
+     * [Main layouts]: @ref main-layouts-def
+     * [core layouts]: @ref core-layouts-def
+     */
+    const xkb_layout_index_t *main_layouts;
+};
+
+/**
  * @struct xkb_synthetic_update
  * @ingroup abi-struct-contract
  * Request to process an out-of-band atomic update through an `xkb_machine` or
@@ -5405,6 +5455,12 @@ struct xkb_synthetic_update {
      * @since 1.14.0
      */
     const struct xkb_state_components_update *components;
+    /**
+     * Layout history update, or `NULL` for no change.
+     *
+     * @since 1.14.0
+     */
+    const struct xkb_layout_history_update *layout_history;
 };
 
 /**
