@@ -1955,7 +1955,7 @@ xkb_state_new(struct xkb_keymap *keymap)
 struct xkb_state *
 xkb_state_new_with_mode(struct xkb_keymap * restrict keymap,
                         enum xkb_state_mode mode,
-                        enum xkb_status * restrict status)
+                        enum xkb_status * restrict status_ret)
 {
     switch (mode) {
     case XKB_STATE_MODE_CLIENT:
@@ -1970,8 +1970,8 @@ xkb_state_new_with_mode(struct xkb_keymap * restrict keymap,
                       (unsigned)SERVER_COMPANION, "");
         xkb_client_state_init(state, keymap, (enum xkb_state_mode_internal)mode);
 
-        if (status)
-            *status = XKB_SUCCESS;
+        if (status_ret)
+            *status_ret = XKB_SUCCESS;
 
         return (struct xkb_state *)state;
     }
@@ -1982,23 +1982,23 @@ xkb_state_new_with_mode(struct xkb_keymap * restrict keymap,
 
         xkb_server_state_init(state, keymap, LEGACY_SERVER_STATE, 0, 0);
 
-        if (status)
-            *status = XKB_SUCCESS;
+        if (status_ret)
+            *status_ret = XKB_SUCCESS;
 
         return (struct xkb_state *)state;
     }
     default:
         log_err_func(keymap->ctx, XKB_ERROR_UNSUPPORTED_STATE_MODE_,
                      "Unsupported state mode: %u\n", mode);
-        if (status)
-            *status = XKB_ERROR_UNSUPPORTED_STATE_MODE;
+        if (status_ret)
+            *status_ret = XKB_ERROR_UNSUPPORTED_STATE_MODE;
         return NULL;
     }
 
     log_err_func1(keymap->ctx, XKB_ERROR_ALLOCATION_FAILURE_,
                   "Could not allocate a state object.\n");
-    if (status)
-        *status = XKB_ERROR_ALLOCATION_FAILURE;
+    if (status_ret)
+        *status_ret = XKB_ERROR_ALLOCATION_FAILURE;
     return NULL;
 }
 
@@ -2011,23 +2011,23 @@ xkb_state_ref(struct xkb_state *state)
 }
 
 void
-xkb_state_reset(struct xkb_state *state)
+xkb_state_reset(struct xkb_state *base_state)
 {
-    memset(&state->components, 0, sizeof(state->components));
+    memset(&base_state->components, 0, sizeof(base_state->components));
 
-    if (state->mode < LEGACY_MIXED_STATE) {
-        static_assert(sizeof(*state) == sizeof(struct xkb_client_state),
+    if (base_state->mode < LEGACY_MIXED_STATE) {
+        static_assert(sizeof(*base_state) == sizeof(struct xkb_client_state),
                       "Not a mere wrapper");
         /* Nothing else to reset */
     } else {
-        struct xkb_server_state *state_ = (struct xkb_server_state *)state;
-        const struct xkb_server_state prev = *state_;
-        memset(state_, 0, sizeof(*state_));
+        struct xkb_server_state *state = (struct xkb_server_state *)base_state;
+        const struct xkb_server_state prev = *state;
+        memset(state, 0, sizeof(*state));
 
-        state_->base = prev.base;
-        state_->a11y_flags = prev.a11y_flags;
-        state_->filters = prev.filters;
-        darray_size(state_->filters) = 0;
+        state->base = prev.base;
+        state->a11y_flags = prev.a11y_flags;
+        state->filters = prev.filters;
+        darray_size(state->filters) = 0;
     }
 }
 
@@ -2506,36 +2506,6 @@ clear_all_latches_and_locks(struct xkb_server_state *state,
     state_update_latched_locked(state, &update, events);
 }
 
-static enum xkb_status
-state_update_layout_policy(struct xkb_server_state *state,
-                           const struct xkb_layout_out_of_range_policy *policy)
-{
-    if (xkb_feature_supported(XKB_FEATURE_ENUM_LAYOUT_OUT_OF_RANGE_MODE,
-                              policy->mode)) {
-        if (policy->mode == XKB_LAYOUT_OUT_OF_RANGE_REDIRECT) {
-            if (policy->redirect < state->base.keymap->num_groups) {
-                state->base.out_of_range_group.redirect_group =
-                    policy->redirect;
-            } else {
-                log_err(state->base.keymap->ctx,
-                        XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX_,
-                        "Layout policy: "
-                        "unsupported layout index %"PRIu32" > %"PRIu32"\n",
-                        policy->redirect + 1, state->base.keymap->num_groups);
-                return XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX;
-            }
-        }
-        state->base.out_of_range_group.mode = policy->mode;
-        xkb_state_update_derived(&state->base);
-        return XKB_SUCCESS;
-    } else {
-        log_err(state->base.keymap->ctx,
-                XKB_ERROR_UNSUPPORTED_LAYOUT_OUT_OF_RANGE_MODE_,
-                "Unsupported layout out-of-range mode: %d\n", policy->mode);
-        return XKB_ERROR_UNSUPPORTED_LAYOUT_OUT_OF_RANGE_MODE;
-    }
-}
-
 /** Check ABI compatibility */
 // NOLINTBEGIN(bugprone-assignment-in-selection-statement)
 static enum xkb_status
@@ -2604,6 +2574,38 @@ xkb_state_update_synthetic(struct xkb_state * base_state,
                                                &state->base.components);
     }
     return XKB_SUCCESS;
+}
+
+static enum xkb_status
+state_update_layout_out_of_range_policy(
+    struct xkb_server_state *state,
+    const struct xkb_layout_out_of_range_policy *policy
+)
+{
+    if (xkb_feature_supported(XKB_FEATURE_ENUM_LAYOUT_OUT_OF_RANGE_MODE,
+                              policy->mode)) {
+        if (policy->mode == XKB_LAYOUT_OUT_OF_RANGE_REDIRECT) {
+            if (policy->redirect < state->base.keymap->num_groups) {
+                state->base.out_of_range_group.redirect_group =
+                    policy->redirect;
+            } else {
+                log_err(state->base.keymap->ctx,
+                        XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX_,
+                        "Layout policy: "
+                        "unsupported layout index %"PRIu32" > %"PRIu32"\n",
+                        policy->redirect + 1, state->base.keymap->num_groups);
+                return XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX;
+            }
+        }
+        state->base.out_of_range_group.mode = policy->mode;
+        xkb_state_update_derived(&state->base);
+        return XKB_SUCCESS;
+    } else {
+        log_err(state->base.keymap->ctx,
+                XKB_ERROR_UNSUPPORTED_LAYOUT_OUT_OF_RANGE_MODE_,
+                "Unsupported layout out-of-range mode: %d\n", policy->mode);
+        return XKB_ERROR_UNSUPPORTED_LAYOUT_OUT_OF_RANGE_MODE;
+    }
 }
 
 /**
@@ -3983,7 +3985,7 @@ xkb_machine_set_layout_out_of_range_policy(
 
     const struct state_components previous_components =
         machine->base.base.components;
-    status = state_update_layout_policy(&machine->base, policy);
+    status = state_update_layout_out_of_range_policy(&machine->base, policy);
     if (status != XKB_SUCCESS)
         return status;
 
