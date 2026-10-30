@@ -457,15 +457,47 @@ enum xkb_filter_result {
     else                                                                 \
         (state_)->components.component_ += (filter_)->action.group.group
 
+/** {Set,Latch}Group(group=Recent): compute the group delta */
+static int32_t
+filter_group_set_recent(struct xkb_filter *filter,
+                        const struct xkb_server_state *state)
+{
+    /* Compute the target group */
+    struct xkb_group_history * const groups = state->groups;
+    const uint8_t target = (filter->action.group.group > 0)
+        /* More recent group */
+        ? groups->history[1]
+        /* Least recent group */
+        : groups->history[groups->num_main - 1];
+
+    /*
+     * Compute the action’s group, so that the resulting effective group
+     * is the target group.
+     */
+    assert(!(filter->action.group.flags & ACTION_ABSOLUTE_SWITCH));
+    return (
+        (int32_t)target
+        - state->base.components.base_group
+        - state->base.components.latched_group
+        - state->base.components.locked_group
+    );
+}
+
 static void
 xkb_filter_group_set_new(struct xkb_server_state *state,
                          struct xkb_events *events,
                          struct xkb_filter *filter)
 {
-    // FIXME: implement
     if (filter->action.group.flags & ACTION_USE_HISTORY) {
-        filter->func = NULL;
-        return;
+        /* Group history requires to compute the target group dynamically */
+
+        /* No-op if too few groups */
+        if (!state->groups || state->groups->num_main < 2) {
+            filter->func = NULL;
+            return;
+        }
+
+        filter->action.group.group = filter_group_set_recent(filter, state);
     }
 
     static_assert(sizeof(state->base.components.base_group) ==

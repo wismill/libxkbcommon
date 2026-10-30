@@ -4166,8 +4166,10 @@ test_layout_cycle(struct xkb_context *ctx)
             "  xkb_keycodes {\n"
             "    <LSGT> = 94;\n"
             "    <MENU> = 135;\n"
+            "    <FK13> = 191;\n"
             "  };\n"
             "  xkb_symbols {\n"
+            "    key <FK13> {[SetGroup(group=Recent)]};\n"
             "    key <MENU> {[LockGroup(group=Recent)]};\n"
             "    key <LSGT> {[1]};\n"
             "  };\n"
@@ -4196,8 +4198,12 @@ test_layout_cycle(struct xkb_context *ctx)
             "  xkb_keycodes {\n"
             "    <LSGT> = 94;\n"
             "    <MENU> = 135;\n"
+            "    <FK13> = 191;\n"
+            "    <FK14> = 192;\n"
             "  };\n"
             "  xkb_symbols {\n"
+            "    key <FK13> {[SetGroup(group=Recent)]};\n"
+            "    key <FK14> {[SetGroup(group=-Recent)]};\n"
             "    key <MENU> {[LockGroup(group=Recent)]};\n"
             "    key <LSGT> {[1], [2], [3], [4]};\n"
             "  };\n"
@@ -4225,7 +4231,22 @@ test_layout_cycle(struct xkb_context *ctx)
             KEY_102ND,   BOTH, XKB_KEY_3,        NEXT,
             KEY_COMPOSE, BOTH, XKB_KEY_NoSymbol, NEXT,
             KEY_COMPOSE, BOTH, XKB_KEY_NoSymbol, NEXT,
-            KEY_102ND,   BOTH, XKB_KEY_1,        FINISH
+            KEY_102ND,   BOTH, XKB_KEY_1,        NEXT,
+            KEY_F13,     DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,   BOTH, XKB_KEY_3,        NEXT,
+            KEY_F13,     UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,   BOTH, XKB_KEY_1,        NEXT,
+            KEY_COMPOSE, BOTH, XKB_KEY_NoSymbol, NEXT,
+            KEY_F13,     DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,   BOTH, XKB_KEY_1,        NEXT,
+            KEY_F13,     UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,   BOTH, XKB_KEY_3,        NEXT,
+            KEY_COMPOSE, BOTH, XKB_KEY_NoSymbol, NEXT,
+            KEY_F13,     DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_COMPOSE, BOTH, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,   BOTH, XKB_KEY_1,        NEXT,
+            KEY_F13,     UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,   BOTH, XKB_KEY_3,        FINISH
         ));
         xkb_keymap_unref(keymap);
     }
