@@ -1918,10 +1918,8 @@ xkb_state_update_derived(struct xkb_state *state);
 
 static inline void
 xkb_state_init(struct xkb_state * restrict state,
-               struct xkb_keymap * restrict keymap,
-               enum xkb_state_mode_internal mode)
+               struct xkb_keymap * restrict keymap)
 {
-    state->mode = mode;
     state->refcnt = 1;
     state->keymap = xkb_keymap_ref(keymap);
     state->out_of_range_group.mode = XKB_LAYOUT_OUT_OF_RANGE_WRAP;
@@ -1932,20 +1930,18 @@ xkb_state_init(struct xkb_state * restrict state,
 
 static inline void
 xkb_client_state_init(struct xkb_client_state * restrict state,
-                      struct xkb_keymap * restrict keymap,
-                      enum xkb_state_mode_internal mode)
+                      struct xkb_keymap * restrict keymap)
 {
-    xkb_state_init(&state->base, keymap, mode);
+    xkb_state_init(&state->base, keymap);
 }
 
-static inline void
+static inline enum xkb_status
 xkb_server_state_init(struct xkb_server_state * restrict state,
                       struct xkb_keymap * restrict keymap,
-                      enum xkb_state_mode_internal mode,
                       enum xkb_a11y_flags a11y_affect,
                       enum xkb_a11y_flags a11y_flags)
 {
-    xkb_state_init(&state->base, keymap, mode);
+    xkb_state_init(&state->base, keymap);
 
     state->a11y_flags = a11y_flags;
     if (keymap->format != XKB_KEYMAP_FORMAT_TEXT_V1 &&
@@ -1953,21 +1949,54 @@ xkb_server_state_init(struct xkb_server_state * restrict state,
              /* Keymap v2+: enable extension to XKB if not manually disabled */
              state->a11y_flags |= XKB_A11Y_LATCH_SIMULTANEOUS_KEYS;
     }
+
+    return XKB_SUCCESS;
+}
+
+/**
+ * Allocate server state (xkb_server_state or xkb_machine)
+ */
+#define xkb_server_alloc(state, mode, mode_val, groups, keymap) do { \
+    (void)&(state);                                                  \
+    const size_t state_size = sizeof(*(state));                      \
+    (state) = calloc(1, state_size);                                 \
+    if (state)                                                       \
+        (mode) = (mode_val);                                         \
+} while (0)
+
+static struct xkb_server_state *
+xkb_server_state_alloc(const struct xkb_keymap *keymap,
+                       enum xkb_state_mode_internal mode)
+{
+    struct xkb_server_state *state;
+    xkb_server_alloc(state, state->base.mode, mode,
+                            state->groups, keymap);
+    return state;
 }
 
 struct xkb_state *
 xkb_state_new(struct xkb_keymap *keymap)
 {
-    struct xkb_server_state * const state = calloc(1, sizeof(*state));
+    struct xkb_server_state * const state =
+        xkb_server_state_alloc(keymap, LEGACY_MIXED_STATE);
     if (!state) {
-        log_err_func1(keymap->ctx, XKB_ERROR_ALLOCATION_FAILURE_,
-                      "Could not allocate a state object.\n");
+        goto alloc_error;
+    }
+
+    const enum xkb_status status = xkb_server_state_init(state, keymap, 0, 0);
+    if (status != XKB_SUCCESS) {
+        xkb_state_unref((struct xkb_state *)state);
+        if (status == XKB_ERROR_ALLOCATION_FAILURE)
+            goto alloc_error;
         return NULL;
     }
 
-    xkb_server_state_init(state, keymap, LEGACY_MIXED_STATE, 0, 0);
-
     return (struct xkb_state *)state;
+
+alloc_error:
+    log_err_func1(keymap->ctx, XKB_ERROR_ALLOCATION_FAILURE_,
+                  "Could not allocate a state object.\n");
+    return NULL;
 }
 
 struct xkb_state *
@@ -1986,7 +2015,8 @@ xkb_state_new_with_mode(struct xkb_keymap * restrict keymap,
                       (unsigned)CLIENT_STATE, "");
         static_assert((unsigned)XKB_STATE_MODE_SERVER_QUERY ==
                       (unsigned)SERVER_COMPANION, "");
-        xkb_client_state_init(state, keymap, (enum xkb_state_mode_internal)mode);
+        state->base.mode = (enum xkb_state_mode_internal)mode;
+        xkb_client_state_init(state, keymap);
 
         if (status_ret)
             *status_ret = XKB_SUCCESS;
@@ -1994,14 +2024,22 @@ xkb_state_new_with_mode(struct xkb_keymap * restrict keymap,
         return (struct xkb_state *)state;
     }
     case XKB_STATE_MODE_SERVER: {
-        struct xkb_server_state * const state = calloc(1, sizeof(*state));
+        struct xkb_server_state * state =
+            xkb_server_state_alloc(keymap, LEGACY_SERVER_STATE);
         if (!state)
             break;
 
-        xkb_server_state_init(state, keymap, LEGACY_SERVER_STATE, 0, 0);
+        const enum xkb_status status =
+            xkb_server_state_init(state, keymap, 0, 0);
+        if (status != XKB_SUCCESS) {
+            xkb_state_unref((struct xkb_state *)state);
+            state = NULL;
+            if (status == XKB_ERROR_ALLOCATION_FAILURE)
+                break;
+        }
 
         if (status_ret)
-            *status_ret = XKB_SUCCESS;
+            *status_ret = status;
 
         return (struct xkb_state *)state;
     }
@@ -3869,22 +3907,37 @@ machine_set_shortcuts(
     return XKB_SUCCESS;
 }
 
+static struct xkb_machine *
+xkb_machine_alloc(const struct xkb_machine_builder *builder)
+{
+    struct xkb_machine *machine;
+    xkb_server_alloc(machine, machine->base.base.mode, SERVER_STATE,
+                            machine->base.groups, builder->keymap);
+    return machine;
+}
+
 struct xkb_machine *
 xkb_machine_new(const struct xkb_machine_builder * restrict builder,
                 enum xkb_status * restrict status)
 {
-    struct xkb_machine * const machine = calloc(1, sizeof(*machine));
+    struct xkb_machine * const machine = xkb_machine_alloc(builder);
     if (!machine) {
-        log_err_func1(builder->keymap->ctx, XKB_ERROR_ALLOCATION_FAILURE_,
-                      "cannot allocate machine\n");
-        if (status)
-            *status = XKB_ERROR_ALLOCATION_FAILURE;
-        return NULL;
+        goto alloc_error;
     }
 
-    xkb_server_state_init(&machine->base, builder->keymap, SERVER_STATE,
-                          builder->controls.a11y.affect_flags,
-                          builder->controls.a11y.flags);
+    enum xkb_status status_ = xkb_server_state_init(
+        &machine->base, builder->keymap,
+        builder->controls.a11y.affect_flags, builder->controls.a11y.flags
+    );
+    if (status_ != XKB_SUCCESS) {
+        if (status_ == XKB_ERROR_ALLOCATION_FAILURE)
+            goto alloc_error;
+
+        if (status)
+            *status = status_;
+        goto error;
+    }
+
     machine->flags = builder->machine_flags;
     if (!(machine->flags &
           XKB_MACHINE_DISABLE_LAYOUT_SWITCH_ON_MODIFIER_KEY_FIX))
@@ -3895,11 +3948,11 @@ xkb_machine_new(const struct xkb_machine_builder * restrict builder,
         machine->base.flags |= STATE_UNLOCK_MODS_ON_PRESS;
     }
 
-    enum xkb_status status_;
     if ((status_ = machine_set_mods(machine, &builder->mods)) != XKB_SUCCESS ||
         (status_ = machine_set_shortcuts(machine, &builder->shortcuts)) !=
         XKB_SUCCESS) {
-        *status = status_;
+        if (status)
+            *status = status_;
         goto error;
     }
 
@@ -3910,6 +3963,12 @@ xkb_machine_new(const struct xkb_machine_builder * restrict builder,
         *status = XKB_SUCCESS;
 
     return machine;
+
+alloc_error:
+    log_err_func1(builder->keymap->ctx, XKB_ERROR_ALLOCATION_FAILURE_,
+                  "cannot allocate machine\n");
+    if (status)
+        *status = XKB_ERROR_ALLOCATION_FAILURE;
 
 error:
     xkb_machine_unref(machine);
