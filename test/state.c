@@ -4232,13 +4232,19 @@ test_layout_cycle(struct xkb_context *ctx)
         static const char keymap_str[] =
             "xkb_keymap {\n"
             "  xkb_keycodes {\n"
+            "    <LFSH> = 50;\n"
+            "    <RTSH> = 62;\n"
             "    <LCTL> = 37;\n"
             "    <RCTL> = 105;\n"
+            "    <LALT> = 64;\n"
+            "    <RALT> = 108;\n"
             "    <LSGT> = 94;\n"
             "  };\n"
             "  xkb_symbols {\n"
             "    key <LCTL> {[LockGroup(group=-Recent)]};\n"
             "    key <RCTL> {[LockGroup(group=+Recent)]};\n"
+            "    key <LALT> {[SetGroup(group=-Recent)]};\n"
+            "    key <RALT> {[SetGroup(group=+Recent)]};\n"
             "    key <LSGT> {[1]};\n"
             "  };\n"
             "};";
@@ -4249,6 +4255,7 @@ test_layout_cycle(struct xkb_context *ctx)
         assert(keymap);
         assert(test_layout_cycle_(
             ctx, keymap,
+            // TODO reverse + SetGroup + Modifier
             KEY_102ND,     BOTH, XKB_KEY_1,        NEXT,
             KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT,
             KEY_102ND,     BOTH, XKB_KEY_1,        NEXT,
@@ -4265,8 +4272,11 @@ test_layout_cycle(struct xkb_context *ctx)
             "xkb_keymap {\n"
             "  xkb_keycodes {\n"
             "    <LFSH> = 50;\n"
+            "    <RTSH> = 62;\n"
             "    <LCTL> = 37;\n"
             "    <RCTL> = 105;\n"
+            "    <LALT> = 64;\n"
+            "    <RALT> = 108;\n"
             "    <LSGT> = 94;\n"
             "  };\n"
             "  xkb_types {\n"
@@ -4277,6 +4287,8 @@ test_layout_cycle(struct xkb_context *ctx)
             "    key <LFSH> {[SetMods(mods=Shift)]};\n"
             "    key <LCTL> {[LockGroup(group=-Recent),VoidAction()]};\n"
             "    key <RCTL> {[LockGroup(group=+Recent),LockGroup(group=-Recent)]};\n"
+            "    key <LALT> {[SetGroup(group=-Recent)]};\n"
+            "    key <RALT> {[SetGroup(group=+Recent)]};\n"
             "    key <LSGT> {[1], [2], [3], [4]};\n"
             "  };\n"
             "};";
@@ -4285,6 +4297,45 @@ test_layout_cycle(struct xkb_context *ctx)
             keymap_str, sizeof(keymap_str)
         );
         assert(keymap);
+        /* No cycle */
+        assert(test_layout_cycle_(
+            ctx, keymap,
+            /* No mixed directions */
+
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            KEY_RIGHTALT,   DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_RIGHTALT,   UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            KEY_RIGHTALT,   DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_2,        NEXT,
+            KEY_RIGHTALT,   UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            KEY_LEFTALT,    DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTALT,    UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            KEY_LEFTALT,    DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_4,        NEXT,
+            KEY_LEFTALT,    UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+
+            /* Mixed directions */
+
+            KEY_RIGHTALT,   DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTALT,    DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_4,        NEXT,
+            KEY_LEFTALT,    UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_2,        NEXT,
+            KEY_RIGHTALT,   UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+
+            KEY_RIGHTALT,   DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTALT,    DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_4,        NEXT,
+            KEY_RIGHTALT,   UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_3,        NEXT, /* FIXME: Corner case */
+            KEY_LEFTALT,    UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        FINISH
+        ));
         /* Cycle forwards */
         assert(test_layout_cycle_(
             ctx, keymap,                                 // Recency (* = cursor)
@@ -4320,6 +4371,39 @@ test_layout_cycle(struct xkb_context *ctx)
             KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 4*, 1, 3, 2
             KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 1, 4*, 3, 2
             KEY_102ND,     BOTH, XKB_KEY_1,        FINISH
+            // FIXME: interleave with setgroup()
+            // KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_2,        NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_2,        NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_3,        NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_2,        NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_3,        NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            // KEY_RIGHTSHIFT, DOWN, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_3,        NEXT,
+            // KEY_RIGHTSHIFT, UP,   XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_RIGHTSHIFT, DOWN, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            // KEY_RIGHTSHIFT, UP,   XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_3,        NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_RIGHTSHIFT, DOWN, XKB_KEY_NoSymbol, NEXT,
+            // KEY_RIGHTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            // KEY_RIGHTSHIFT, UP,   XKB_KEY_NoSymbol, NEXT,
+            // KEY_102ND,      BOTH, XKB_KEY_3,        FINISH
         ));
         /* Cycle backwards */
         assert(test_layout_cycle_(
@@ -4397,7 +4481,7 @@ test_layout_cycle(struct xkb_context *ctx)
             KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 3, 2, 4, 1*
             KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 1, 2, 4*, 3
             KEY_LEFTSHIFT, DOWN, XKB_KEY_NoSymbol, NEXT, // 1, 2, 4*, 3 (modifier does not break cycle)
-            KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 1*, 2, 4, 3 (incompatible action on same key)
+            KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 1*, 2, 4, 3 (incompatible action on same key: break)
             KEY_LEFTSHIFT, UP,   XKB_KEY_NoSymbol, NEXT, // 1*, 2, 4, 3
             KEY_102ND,     BOTH, XKB_KEY_1,        FINISH
         ));
