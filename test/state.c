@@ -9,6 +9,7 @@
 #include "test-config.h"
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -4060,21 +4061,31 @@ test_basic_layout_recency_order(struct xkb_context *ctx)
         enum {
             initial_state,
             next_group_press,
-            out_of_band1,
-            out_of_band2,
-            out_of_band3,
-            out_of_band4,
-            out_of_band5,
+            out_of_band01,
+            out_of_band02,
+            out_of_band03,
+            out_of_band04,
+            out_of_band05,
+            out_of_band10,
+            out_of_band11,
+            out_of_band20,
+            out_of_band21,
             _num_expected,
         };
         static const xkb_layout_index_t expected[][4] = {
-            [initial_state]    = {0, 1, 2, 3},
-            [next_group_press] = {1, 0, 2, 3},
-            [out_of_band1]     = {2, 1, 0, 3},
-            [out_of_band2]     = {0, 2, 1, 3},
-            [out_of_band3]     = {0, 2, 1, 3}, /* repeat locked layout */
-            [out_of_band4]     = {2, 0, 1, 3},
-            [out_of_band5]     = {3, 2, 0, 1},
+            [initial_state]     = {0, 1, 2, 3},
+            [next_group_press]  = {1, 0, 2, 3},
+            /* out-of-band locked layout updates */
+            [out_of_band01]     = {2, 1, 0, 3},
+            [out_of_band02]     = {0, 2, 1, 3},
+            [out_of_band03]     = {0, 2, 1, 3}, /* repeat locked layout */
+            [out_of_band04]     = {2, 0, 1, 3},
+            [out_of_band05]     = {3, 2, 0, 1},
+            /* out-of-band recency updates */
+            [out_of_band10]     = {0, 1, 2, 4}, /* out-of-range */
+            [out_of_band11]     = {0, 1, 2, 2}, /* repeated layout */
+            [out_of_band20]     = {0, 3, 1, 2},
+            [out_of_band21]     = {1, 0, 2, 3},
         };
         static_assert(_num_expected == (int)ARRAY_SIZE(expected), "");
 
@@ -4097,16 +4108,16 @@ test_basic_layout_recency_order(struct xkb_context *ctx)
         assert((size_t)count == ARRAY_SIZE(*expected));
         assert_buffer_eq("", expected[next_group_press], recency, count, "%"PRIu32);
 
-        /* Out-of-band update */
+        /* Out-of-band group update */
         static const int out_of_band[] = {
-            out_of_band1,
-            out_of_band2,
-            out_of_band3,
-            out_of_band4,
-            out_of_band5,
+            out_of_band01,
+            out_of_band02,
+            out_of_band03,
+            out_of_band04,
+            out_of_band05,
         };
         for (size_t u = 0; u < ARRAY_SIZE(out_of_band); u++) {
-            fprintf(stderr, "*** Out-of-band update: %zu\n", u);
+            fprintf(stderr, "*** Out-of-band locked layout update: %zu\n", u);
 
             const xkb_layout_index_t * const expected_recency =
                 expected[out_of_band[u]];
@@ -4135,6 +4146,83 @@ test_basic_layout_recency_order(struct xkb_context *ctx)
             assert_buffer_eq("out-of-band #%zu",
                              expected_recency, recency, count,
                              "%"PRIu32, u);
+        }
+
+        /* Out-of-band recency update */
+        static const struct {
+            size_t count;
+            const xkb_layout_index_t *main_layouts;
+            enum xkb_status status;
+        } recency_updates[] = {
+            /* invalid */
+            {
+                .count = 0, /* invalid count */
+                .main_layouts = expected[out_of_band10],
+                .status = XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER,
+            },
+            {
+                .count = 2, /* invalid count */
+                .main_layouts = expected[out_of_band10],
+                .status = XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER,
+            },
+            {
+                .count = (uint32_t)ARRAY_SIZE(expected[out_of_band10]),
+                .main_layouts = expected[out_of_band10], /* invalid layout index */
+                .status = XKB_ERROR_INVALID_MAIN_LAYOUT
+            },
+            {
+                .count = (uint32_t)ARRAY_SIZE(expected[out_of_band11]),
+                .main_layouts = expected[out_of_band11], /* repeated layout index */
+                .status = XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER
+            },
+
+            /* valid */
+            {
+                .count = (uint32_t)ARRAY_SIZE(expected[out_of_band20]),
+                .main_layouts = expected[out_of_band20],
+                .status = XKB_SUCCESS,
+            },
+            {
+                .count = (uint32_t)ARRAY_SIZE(expected[out_of_band21]),
+                .main_layouts = expected[out_of_band21],
+                .status = XKB_SUCCESS,
+            },
+        };
+        for (size_t u = 0; u < ARRAY_SIZE(recency_updates); u++) {
+            fprintf(stderr, "*** Out-of-band recency update: %zu\n", u);
+            const struct xkb_layout_recency_order_update recency_update = {
+                .size = sizeof(recency_update),
+                .num_main_layouts = recency_updates[u].count,
+                .main_layouts = recency_updates[u].main_layouts,
+            };
+            const struct xkb_synthetic_update update = {
+                .size = sizeof(update),
+                .layout_recency_order = &recency_update,
+            };
+
+            if (mode == MACHINE) {
+                assert_eq("recency update",
+                          recency_updates[u].status,
+                          xkb_machine_process_synthetic(sm, &update, events),
+                          "%d");
+            } else {
+                assert_eq("recency update",
+                          recency_updates[u].status,
+                          xkb_state_update_synthetic(state, &update, NULL),
+                          "%d");
+            }
+
+            if (recency_updates[u].status != XKB_SUCCESS)
+                continue;
+
+            assert(xkb_state_get_layout_recency_order(state, recency, capacity, &count) ==
+                   XKB_SUCCESS);
+            assert(count == ARRAY_SIZE(*expected));
+            assert_buffer_eq("out-of-band recency update #%zu",
+                             recency_updates[u].main_layouts, recency, count,
+                             "%"PRIu32, u);
+            assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) ==
+                   recency_updates[u].main_layouts[0]);
         }
 
         xkb_state_unref(state);
