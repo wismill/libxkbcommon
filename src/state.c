@@ -207,6 +207,9 @@ struct xkb_server_state {
      * thus it is not freed manually.
      */
     struct xkb_group_history {
+        /** Core groups: always in the main groups */
+        xkb_layout_mask_t core;
+
         /* NOTE: Store layout indices compactly as uint8_t */
 
         /** Cursor of the main group list, while cycling */
@@ -2187,7 +2190,7 @@ xkb_client_state_init(struct xkb_client_state * restrict state,
 
 static void
 xkb_server_init_history(struct xkb_server_state * restrict state,
-                        xkb_layout_mask_t main)
+                        xkb_layout_mask_t main, xkb_layout_mask_t core)
 {
     if (!state->groups)
         return;
@@ -2200,7 +2203,11 @@ xkb_server_init_history(struct xkb_server_state * restrict state,
     assert(groups->num_all == state->base.keymap->num_groups);
     const xkb_layout_mask_t all = (UINT64_C(1) << groups->num_all) - 1;
     main &= all;
+    core &= main;
     assert(main);
+    assert(main == all || main != core);
+
+    groups->core = core;
 
     groups->num_main = (uint8_t)popcount32(main);
     assert(groups->num_main <= groups->num_all);
@@ -2228,7 +2235,7 @@ xkb_server_state_init(struct xkb_server_state * restrict state,
     const xkb_layout_mask_t main_groups = keymap->num_groups
         ? (UINT64_C(1) << keymap->num_groups) - 1
         : 0;
-    xkb_server_init_history(state, main_groups);
+    xkb_server_init_history(state, main_groups, 0);
 
     return XKB_SUCCESS;
 }
@@ -2396,7 +2403,8 @@ xkb_state_reset(struct xkb_state *base_state)
         const xkb_layout_mask_t main_groups = base_state->keymap->num_groups
             ? (UINT64_C(1) << base_state->keymap->num_groups) - 1
             : 0;
-        xkb_server_init_history(state, main_groups);
+        xkb_server_init_history(state, main_groups,
+                                state->groups ? state->groups->core : 0);
         state_sync_group_history(state);
     }
 }
@@ -2620,6 +2628,22 @@ state_sync_group_history(struct xkb_server_state * restrict state)
     assert(history[idx] == locked_group);
 
     memmove(&history[1], &history[0], idx * sizeof(*history));
+
+    if (groups->num_main < groups->num_all &&
+        (groups->core & (UINT32_C(1) << history[groups->num_main])))
+    {
+        /* A protected group was demoted: demote the last adjunct instead */
+        for (idx = groups->num_main; idx--;) {
+            /* Find the last adjunct */
+            if (!(groups->core & (UINT32_C(1) << history[idx])))
+                break;
+        }
+        /* Use `history[0]` as a temporary store. */
+        history[0] = history[idx];
+        memmove(&history[idx], &history[idx + 1], groups->num_main - idx);
+        history[groups->num_main] = history[0];
+    }
+
     history[0] = locked_group;
     groups->cursor = 0;
 }
