@@ -450,12 +450,30 @@ enum xkb_filter_result {
     XKB_FILTER_CONTINUE,
 };
 
-/* Modify a group component, depending on the ACTION_ABSOLUTE_SWITCH flag */
-#define apply_group_delta(filter_, state_, component_)                   \
-    if ((filter_)->action.group.flags & ACTION_ABSOLUTE_SWITCH)          \
-        (state_)->components.component_ = (filter_)->action.group.group; \
-    else                                                                 \
-        (state_)->components.component_ += (filter_)->action.group.group
+#define APPLY_GROUP_DELTA4(filter_, state_, component_, group_) \
+    if ((filter_)->action.group.flags & ACTION_ABSOLUTE_SWITCH) \
+        (state_)->components.component_ = (group_);             \
+    else                                                        \
+        (state_)->components.component_ += (group_)
+
+#define APPLY_GROUP_DELTA3(filter_, state_, component_) \
+    APPLY_GROUP_DELTA4(filter_, state_, component_,     \
+                       (filter_)->action.group.group)
+
+#define APPLY_GROUP_DELTA(_1, _2, _3, _4, group, ...) group
+
+/**
+ * Modify a group component, depending on the ACTION_ABSOLUTE_SWITCH flag.
+ *
+ * The delta value depends on the argument count:
+ * - 3 arguments: `apply_group_delta(filter, state, base_group)`
+ *   applies the delta taken from the action.
+ * - 4 arguments: `apply_group_delta(filter, state, base_group, X)`
+ *   applies the delta of the given value X.
+ */
+#define apply_group_delta(...)                                             \
+    APPLY_GROUP_DELTA(__VA_ARGS__, APPLY_GROUP_DELTA4, APPLY_GROUP_DELTA3) \
+    (__VA_ARGS__)
 
 /** {Set,Latch}Group(group=Recent): compute the group delta */
 static int32_t
@@ -865,21 +883,30 @@ xkb_filter_group_latch_new(struct xkb_server_state *state,
                            struct xkb_events *events,
                            struct xkb_filter *filter)
 {
-    // FIXME: implement
+    int32_t group = filter->action.group.group;
+
     if (filter->action.group.flags & ACTION_USE_HISTORY) {
-        filter->func = NULL;
-        return;
+        /* Group history requires to compute the target group dynamically */
+
+        /* No-op if too few groups */
+        if (!state->groups || state->groups->num_main < 2) {
+            filter->func = NULL;
+            return;
+        }
+
+        group = filter_group_set_recent(filter, state);
     }
 
     const union group_latch_priv priv = {
         .latch = LATCH_KEY_DOWN,
         .group_delta = (filter->action.group.flags & ACTION_ABSOLUTE_SWITCH)
-            ? filter->action.group.group - state->base.components.base_group
-            : filter->action.group.group
+            ? group - state->base.components.base_group
+            : group
     };
     filter->priv = priv.priv;
+
     /* Like group set */
-    apply_group_delta(filter, &state->base, base_group);
+    apply_group_delta(filter, &state->base, base_group, group);
 }
 
 static bool
@@ -942,8 +969,8 @@ xkb_filter_group_latch_func(struct xkb_server_state *state,
             const bool sticky_keys = state->base.components.controls
                                    & CONTROL_STICKY_KEYS;
             /*
-             * NOTE: Action’s flags other than `ACTION_ABSOLUTE_SWITCH` are
-             * not compared:
+             * NOTE: Action’s flags other than `ACTION_ABSOLUTE_SWITCH` and
+             * `ACTION_USE_HISTORY` are not compared:
              * - flags may have been modified by keyboard controls at the
              *   creation of the filter;
              * - it is unlikely to have two LatchGroup() actions on the same
@@ -951,12 +978,14 @@ xkb_filter_group_latch_func(struct xkb_server_state *state,
              * - even if it were the case, one would most likely want both
              *   actions to be considered compatible in this context.
              */
+            static const enum xkb_action_flags flags =
+                (ACTION_ABSOLUTE_SWITCH | ACTION_USE_HISTORY);
             for (xkb_action_count_t k = 0; k < count; k++) {
                 if (((actions[k].type == ACTION_TYPE_GROUP_LATCH) ||
                      (actions[k].type == ACTION_TYPE_GROUP_SET && sticky_keys)) &&
                      actions[k].group.group == filter->action.group.group &&
-                     (actions[k].group.flags & ACTION_ABSOLUTE_SWITCH) ==
-                     (filter->action.group.flags & ACTION_ABSOLUTE_SWITCH)) {
+                     (actions[k].group.flags & flags) ==
+                     (filter->action.group.flags & flags)) {
                     if (filter->action.group.flags & ACTION_LATCH_TO_LOCK &&
                         filter->action.group.group != 0)
                     {

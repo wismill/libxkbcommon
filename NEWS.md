@@ -60,6 +60,9 @@ xkbcommon [1.14.0-beta2] – 2026-09-10
 - Added support for `Recent` special group value in [group actions](@ref group-actions),
   to enable switching the group based on the history.
 
+  [`SetGroup`](@ref set-group-action) and [`LatchGroup`](@ref latch-group-action) switch
+  temporarily to the last-used group.
+
   [`LockGroup`](@ref lock-group-action) effect is persistent: the first press activates
   the most recent group, each further consecutive press cycles through the group history.
 - Added the *default* special value [`auto`](@ref redirect-key-auto) to the `keycode`
