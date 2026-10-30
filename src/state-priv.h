@@ -62,6 +62,25 @@ XKB_EXPORT_PRIVATE xkb_led_mask_t
 xkb_state_serialize_leds(const struct xkb_state *state,
                          enum xkb_state_component type);
 
+/** Reference count is not updated */
+XKB_EXPORT_PRIVATE struct xkb_state *
+xkb_machine_get_state(struct xkb_machine *machine);
+
+/**
+ * Return the current main layouts.
+ * @memberof xkb_state
+ *
+ * @internal
+ * Hidden feature: if capacity is big enough, it writes the all history
+ * with the spares, although it returns only the main layout count.
+ * The actual written count is the number of layouts in the keymap.
+ * @endinternal
+ */
+XKB_EXPORT_PRIVATE enum xkb_status
+xkb_state_get_layout_history(const struct xkb_state *state,
+                             xkb_layout_index_t *buffer, size_t capacity,
+                             xkb_layout_index_t *count);
+
 /******************************************************************************
  * xkb_events_config
  *****************************************************************************/
@@ -674,7 +693,3 @@ static_assert(
     sizeof(const struct xkb_machine_builder_shortcut_override_update),
     ""
 );
-
-/** Reference count is not updated */
-XKB_EXPORT_PRIVATE struct xkb_state *
-xkb_machine_get_state(struct xkb_machine *machine);

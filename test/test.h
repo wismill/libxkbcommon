@@ -44,6 +44,23 @@
                   test_name ". Expected " format ", got: " format "\n", \
                   ##__VA_ARGS__, expected, got)
 
+#define assert_buffer_eq(test_name, expected, got, count, format, ...) do {\
+    size_t _buffer_eq_k = (count); \
+    while (_buffer_eq_k--) {\
+        if ((expected)[_buffer_eq_k] != (got)[_buffer_eq_k]) {\
+            fprintf(stderr, test_name ":\n", ##__VA_ARGS__);\
+            fprintf(stderr, "Expected: ");\
+            for (_buffer_eq_k = 0; _buffer_eq_k < (count); _buffer_eq_k++)\
+                fprintf(stderr, format ", ", (expected)[_buffer_eq_k]);\
+            fprintf(stderr, "\nGot:      ");\
+            for (_buffer_eq_k = 0; _buffer_eq_k < (count); _buffer_eq_k++)\
+                fprintf(stderr, format ", ", (got)[_buffer_eq_k]);\
+            fprintf(stderr, "\n");\
+            assert(!"Failed");\
+        }\
+    }\
+} while (0);
+
 /* Enable testing assertion failures */
 #if defined(__unix__) || defined(__APPLE__)
     #include <sys/wait.h>

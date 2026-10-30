@@ -2220,6 +2220,43 @@ xkb_state_get_keymap(struct xkb_state *state)
     return state->keymap;
 }
 
+enum xkb_status
+xkb_state_get_layout_history(const struct xkb_state * restrict base_state,
+                             xkb_layout_index_t * restrict buffer,
+                             size_t capacity, xkb_layout_index_t *count)
+{
+    if (base_state->mode <= SERVER_COMPANION) {
+        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE_,
+                "%s: Unexpected state type %d\n", __func__, base_state->mode);
+        return XKB_ERROR_UNEXPECTED_STATE_MODE;
+    }
+
+    struct xkb_server_state *state = (struct xkb_server_state*)base_state;
+    if (!state->groups) {
+        // TODO: dedicated error code & message once public API
+        return XKB_ERROR_INVALID;
+    }
+
+    struct xkb_group_history *groups = state->groups;
+    if (capacity < groups->num_main) {
+        // TODO: dedicated error code & message once public API
+        return XKB_ERROR_INVALID;
+    }
+
+    *count = groups->num_main;
+    /* Hidden feature: if capacity is big enough, write the all history */
+    const uint8_t m_max = (capacity >= groups->num_all)
+        ? groups->num_all
+        : groups->num_main;
+    static_assert(sizeof(*buffer) != sizeof(*groups->history),
+                  "Incompatible types: cannot use memcpy");
+    for (uint8_t m = 0; m < m_max; m++) {
+        buffer[m] = groups->history[m];
+    }
+
+    return XKB_SUCCESS;
+}
+
 /**
  * Update the LED state to match the rest of the xkb_state.
  */

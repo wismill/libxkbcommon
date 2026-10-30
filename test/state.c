@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "xkbcommon/xkbcommon-status.h"
 #include "xkbcommon/xkbcommon-keysyms.h"
@@ -3923,6 +3924,166 @@ test_layout_index_named_bounds(struct xkb_context *ctx)
     xkb_keymap_unref(keymap);
 }
 
+static void
+test_basic_layout_history(struct xkb_context *ctx)
+{
+    struct xkb_keymap * keymap = test_compile_rules(
+        ctx, XKB_KEYMAP_FORMAT_TEXT_V1, "evdev", "pc104",
+        "us,in,ch,cz", NULL, "grp:menu_toggle"
+    );
+    assert(keymap);
+
+    enum { capacity = 5 };
+    xkb_layout_index_t history[capacity] = {0};
+    xkb_layout_index_t count = 0;
+
+    struct xkb_state *state;
+
+    /* Client state: invalid */
+    state = xkb_state_new_with_mode(keymap, XKB_STATE_MODE_CLIENT, NULL);
+    assert(state);
+    assert(xkb_state_get_layout_history(state, history, capacity, &count) ==
+           XKB_ERROR_UNEXPECTED_STATE_MODE);
+    xkb_state_unref(state);
+
+    /* Server companion: invalid */
+    struct xkb_events * const events = xkb_events_new(ctx, NULL, NULL);
+    assert(events);
+    struct xkb_machine_builder * const builder =
+        xkb_machine_builder_new(keymap, NULL, NULL);
+    assert(builder);
+    struct xkb_machine *sm =  xkb_machine_new(builder, NULL);
+    assert(sm);
+    state = xkb_state_new_from_machine(sm, NULL);
+    assert(state);
+    assert(xkb_state_get_layout_history(state, history, capacity, &count) ==
+           XKB_ERROR_UNEXPECTED_STATE_MODE);
+    xkb_state_unref(state);
+    xkb_machine_unref(sm);
+    sm = NULL;
+
+    /*
+     * Server state
+     */
+    enum { MIXED, SERVER, MACHINE };
+    for (int mode = MIXED; mode <= MACHINE; mode++) {
+        /*
+         * History is independent of depressed, latch and effective layout.
+         * Check this by changing the latch layout on some updates.
+         */
+        for (uint8_t update_latched = 0; update_latched < 2; update_latched++) {
+        fprintf(stderr, "------\n*** %s: #%d (%s latch update) ***\n",
+                __func__, mode, (update_latched ? "with" : "without"));
+
+        switch (mode) {
+        case MIXED:
+            state = xkb_state_new(keymap);
+            break;
+        case SERVER:
+            state = xkb_state_new_with_mode(keymap, XKB_STATE_MODE_SERVER, NULL);
+            break;
+        default: {
+            sm =  xkb_machine_new(builder, NULL);
+            assert(sm);
+            state = xkb_machine_get_state(sm);
+            state = xkb_state_ref(state);
+            break;
+        }}
+        assert(state);
+
+        assert(xkb_state_get_layout_history(state, history, 2, &count) ==
+               XKB_ERROR_INVALID);
+
+        enum {
+            initial_state,
+            next_group_press,
+            out_of_band1,
+            out_of_band2,
+            out_of_band3,
+            out_of_band4,
+            out_of_band5,
+            _num_expected,
+        };
+        static const xkb_layout_index_t expected[][4] = {
+            [initial_state]    = {0, 1, 2, 3},
+            [next_group_press] = {1, 0, 2, 3},
+            [out_of_band1]     = {2, 1, 0, 3},
+            [out_of_band2]     = {0, 2, 1, 3},
+            [out_of_band3]     = {0, 2, 1, 3}, /* repeat locked layout */
+            [out_of_band4]     = {2, 0, 1, 3},
+            [out_of_band5]     = {3, 2, 0, 1},
+        };
+        static_assert(_num_expected == (int)ARRAY_SIZE(expected), "");
+
+        /* Initial history */
+        assert(xkb_state_get_layout_history(state, history, capacity, &count) ==
+               XKB_SUCCESS);
+        assert((size_t)count == ARRAY_SIZE(*expected));
+        assert(memcmp(history, expected[initial_state], count) == 0);
+
+        /* Next group switcher key press */
+        static const xkb_keycode_t key = KEY_COMPOSE + EVDEV_OFFSET;
+        if (mode == MACHINE) {
+            assert(xkb_machine_process_key(sm, key,
+                                           XKB_KEY_DOWN, events) == XKB_SUCCESS);
+        } else {
+            xkb_state_update_key(state, key, XKB_KEY_DOWN);
+        }
+        assert(xkb_state_get_layout_history(state, history, capacity, &count) ==
+               XKB_SUCCESS);
+        assert((size_t)count == ARRAY_SIZE(*expected));
+        assert(memcmp(history, expected[next_group_press], count) == 0);
+
+        /* Out-of-band update */
+        static const int out_of_band[] = {
+            out_of_band1,
+            out_of_band2,
+            out_of_band3,
+            out_of_band4,
+            out_of_band5,
+        };
+        for (size_t u = 0; u < ARRAY_SIZE(out_of_band); u++) {
+            fprintf(stderr, "*** Out-of-band update: %zu\n", u);
+
+            const xkb_layout_index_t * const expected_history =
+                expected[out_of_band[u]];
+
+            const struct xkb_state_components_update components_update = {
+                .size = sizeof(components_update),
+                .components = XKB_STATE_LAYOUT_LOCKED
+                            | (update_latched ? XKB_STATE_LAYOUT_LATCHED : 0),
+                .latched_layout = (int32_t)(u % ARRAY_SIZE(*expected)),
+                .locked_layout = (int32_t)expected_history[0],
+            };
+            const struct xkb_synthetic_update update = {
+                .size = sizeof(update),
+                .components = &components_update,
+            };
+            if (mode == MACHINE) {
+                assert(xkb_machine_process_synthetic(sm, &update, events) ==
+                       XKB_SUCCESS);
+            } else {
+                assert(xkb_state_update_synthetic(state, &update, NULL) ==
+                       XKB_SUCCESS);
+            }
+            assert(xkb_state_get_layout_history(state, history, capacity, &count) ==
+                   XKB_SUCCESS);
+            assert((size_t)count == ARRAY_SIZE(*expected));
+            assert_buffer_eq("out-of-band #%zu",
+                             expected_history, history, count,
+                             "%"PRIu32, u);
+        }
+
+        xkb_state_unref(state);
+        xkb_machine_unref(sm);
+        sm = NULL;
+        }
+    }
+    xkb_machine_builder_unref(builder);
+    xkb_events_destroy(events);
+    xkb_keymap_unref(keymap);
+}
+
 int
 main(void)
 {
@@ -3987,6 +4148,7 @@ main(void)
     test_void_action(context);
     test_extended_layout_indices(context);
     test_layout_index_named_bounds(context);
+    test_basic_layout_history(context);
 
     xkb_context_unref(context);
     return EXIT_SUCCESS;
