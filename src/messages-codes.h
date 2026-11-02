@@ -232,6 +232,8 @@ enum xkb_message_code {
     XKB_ERROR_KEYMAP_COMPILATION_FAILED = 822,
     /** Unsupported keymap serialization flags */
     XKB_ERROR_UNSUPPORTED_KEYMAP_SERIALIZATION_FLAGS_ = 829,
+    /** A core layout is missing from the layout recency order */
+    XKB_ERROR_MISSING_CORE_LAYOUT_ = 832,
     /** Unknown action type */
     XKB_ERROR_UNKNOWN_ACTION_TYPE = 844,
     /** ABI forward-compatibility check failed */

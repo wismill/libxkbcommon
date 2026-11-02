@@ -348,6 +348,7 @@
     - it contains duplicate layouts.
 
     @sa @ref XKB-209 "" for layouts that are out of range for the keymap.
+    @sa @ref XKB-832 "" for missing core layouts.
 
     [layout recency order]: @ref layout-recency-order-def
     [layout cycle policy]:  @ref xkb_layout_cycle_policy
@@ -795,6 +796,16 @@
   description: "Unsupported keymap serialization flags"
   details: |
     See `::xkb_keymap_serialize_flags` for the list of valid flags.
+- id: "missing-core-layout"
+  code: 832
+  type: error
+  visibility: public
+  added: 1.14.0
+  description: A core layout is missing from the layout recency order
+  details: |
+    The given [layout recency order](@ref layout-recency-order-def) must
+    contain all the [core layouts](@ref core-layouts-def) of the active
+    [layout cycle policy](@ref xkb_layout_cycle_policy).
 - id: "unknown-action-type"
   code: 844
   added: ALWAYS
