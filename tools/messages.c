@@ -56,6 +56,7 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_WARNING_DEPRECATED_KEYSYM_NAME, "Deprecated keysym name"},
     {XKB_WARNING_NON_BASE_GROUP_NAME, "Non base group name"},
     {XKB_ERROR_UNSUPPORTED_SHIFT_LEVEL, "Unsupported shift level"},
+    {XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER_, "Invalid layout recency order"},
     {XKB_ERROR_INCLUDED_FILE_NOT_FOUND, "Included file not found"},
     {XKB_ERROR_UNKNOWN_OPERATOR, "Unknown operator"},
     {XKB_ERROR_OVERLAPPING_OVERLAY, "Overlapping overlay"},

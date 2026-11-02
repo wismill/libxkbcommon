@@ -130,6 +130,8 @@ enum xkb_message_code {
     XKB_WARNING_NON_BASE_GROUP_NAME = 305,
     /** Warn when a shift level is not supported */
     XKB_ERROR_UNSUPPORTED_SHIFT_LEVEL = 312,
+    /** Invalid layout recency order */
+    XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER_ = 317,
     /** Could not find a file used in an include statement */
     XKB_ERROR_INCLUDED_FILE_NOT_FOUND = 338,
     /** Use of an operator that is unknown and thus unsupported */

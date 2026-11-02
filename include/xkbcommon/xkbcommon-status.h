@@ -166,6 +166,24 @@ enum xkb_status {
      */
     XKB_ERROR_UNSUPPORTED_KEYMAP_FORMAT = 277,
     /**
+     * Invalid layout recency order
+     *
+     * The given [layout recency order] is not consistent with the active
+     * [layout cycle policy]. For example:
+     *
+     * - its length differs from the number of [main layouts];
+     * - it contains duplicate layouts.
+     *
+     * @sa @ref XKB-209 "" for layouts that are out of range for the keymap.
+     *
+     * [layout recency order]: @ref layout-recency-order-def
+     * [layout cycle policy]:  @ref xkb_layout_cycle_policy
+     * [main layouts]:         @ref main-layouts-def
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER = 317,
+    /**
      * Layout count limit exceeded for the corresponding keymap format
      *
      * @since 1.14.0
