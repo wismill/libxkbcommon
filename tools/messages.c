@@ -42,6 +42,7 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_WARNING_ILLEGAL_KEY_TYPE_PRESERVE_RESULT, "Illegal key type preserve result"},
     {XKB_ERROR_INVALID_INCLUDE_STATEMENT, "Invalid include statement"},
     {XKB_ERROR_INVALID_MODMAP_ENTRY, "Invalid modmap entry"},
+    {XKB_ERROR_INVALID_MAIN_LAYOUT_, "Invalid main layout"},
     {XKB_ERROR_UNSUPPORTED_LAYOUT_OUT_OF_RANGE_MODE_, "Unsupported layout out of range mode"},
     {XKB_ERROR_UNKNOWN_STATEMENT, "Unknown statement"},
     {XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX_, "Unsupported layout index"},

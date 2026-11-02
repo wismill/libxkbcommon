@@ -111,6 +111,28 @@ enum xkb_status {
      */
     XKB_ERROR_UNSUPPORTED_KEY_ITERATOR_FLAGS = 138,
     /**
+     * Invalid main layout index or mask
+     *
+     * The given value is invalid:
+     *
+     * <dl>
+     * <dt>Layout *index*</dt>
+     * <dd>The given layout index is out of range for the keymap.</dd>
+     *
+     * <dt>Layout *mask*</dt>
+     * <dd>
+     * The given layout mask is either empty (no layout) while the keymap does
+     * define some layouts, or has bits set for layouts the keymap does not
+     * define.
+     * </dd>
+     * </dl>
+     *
+     * See the [main layouts definition](@ref main-and-spare-layouts).
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_INVALID_MAIN_LAYOUT = 209,
+    /**
      * The given layout out-of-range mode is not supported
      *
      * Use the following to check if the linked libxkbcommon supports a given
