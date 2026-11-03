@@ -102,6 +102,7 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_ERROR_INVALID_XKB_SYNTAX, "Invalid xkb syntax"},
     {XKB_WARNING_UNDEFINED_KEYCODE, "Undefined keycode"},
     {XKB_ERROR_INVALID_EXPRESSION_TYPE, "Invalid expression type"},
+    {XKB_ERROR_INVALID_CORE_LAYOUT_, "Invalid core layout"},
     {XKB_ERROR_INVALID_VALUE, "Invalid value"},
     {XKB_WARNING_CONFLICTING_MODMAP, "Conflicting modmap"},
     {XKB_ERROR_UNKNOWN_FIELD, "Unknown field"},

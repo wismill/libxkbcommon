@@ -289,6 +289,39 @@ enum xkb_status {
      */
     XKB_ERROR_UNSUPPORTED_MACHINE_FLAGS = 755,
     /**
+     * Invalid core layout index or mask
+     *
+     * The core layouts must be a subset of the main layouts, but the given
+     * value
+     * is invalid:
+     *
+     * <dl>
+     * <dt>Core layout *index*</dt>
+     * <dd>
+     * The given layout index is either out of range for the keymap (non-
+     * existent)
+     * or not in the main layouts (constraint violation).
+     * </dd>
+     *
+     * <dt>Core layout *mask*</dt>
+     * <dd>
+     * The given layout mask has bits set for layouts that are either not
+     * defined
+     * in the keymap (non-existent) or not in the main layouts (constraint
+     * violation).
+     * </dd>
+     * </dl>
+     *
+     * Note that such error may be triggered only once main layouts are
+     * validated.
+     *
+     * @sa The [core layouts definition](@ref core-and-adjunct-layouts).
+     * @sa @ref XKB-209 "".
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_INVALID_CORE_LAYOUT = 789,
+    /**
      * Unsupported keymap serialization flags
      *
      * See `::xkb_keymap_serialize_flags` for the list of valid flags.
