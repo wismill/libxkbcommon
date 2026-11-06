@@ -856,8 +856,9 @@ main(void)
 
     assert(xkb_utf8_to_keysym(NULL, 0) == XKB_KEY_NoSymbol);
     assert(xkb_utf8_to_keysym("", 1) == XKB_KEY_NoSymbol);
-    assert(xkb_utf8_to_keysym("1", 2) == XKB_KEY_1);
-    assert(xkb_utf8_to_keysym("12", 2) == XKB_KEY_1); /* Only first codepoint */
+    assert(xkb_utf8_to_keysym("1", 1) == XKB_KEY_1);
+    assert(xkb_utf8_to_keysym("1", 2) == XKB_KEY_1); /* NUL-terminated */
+    assert(xkb_utf8_to_keysym("12", 2) == XKB_KEY_NoSymbol); /* Only first codepoint */
 
     /* Latin-1 keysyms (1:1 mapping in UTF-32) */
     assert(test_utf8(0x0020, "\x20"));
