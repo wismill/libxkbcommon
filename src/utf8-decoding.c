@@ -1,82 +1,132 @@
 /*
- * Copyright © 2024 Pierre Le Marre <dev@wismill.eu>
  * SPDX-License-Identifier: MIT
+ *
+ * Adapted from utf8proc_iterate() of utf8proc (src/utf8proc.c),
+ * https://github.com/JuliaStrings/utf8proc, which is distributed under the
+ * following license:
+ *
+ * Copyright (c) 2014-2021 Steven G. Johnson, Jiahao Chen, Peter Colberg,
+ * Tony Kelman, Scott P. Jones, and other contributors.
+ * Copyright (c) 2009 Public Software Group e. V., Berlin, Germany
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #include "config.h"
 
-#include "utils.h"
-#include "utf8-decoding.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
-/* Array mapping the leading byte to the length of a UTF-8 sequence.
- * A value of zero indicates that the byte can not begin a UTF-8 sequence. */
-static const uint8_t utf8_sequence_length_by_leading_byte[256] = {
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x00-0x0F */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x10-0x1F */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x20-0x2F */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x30-0x3F */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x40-0x4F */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x50-0x5F */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x60-0x6F */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x70-0x7F */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x80-0x8F */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x90-0x9F */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xA0-0xAF */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xB0-0xBF */
-    0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, /* 0xC0-0xCF */
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, /* 0xD0-0xDF */
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, /* 0xE0-0xEF */
-    4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xF0-0xFF */
+#include "utf8-decoding.h"
+#include "utils.h"
+
+/* Doc only: keep this private */
+enum xkb_utf8_error {
+    XKB_UTF8_INVALID = -1,
 };
 
-/* Length of next utf-8 sequence */
-uint8_t
-utf8_sequence_length(const char *s)
+/** Check that a byte is a UTF-8 continuation byte (0b10xxxxxx) */
+static bool
+is_utf8_continuation(uint32_t c)
 {
-    return utf8_sequence_length_by_leading_byte[(unsigned char)s[0]];
+    return ((c & 0xc0) == 0x80);
 }
 
-/* Reads the next UTF-8 sequence in a string */
-uint32_t
-utf8_next_code_point(const char *s, size_t max_size, size_t *size_out)
+/*
+ * Reads the next UTF-8 sequence in a string.
+ *
+ * Only well-formed sequences are accepted: no overlong encodings, no
+ * surrogates and no code point beyond U+10FFFF. Otherwise return
+ * INVALID_UTF8_CODE_POINT and do not set `cp`.
+ * Never reads more than `max_size` bytes.
+ *
+ */
+ssize_t
+xkb_utf8_iterate(const char *s, size_t max_size, uint32_t *cp)
 {
-    uint32_t cp = 0;
-    uint8_t len = utf8_sequence_length(s);
-    *size_out = 0;
+    if (!max_size)
+        return 0;
 
-    if (!max_size || len > max_size)
-        return INVALID_UTF8_CODE_POINT;
+    uint32_t b0 = (uint8_t)s[0];
 
-    /* Handle leading byte */
-    switch (len) {
-    case 1:
-        *size_out = 1;
-        return (uint32_t)s[0];
-    case 2:
-        cp = (uint32_t)s[0] & 0x1f;
-        break;
-    case 3:
-        cp = (uint32_t)s[0] & 0x0f;
-        break;
-    case 4:
-        cp = (uint32_t)s[0] & 0x07;
-        break;
-    default:
-        return INVALID_UTF8_CODE_POINT;
+    if (b0 < 0x80) {
+        *cp = b0;
+        return 1;
     }
 
-    /* Process remaining bytes of the UTF-8 sequence */
-    for (size_t k = 1; k < len; k++) {
-        if (((uint32_t)s[k] & 0xc0) != 0x80)
-            return INVALID_UTF8_CODE_POINT;
-        cp <<= 6;
-        cp |= (uint32_t)s[k] & 0x3f;
+    /* Must be between 0xc2 and 0xf4 inclusive to be valid */
+    if (b0 - 0xc2 > 0xf4 - 0xc2)
+        return XKB_UTF8_INVALID;
+
+    if (b0 < 0xe0) {
+        /* 2-byte sequence: must have a valid continuation byte */
+        if (max_size < 2 || !is_utf8_continuation(s[1]))
+            return XKB_UTF8_INVALID;
+        *cp = ((b0 & 0x1f) << 6) | ((uint8_t)s[1] & 0x3f);
+        return 2;
     }
 
-    /* Disallow surrogates */
-    if (is_surrogate(cp))
-        return INVALID_UTF8_CODE_POINT;
+    if (b0 < 0xf0) {
+        /* 3-byte sequence: must have 2 valid continuation bytes */
+        if (max_size < 3 ||
+            !is_utf8_continuation(s[1]) ||
+            !is_utf8_continuation(s[2]))
+        {
+            return XKB_UTF8_INVALID;
+        }
+        /* Check for surrogates */
+        if (b0 == 0xed && (uint8_t)s[1] > 0x9f)
+            return XKB_UTF8_INVALID;
+        b0 = (
+            ((b0 & 0xf) << 12) |
+            (((uint8_t)s[1] & 0x3f) << 6) |
+            ((uint8_t)s[2] & 0x3f)
+        );
+        /* Check for overlong encodings */
+        if (b0 < 0x800)
+            return XKB_UTF8_INVALID;
+        *cp = b0;
+        return 3;
+    }
 
-    *size_out = len;
-    return cp;
+    /* 4-byte sequence: must have 3 valid continuation bytes */
+    if (max_size < 4 ||
+        !is_utf8_continuation(s[1]) ||
+        !is_utf8_continuation(s[2]) ||
+        !is_utf8_continuation(s[3]))
+    {
+        return XKB_UTF8_INVALID;
+    }
+    /* Make sure it is in the correct range (U+10000..U+10FFFF) */
+    if (b0 == 0xf0) {
+        if ((uint8_t)s[1] < 0x90)
+            return XKB_UTF8_INVALID;
+    } else if (b0 == 0xf4) {
+        if ((uint8_t)s[1] > 0x8f)
+            return XKB_UTF8_INVALID;
+    }
+    *cp = (
+        ((b0 & 7) << 18) |
+        (((uint8_t)s[1] & 0x3f) << 12) |
+        (((uint8_t)s[2] & 0x3f) << 6) |
+        ((uint8_t)s[3] & 0x3f)
+    );
+    return 4;
 }
