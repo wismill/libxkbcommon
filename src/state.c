@@ -454,12 +454,16 @@ enum xkb_filter_result {
     XKB_FILTER_CONTINUE,
 };
 
-/* Modify a group component, depending on the ACTION_ABSOLUTE_SWITCH flag */
-#define apply_group_delta(filter_, state_, component_)                   \
-    if ((filter_)->action.group.flags & ACTION_ABSOLUTE_SWITCH)          \
-        (state_)->components.component_ = (filter_)->action.group.group; \
-    else                                                                 \
-        (state_)->components.component_ += (filter_)->action.group.group
+/** Modify a group component, depending on the ACTION_ABSOLUTE_SWITCH flag. */
+static inline void
+apply_group_delta(struct xkb_filter * restrict filter,
+                  int32_t * restrict component, int32_t value)
+{
+    if (filter->action.group.flags & ACTION_ABSOLUTE_SWITCH)
+        *component = value;
+    else
+        *component += value;
+}
 
 /** {Set,Latch}Group(group=Recent): compute the group delta */
 static int32_t
@@ -510,7 +514,8 @@ xkb_filter_group_set_new(struct xkb_server_state *state,
     filter->priv = (uint32_t)filter->action.group.group;
     if (filter->action.group.flags & ACTION_ABSOLUTE_SWITCH)
         filter->priv -= (uint32_t)state->base.components.base_group;
-    apply_group_delta(filter, &state->base, base_group);
+    apply_group_delta(filter, &state->base.components.base_group,
+                      filter->action.group.group);
 }
 
 static bool
@@ -674,7 +679,8 @@ xkb_filter_group_lock_apply(struct xkb_server_state *state,
     if (filter->action.group.flags & ACTION_USE_RECENCY_ORDER) {
         xkb_filter_group_lock_recent(state, (filter->action.group.group < 0));
     } else {
-        apply_group_delta(filter, &state->base, locked_group);
+        apply_group_delta(filter, &state->base.components.locked_group,
+                          filter->action.group.group);
     }
 }
 
@@ -934,21 +940,30 @@ xkb_filter_group_latch_new(struct xkb_server_state *state,
                            struct xkb_events *events,
                            struct xkb_filter *filter)
 {
-    // FIXME: implement
+    int32_t group = filter->action.group.group;
+
     if (filter->action.group.flags & ACTION_USE_RECENCY_ORDER) {
-        filter->func = NULL;
-        return;
+        /* Groups recency requires to compute the target group dynamically */
+
+        /* No-op if too few groups */
+        if (!state->groups || state->groups->num_main < 2) {
+            filter->func = NULL;
+            return;
+        }
+
+        group = filter_group_set_recent(filter, state);
     }
 
     const union group_latch_priv priv = {
         .latch = LATCH_KEY_DOWN,
         .group_delta = (filter->action.group.flags & ACTION_ABSOLUTE_SWITCH)
-            ? filter->action.group.group - state->base.components.base_group
-            : filter->action.group.group
+            ? group - state->base.components.base_group
+            : group
     };
     filter->priv = priv.priv;
+
     /* Like group set */
-    apply_group_delta(filter, &state->base, base_group);
+    apply_group_delta(filter, &state->base.components.base_group, group);
 }
 
 static bool
@@ -1011,8 +1026,8 @@ xkb_filter_group_latch_func(struct xkb_server_state *state,
             const bool sticky_keys = state->base.components.controls
                                    & CONTROL_STICKY_KEYS;
             /*
-             * NOTE: Action’s flags other than `ACTION_ABSOLUTE_SWITCH` are
-             * not compared:
+             * NOTE: Action’s flags other than `ACTION_ABSOLUTE_SWITCH` and
+             * `ACTION_USE_RECENCY_ORDER` are not compared:
              * - flags may have been modified by keyboard controls at the
              *   creation of the filter;
              * - it is unlikely to have two LatchGroup() actions on the same
@@ -1020,12 +1035,14 @@ xkb_filter_group_latch_func(struct xkb_server_state *state,
              * - even if it were the case, one would most likely want both
              *   actions to be considered compatible in this context.
              */
+            static const enum xkb_action_flags flags =
+                (ACTION_ABSOLUTE_SWITCH | ACTION_USE_RECENCY_ORDER);
             for (xkb_action_count_t k = 0; k < count; k++) {
                 if (((actions[k].type == ACTION_TYPE_GROUP_LATCH) ||
                      (actions[k].type == ACTION_TYPE_GROUP_SET && sticky_keys)) &&
                      actions[k].group.group == filter->action.group.group &&
-                     (actions[k].group.flags & ACTION_ABSOLUTE_SWITCH) ==
-                     (filter->action.group.flags & ACTION_ABSOLUTE_SWITCH)) {
+                     (actions[k].group.flags & flags) ==
+                     (filter->action.group.flags & flags)) {
                     if (filter->action.group.flags & ACTION_LATCH_TO_LOCK &&
                         filter->action.group.group != 0)
                     {
