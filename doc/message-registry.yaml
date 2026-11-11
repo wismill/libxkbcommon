@@ -198,6 +198,27 @@
   added: ALWAYS
   type: error
   description: "A modmap entry is invalid"
+- id: "invalid-main-layout"
+  code: 209
+  type: error
+  visibility: public
+  added: 1.14.0
+  description: Invalid main layout index or mask
+  details: |
+    The given value is invalid:
+
+    <dl>
+    <dt>Layout *index*</dt>
+    <dd>The given layout index is out of range for the keymap.</dd>
+
+    <dt>Layout *mask*</dt>
+    <dd>
+    The given layout mask is either empty (no layout) while the keymap does
+    define some layouts, or has bits set for layouts the keymap does not define.
+    </dd>
+    </dl>
+
+    See the [main layouts definition](@ref main-and-spare-layouts).
 - id: "unsupported-layout-out-of-range-mode"
   code: 214
   type: error
