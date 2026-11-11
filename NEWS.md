@@ -57,6 +57,12 @@ xkbcommon [1.14.0-beta2] – 2026-09-10
   ```
 
   ([#798](https://github.com/xkbcommon/libxkbcommon/issues/798))
+- Added support for `Recent` special group value in [group actions](@ref group-actions),
+  to enable switching the group based on the recency order.
+
+  [`LockGroup`](@ref lock-group-action) effect is persistent: the first press locks
+  the previously used group; each further consecutive press cycles through the groups,
+  from the most to the least recently used.
 - Added the *default* special value [`auto`](@ref redirect-key-auto) to the `keycode`
   parameter of the [`RedirectKey()`](@ref redirect-key-action) action, which resolves
   to the keycode where the action is located:

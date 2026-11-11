@@ -3790,6 +3790,16 @@ Group index:
 
   @since 1.14
   </dd>
+  <dt>`Recent`</dt>
+  <dd>
+  Denotes either the *previously used* group (`+Recent`, `Recent`) or
+  the *least recently used* group (`-Recent`), depending on the sign before it.
+  It has no fixed value: it depends on the [group *recency order*][group-recency].
+
+  [group-recency]: @ref layout-recency-order-def
+
+  @since 1.14
+  </dd>
   </dl>
 - either absolute (no sign) or relative (`+`/`-` sign)
 </td>
@@ -3897,6 +3907,8 @@ See further details [hereinafter](@ref lock-group-action-effects)
 <th>`SetGroup` @anchor set-group-action-effects</th>
 <td>
 
+@todo Recent
+
 - If the `group` parameter is *absolute*, key press events sets the *base*
   keyboard group to `group`.
 - Otherwise, it adds `group` to the *base* keyboard group.
@@ -3914,6 +3926,8 @@ parameter is set, key release also sets the *locked* keyboard group to `Group1`.
 <tr>
 <th>`LatchGroup` @anchor latch-group-action-effects</th>
 <td>
+
+@todo Recent
 Same as `SetGroup`.
 </td>
 <td>
@@ -3940,11 +3954,30 @@ additional effects:
 
 - If `lockOnRelease` is set, then key press has no effect.
 - Otherwise:
+  - if `group` is `Recent`, the action *cycles* through the <em>[main]</em>
+    groups, in the order of their [recency][group-recency].
+    The sign selects the *direction*:
+    - `+Recent` (or `Recent`) goes from the most to the least recently used group;
+    - `-Recent` goes the other way, from the least to the most recently used group.
+
+    If no cycle is active, a new cycle starts: the *locked* group is set to the
+    first group in that direction, i.e. the previously used group for `+Recent`
+    and the least recently used group for `-Recent`.
+
+    Otherwise, the cycle continues: the *locked* group is set to the next group
+    in the same direction. After the last group, the cycle wraps around to the
+    group that was locked when the cycle started.
+
+    The cycle continues as long as every key pressed has, on its current
+    effective level, only `LockGroup(group=Recent)` or `LockGroup(group=-Recent)`
+    actions, whether it is the same key or another one.
+
+    [main]: @ref main-layouts-def
   - if the `group` is absolute, key press sets the *locked* keyboard group to
     `group`;
   - otherwise, key press adds `group` to the *locked* keyboard group.
 
-  In either case, the resulting *locked* and *effective* group is brought back
+  In any case, the resulting *locked* and *effective* group is brought back
   into range depending on the value of the `GroupsWrap` control for the keyboard.
   See `xkb_layout_out_of_range_mode` for further details.
 </td>
