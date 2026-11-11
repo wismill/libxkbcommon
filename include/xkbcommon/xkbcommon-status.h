@@ -216,6 +216,14 @@ enum xkb_status {
      */
     XKB_ERROR_UNEXPECTED_STATE_MODE = 399,
     /**
+     * Unsupported layout cycle policy flags
+     *
+     * See `enum xkb_layout_cycle_policy_flags` for the list of valid flags.
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_UNSUPPORTED_LAYOUT_CYCLE_POLICY_FLAGS = 400,
+    /**
      * Layout index or mask is out of range for the keymap
      *
      * The layout index or mask may be valid for the keymap format, but it

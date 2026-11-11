@@ -152,6 +152,8 @@ enum xkb_message_code {
     XKB_ERROR_RECURSIVE_INCLUDE = 386,
     /** A `xkb_state` object has an unexpected `xkb_state_mode` */
     XKB_ERROR_UNEXPECTED_STATE_MODE_ = 399,
+    /** Unsupported layout cycle policy flags */
+    XKB_ERROR_UNSUPPORTED_LAYOUT_CYCLE_POLICY_FLAGS_ = 400,
     /** Conflicting definitions of a key type */
     XKB_WARNING_CONFLICTING_KEY_TYPE_DEFINITIONS = 407,
     /** Layout index or mask is out of range for the keymap */

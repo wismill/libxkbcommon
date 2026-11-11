@@ -67,6 +67,7 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_WARNING_DUPLICATE_ENTRY, "Duplicate entry"},
     {XKB_ERROR_RECURSIVE_INCLUDE, "Recursive include"},
     {XKB_ERROR_UNEXPECTED_STATE_MODE_, "Unexpected state mode"},
+    {XKB_ERROR_UNSUPPORTED_LAYOUT_CYCLE_POLICY_FLAGS_, "Unsupported layout cycle policy flags"},
     {XKB_WARNING_CONFLICTING_KEY_TYPE_DEFINITIONS, "Conflicting key type definitions"},
     {XKB_ERROR_OUT_OF_KEYMAP_RANGE_LAYOUT_, "Out of keymap range layout"},
     {XKB_ERROR_GLOBAL_DEFAULTS_WRONG_SCOPE, "Global defaults wrong scope"},
