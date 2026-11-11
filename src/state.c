@@ -2226,6 +2226,54 @@ xkb_state_get_keymap(struct xkb_state *state)
     return state->keymap;
 }
 
+enum xkb_status
+xkb_state_get_layout_recency_order(const struct xkb_state * restrict base_state,
+                                   xkb_layout_index_t * restrict buffer,
+                                   size_t capacity, xkb_layout_index_t *count)
+{
+    if (base_state->mode <= SERVER_COMPANION) {
+        log_err(base_state->keymap->ctx, XKB_ERROR_UNEXPECTED_STATE_MODE_,
+                "%s: Unexpected state type %d\n", __func__, base_state->mode);
+        return XKB_ERROR_UNEXPECTED_STATE_MODE;
+    }
+
+    struct xkb_server_state *state = (struct xkb_server_state*)base_state;
+    const struct xkb_group_recency_order *groups = state->groups;
+    *count = groups ? groups->num_main : state->base.keymap->num_groups;
+
+    if (!buffer || !(*count)) {
+        /* Only queried the count of main layouts, or degenerated keymap */
+        return XKB_SUCCESS;
+    }
+
+    if (capacity < *count) {
+        return XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY;
+    }
+
+    if (!groups) {
+        assert(*count == 1);
+        buffer[0] = 0;
+        return XKB_SUCCESS;
+    }
+
+    const uint8_t m_max =
+#ifdef ENABLE_PRIVATE_APIS
+    /*
+     * Hidden feature: if capacity is big enough, write the whole recency
+     * order array with the spares, but still report only main layouts.
+     */
+        (capacity >= groups->num_all) ? groups->num_all :
+#endif
+        groups->num_main;
+    static_assert(sizeof(*buffer) != sizeof(*groups->recency),
+                  "Incompatible types: cannot use memcpy");
+    for (uint8_t m = 0; m < m_max; m++) {
+        buffer[m] = groups->recency[m];
+    }
+
+    return XKB_SUCCESS;
+}
+
 /**
  * Update the LED state to match the rest of the xkb_state.
  */

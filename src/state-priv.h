@@ -62,6 +62,46 @@ XKB_EXPORT_PRIVATE xkb_led_mask_t
 xkb_state_serialize_leds(const struct xkb_state *state,
                          enum xkb_state_component type);
 
+/** Reference count is not updated */
+XKB_EXPORT_PRIVATE struct xkb_state *
+xkb_machine_get_state(struct xkb_machine *machine);
+
+/**
+ * Retrieve the current main layouts.
+ * @memberof xkb_state
+ *
+ * @param state[in]
+ *   The state object to query.
+ * @param buffer[out]
+ *   A user-supplied buffer to write the recency order, or `NULL`.
+ * @param capacity[in]
+ *   The capacity of @p buffer. Ignored if @p buffer is `NULL`.
+ * @param count[out]
+ *   The number of main layouts. If @p buffer is not `NULL` and
+ *   @p capacity ≤ @p \*count, then @p \*count is the number of items
+ *   written in @p buffer.
+ *
+ * @pre @p state must be created with `::XKB_STATE_MODE_SERVER` or
+ * `xkb_state_new()`, otherwise the call is *rejected* without updating
+ * @p buffer nor @p count and the misuse is logged as
+ * `::XKB_ERROR_UNEXPECTED_STATE_MODE`.
+ *
+ * @returns `::XKB_SUCCESS` on sucess, otherwise one of the following
+ * [error codes](@ref xkb_status):
+ * - `::XKB_ERROR_UNEXPECTED_STATE_MODE`
+ * - `::XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY`
+ *
+ * @internal
+ * Hidden feature: if capacity is big enough, it writes the whole recency order
+ * array with the spares, although it returns only the main layout count.
+ * The actual written count is the number of layouts in the keymap.
+ * @endinternal
+ */
+XKB_EXPORT_PRIVATE enum xkb_status
+xkb_state_get_layout_recency_order(const struct xkb_state *state,
+                                   xkb_layout_index_t *buffer, size_t capacity,
+                                   xkb_layout_index_t *count);
+
 /******************************************************************************
  * xkb_events_config
  *****************************************************************************/
@@ -674,7 +714,3 @@ static_assert(
     sizeof(const struct xkb_machine_builder_shortcut_override_update),
     ""
 );
-
-/** Reference count is not updated */
-XKB_EXPORT_PRIVATE struct xkb_state *
-xkb_machine_get_state(struct xkb_machine *machine);
