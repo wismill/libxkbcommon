@@ -108,6 +108,7 @@ static const struct xkb_message_entry xkb_messages[] = {
     {XKB_ERROR_UNKNOWN_FIELD, "Unknown field"},
     {XKB_ERROR_KEYMAP_COMPILATION_FAILED, "Keymap compilation failed"},
     {XKB_ERROR_UNSUPPORTED_KEYMAP_SERIALIZATION_FLAGS_, "Unsupported keymap serialization flags"},
+    {XKB_ERROR_MISSING_CORE_LAYOUT_, "Missing core layout"},
     {XKB_ERROR_UNKNOWN_ACTION_TYPE, "Unknown action type"},
     {XKB_ERROR_ABI_FORWARD_COMPAT_, "Abi forward compat"},
     {XKB_WARNING_CONFLICTING_KEY_ACTION, "Conflicting key action"},

@@ -181,6 +181,7 @@ enum xkb_status {
      * - it contains duplicate layouts.
      *
      * @sa @ref XKB-209 "" for layouts that are out of range for the keymap.
+     * @sa @ref XKB-832 "" for missing core layouts.
      *
      * [layout recency order]: @ref layout-recency-order-def
      * [layout cycle policy]:  @ref xkb_layout_cycle_policy
@@ -301,6 +302,16 @@ enum xkb_status {
      * @since 1.14.0
      */
     XKB_ERROR_UNSUPPORTED_KEYMAP_SERIALIZATION_FLAGS = 829,
+    /**
+     * A core layout is missing from the layout recency order
+     *
+     * The given [layout recency order](@ref layout-recency-order-def) must
+     * contain all the [core layouts](@ref core-layouts-def) of the active
+     * [layout cycle policy](@ref xkb_layout_cycle_policy).
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_MISSING_CORE_LAYOUT = 832,
     /**
      * ABI forward-compatibility check failed
      *
