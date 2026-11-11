@@ -291,6 +291,41 @@ static_assert(sizeof(struct xkb_layout_out_of_range_policy) * 30 <=
               (size_t)XKB_ABI_MAX_SIZE, "");
 
 /******************************************************************************
+ * xkb_layout_recency_order_update
+ *****************************************************************************/
+
+/**
+ * Version 1 of `xkb_layout_recency_order_update`, used for ABI check only
+ *
+ * @since 1.14.0
+ */
+struct xkb_layout_recency_order_update_v1 {
+    uint32_t size;
+    xkb_layout_index_t num_main_layouts;
+    const xkb_layout_index_t *main_layouts;
+};
+
+/* Ensure there is no implicit padding */
+assert_no_padding(struct xkb_layout_recency_order_update, size, num_main_layouts);
+// NOLINTBEGIN(bugprone-sizeof-expression)
+assert_no_padding(struct xkb_layout_recency_order_update, num_main_layouts, main_layouts);
+assert_no_padding(struct xkb_layout_recency_order_update, main_layouts);
+// NOLINTEND(bugprone-sizeof-expression)
+
+/* Current version is 1 */
+static_assert(sizeof(struct xkb_layout_recency_order_update) ==
+              sizeof(struct xkb_layout_recency_order_update_v1), "");
+assert_same_field(struct xkb_layout_recency_order_update, _v1, size);
+// NOLINTBEGIN(bugprone-sizeof-expression)
+assert_same_field(struct xkb_layout_recency_order_update, _v1, num_main_layouts);
+assert_same_field(struct xkb_layout_recency_order_update, _v1, main_layouts);
+// NOLINTEND(bugprone-sizeof-expression)
+
+/* Ensure reasonable margin to the upper size limit */
+static_assert(sizeof(struct xkb_layout_recency_order_update) * 30 <=
+              (size_t)XKB_ABI_MAX_SIZE, "");
+
+/******************************************************************************
  * xkb_state_components_update
  *****************************************************************************/
 
@@ -355,13 +390,15 @@ struct xkb_synthetic_update_v1 {
     uint32_t size;
     uint32_t reserved0;
     const struct xkb_state_components_update_v1 *components;
+    const struct xkb_layout_recency_order_update_v1 *layout_recency_order;
 };
 
 /* Ensure there is no implicit padding */
 assert_no_padding(struct xkb_synthetic_update, size, reserved0);
 assert_no_padding(struct xkb_synthetic_update, reserved0, components);
 // NOLINTBEGIN(bugprone-sizeof-expression)
-assert_no_padding(struct xkb_synthetic_update, components);
+assert_no_padding(struct xkb_synthetic_update, components, layout_recency_order);
+assert_no_padding(struct xkb_synthetic_update, layout_recency_order);
 // NOLINTEND(bugprone-sizeof-expression)
 
 /* Current version is 1 */
@@ -371,6 +408,7 @@ assert_same_field(struct xkb_synthetic_update, _v1, size);
 assert_same_field(struct xkb_synthetic_update, _v1, reserved0);
 // NOLINTBEGIN(bugprone-sizeof-expression)
 assert_same_field(struct xkb_synthetic_update, _v1, components);
+assert_same_field(struct xkb_synthetic_update, _v1, layout_recency_order);
 // NOLINTEND(bugprone-sizeof-expression)
 
 /* Ensure reasonable margin to the upper size limit */
@@ -530,6 +568,8 @@ static_assert(sizeof(struct xkb_machine_builder_shortcut_override_update) * 30 <
         sizeof(struct xkb_synthetic_update_v1),                     \
     const struct xkb_state_components_update *:                     \
         sizeof(struct xkb_state_components_update_v1),              \
+    const struct xkb_layout_recency_order_update *:                 \
+        sizeof(struct xkb_layout_recency_order_update_v1),          \
     const struct xkb_machine_builder_config *:                      \
         sizeof(struct xkb_machine_builder_config_v1),               \
     const struct xkb_machine_builder_a11y_update *:                 \
@@ -557,6 +597,8 @@ static_assert(sizeof(struct xkb_machine_builder_shortcut_override_update) * 30 <
         sizeof(struct xkb_synthetic_update_v1),                     \
     const struct xkb_state_components_update *:                     \
         sizeof(struct xkb_state_components_update_v1),              \
+    const struct xkb_layout_recency_order_update *:                 \
+        sizeof(struct xkb_layout_recency_order_update_v1),          \
     const struct xkb_machine_builder_config *:                      \
         sizeof(struct xkb_machine_builder_config_v1),               \
     const struct xkb_machine_builder_a11y_update *:                 \
@@ -584,6 +626,8 @@ static_assert(sizeof(struct xkb_machine_builder_shortcut_override_update) * 30 <
         sizeof(struct xkb_synthetic_update),                     \
     const struct xkb_state_components_update *:                  \
         sizeof(struct xkb_state_components_update),              \
+    const struct xkb_layout_recency_order_update *:              \
+        sizeof(struct xkb_layout_recency_order_update),          \
     const struct xkb_machine_builder_config *:                   \
         sizeof(struct xkb_machine_builder_config),               \
     const struct xkb_machine_builder_a11y_update *:              \
@@ -630,6 +674,11 @@ static_assert(
 static_assert(
     xkb_versioned_struct_size_v1(((const struct xkb_state_components_update *)NULL)) <=
     xkb_versioned_struct_size_min(((const struct xkb_state_components_update *)NULL)),
+    ""
+);
+static_assert(
+    xkb_versioned_struct_size_v1(((const struct xkb_layout_recency_order_update *)NULL)) <=
+    xkb_versioned_struct_size_min(((const struct xkb_layout_recency_order_update *)NULL)),
     ""
 );
 static_assert(
@@ -687,6 +736,11 @@ static_assert(
 static_assert(
     xkb_versioned_struct_size_min(((const struct xkb_state_components_update *)NULL)) <=
     sizeof(const struct xkb_state_components_update),
+    ""
+);
+static_assert(
+    xkb_versioned_struct_size_min(((const struct xkb_layout_recency_order_update *)NULL)) <=
+    sizeof(const struct xkb_layout_recency_order_update),
     ""
 );
 static_assert(

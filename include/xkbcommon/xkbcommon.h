@@ -5287,6 +5287,7 @@ xkb_machine_process_key(struct xkb_machine *machine,
  * see @ref abi-struct-contract for further details.
  *
  * @sa `struct xkb_synthetic_update`
+ * @sa `xkb_state::xkb_state_update_synthetic()`
  * @sa `xkb_machine::xkb_machine_process_synthetic()`
  *
  * @since 1.14.0
@@ -5417,6 +5418,55 @@ struct xkb_state_components_update {
 };
 
 /**
+ * @struct xkb_layout_recency_order_update
+ * @ingroup abi-struct-contract
+ * Request to update an out-of-band layout recency order update.
+ *
+ * @note This struct uses a **size-based versioning**;
+ * see @ref abi-struct-contract for further details.
+ *
+ * @sa `struct xkb_synthetic_update`
+ * @sa `xkb_state::xkb_state_update_synthetic()`
+ * @sa `xkb_machine::xkb_machine_process_synthetic()`
+ *
+ * @since 1.14.0
+ */
+struct xkb_layout_recency_order_update {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Element count of the #main_layouts buffer.
+     *
+     * @pre It must be equal to the current number of [main layouts],
+     * which is by default the total number of layouts in the keymap.
+     *
+     * @since 1.14.0
+     *
+     * [main layouts]: @ref main-layouts-def
+     */
+    xkb_layout_index_t num_main_layouts;
+    /**
+     * [Main layouts].
+     *
+     * @pre The order is most-recent-first.
+     * @pre All [core layouts] must be included. By default there is no
+     * core layout set.
+     *
+     * @since 1.14.0
+     *
+     * [Main layouts]: @ref main-layouts-def
+     * [core layouts]: @ref core-layouts-def
+     */
+    const xkb_layout_index_t *main_layouts;
+};
+
+/**
  * @struct xkb_synthetic_update
  * @ingroup abi-struct-contract
  * Request to process an out-of-band atomic update through an `xkb_machine` or
@@ -5459,11 +5509,21 @@ struct xkb_synthetic_update {
     /**
      * Components updates, or `NULL` for no change.
      *
+     * @note Applied *after* #layout_recency_order update.
+     *
      * @sa `enum xkb_state_component`
      *
      * @since 1.14.0
      */
     const struct xkb_state_components_update *components;
+    /**
+     * Layout recency order update, or `NULL` for no change.
+     *
+     * @note Applied *before* #components update.
+     *
+     * @since 1.14.0
+     */
+    const struct xkb_layout_recency_order_update *layout_recency_order;
 };
 
 /**
@@ -5500,7 +5560,10 @@ struct xkb_synthetic_update {
  * @returns `::XKB_SUCCESS` on success, otherwise an error code.
  * Possible errors are:
  * - Errors from ABI @ref abi-struct-resolution.
- * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX`
+ * - `::XKB_ERROR_OUT_OF_KEYMAP_RANGE_LAYOUT`
+ * - `::XKB_ERROR_INVALID_MAIN_LAYOUT`
+ * - `::XKB_ERROR_MISSING_CORE_LAYOUT`
+ * - `::XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER`
  *
  * @sa `struct xkb_synthetic_update`
  * @sa `struct xkb_state_components_update`

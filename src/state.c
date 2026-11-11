@@ -3061,6 +3061,127 @@ clear_all_latches_and_locks(struct xkb_server_state *state,
     state_update_latched_locked(state, &update, events);
 }
 
+static enum xkb_status
+state_update_layout_recency_order(
+    struct xkb_server_state * restrict state, const char * restrict func,
+    const struct xkb_layout_recency_order_update * restrict update,
+    struct xkb_events * restrict events
+)
+{
+    /*
+     * Check input
+     */
+
+    if (!update->main_layouts) {
+        /* Misuse of the API */
+        return XKB_ERROR_INVALID;
+    }
+
+    struct xkb_group_recency_order *groups = state->groups;
+    const uint8_t num_main = state->groups
+        ? groups->num_main
+        : (uint8_t)state->base.keymap->num_groups; /* 0 or 1 */
+
+    /*
+     * Ensure the group count corresponds to the current policy and protect
+     * against arbitrary long input.
+     */
+    if (update->num_main_layouts != num_main) {
+        log_err(state->base.keymap->ctx,
+                XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER_,
+                "%s: expected %"PRIu32" main layouts, got: %"PRIu32"\n",
+                func, num_main, update->num_main_layouts);
+        return XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER;
+    }
+
+    if (!num_main) {
+        assert(!state->base.keymap->num_groups);
+        return XKB_SUCCESS;
+    }
+
+    const uint8_t num_all = state->groups
+        ? groups->num_all
+        : num_main; /* 1 */
+    assert(num_all);
+
+    /* Check groups validity and compute resulting mask */
+    assert(num_all <= XKB_MAX_GROUPS);
+    xkb_layout_mask_t new_main = 0;
+    for (xkb_layout_index_t l = 0; l < update->num_main_layouts; l++) {
+        if (update->main_layouts[l] >= num_all) {
+            log_err(state->base.keymap->ctx,
+                    XKB_ERROR_INVALID_MAIN_LAYOUT_,
+                    "%s: out-of-range main layout at index #%"PRIu32": "
+                    "expected 0..%"PRIu8", got: %"PRIu32"\n", func, l,
+                    num_all - 1, update->main_layouts[l]);
+            return XKB_ERROR_INVALID_MAIN_LAYOUT;
+        }
+        static_assert(XKB_MAX_GROUPS == 32, "invalid shift");
+        const xkb_layout_mask_t mask = (UINT32_C(1) << update->main_layouts[l]);
+        if (new_main & mask) {
+            /* Repeated layout */
+            log_err(state->base.keymap->ctx,
+                    XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER_,
+                    "%s: main layout %"PRIu32" repeated at index #%"PRIu32"\n",
+                    func, update->main_layouts[l], l);
+            return XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER;
+        }
+        new_main |= mask;
+    }
+
+    if (!groups)
+        return XKB_SUCCESS;
+
+    assert(groups->num_all > 1);
+    assert(groups->num_all == state->base.keymap->num_groups);
+
+    const xkb_layout_mask_t missing_core = (groups->core & ~new_main);
+    if (missing_core) {
+        log_err(state->base.keymap->ctx,
+                XKB_ERROR_MISSING_CORE_LAYOUT_,
+                "%s: Some core layouts are missing in the new recency order: "
+                "expected 0x%"PRIx32", got: 0x%"PRIx32"; missing: 0x%"PRIx32"\n",
+                func, groups->core, new_main, missing_core);
+        return XKB_ERROR_MISSING_CORE_LAYOUT;
+    }
+
+    /*
+     * Update recency order
+     */
+
+    /* Copy new main groups */
+    static_assert(sizeof(*update->main_layouts) != sizeof(*groups->recency),
+                  "Incompatible types: cannot use memcpy");
+    for (uint8_t l = 0; l < groups->num_main; l++) {
+        groups->recency[l] = (uint8_t)update->main_layouts[l];
+    }
+
+    /* Set spare groups, if any */
+    for (uint8_t l = 0, *spares = groups->recency + groups->num_main;
+         l < groups->num_all; l++)
+    {
+        static_assert(XKB_MAX_GROUPS == 32, "invalid shift");
+        const xkb_layout_mask_t mask = (UINT32_C(1) << l);
+        if (mask & new_main)
+            continue;
+        *spares++ = l;
+    }
+
+    /* Sync locked group */
+    if ((int32_t)groups->recency[0] != state->base.components.locked_group) {
+        const struct xkb_state_components_update update_components = {
+            .size = sizeof(update_components),
+            .components = XKB_STATE_LAYOUT_LOCKED,
+            .locked_layout = (int32_t)groups->recency[0],
+        };
+        state_update_latched_locked(state, &update_components, events);
+    }
+
+    state_break_group_cycle(groups);
+
+    return XKB_SUCCESS;
+}
+
 /** Check ABI compatibility */
 // NOLINTBEGIN(bugprone-assignment-in-selection-statement)
 static enum xkb_status
@@ -3073,7 +3194,9 @@ check_state_update_abi_(struct xkb_context * restrict ctx,
         (update->reserved0 != 0 &&
          (status = XKB_ERROR_ABI_FORWARD_COMPAT)) ||
         (update->components &&
-         (status = xkb_check_state_abi(update->components)))) {
+         (status = xkb_check_state_abi(update->components))) ||
+        (update->layout_recency_order &&
+         (status = xkb_check_state_abi(update->layout_recency_order)))) {
         xkb_log_abi_error(ctx, func, status);
     }
     return status;
@@ -3108,6 +3231,14 @@ xkb_state_update_synthetic(struct xkb_state * base_state,
 
     // TODO: use a *transaction* mechanism: either the whole update succeeds
     //       or rollback
+
+    if (update->layout_recency_order) {
+        status = state_update_layout_recency_order(
+            state, __func__, update->layout_recency_order, NULL
+        );
+        if (status != XKB_SUCCESS)
+            return status;
+    }
 
     if (update->components) {
         const struct xkb_state_components_update * const components =
@@ -4670,6 +4801,16 @@ xkb_machine_process_synthetic(struct xkb_machine *sm,
 
     darray_size(events->queue) = 0;
     events->next = 0;
+
+    if (update->layout_recency_order) {
+        status = state_update_layout_recency_order(
+            state, __func__, update->layout_recency_order, events
+        );
+        if (status != XKB_SUCCESS)
+            return status;
+        /* No event should be appended for now */
+        assert(events->next == 0);
+    }
 
     if (update->components) {
         const struct xkb_state_components_update * const components =
