@@ -207,6 +207,8 @@ struct xkb_server_state {
      * thus it is not freed manually.
      */
     struct xkb_group_recency_order {
+        /** Initial main groups */
+        xkb_layout_mask_t main0;
         /** Core groups: always in the main groups */
         xkb_layout_mask_t core;
 
@@ -2264,14 +2266,26 @@ xkb_server_init_group_recency_order(struct xkb_server_state * restrict state,
     assert(main);
     assert(main == all || main != core);
 
+    groups->main0 = main;
     groups->core = core;
 
     groups->num_main = (uint8_t)popcount32(main);
     assert(groups->num_main <= groups->num_all);
 
-    /* Initialize group recency order with the keymap order */
-    for (uint8_t l = 0; l < groups->num_all; l++)
-        groups->recency[l] = l;
+    /*
+     * Initialize group recency order with the keymap order
+     */
+
+    uint8_t *main_groups = groups->recency;
+    uint8_t *spare_groups = groups->recency + groups->num_main;
+    for (uint8_t l = 0; l < groups->num_all; l++) {
+        const xkb_layout_mask_t mask = (UINT32_C(1) << l);
+        if (mask & main) {
+            *main_groups++ = l;
+        } else {
+            *spare_groups++ = l;
+        }
+    }
 }
 
 static inline enum xkb_status
@@ -2457,11 +2471,9 @@ xkb_state_reset(struct xkb_state *base_state)
         state->filters = prev.filters;
         darray_size(state->filters) = 0;
         state->groups = groups_recency;
-        const xkb_layout_mask_t main_groups = base_state->keymap->num_groups
-            ? (UINT64_C(1) << base_state->keymap->num_groups) - 1
-            : 0;
         xkb_server_init_group_recency_order(
-            state, main_groups,
+            state,
+            state->groups ? state->groups->main0 : 0,
             state->groups ? state->groups->core : 0
         );
         state_sync_group_recency_order(state);
@@ -4735,6 +4747,212 @@ xkb_machine_set_layout_out_of_range_policy(
     }
 
     return XKB_SUCCESS;
+}
+
+enum xkb_status
+xkb_machine_set_layout_cycle_policy(
+    struct xkb_machine * restrict sm,
+    const struct xkb_layout_cycle_policy * restrict policy
+)
+{
+    const struct xkb_keymap * const keymap = sm->base.base.keymap;
+
+    /* Check ABI compatibility */
+    enum xkb_status status = xkb_check_state_abi(policy);
+    if (status != XKB_SUCCESS) {
+        xkb_log_abi_error(keymap->ctx, __func__, status);
+        return status;
+    }
+
+    /*
+     * Sanitize input
+     */
+
+    const uint32_t invalid_flags =
+        (policy->flags & ~(uint32_t)XKB_LAYOUT_CYCLE_POLICY_FLAGS_VALUES);
+    if (invalid_flags) {
+        log_err_func(sm->base.base.keymap->ctx,
+                     XKB_ERROR_UNSUPPORTED_LAYOUT_CYCLE_POLICY_FLAGS_,
+                     "Unsupported layout cycle policy flags: 0x%"PRIx32"\n",
+                     invalid_flags);
+        return XKB_ERROR_UNSUPPORTED_LAYOUT_CYCLE_POLICY_FLAGS;
+    }
+
+    /*
+     * Check masks validity
+     */
+
+    static_assert(XKB_MAX_GROUPS == 32, "invalid shift");
+    const xkb_layout_mask_t keymap_mask = (xkb_layout_mask_t)(
+        keymap->num_groups
+            ? ((UINT64_C(1) << keymap->num_groups) - 1)
+            : 0
+    );
+
+    const char *invalid_field = "core";
+    const char *subset_type = "";
+    const char *superset = "keymap";
+    xkb_layout_mask_t superset_mask = keymap_mask;
+
+    /*
+     * Main mask must be a non-empty subset of keymap groups,
+     * except for the degenerated edge case where main must be empty.
+     */
+    xkb_layout_mask_t invalid_mask = (policy->main_mask & ~keymap_mask);
+    if ((!policy->main_mask && keymap_mask) || invalid_mask) {
+        invalid_field = "main";
+        subset_type = "non-empty ";
+        status = XKB_ERROR_INVALID_MAIN_LAYOUT;
+        goto error;
+    }
+
+    /* Core mask must be a subset of keymap groups */
+    invalid_mask = (policy->core_mask & ~keymap_mask);
+    if (invalid_mask) {
+        status = XKB_ERROR_INVALID_CORE_LAYOUT;
+        goto error;
+    }
+
+    /* Core mask must be a subset of main groups */
+    invalid_mask = (policy->core_mask & ~policy->main_mask);
+    if (invalid_mask) {
+        superset = "main";
+        superset_mask = policy->main_mask;
+        status = XKB_ERROR_INVALID_CORE_LAYOUT;
+        goto error;
+    }
+
+    /* If there are spares, then there must be at least one adjunct group */
+    const bool has_spares = (policy->main_mask != keymap_mask);
+    if (has_spares && policy->core_mask == policy->main_mask) {
+        superset = "main";
+        superset_mask = policy->main_mask;
+        subset_type = "proper ";
+        status = XKB_ERROR_INVALID_CORE_LAYOUT;
+        goto error;
+    }
+
+    /*
+     * Update recency order
+     */
+
+    if (!sm->base.groups)
+        return XKB_SUCCESS;
+
+    if (!(policy->flags & (uint32_t)XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY)) {
+        xkb_server_init_group_recency_order(&sm->base, policy->main_mask,
+                                            policy->core_mask);
+        state_sync_group_recency_order(&sm->base);
+        return XKB_SUCCESS;
+    }
+
+    struct xkb_group_recency_order *groups = sm->base.groups;
+
+    const uint8_t num_main_new = (uint8_t)popcount32(policy->main_mask);
+
+    /*
+     * Compute new main mask with *current* recency order.
+     * Valid iff num_main_new <= groups->num_main, otherwise it contains
+     * previous spares.
+     */
+    xkb_layout_mask_t main_new = 0;
+    for (uint8_t l = 0; l < num_main_new; l++) {
+        main_new |= (UINT32_C(1) << groups->recency[l]);
+    }
+
+    /*
+     * NOTE: It aims to retain as much order as possible.
+     *
+     * Current recency order must be updated iff the policies are incompatible:
+     * - main groups size increase;
+     * - new core groups are not in the new main groups of the current recency
+     *   order, i.e. not in the first `num_main_new` groups.
+     *
+     * Thus recency order is preserved in scenarios such as:
+     * - only the relative order of main groups differ.
+     * - only core groups differ but remain in main.
+     * - only main groups mask differ without changing the main size:
+     *   the promotions/demotions are compatible with the recency order;
+     * - main groups are shrunk, but new core groups remain in main.
+     */
+    const bool unordered_promoted_groups = num_main_new > groups->num_main;
+    const bool incompatible_core = (policy->core_mask & ~main_new) != 0;
+    if (/* newly promoted groups requires ordering */
+        unordered_promoted_groups ||
+        /* new core groups must be in main groups */
+        incompatible_core)
+    {
+        /** Initial adjuncts */
+        xkb_layout_mask_t adjuncts = policy->main_mask & ~policy->core_mask;
+        /* Initialize new main */
+        main_new = policy->core_mask;
+
+        /* Save previous 1-indexed positions of old recency; 0 denotes spares. */
+        uint8_t old_positions[XKB_MAX_GROUPS] = {0};
+        for (uint8_t l = 0; l < groups->num_main; l++) {
+            old_positions[groups->recency[l]] = l + 1;
+            const xkb_layout_mask_t mask = (UINT32_C(1) << groups->recency[l]);
+            if (!(mask & policy->main_mask) && adjuncts) {
+                /* Promote group from previous main */
+                adjuncts = unset_highest_set_bit32(adjuncts);
+                main_new |= mask;
+            }
+        }
+        main_new |= adjuncts;
+
+        /* Sort main; stable because items are unique */
+        for (uint8_t *p = groups->recency,
+                     *p_max = groups->recency + groups->num_all;
+             p < p_max; p++)
+        {
+            for (uint8_t *q = p + 1; q < p_max; q++) {
+                const bool p_main = ((UINT32_C(1) << *p) & main_new);
+                const bool q_main = ((UINT32_C(1) << *q) & main_new);
+                if (p_main) {
+                    if (!(q_main))
+                        continue;
+                } else if (q_main) {
+                    uint8_t t = *p;
+                    *p = *q;
+                    *q = t;
+                    continue;
+                }
+
+                if (old_positions[*p]) {
+                    if (!old_positions[*q] || old_positions[*p] < old_positions[*q])
+                        continue;
+                } else if (!old_positions[*q] && *p < *q) {
+                    continue;
+                }
+
+                uint8_t t = *p;
+                *p = *q;
+                *q = t;
+            }
+        }
+
+        groups->num_main = num_main_new;
+        groups->main0 = policy->main_mask;
+        groups->core = policy->core_mask;
+
+        state_sync_group_recency_order(&sm->base);
+    } else {
+        groups->num_main = num_main_new;
+        groups->main0 = policy->main_mask;
+        groups->core = policy->core_mask;
+    }
+
+    // TODO: could it be preserved if < first changed layout?
+    state_break_group_cycle(groups);
+
+    return XKB_SUCCESS;
+
+error:
+    log_err_func(keymap->ctx, status,
+                 "Invalid %s layout mask: expected %ssubset of %s groups "
+                 "0x%"PRIx32", got: 0x%"PRIx32".\n", invalid_field, subset_type,
+                 superset, superset_mask, invalid_mask);
+    return status;
 }
 
 static void
