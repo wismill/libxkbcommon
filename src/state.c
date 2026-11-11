@@ -546,74 +546,112 @@ get_state_component_changes(const struct state_components *a,
 }
 
 static void
-xkb_filter_group_lock_new(struct xkb_server_state *state,
-                          struct xkb_events *events,
-                          struct xkb_filter *filter)
+state_break_group_cycle(struct xkb_group_recency_order *groups)
 {
-    // FIXME: implement
-    if (filter->action.group.flags & ACTION_USE_RECENCY_ORDER) {
-        filter->func = NULL;
-        return;
-    }
-
-    if (filter->action.group.flags & ACTION_LOCK_ON_RELEASE) {
-        /*
-         * Lock on key release: do nothing on key press.
-         *
-         * This is a keymap format v2 extension.
-         */
-        return;
-    } else {
-        /* Lock on key press */
-        apply_group_delta(filter, &state->base, locked_group);
-    }
+    groups->cursor = 0;
 }
 
-static bool
-xkb_filter_group_lock_func(struct xkb_server_state *state,
-                           struct xkb_events *events,
-                           struct xkb_filter *filter,
-                           const struct xkb_key *key,
-                           enum xkb_key_direction direction)
+static void
+xkb_filter_group_lock_recent(struct xkb_server_state * restrict state,
+                             bool reverse)
 {
-    if (key != filter->key) {
-        if ((filter->action.group.flags & ACTION_LOCK_ON_RELEASE) &&
-            direction == XKB_KEY_DOWN) {
-            /*
-             * Another key has been pressed after the locking key:
-             * cancel group lock on release.
-             *
-             * This is a keymap v2 extension.
-             */
-            filter->action.group.flags &= ~ACTION_LOCK_ON_RELEASE;
+    struct xkb_group_recency_order *groups = state->groups;
+    if (!groups || groups->num_main < 2) {
+        /* Nothing to cycle through */
+        return;
+    }
+
+    const uint8_t num_main = groups->num_main;
+    uint8_t * const recency = groups->recency;
+
+    assert(num_main <= groups->num_all);
+    assert(groups->cursor < num_main);
+    uint8_t c = groups->cursor;
+
+    // #define RECENCY_ORDER_DEBUG
+    #ifdef RECENCY_ORDER_DEBUG
+    fprintf(stderr, "+++ Old recency order: ");
+    for (uint8_t g = 0; g < groups->num_all; g++) {
+        if (g == groups->num_main)
+            fprintf(stderr, " |");
+        fprintf(stderr, " %u", groups->recency[g]);
+    }
+    fprintf(stderr, " (cursor: %u, reverse: %d)\n", groups->cursor, reverse);
+    #endif
+
+    if (reverse) {
+        if (c > 0) {
+            /* Next step of the cycle */
+            const uint8_t tmp = recency[0];
+            recency[0] = recency[c];
+            recency[c] = tmp;
+            groups->cursor = c - 1;
+        } else {
+            /* Start of a reverse cycle: least recent main group to the front */
+            const uint8_t last = recency[num_main - 1];
+            memmove(&recency[1], &recency[0],
+                    (num_main - 1) * sizeof(*recency));
+            recency[0] = last;
+            groups->cursor = num_main - 1;
         }
-        return XKB_FILTER_CONTINUE;
-    }
-
-    switch (direction) {
-    case XKB_KEY_DOWN:
-        filter->refcnt++;
-        /* fallthrough */
-    case XKB_KEY_REPEATED:
-        return XKB_FILTER_CONSUME;
-    default:
-        if (--filter->refcnt > 0)
-            return XKB_FILTER_CONSUME;
-    }
-
-    if (filter->action.group.flags & ACTION_LOCK_ON_RELEASE) {
-        /*
-         * Lock on key release
-         *
-         * This is a keymap v2 extension.
-         */
-        apply_group_delta(filter, &state->base, locked_group);
     } else {
-        /* Lock on key press: do nothing on key release. */
+        if (c + 1 < num_main) {
+            /*
+             * Next step of the cycle: moving the next snapshot entry to the
+             * front (after undoing the previous move) amounts to swapping it
+             * with the current head.
+             */
+            c++;
+            const uint8_t tmp = recency[0];
+            recency[0] = recency[c];
+            recency[c] = tmp;
+            groups->cursor = c;
+        } else {
+            /*
+             * Wrap: restore the snapshot, i.e. the recency order before the
+             * cycle. Rotate [0..c] left by one: the head goes back to index c.
+             */
+            const uint8_t head = recency[0];
+            memmove(&recency[0], &recency[1], c * sizeof(*recency));
+            recency[c] = head;
+            groups->cursor = 0;
+        }
     }
-    filter->func = NULL;
-    return XKB_FILTER_CONTINUE;
+
+    #ifdef RECENCY_ORDER_DEBUG
+    fprintf(stderr, "+++ New recency order: ");
+    for (uint8_t g = 0; g < groups->num_all; g++) {
+        if (g == groups->num_main)
+            fprintf(stderr, " |");
+        fprintf(stderr, " %u", groups->recency[g]);
+    }
+    fprintf(stderr, " (cursor: %u, reverse: %d)\n", groups->cursor, reverse);
+    #undef RECENCY_ORDER_DEBUG
+    #endif
+
+    /* Keeps `recency[0] == locked_group`, so the sync is a no-op */
+    static_assert(XKB_MAX_GROUPS < INT32_MAX, "Max groups don't fit");
+    state->base.components.locked_group = (int32_t)recency[0];
 }
+
+/* Apply the lock, either on key press or on key release */
+static inline void
+xkb_filter_group_lock_apply(struct xkb_server_state *state,
+                            struct xkb_filter *filter)
+{
+    if (filter->action.group.flags & ACTION_USE_RECENCY_ORDER) {
+        xkb_filter_group_lock_recent(state, (filter->action.group.group < 0));
+    } else {
+        apply_group_delta(filter, &state->base, locked_group);
+    }
+}
+
+/* `xkb_filter.priv` bits for group lock filters with ACTION_USE_RECENCY_ORDER */
+enum {
+    GROUP_LOCK_CYCLE,
+    /* Another key was pressed while the key was held: the cycle is broken */
+    GROUP_LOCK_BROKEN,
+};
 
 static bool
 xkb_action_breaks_latch(const union xkb_action *action,
@@ -646,6 +684,191 @@ xkb_action_breaks_latch(const union xkb_action *action,
                       "Missing action type");
         return false;
     }
+}
+
+/**
+ * Check if an action is the same as the given group filter.
+ *
+ * Ignore ACTION_LOCK_ON_RELEASE: it is a runtime flag, which may have been
+ * added by the modifier-key fix or removed by a cancellation.
+ */
+static bool
+xkb_filter_group_same_action(const struct xkb_filter * restrict filter,
+                             bool compare_group,
+                             const union xkb_action * restrict action)
+{
+    return (
+        action->type == filter->action.type &&
+        (!compare_group || action->group.group == filter->action.group.group) &&
+        !((action->group.flags ^ filter->action.group.flags) &
+          ~ACTION_LOCK_ON_RELEASE)
+    );
+}
+
+/**
+ * Whether pressing `key` interrupts a running group cycle.
+ *
+ * It does not interrupt the cycle if every action of the key is either:
+ * - the cycle’s own group lock (`LockGroup(group=±Recent)`), in either
+ *   direction, so e.g. in the following mapping `<LFSH> + <MENU>` reverses
+ *   the cycle:
+ *
+ *       key <MENU> { [LockGroup(group=+Recent), LockGroup(group=-Recent)] };
+ *
+ * - an action that is not a group lock nor does it break latches (e.g. a
+ *   modifier).
+ *
+ * Otherwise it interrupts it: keys with no action, any other group lock, etc.
+ */
+static bool
+xkb_key_breaks_group_cycle(struct xkb_server_state * restrict state,
+                           const struct xkb_filter * restrict filter,
+                           const struct xkb_key * restrict key)
+{
+    const union xkb_action *actions = NULL;
+    const xkb_action_count_t count = xkb_key_get_actions(&state->base, key,
+                                                         &actions);
+    if (!count)
+        return true; /* no action: regular key */
+    for (xkb_action_count_t k = 0; k < count; k++) {
+        if (xkb_filter_group_same_action(filter, false, &actions[k]))
+            continue;
+        if (actions[k].type == ACTION_TYPE_GROUP_LOCK ||
+            xkb_action_breaks_latch(&actions[k],
+                                    state->base.components.controls, 0, 0))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void
+xkb_filter_group_lock_new(struct xkb_server_state *state,
+                          struct xkb_events *events,
+                          struct xkb_filter *filter)
+{
+    if (filter->action.group.flags & ACTION_USE_RECENCY_ORDER) {
+        if (!state->groups) {
+            filter->func = NULL;
+            return;
+        }
+        filter->priv = GROUP_LOCK_CYCLE;
+    }
+
+    if (filter->action.group.flags & ACTION_LOCK_ON_RELEASE) {
+        /*
+         * Lock on key release: do nothing on key press.
+         *
+         * This is a keymap format v2 extension.
+         */
+        return;
+    } else {
+        /* Lock on key press */
+        xkb_filter_group_lock_apply(state, filter);
+    }
+}
+
+static bool
+xkb_filter_group_lock_func(struct xkb_server_state *state,
+                           struct xkb_events *events,
+                           struct xkb_filter *filter,
+                           const struct xkb_key *key,
+                           enum xkb_key_direction direction)
+{
+    /*
+     * A filter using *group recency order* outlives the release of its key
+     * while a cycle is running, in order to detect the next key press, which
+     * either continues or breaks the cycle. Such a *released* filter has
+     * `refcnt == 0`.
+     */
+    const bool use_recency = (filter->action.group.flags & ACTION_USE_RECENCY_ORDER);
+    const bool released = use_recency && filter->refcnt <= 0;
+    assert(!released || state->groups);
+
+    if (key != filter->key) {
+        if (direction != XKB_KEY_DOWN)
+            return XKB_FILTER_CONTINUE;
+
+        /* Another key has been pressed */
+        if (use_recency) {
+
+            if (xkb_key_breaks_group_cycle(state, filter, key)) {
+                state_break_group_cycle(state->groups);
+                if (released) {
+                    filter->func = NULL;
+                    return XKB_FILTER_CONTINUE;
+                }
+                /* Key still held: wait for its release to clean up */
+                filter->priv = GROUP_LOCK_BROKEN;
+            }
+        }
+
+        if (filter->action.group.flags & ACTION_LOCK_ON_RELEASE) {
+            /*
+             * Another key has been pressed after the locking key:
+             * cancel group lock on release.
+             *
+             * This is a keymap v2 extension.
+             */
+            filter->action.group.flags &= ~ACTION_LOCK_ON_RELEASE;
+        } else {
+            /* Already locked on key press: nothing to cancel */
+        }
+
+        return XKB_FILTER_CONTINUE;
+    }
+
+    if (released) {
+        /* The key was already released: only a new key press matters */
+        if (direction != XKB_KEY_DOWN)
+            return XKB_FILTER_CONTINUE;
+        /*
+         * The key is pressed again. Do NOT consume the event: the key may
+         * have other actions that need their own filters. Instead, hand over
+         * to the filter that the regular action processing will create: it
+         * continues the cycle iff the cursor is kept.
+         */
+        if (xkb_key_breaks_group_cycle(state, filter, key)) {
+            state_break_group_cycle(state->groups);
+        }
+        filter->func = NULL;
+        return XKB_FILTER_CONTINUE;
+    }
+
+    switch (direction) {
+    case XKB_KEY_DOWN:
+        filter->refcnt++;
+        /* fallthrough */
+    case XKB_KEY_REPEATED:
+        return XKB_FILTER_CONSUME;
+    default:
+        if (--filter->refcnt > 0)
+            return XKB_FILTER_CONSUME;
+    }
+
+    /* Key fully released */
+
+    if (filter->action.group.flags & ACTION_LOCK_ON_RELEASE) {
+        /*
+         * Lock on key release
+         *
+         * This is a keymap v2 extension.
+         */
+        xkb_filter_group_lock_apply(state, filter);
+    } else {
+        /* Lock on key press: do nothing on key release. */
+    }
+
+    if (use_recency && state->groups->cursor != 0 &&
+        filter->priv == GROUP_LOCK_CYCLE)
+    {
+        /* Cycle running: linger as a released filter: `refcnt <= 0` */
+    } else {
+        filter->func = NULL;
+    }
+
+    return XKB_FILTER_CONTINUE;
 }
 
 enum xkb_key_latch_state {
@@ -1979,7 +2202,7 @@ xkb_server_init_group_recency_order(struct xkb_server_state * restrict state,
 
     assert(state->groups);
     struct xkb_group_recency_order * const groups = state->groups;
-    groups->cursor = 0;
+    state_break_group_cycle(groups);
 
     /* Sanitize input */
     assert(groups->num_all == state->base.keymap->num_groups);
@@ -2420,7 +2643,7 @@ state_sync_group_recency_order(struct xkb_server_state * restrict state)
 
     memmove(&recency[1], &recency[0], idx * sizeof(*recency));
     recency[0] = locked_group;
-    groups->cursor = 0;
+    state_break_group_cycle(groups);
 }
 
 static void

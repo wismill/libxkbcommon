@@ -180,14 +180,17 @@ consume_events(struct xkb_machine *sm,
  * See below for examples.
  */
 int
-test_key_seq_va(struct xkb_keymap *keymap, struct xkb_machine *sm,
-                struct xkb_events *events, va_list ap)
+test_key_seq_va(struct xkb_keymap *keymap, struct xkb_state *state0,
+                struct xkb_machine *sm, struct xkb_events *events,
+                va_list ap)
 {
     assert(!(!sm ^ !events));
 
     fprintf(stderr, "----\n");
 
-    struct xkb_state * const state = xkb_state_new(keymap);
+    struct xkb_state * const state = state0
+                                   ? state0
+                                   : xkb_state_new(keymap);
     assert(state);
 
     unsigned int count = 0;
@@ -315,13 +318,15 @@ test_key_seq_va(struct xkb_keymap *keymap, struct xkb_machine *sm,
         goto fail;
     }
 
-    xkb_state_unref(state);
+    if (!state0)
+        xkb_state_unref(state);
     return 1;
 
 fail:
     fprintf(stderr, "Current state:\n");
     print_detailed_state(state);
-    xkb_state_unref(state);
+    if (!state0)
+        xkb_state_unref(state);
     return 0;
 }
 
@@ -332,7 +337,7 @@ test_key_seq(struct xkb_keymap *keymap, ...)
     int ret;
 
     va_start(ap, keymap);
-    ret = test_key_seq_va(keymap, NULL, NULL, ap);
+    ret = test_key_seq_va(keymap, NULL, NULL, NULL, ap);
     va_end(ap);
 
     return ret;
@@ -346,7 +351,7 @@ test_key_seq2(struct xkb_keymap *keymap, struct xkb_machine *sm,
     int ret;
 
     va_start(ap, events);
-    ret = test_key_seq_va(keymap, sm, events, ap);
+    ret = test_key_seq_va(keymap, NULL, sm, events, ap);
     va_end(ap);
 
     return ret;
