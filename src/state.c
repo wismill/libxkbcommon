@@ -3778,6 +3778,18 @@ xkb_machine_builder_get_keymap(const struct xkb_machine_builder *builder)
 }
 
 enum xkb_status
+xkb_machine_get_layout_recency_order(
+    const struct xkb_machine * restrict machine,
+    xkb_layout_index_t * restrict buffer,
+    size_t buffer_size,
+    xkb_layout_index_t * restrict count
+)
+{
+    return xkb_state_get_layout_recency_order(&machine->base.base,
+                                              buffer, buffer_size, count);
+}
+
+enum xkb_status
 xkb_machine_builder_update_a11y(
     struct xkb_machine_builder * restrict builder,
     const struct xkb_machine_builder_a11y_update * restrict update)

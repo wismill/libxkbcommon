@@ -5195,6 +5195,39 @@ xkb_machine_set_layout_out_of_range_policy(
 );
 
 /**
+ * Retrieve the current main layouts.
+ * @memberof xkb_machine
+ *
+ * @param machine[in]
+ *   The `xkb_machine` object to query.
+ * @param buffer[out]
+ *   A user-supplied buffer to write the recency order, or `NULL`.
+ * @param buffer_size[in]
+ *   The capacity of @p buffer. Ignored if @p buffer is `NULL`.
+ * @param count[out]
+ *   The number of main layouts. If @p buffer is not `NULL` and
+ *   @p buffer_size ≤ @p \*count, then @p \*count is the number of items
+ *   written in @p buffer.
+ *
+ * @pre @p state must be created with `::XKB_STATE_MODE_SERVER` or
+ * `xkb_state_new()`, otherwise the call is *rejected* without updating
+ * @p buffer nor @p count and the misuse is logged as
+ * `::XKB_ERROR_UNEXPECTED_STATE_MODE`.
+ *
+ * @returns `::XKB_SUCCESS` on sucess, otherwise one of the following
+ * [error codes](@ref xkb_status):
+ * - `::XKB_ERROR_UNEXPECTED_STATE_MODE`
+ * - `::XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY`
+ *
+ * @since 1.14.0
+ */
+XKB_EXPORT enum xkb_status
+xkb_machine_get_layout_recency_order(const struct xkb_machine *machine,
+                                     xkb_layout_index_t *buffer,
+                                     size_t buffer_size,
+                                     xkb_layout_index_t *count);
+
+/**
  * Process a key event – a pair ([keycode], [direction]) – through the XKB
  * [state machine], and collect the resulting [keyboard events] into an
  * [event batch].

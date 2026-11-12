@@ -254,6 +254,7 @@ xkbcommon [1.14.0-beta2] – 2026-09-10
     - `xkb_machine::xkb_machine_ref()`
     - `xkb_machine::xkb_machine_unref()`
     - `xkb_machine::xkb_machine_get_keymap()`
+    - `xkb_machine::xkb_machine_get_layout_recency_order()`
     - `xkb_machine::xkb_machine_set_layout_out_of_range_policy()`
     - `xkb_machine::xkb_machine_process_key()`
     - `xkb_machine::xkb_machine_process_synthetic()`

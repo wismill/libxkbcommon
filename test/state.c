@@ -4079,10 +4079,23 @@ test_basic_layout_recency_order(struct xkb_context *ctx)
         static_assert(_num_expected == (int)ARRAY_SIZE(expected), "");
 
         /* Initial recency order */
-        assert(xkb_state_get_layout_recency_order(state, recency, capacity, &count) ==
-               XKB_SUCCESS);
-        assert((size_t)count == ARRAY_SIZE(*expected));
-        assert_buffer_eq("", expected[initial_state], recency, count, "%"PRIu32);
+        #define assert_layout_recency_order_eq(msg, sm, state, ref, count_ref,    \
+                                               recency, capacity, count, ...) do {\
+            assert(xkb_state_get_layout_recency_order                             \
+                   ((state), (recency), (capacity), &(count)) == XKB_SUCCESS);    \
+            assert((size_t)(count) == (count_ref));                               \
+            assert_buffer_eq(msg,  (ref), (recency), (count),                     \
+                             "%"PRIu32, ##__VA_ARGS__);                           \
+            if (sm) {                                                             \
+                assert(xkb_machine_get_layout_recency_order                       \
+                       ((sm), (recency), (capacity), &(count)) == XKB_SUCCESS);   \
+                assert((size_t)(count) == (count_ref));                           \
+                assert_buffer_eq(msg, (ref), (recency),                           \
+                                 (count), "%"PRIu32, ##__VA_ARGS__);              \
+            }                                                                     \
+        } while (0)
+        assert_layout_recency_order_eq("", sm, state, expected[initial_state],
+                                       ARRAY_SIZE(*expected), recency, capacity, count);
 
         /* Next group switcher key press */
         static const xkb_keycode_t key = KEY_COMPOSE + EVDEV_OFFSET;
@@ -4092,10 +4105,8 @@ test_basic_layout_recency_order(struct xkb_context *ctx)
         } else {
             xkb_state_update_key(state, key, XKB_KEY_DOWN);
         }
-        assert(xkb_state_get_layout_recency_order(state, recency, capacity, &count) ==
-               XKB_SUCCESS);
-        assert((size_t)count == ARRAY_SIZE(*expected));
-        assert_buffer_eq("", expected[next_group_press], recency, count, "%"PRIu32);
+        assert_layout_recency_order_eq("", sm, state, expected[next_group_press],
+                                       ARRAY_SIZE(*expected), recency, capacity, count);
 
         /* Out-of-band update */
         static const int out_of_band[] = {
@@ -4108,15 +4119,12 @@ test_basic_layout_recency_order(struct xkb_context *ctx)
         for (size_t u = 0; u < ARRAY_SIZE(out_of_band); u++) {
             fprintf(stderr, "*** Out-of-band update: %zu\n", u);
 
-            const xkb_layout_index_t * const expected_recency =
-                expected[out_of_band[u]];
-
             const struct xkb_state_components_update components_update = {
                 .size = sizeof(components_update),
                 .components = XKB_STATE_LAYOUT_LOCKED
                             | (update_latched ? XKB_STATE_LAYOUT_LATCHED : 0),
                 .latched_layout = (int32_t)(u % ARRAY_SIZE(*expected)),
-                .locked_layout = (int32_t)expected_recency[0],
+                .locked_layout = (int32_t)expected[out_of_band[u]][0],
             };
             const struct xkb_synthetic_update update = {
                 .size = sizeof(update),
@@ -4129,12 +4137,10 @@ test_basic_layout_recency_order(struct xkb_context *ctx)
                 assert(xkb_state_update_synthetic(state, &update, NULL) ==
                        XKB_SUCCESS);
             }
-            assert(xkb_state_get_layout_recency_order(state, recency, capacity, &count) ==
-                   XKB_SUCCESS);
-            assert((size_t)count == ARRAY_SIZE(*expected));
-            assert_buffer_eq("out-of-band #%zu",
-                             expected_recency, recency, count,
-                             "%"PRIu32, u);
+            assert_layout_recency_order_eq("out-of-band #%zu", sm, state,
+                                           expected[out_of_band[u]],
+                                           ARRAY_SIZE(*expected),
+                                           recency, capacity, count, u);
         }
 
         xkb_state_unref(state);
