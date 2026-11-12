@@ -62,6 +62,8 @@ enum xkb_message_code {
     XKB_WARNING_DEPRECATED_SECTION = 21,
     /** Warn on malformed number literals */
     XKB_ERROR_MALFORMED_NUMBER_LITERAL = 34,
+    /** The user-provided buffer has an insufficient capacity */
+    XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY_ = 39,
     /** Conflicting “preserve” entries in a key type */
     XKB_WARNING_CONFLICTING_KEY_TYPE_PRESERVE_ENTRIES = 43,
     /** The result of the operation is not mathematically correct */

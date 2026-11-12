@@ -603,6 +603,7 @@ enum xkb_compose_feed_result_bounds {
 static const uint32_t xkb_status_values[] = {
     (uint32_t)XKB_ERROR_INVALID,
     XKB_SUCCESS,
+    XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY,
     XKB_ERROR_UNSUPPORTED_MODIFIER_MASK,
     XKB_ERROR_UNSUPPORTED_STATE_MODE,
     XKB_ERROR_EVENT_TYPE_MISMATCH,
@@ -628,7 +629,7 @@ static const uint32_t xkb_status_values[] = {
 enum xkb_status_bounds {
     _XKB_STATUS_MIN = XKB_ERROR_INVALID,
     _XKB_STATUS_MAX = XKB_ERROR_ABI_BACKWARD_COMPAT,
-    _XKB_STATUS_NUM = 22,
+    _XKB_STATUS_NUM = 23,
 };
 static const uint32_t xkb_feature_values[] = {
     XKB_FEATURE_ENUM_FEATURE,

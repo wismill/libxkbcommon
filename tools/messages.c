@@ -22,6 +22,7 @@
 static const struct xkb_message_entry xkb_messages[] = {
     {XKB_WARNING_DEPRECATED_SECTION, "Deprecated section"},
     {XKB_ERROR_MALFORMED_NUMBER_LITERAL, "Malformed number literal"},
+    {XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY_, "Insufficient buffer capacity"},
     {XKB_WARNING_CONFLICTING_KEY_TYPE_PRESERVE_ENTRIES, "Conflicting key type preserve entries"},
     {XKB_ERROR_INTEGER_OVERFLOW, "Integer overflow"},
     {XKB_ERROR_UNSUPPORTED_MODIFIER_MASK_, "Unsupported modifier mask"},
