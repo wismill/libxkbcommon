@@ -340,6 +340,24 @@
   details: |
     Shift levels are _one_-indexed. xkbcommon supports two formats of shift levels:
     as numbers and as identifiers `LevelN`, where `N` is in the range (1..8).
+- id: "invalid-layout-recency-order"
+  code: 317
+  type: error
+  visibility: public
+  added: 1.14.0
+  description: Invalid layout recency order
+  details: |
+    The given [layout recency order] is not consistent with the active
+    [layout cycle policy]. For example:
+
+    - its length differs from the number of [main layouts];
+    - it contains duplicate layouts.
+
+    @sa @ref XKB-209 "" for layouts that are out of range for the keymap.
+
+    [layout recency order]: @ref layout-recency-order-def
+    [layout cycle policy]:  @ref xkb_layout_cycle_policy
+    [main layouts]:         @ref main-layouts-def
 - id: "included-file-not-found"
   code: 338
   added: ALWAYS
