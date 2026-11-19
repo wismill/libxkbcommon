@@ -224,6 +224,8 @@ enum xkb_message_code {
     XKB_WARNING_UNDEFINED_KEYCODE = 770,
     /** An expression has not the expected type */
     XKB_ERROR_INVALID_EXPRESSION_TYPE = 784,
+    /** Invalid core layout index or mask */
+    XKB_ERROR_INVALID_CORE_LAYOUT_ = 789,
     /** A value is invalid and will be ignored */
     XKB_ERROR_INVALID_VALUE = 796,
     /** Warn if there are conflicting modmap definitions */
