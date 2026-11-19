@@ -2412,7 +2412,7 @@ struct xkb_keymap_serialize_result {
  * - `::XKB_ERROR_ALLOCATION_FAILURE`
  * - `::XKB_ERROR_UNSUPPORTED_KEYMAP_SERIALIZATION_FLAGS`
  * - ::`XKB_ERROR_UNSUPPORTED_KEYMAP_FORMAT`
- * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX`
+ * - `::XKB_ERROR_OUT_OF_KEYMAP_RANGE_LAYOUT`
  * - `::XKB_ERROR_LAYOUT_COUNT_LIMIT_EXCEEDED`
  *
  * @since 1.14.0
@@ -4965,7 +4965,7 @@ struct xkb_machine_builder_shortcut_override_update {
  * - Errors from ABI @ref abi-struct-resolution.
  * - `::XKB_ERROR_ALLOCATION_FAILURE`
  * - `::XKB_ERROR_UNSUPPORTED_MODIFIER_MASK`
- * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX`
+ * - `::XKB_ERROR_OUT_OF_KEYMAP_RANGE_LAYOUT`
  *
  * @sa `struct xkb_machine_builder_shortcut_override_update`
  *
@@ -5173,7 +5173,7 @@ struct xkb_layout_out_of_range_policy {
  * Possible errors are:
  * - Errors from ABI @ref abi-struct-resolution.
  * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_OUT_OF_RANGE_MODE`
- * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_INDEX`
+ * - `::XKB_ERROR_OUT_OF_KEYMAP_RANGE_LAYOUT`
  *
  * @sa `enum xkb_layout_out_of_range_mode`
  * @sa `struct xkb_layout_out_of_range_policy`

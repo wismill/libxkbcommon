@@ -2585,7 +2585,8 @@ state_update_layout_out_of_range_policy(
 )
 {
     if (xkb_feature_supported(XKB_FEATURE_ENUM_LAYOUT_OUT_OF_RANGE_MODE,
-                              policy->mode)) {
+                              policy->mode))
+    {
         if (policy->mode == XKB_LAYOUT_OUT_OF_RANGE_REDIRECT) {
             if (policy->redirect < state->base.keymap->num_groups) {
                 state->base.out_of_range_group.redirect_group =
