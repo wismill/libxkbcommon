@@ -71,6 +71,12 @@ enum xkb_status {
      */
     XKB_SUCCESS = 0,
     /**
+     * The user-provided buffer has an insufficient capacity
+     *
+     * @since 1.14.0
+     */
+    XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY = 39,
+    /**
      * Unsupported modifier mask
      *
      * The modifier mask does not represent valid modifiers.

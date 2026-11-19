@@ -35,6 +35,12 @@
     - *decimal integer:* 1, 123, etc.
     - *decimal floating-point number:* 1.23, etc.
     - *hexadecimal integer:* prefixed with “0x”: 0x123, 0xff, 0xAB, etc.
+- id: "insufficient-buffer-capacity"
+  code: 39
+  type: error
+  added: 1.14.0
+  visibility: public
+  description: "The user-provided buffer has an insufficient capacity"
 - id: "conflicting-key-type-preserve-entries"
   code: 43
   added: ALWAYS

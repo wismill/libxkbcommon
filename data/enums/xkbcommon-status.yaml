@@ -5,6 +5,8 @@ xkb_status:
     value: -1
   - name: XKB_SUCCESS
     value: 0
+  - name: XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY
+    value: 39
   - name: XKB_ERROR_UNSUPPORTED_MODIFIER_MASK
     value: 60
   - name: XKB_ERROR_UNSUPPORTED_STATE_MODE
