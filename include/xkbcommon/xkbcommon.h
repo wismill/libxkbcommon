@@ -5234,6 +5234,485 @@ xkb_machine_get_layout_recency_order(const struct xkb_machine *machine,
                                      xkb_layout_index_t *count);
 
 /**
+ * @enum xkb_layout_cycle_policy_flags
+ * Flags to control the layout cycle policy update.
+ *
+ * @since 1.14.0
+ */
+enum xkb_layout_cycle_policy_flags {
+    /**
+     * Default behavior:
+     * - Reset the [layout recency order] on policy update.
+     *   Do not preserve previous [main] layouts, except the [locked] layout.
+     *
+     * @since 1.14.0
+     *
+     * [layout recency order]: @ref layout-recency-order-def
+     * [main]: @ref main-layouts-def
+     * [locked]: @ref locked-group-def
+     */
+    XKB_LAYOUT_CYCLE_POLICY_NONE = 0,
+    /**
+     * Preserve the [layout recency order] when the policy is applied,
+     * as far as the new policy allows.
+     *
+     * @since 1.14.0
+     *
+     * [layout recency order]: @ref layout-recency-order-def
+     */
+    XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY = (1 << 0),
+};
+
+/**
+ * @struct xkb_layout_cycle_policy
+ * Policy governing how a machine cycles through, and switches between,
+ * the layouts of its keymap.
+ *
+ * ## Model
+ *
+ * The following model only applies to keymaps with *some* layouts. If the
+ * keymap has no layout, then all the sets hereinafter are *empty*, as well as
+ * the recency order list: `layouts = main = spare = core = adjunct = ∅`.
+ *
+ * ### Main and spare layouts
+ *
+ * The layouts of a keymap are partitioned into a non-empty [main] set,
+ * which the [recent] group action cycles through, and a [spare] set,
+ * which is reachable by direct selection only.
+ *
+ * <!--
+ *     ⎛ layouts = main ⊔ spare   ⎞
+ *     ⎜                          ⎟ ∧ main ≠ ∅
+ *     ⎝ spare   = layouts ∖ main ⎠
+ * -->
+ * @f[
+ * \left( \begin{aligned}
+ * \text{layouts} &= \text{main} \sqcup \text{spare} \\
+ * \text{spare}   &= \text{layouts} \setminus \text{main}
+ * \end{aligned} \right)
+ * \land
+ * \text{main} \neq \emptyset
+ * @f]
+ *
+ * ### Core and adjunct layouts
+ *
+ * When `spare ≠ ∅`, the [main] set is further partitioned into [core] layouts,
+ * which a [spare] never displaces, and [adjunct] layouts, which it may.
+ * Since selecting a [spare]&zwnj; [promotes] it and [demotes] an [adjunct],
+ * there must be one whenever there is a [spare]. Formally:
+ *
+ * <!--
+ *                                   ⎛                              ⎞
+ *    ⎛ main    = core ⊔ adjunct ⎞   ⎜              ⎛ adjunct ≠ ∅ ⎞ ⎟
+ *    ⎜                          ⎟ ∧ ⎜ spare = ∅ ∨  ⎜             ⎟ ⎟
+ *    ⎝ adjunct = main ∖ core    ⎠   ⎜              ⎝ core ⊊ main ⎠ ⎟
+ *                                   ⎝                              ⎠
+ * -->
+ * @f[
+ * \left( \begin{aligned}
+ * \text{main} &= \text{core} \sqcup \text{adjunct} \\
+ * \text{core} &= \text{main} \setminus \text{adjunct}
+ * \end{aligned} \right)
+ * \land
+ * \left(
+ * \text{spare} = \emptyset
+ * \lor
+ * \text{adjunct} \neq \emptyset
+ * \right)
+ * @f]
+ *
+ * ## Terminology
+ *
+ * <dl>
+ * <dt>Layouts</dt>
+ * <dd>All the layouts of the keymap, indexed from 0.</dd>
+ *
+ * <dt>Main @anchor main-layouts-def</dt>
+ * <dd>The layouts that the [recent] group action cycles through.</dd>
+ *
+ * <dt>Spare @anchor spare-layouts-def</dt>
+ * <dd>
+ * The layouts *outside* the cycle. A spare is [promoted] in [main] layouts
+ * only when it is selected explicitly.
+ * </dd>
+ *
+ * <dt>Core @anchor core-layouts-def</dt>
+ * <dd>
+ * [Main][main] layouts that a [spare] never displaces. A core layout may
+ * change position in the cycle, but it stays in [main] layouts as long as
+ * the policy is unchanged.
+ * </dd>
+ *
+ * <dt>Adjunct @anchor adjunct-layouts-def</dt>
+ * <dd>[Main][main] layouts that a [spare] may displace.</dd>
+ *
+ * <dt>Layout recency order @anchor layout-recency-order-def</dt>
+ * <dd>
+ * The [main] layouts, from the most to the least recently used. Every entry
+ * is unique. The current [locked layout] is always the first one. [Spare]
+ * layouts do not track their recency until promoted to [main].
+ * </dd>
+ * </dl>
+ *
+ * [main]: @ref main-layouts-def
+ * [spare]: @ref spare-layouts-def
+ * [core]: @ref core-layouts-def
+ * [adjunct]: @ref adjunct-layouts-def
+ * [adjuncts]: @ref adjunct-layouts-def
+ * [recency order]: @ref layout-recency-order-def
+ *
+ * Transitions are named as follows:
+ *
+ * <dl>
+ * <dt>Promote @anchor layout-promotion-def</dt>
+ * <dd>A layout moves from [spare] to [main] layouts.</dd>
+ * <dt>Demote @anchor layout-demotion-def</dt>
+ * <dd>A layout moves from [main] to [spare] layouts.</dd>
+ * </dl>
+ *
+ * [promotes]:  @ref layout-promotion-def
+ * [promoted]:  @ref layout-promotion-def
+ * [promoting]: @ref layout-promotion-def
+ * [demotes]:   @ref layout-demotion-def
+ * [demoted]:   @ref layout-demotion-def
+ * [demoting]:  @ref layout-demotion-def
+ *
+ * ## Recency order
+ *
+ * Whenever the [locked layout] changes, by any means other than the “[recent]”
+ * group action itself (a key, a synthetic update, etc.), it is moved to the
+ * front of the recency order and the relative order of the other [main] layouts
+ * is preserved. If the layout was a [spare], it is [promoted]&zwnj;
+ * (see: @ref layout-select-spare "") and the least-recent [adjunct] is [demoted].
+ *
+ * [recent]: @ref recent-group-index-def
+ * [locked layout]: @ref locked-group-def
+ *
+ * ## Cycling {#layout-cycling}
+ *
+ * Cycling is driven by an action that locks the special group
+ * [`Recent`][recent], e.g. `LockGroup(group=Recent)`.
+ * A **cycle** is a run of consecutive activations of a “[recent]” group action:
+ *
+ * - The *first* activation freezes the order of the main layouts.
+ * - The *n-th* activation locks the n-th most recently used [main] layout of
+ *   that frozen order, counting the [locked layout] as the 0-th, and wrapping
+ *   around after the last one.
+ * - Whenever the cycle ends, the [locked layout] is the most recently used one
+ *   and the other [main] layouts keep their relative order.
+ *
+ * Example, with [main] layouts A, B, C (A locked) and no interruption:
+ *
+ *     A B C → B A C → C A B → A B C → …
+ *
+ * If the cycle is interrupted in between (e.g. by a regular key press),
+ * the next activation starts a new cycle, so it switches to the previously
+ * used layout:
+ *
+ *     A B C → B A C → (other key) → A B C
+ *
+ * If `|main| = 1`, the action does nothing.
+ *
+ * A cycle ends by itself when it comes back to its starting layout.
+ *
+ * A cycle is *interrupted* when any of the following happens:
+ *
+ * - A key is pressed (key releases and repeats are ignored) and the actions of
+ *   its current effective level are such that either:
+ *   - there is no action, i.e. it is a regular key, or
+ *   - at least one action is neither:
+ *     - A `LockGroup(group=+Recent)` or `LockGroup(group=-Recent)`. Neither the
+ *       sign nor the other parameters matter (e.g. `lockOnRelease`), so keys
+ *       cycling forwards and backwards can be freely alternated.
+ *     - An action that neither locks a group nor breaks latches, e.g. a
+ *       modifier action, `SetGroup` or `LatchGroup`.
+ *
+ *   Note that pressing again the key that started the cycle may also interrupt:
+ *   in case the effective level has changed, the corresponding actions of this
+ *   key may no longer be the actions that started the cycle, but instead match
+ *   the above conditions.
+ * - The [locked layout] changes by any means other than the cycle itself,
+ *   e.g. a lock action on another key or a synthetic update.
+ * - A policy is applied that changes the recency order or `|main|`.
+ *
+ * ## Selecting a spare {#layout-select-spare}
+ *
+ * A [spare] layout may be selected manually, e.g. via a shortcut or a user
+ * interface, or programmatically. It is never selected by the [recent] group
+ * action.
+ *
+ * Selecting a [spare] [promotes] it into `main` and locks it, so it becomes
+ * `recency_order[0]`. To keep `|main|` constant, the <em>last [adjunct]</em>
+ * of [`recency_order`][recency order], i.e. the least recently used one, is
+ * [demoted] in exchange. If the only [adjunct] is the layout locked until now,
+ * that one is [demoted]. The [demoted] layout loses its recency information.
+ *
+ * @figure
+ * @figcaption
+ * Spare promotion example with: `main = {A, B, C}`, `core = {C}`.
+ *
+ * @remark The order of the [spare] layouts shown after `|` is only an
+ * illustration. Spare layouts have no meaningful order.
+ *
+ * @endfigcaption
+ * Action     | Recency order | Spares
+ * ---------- | :-----------: | -----------------------------------------------
+ * (start)    | `A B C`       | `D E`
+ * select `E` | `E A C`       | `D B` (`B` is the last adjunct)
+ * select `D` | `D E C`       | `A B` (`A` is the last adjunct)
+ * select `C` | `C D E`       | `A B` (`C` is already main: nothing is demoted)
+ * @endfigure
+ *
+ * ## Default policy
+ *
+ * Until a policy is explicitly applied, *every keymap layout is main*: there
+ * are no spare layouts.
+ *
+ * The initial layout [recency order] is the order of the layouts in the keymap.
+ *
+ * ## Applying a new policy {#layout-cycle-policy-migration}
+ *
+ * The machine does not retain the structure nor the pointer to it. It retains
+ * the derived state: the number of [main] layouts and the set of [core] layouts.
+ * Every call supplies a complete policy: there is no partial update.
+ *
+ * After a successful call, the following guarantees always hold:
+ *
+ * 1. The number of [main] layouts is set to `|main|`.
+ * 2. The [core] layouts are in main:
+ *    [by definition](@ref core-and-adjunct-layouts) `main = core ⊔ adjunct`.
+ * 3. The [locked layout] is in [main], at the first position of the
+ *    [recency order].
+ *
+ * @note Applying a layout cycle policy and locking a layout are two separate
+ * operations. To avoid displacing a layout twice, lock a layout *before*
+ * applying a policy; otherwise be aware that proceeding in the reverse order
+ * may result in the previously [locked layout] remaining in [main].
+ *
+ * The remaining [recency order] slots and the corresponding [main] layouts
+ * order depend on `::XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY`.
+ *
+ * ### Without `::XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY`
+ *
+ * The [recency order] is *reinitialized* with the new [main] and [core] layouts,
+ * in ascending keymap group index order, then synchronized with the
+ * [locked layout]&zwnj;:
+ * - if it is a [spare], it is [promoted] at the start of the [recency order]
+ *   and the last [adjunct] is [demoted]&zwnj;
+ *   (see [Selecting a spare](@ref layout-select-spare));
+ * - otherwise it is simply moved to front.
+ *
+ * *A running cycle is interrupted.*
+ *
+ * ### With `::XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY`
+ *
+ * The [recency order] is *preserved* as far as the new policy allows. The
+ * following cases are mutually exclusive:
+ *
+ * 1. **The [recency order] is _rebuilt_** if either:
+ *    - `|main|` grows, or
+ *    - a new [core] layout lies outside the first `|main|` entries of the
+ *      previous [recency order].
+ *
+ *    A running cycle is interrupted.
+ *
+ *    Given that:
+ *
+ *    <!--
+ *    main_policy = core_policy ⊔ adjuncts_policy
+ *    demoted_policy = main_old ∖ main_policy
+ *    main_old = (main_old ∩ main_policy) ⊔ (main_old ∖ main_policy)
+ *             = (main_old ∩ core_policy) ⊔
+ *               (main_old ∩ adjuncts_policy) ⊔
+ *               demoted_policy
+ *    -->
+ *    @f[
+ *    \begin{aligned}
+ *    \text{main}_\text{policy} &= \text{core}_\text{policy} \sqcup
+ *                                 \text{adjuncts}_\text{policy} \\
+ *    \text{demoted}_\text{policy} &= \text{main}_\text{old} \setminus
+ *                                    \text{main}_\text{policy} \\
+ *    \text{main}_\text{old} &=
+ *        (\text{main}_\text{old} \cap \text{main}_\text{policy}) \sqcup
+ *        (\text{main}_\text{old} \setminus \text{main}_\text{policy}) \\
+ *                           &=
+ *        (\text{main}_\text{old} \cap \text{core}_\text{policy}) \sqcup
+ *        (\text{main}_\text{old} \cap \text{adjuncts}_\text{policy}) \sqcup
+ *        \text{demoted}_\text{policy}
+ *    \end{aligned}
+ *    @f]
+ *
+ *    and:
+ *
+ *    <!--
+ *    recency_0 = locked
+ *    locked ∊ main_old
+ *    -->
+ *    @f[
+ *    \text{recency}_{0} = \text{locked}, \quad
+ *    \text{locked} \in \text{main}_{\text{old}}
+ *    @f]
+ *
+ *    then the [locked layout] is either member of:
+ *    - the policy’s [core] set, or
+ *    - the policy’s [adjuncts] set, or
+ *    - the layout that would be [demoted] by the new policy.
+ *
+ *    Thus new [main] set consists of the following sets and includes the
+ *    [locked layout] by construction:
+ *    - the policy’s [core] layouts;
+ *    - the first `k` layouts that the new policy would demote from the
+ *      previous [main] (i.e. `policy_demoted` hereinafter), taken in the
+ *      previous [recency order];
+ *    - all new policy [adjuncts] except the `k` highest-keymap-index elements
+ *      of `policy_adjuncts ∖ {locked}`, i.e. the *demotable* policy [adjuncts].
+ *
+ *    Here `k = min(|policy_adjuncts ∖ {locked}|, |policy_demoted|)`, where:
+ *    - `policy_adjuncts = policy_main ∖ policy_core`
+ *    - `policy_demoted = previous_main ∖ policy_main`
+ *
+ *    Consequently a layout that is [main] in the policy may still be [demoted]
+ *    in favor of a retained previous [main] layout: only the [core] layouts and
+ *    the [locked layout] are guaranteed.
+ *
+ *    The new [recency order] consists of two parts:
+ *    1. Layouts from the previous [main] that belong to the new [main],
+ *       in their previous relative order. Since the [locked layout]
+ *       is first in the previous [recency order], it remains first.
+ *    2. All remaining layouts of the new [main], in ascending keymap
+ *       group index order.
+ * 2. **Otherwise the [recency order] is _kept_:**
+ *    - if `|main|` is unchanged: [main] layouts and their [recency order]
+ *      remain unchanged;
+ *    - otherwise the [recency order] is truncated to the first new `|main|`
+ *      entries.
+ *
+ *    In both cases, the resulting [main] may have different [adjuncts] than
+ *    the policy.
+ *
+ *    A running cycle is interrupted only if `|main|` changed.
+ *
+ * ## Validation {#layout-cycle-policy-validation}
+ *
+ * A policy is rejected unless all the following hold:
+ *
+ * - the machine’s keymap has at most 32 layouts, the width of the masks;
+ * - every bit set in either mask denotes an existing layout;
+ * - #main_mask is not empty;
+ * - #core_mask is a subset of #main_mask;
+ * - if there is at least one [spare] layout, #core_mask is a proper subset of
+ *   #main_mask: at least one [adjunct] must exist, otherwise there would be no
+ *   layout to displace when a [spare] is selected.
+ *
+ * ## Degenerated configurations
+ *
+ * - If there is no [spare] layout, every layout is [main], [`core`][core] may
+ *   equal [`main`][main], and nothing is ever displaced.
+ * - If [`core`][core] is empty, no layout is protected: the cycle is a pure
+ *   recency order and the whole [main] set behaves as [adjunct].
+ * - If `|main| = 1`, the [recent] group action does nothing, but [spare]
+ *   layouts can still be selected and displace the single [adjunct], if any.
+ *
+ * @since 1.14.0
+ *
+ * @sa `xkb_machine::xkb_machine_set_layout_cycle_policy()`
+ */
+struct xkb_layout_cycle_policy {
+    /**
+     * Size of this structure in bytes.
+     *
+     * @sa @ref abi-struct-contract
+     *
+     * @since 1.14.0
+     */
+    uint32_t size;
+    /**
+     * Mask of [policy flags].
+     *
+     * @sa xkb_layout_cycle_policy_flags
+     *
+     * @since 1.14.0
+     *
+     * [policy flags]: @ref xkb_layout_cycle_policy_flags
+     */
+    uint32_t flags;
+    /**
+     * Mask of the <strong>[main]</strong> layouts.
+     *
+     * Bit @c i set means that layout @c i is a main layout. It must not be
+     * empty, and bits of layouts that do not exist in the keymap must be clear.
+     *
+     * @since 1.14.0
+     *
+     * [main]: @ref main-layouts-def
+     */
+    xkb_layout_mask_t main_mask;
+    /**
+     * @parblock
+     * Mask of the <strong>[core]</strong> layouts, i.e. the [main] layouts
+     * that a [spare] never displaces.
+     * @endparblock
+     *
+     * Must be a subset of #main_mask, and a proper subset of it if the
+     * keymap has at least one [spare] layout.
+     *
+     * @since 1.14.0
+     *
+     * [core]: @ref core-layouts-def
+     * [main]: @ref main-layouts-def
+     * [spare]: @ref spare-layouts-def
+     */
+    xkb_layout_mask_t core_mask;
+};
+
+/**
+ * Apply a [layout cycle policy][policy] to a [state machine].
+ * @memberof xkb_machine
+ *
+ * Updates the machine’s layout cycling state according to @p policy.
+ * The machine does not retain @p policy, but only the state derived from it.
+ * The update of the [recency order] is described in
+ * @ref layout-cycle-policy-migration "".
+ *
+ * @note This function always keeps the current locked layout.
+ * @note In order to force a specific [recency order], use
+ * `struct xkb_layout_recency_order_update`
+ * via `xkb_machine::xkb_machine_process_synthetic()`.
+ *
+ * @param[in,out] machine
+ *   The `xkb_machine` object to modify.
+ * @param[in] policy
+ *   The [policy] to apply.
+ *
+ * @pre @p policy must point to a zero-initialized struct with
+ * [`policy->size`](@ref xkb_layout_cycle_policy::size) set per
+ * @ref abi-struct-contract.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise an [error code].
+ * Possible errors are:
+ * - Errors from ABI @ref abi-struct-resolution
+ * - `::XKB_ERROR_UNSUPPORTED_LAYOUT_CYCLE_POLICY_FLAGS`
+ * - `::XKB_ERROR_INVALID_MAIN_LAYOUT`
+ * - `::XKB_ERROR_INVALID_CORE_LAYOUT`
+ *
+ * @post On failure, the machine is left unchanged.
+ *
+ * @sa `struct xkb_layout_cycle_policy`
+ *
+ * @since 1.14.0
+ *
+ * [error code]: @ref xkb_status
+ * [state machine]: @ref xkb_machine
+ * [policy]: @ref xkb_layout_cycle_policy
+ * [recency order]: @ref layout-recency-order-def
+ */
+XKB_EXPORT enum xkb_status
+xkb_machine_set_layout_cycle_policy(
+    struct xkb_machine *machine,
+    const struct xkb_layout_cycle_policy *policy
+);
+
+/**
  * Process a key event – a pair ([keycode], [direction]) – through the XKB
  * [state machine], and collect the resulting [keyboard events] into an
  * [event batch].
@@ -5436,6 +5915,8 @@ struct xkb_state_components_update {
  * @sa `struct xkb_synthetic_update`
  * @sa `xkb_state::xkb_state_update_synthetic()`
  * @sa `xkb_machine::xkb_machine_process_synthetic()`
+ * @sa `struct xkb_layout_cycle_policy`
+ * @sa `xkb_machine::xkb_machine_set_layout_cycle_policy()`.
  *
  * @since 1.14.0
  *
