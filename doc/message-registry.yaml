@@ -425,6 +425,14 @@
   visibility: public
   added: 1.14.0
   description: "A `xkb_state` object has an unexpected `xkb_state_mode`"
+- id: "unsupported-layout-cycle-policy-flags"
+  code: 400
+  type: error
+  visibility: public
+  added: 1.14.0
+  description: "Unsupported layout cycle policy flags"
+  details: |
+    See `enum xkb_layout_cycle_policy_flags` for the list of valid flags.
 - id: "conflicting-key-type-definitions"
   code: 407
   added: ALWAYS
