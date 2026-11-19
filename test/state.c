@@ -4302,13 +4302,20 @@ test_lock_group_recent(struct xkb_context *ctx)
         static const char keymap_str[] =
             "xkb_keymap {\n"
             "  xkb_keycodes {\n"
+            "    <LFSH> = 50;\n"
+            "    <RTSH> = 62;\n"
             "    <LCTL> = 37;\n"
             "    <RCTL> = 105;\n"
+            "    <LALT> = 64;\n"
+            "    <RALT> = 108;\n"
             "    <LSGT> = 94;\n"
             "  };\n"
             "  xkb_symbols {\n"
+            "    key <LFSH> {[SetMods(mods=Shift)]};\n"
             "    key <LCTL> {[LockGroup(group=-Recent)]};\n"
             "    key <RCTL> {[LockGroup(group=+Recent)]};\n"
+            "    key <LALT> {[SetGroup(group=-Recent)]};\n"
+            "    key <RALT> {[SetGroup(group=+Recent)]};\n"
             "    key <LSGT> {[1]};\n"
             "  };\n"
             "};";
@@ -4332,6 +4339,25 @@ test_lock_group_recent(struct xkb_context *ctx)
             KEY_102ND,     BOTH, XKB_KEY_1,        NEXT,
             KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
             KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,     BOTH, XKB_KEY_1,        FINISH
+        ));
+        /* Reverse, SetGroup and modifiers: no effect with a single layout */
+        assert(test_layout_cycle_(
+            ctx, keymap,
+            KEY_LEFTCTRL,  DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTSHIFT, BOTH, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTCTRL,  UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,     BOTH, XKB_KEY_1,        NEXT,
+            KEY_RIGHTCTRL, DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_RIGHTALT,  DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,     BOTH, XKB_KEY_1,        NEXT,
+            KEY_LEFTALT,   DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,     BOTH, XKB_KEY_1,        NEXT,
+            KEY_RIGHTALT,  UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTALT,   UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT,
             KEY_102ND,     BOTH, XKB_KEY_1,        FINISH
         ));
         xkb_keymap_unref(keymap);
@@ -4385,8 +4411,11 @@ test_lock_group_recent(struct xkb_context *ctx)
             "xkb_keymap {\n"
             "  xkb_keycodes {\n"
             "    <LFSH> = 50;\n"
+            "    <RTSH> = 62;\n"
             "    <LCTL> = 37;\n"
             "    <RCTL> = 105;\n"
+            "    <LALT> = 64;\n"
+            "    <RALT> = 108;\n"
             "    <LSGT> = 94;\n"
             "  };\n"
             "  xkb_types {\n"
@@ -4397,6 +4426,8 @@ test_lock_group_recent(struct xkb_context *ctx)
             "    key <LFSH> {[SetMods(mods=Shift)]};\n"
             "    key <LCTL> {[LockGroup(group=-Recent),VoidAction()]};\n"
             "    key <RCTL> {[LockGroup(group=+Recent),LockGroup(group=-Recent)]};\n"
+            "    key <LALT> {[SetGroup(group=-Recent)]};\n"
+            "    key <RALT> {[SetGroup(group=+Recent)]};\n"
             "    key <LSGT> {[1], [2], [3], [4]};\n"
             "  };\n"
             "};";
@@ -4405,6 +4436,45 @@ test_lock_group_recent(struct xkb_context *ctx)
             keymap_str, sizeof(keymap_str)
         );
         assert(keymap);
+        /* No cycle */
+        assert(test_layout_cycle_(
+            ctx, keymap,
+            /* No mixed directions */
+
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            KEY_RIGHTALT,   DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_RIGHTALT,   UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            KEY_RIGHTALT,   DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_2,        NEXT,
+            KEY_RIGHTALT,   UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            KEY_LEFTALT,    DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTALT,    UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+            KEY_LEFTALT,    DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_4,        NEXT,
+            KEY_LEFTALT,    UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+
+            /* Mixed directions */
+
+            KEY_RIGHTALT,   DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTALT,    DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_4,        NEXT,
+            KEY_LEFTALT,    UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_2,        NEXT,
+            KEY_RIGHTALT,   UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        NEXT,
+
+            KEY_RIGHTALT,   DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_LEFTALT,    DOWN, XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_4,        NEXT,
+            KEY_RIGHTALT,   UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_3,        NEXT, /* FIXME: Corner case */
+            KEY_LEFTALT,    UP,   XKB_KEY_NoSymbol, NEXT,
+            KEY_102ND,      BOTH, XKB_KEY_1,        FINISH
+        ));
         /* Cycle forwards */
         assert(test_layout_cycle_(
             ctx, keymap,                                 // Recency (* = cursor)
@@ -4441,6 +4511,84 @@ test_lock_group_recent(struct xkb_context *ctx)
             KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 1, 4*, 3, 2
             KEY_102ND,     BOTH, XKB_KEY_1,        FINISH
         ));
+        /* SetGroup taps or interleaved press/release do not interrupt a cycle */
+        assert(test_layout_cycle_(
+            ctx, keymap,                                 // Recency (* = cursor)
+            KEY_102ND,     BOTH, XKB_KEY_1,        NEXT, // 1*, 2, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 1*, 3, 4
+            /* Tap */
+            KEY_RIGHTALT,  BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 1*, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 3, 1, 2*, 4
+            KEY_LEFTALT,   BOTH, XKB_KEY_NoSymbol, NEXT, // 3, 1, 2*, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 4, 1, 2, 3*
+            KEY_102ND,     BOTH, XKB_KEY_4,        NEXT, // 4*, 1, 2, 3
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 1, 4*, 2, 3
+            /* Interleave */
+            KEY_LEFTALT,   DOWN, XKB_KEY_NoSymbol, NEXT, // 1, 4*, 2, 3
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 4, 1*, 3
+            KEY_LEFTALT,   UP,   XKB_KEY_NoSymbol, NEXT, // 2, 4, 1*, 3
+            KEY_102ND,     BOTH, XKB_KEY_2,        NEXT, // 2*, 4, 1, 3
+            /* Interleave */
+            KEY_RIGHTCTRL, DOWN, XKB_KEY_NoSymbol, NEXT, // 4, 2*, 1, 3
+            KEY_LEFTALT,   DOWN, XKB_KEY_NoSymbol, NEXT, // 1, 4*, 2, 3
+            KEY_RIGHTCTRL, UP,   XKB_KEY_NoSymbol, NEXT, // 4, 2*, 1, 3
+            KEY_LEFTALT,   UP,   XKB_KEY_NoSymbol, NEXT, // 4, 2*, 1, 3
+            KEY_LEFTALT,   DOWN, XKB_KEY_NoSymbol, NEXT, // 4, 2*, 1, 3
+            KEY_RIGHTCTRL, DOWN, XKB_KEY_NoSymbol, NEXT, // 1, 2, 4*, 3
+            KEY_LEFTALT,   UP,   XKB_KEY_NoSymbol, NEXT, // 1, 2, 4*, 3
+            KEY_RIGHTCTRL, UP,   XKB_KEY_NoSymbol, NEXT, // 1, 2, 4*, 3
+            KEY_102ND,     BOTH, XKB_KEY_1,        FINISH
+        ));
+        /*
+         * SetGroup(±Recent) held in the middle of a forward cycle activates
+         * the correct corresponding effective layout.
+         */
+        assert(test_layout_cycle_(
+            ctx, keymap,                                 // Recency (* = cursor)
+            KEY_102ND,     BOTH, XKB_KEY_1,        NEXT, // 1*, 2, 3, 4
+            /* SetGroup(+Recent) */
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 1*, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 3, 1, 2*, 4
+            KEY_RIGHTALT,  DOWN, XKB_KEY_NoSymbol, NEXT, // 3, 1, 2*, 4 (base: -2)
+            KEY_102ND,     BOTH, XKB_KEY_1,        NEXT, // 3*, 1, 2, 4 (base: -2)
+            KEY_RIGHTALT,  UP,   XKB_KEY_NoSymbol, NEXT, // 3*, 1, 2, 4
+            KEY_102ND,     BOTH, XKB_KEY_3,        NEXT, // 3*, 1, 2, 4
+            /* SetGroup(-Recent) */
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 1, 3*, 2, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 3, 1*, 4
+            KEY_LEFTALT,   DOWN, XKB_KEY_NoSymbol, NEXT, // 2, 3, 1*, 4 (base: +2)
+            KEY_102ND,     BOTH, XKB_KEY_4,        NEXT, // 2*, 3, 1, 4 (base: +2)
+            KEY_LEFTALT,   UP,   XKB_KEY_NoSymbol, NEXT, // 2*, 3, 1, 4
+            KEY_102ND,     BOTH, XKB_KEY_2,        FINISH
+        ));
+        /* Change direction with Shift */
+        assert(test_layout_cycle_(
+            ctx, keymap,                                 // Recency (* = cursor)
+            KEY_102ND,     BOTH, XKB_KEY_1,        NEXT, // 1*, 2, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 1*, 3, 4
+            KEY_LEFTSHIFT, DOWN, XKB_KEY_NoSymbol, NEXT, // 2, 1*, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 1*, 2, 3, 4
+            KEY_LEFTSHIFT, UP,   XKB_KEY_NoSymbol, NEXT, // 1*, 2, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 1*, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 3, 1, 2*, 4
+            KEY_102ND,     BOTH, XKB_KEY_3,        FINISH
+        ));
+        /* Reverse with Shift, interleaved with SetGroup and a modifier */
+        assert(test_layout_cycle_(
+            ctx, keymap,                                 // Recency (* = cursor)
+            KEY_102ND,     BOTH, XKB_KEY_1,        NEXT, // 1*, 2, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 1*, 3, 4
+            KEY_LEFTSHIFT, DOWN, XKB_KEY_NoSymbol, NEXT, // 2, 1*, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 1*, 2, 3, 4
+            KEY_RIGHTALT,  BOTH, XKB_KEY_NoSymbol, NEXT, // 1*, 2, 3, 4
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 4, 1, 2, 3*
+            KEY_LEFTALT,   DOWN, XKB_KEY_NoSymbol, NEXT, // 4, 1, 2, 3* (base: -1)
+            KEY_RIGHTCTRL, BOTH, XKB_KEY_NoSymbol, NEXT, // 3, 1, 2*, 4 (base: -1)
+            KEY_LEFTSHIFT, UP,   XKB_KEY_NoSymbol, NEXT, // 3, 1, 2*, 4 (base: -1)
+            KEY_102ND,     BOTH, XKB_KEY_2,        NEXT, // 3*, 1, 2, 4 (base: -1)
+            KEY_LEFTALT,   UP,   XKB_KEY_NoSymbol, NEXT, // 3*, 1, 2, 4
+            KEY_102ND,     BOTH, XKB_KEY_3,        FINISH
+        ));
         /* Cycle backwards */
         assert(test_layout_cycle_(
             ctx, keymap,                                 // Recency (* = cursor)
@@ -4475,6 +4623,28 @@ test_lock_group_recent(struct xkb_context *ctx)
             KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 4, 3*, 1, 2
             KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 3*, 4, 1, 2
             KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 3, 4, 1*
+            KEY_102ND,     BOTH, XKB_KEY_2,        FINISH
+        ));
+        /*
+         * SetGroup(±Recent) held in the middle of a reverse cycle activates
+         * the correct corresponding effective layout.
+         */
+        assert(test_layout_cycle_(
+            ctx, keymap,                                 // Recency (* = cursor)
+            KEY_102ND,     BOTH, XKB_KEY_1,        NEXT, // 1*, 2, 3, 4
+            /* SetGroup(-Recent) */
+            KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 4, 1*, 2, 3
+            KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 3, 1, 2*, 4
+            KEY_LEFTALT,   DOWN, XKB_KEY_NoSymbol, NEXT, // 3, 1, 2*, 4 (base +1)
+            KEY_102ND,     BOTH, XKB_KEY_4,        NEXT, // 3*, 1, 2, 4 (base +1)
+            KEY_LEFTALT,   UP,   XKB_KEY_NoSymbol, NEXT, // 3*, 1, 2, 4
+            KEY_102ND,     BOTH, XKB_KEY_3,        NEXT, // 3*, 1, 2, 4
+            /* SetGroup(+Recent) */
+            KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 4, 3, 1, 2*
+            KEY_LEFTCTRL,  BOTH, XKB_KEY_NoSymbol, NEXT, // 2, 3, 1*, 4
+            KEY_RIGHTALT,  DOWN, XKB_KEY_NoSymbol, NEXT, // 2, 3, 1*, 4 (base: +1)
+            KEY_102ND,     BOTH, XKB_KEY_3,        NEXT, // 2*, 3, 1, 4 (base: +1)
+            KEY_RIGHTALT,  UP,   XKB_KEY_NoSymbol, NEXT, // 2*, 3, 1, 4
             KEY_102ND,     BOTH, XKB_KEY_2,        FINISH
         ));
         /* Alternate directions */
@@ -4551,6 +4721,127 @@ test_lock_group_recent(struct xkb_context *ctx)
     }
 }
 
+static void
+test_set_group_recent(struct xkb_context *ctx)
+{
+    fprintf(stderr, "=== %s ===\n", __func__);
+
+    static const char keymap_str[] =
+        "xkb_keymap {\n"
+        "  xkb_keycodes {\n"
+        "    <LCTL> = 37;\n"
+        "    <RCTL> = 105;\n"
+        "    <LALT> = 64;\n"
+        "    <RALT> = 108;\n"
+        "    <LSGT> = 94;\n"
+        "  };\n"
+        "  xkb_types {\n"
+        "    type \"ONE_LEVEL\" {};\n"
+        "  };\n"
+        "  xkb_symbols {\n"
+        "    key <LCTL> {[LockGroup(group=-Recent)]};\n"
+        "    key <RCTL> {[LockGroup(group=+Recent)]};\n"
+        "    key <LALT> {[SetGroup(group=-Recent)]};\n"
+        "    key <RALT> {[SetGroup(group=+Recent)]};\n"
+        "    key <LSGT> {[1], [2], [3], [4]};\n"
+        "  };\n"
+        "};";
+
+    struct xkb_keymap *keymap = test_compile_buffer(
+        ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
+        keymap_str, sizeof(keymap_str)
+    );
+    assert(keymap);
+    assert(xkb_keymap_num_layouts(keymap) == 4);
+
+    struct xkb_state *state = xkb_state_new(keymap);
+    assert(state);
+
+    #define assert_layout_recency_order(...) do {                            \
+        static const xkb_layout_index_t expected[] = { __VA_ARGS__ };         \
+        xkb_layout_index_t recency[ARRAY_SIZE(expected)] = {0};               \
+        xkb_layout_index_t count_ = 0;                                        \
+        assert(xkb_state_get_layout_recency_order                             \
+               (state, recency, ARRAY_SIZE(expected), &count_) ==             \
+               XKB_SUCCESS);                                                  \
+        assert(count_ == ARRAY_SIZE(expected));                               \
+        assert_buffer_eq("layout recency order", expected, recency,          \
+                         count_, "%"PRIu32);                                   \
+    } while (0)
+
+    /* Start a cycle */
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 1);
+    assert_layout_recency_order(1, 0, 2, 3);
+
+    /*
+     * SetGroup(group=+Recent) while the cycle is running: temporarily switch
+     * to the next most recent group, without breaking the cycle nor updating
+     * the recency order.
+     */
+    xkb_state_update_key(state, KEY_RIGHTALT + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert((int32_t)xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_DEPRESSED) == -1);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 0);
+    assert_layout_recency_order(1, 0, 2, 3);
+
+    /* The cycle continues while the SetGroup key is held */
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 2);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 1);
+    assert_layout_recency_order(2, 0, 1, 3);
+
+    xkb_state_update_key(state, KEY_RIGHTALT + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_DEPRESSED) == 0);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 2);
+    assert_layout_recency_order(2, 0, 1, 3);
+
+    /* A regular key press breaks the cycle */
+    xkb_state_update_key(state, KEY_102ND + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_102ND + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 2);
+    assert_layout_recency_order(2, 0, 1, 3);
+
+    /* Same with SetGroup(group=-Recent) */
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 0);
+    assert_layout_recency_order(0, 2, 1, 3);
+
+    xkb_state_update_key(state, KEY_LEFTALT + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_DEPRESSED) == 3);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 3);
+    assert_layout_recency_order(0, 2, 1, 3);
+    xkb_state_update_key(state, KEY_LEFTALT + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 0);
+    assert_layout_recency_order(0, 2, 1, 3);
+
+    /*
+     * Simultaneous SetGroup(group=±Recent) keys: each release undoes its own
+     * delta.
+     */
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 1);
+    assert_layout_recency_order(1, 2, 0, 3);
+
+    xkb_state_update_key(state, KEY_RIGHTALT + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 2);
+    xkb_state_update_key(state, KEY_LEFTALT + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 3);
+    xkb_state_update_key(state, KEY_LEFTALT + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 2);
+    xkb_state_update_key(state, KEY_RIGHTALT + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 1);
+    assert_layout_recency_order(1, 2, 0, 3);
+
+    #undef assert_layout_recency_order
+
+    xkb_state_unref(state);
+    xkb_keymap_unref(keymap);
+}
+
 int
 main(void)
 {
@@ -4618,6 +4909,7 @@ main(void)
     test_layout_index_named_bounds(context);
     test_basic_layout_recency_order(context);
     test_lock_group_recent(context);
+    test_set_group_recent(context);
 
     xkb_context_unref(context);
     return EXIT_SUCCESS;
