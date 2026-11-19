@@ -3790,7 +3790,7 @@ Group index:
 
   @since 1.14
   </dd>
-  <dt>`Recent`</dt>
+  <dt>`Recent` @anchor recent-group-index-def</dt>
   <dd>
   Denotes either the *previously used* group (`+Recent`, `Recent`) or
   the *least recently used* group (`-Recent`), depending on the sign before it.
@@ -3973,8 +3973,8 @@ additional effects:
     around to the group that was locked when the cycle started.
 
     Further key presses interrupts an active cycle, whether it is the same key or
-    another one, unless *every* action of that key on its current effective level
-    is one of the following:
+    another one, unless the current effective level has some actions and *every*
+    such action is one of the following:
     - `LockGroup(group=+Recent)` or `LockGroup(group=-Recent)`;
     - an action that neither locks a group nor breaks latches, e.g. a modifier
       action, `SetGroup` or `LatchGroup`.

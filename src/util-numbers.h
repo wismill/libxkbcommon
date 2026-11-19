@@ -222,3 +222,10 @@ keep_lowest_n_set_bits(uint32_t mask, unsigned int n) {
 
     return original ^ mask;
 }
+
+static inline uint32_t
+unset_highest_set_bit32(uint32_t x) {
+    if (x == 0) return 0;
+    const uint32_t msb = (UINT32_C(1) << (31 - clz32(x)));
+    return x ^ msb;
+}

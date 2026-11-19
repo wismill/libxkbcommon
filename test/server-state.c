@@ -23,6 +23,7 @@
 #include "src/keysym.h"
 #include "src/keymap.h"
 #include "src/state-priv.h"
+#include "src/util-numbers.h"
 #include "src/utils.h"
 #include "state.h"
 #include "test.h"
@@ -7119,6 +7120,941 @@ test_machine_builder_shortcut_layout_update(struct xkb_context *context)
     }
 }
 
+struct policy_test {
+    struct xkb_layout_cycle_policy policy;
+    enum xkb_status status;
+    xkb_layout_index_t recency[4];
+    /** Lock a layout *before* applying the policy */
+    xkb_layout_index_t locked;
+    bool lock;
+};
+
+static void
+test_recency_order(struct xkb_machine * restrict sm,
+                   const struct xkb_layout_cycle_policy * restrict policy,
+                   const xkb_layout_index_t * restrict recency_ref,
+                   size_t recency_size_ref,
+                   xkb_layout_index_t * restrict recency,
+                   size_t recency_size)
+{
+    struct xkb_keymap * const keymap = xkb_machine_get_keymap(sm);
+    const xkb_layout_index_t num_layouts = xkb_keymap_num_layouts(keymap);
+
+    memset(recency, 0, recency_size * sizeof(*recency));
+    xkb_layout_index_t count = 0;
+    const enum xkb_status status = xkb_machine_get_layout_recency_order(
+        sm, recency, recency_size, &count
+    );
+    assert(status == XKB_SUCCESS);
+    assert((size_t)count <= recency_size);
+
+    /* Main layout definition */
+    assert(count ^ !num_layouts);
+    assert(count <= num_layouts);
+
+    /* The policy always sets the count of main layouts */
+    assert((size_t)count == (size_t)popcount32(policy->main_mask));
+
+    /* Expected recency order */
+    assert_buffer_eq("recency", recency_ref, recency,
+                     recency_size_ref, "%"PRIu32);
+
+    /* The locked layout is always the first main layout */
+    if (count) {
+        assert((xkb_layout_index_t)xkb_state_serialize_layout(
+            xkb_machine_get_state(sm), XKB_STATE_LAYOUT_LOCKED
+        ) == recency[0]);
+    }
+    /* Core layouts are always in main */
+    xkb_layout_mask_t main_mask = 0;
+    for (xkb_layout_index_t l = 0; l < count; l++)
+        main_mask |= (UINT32_C(1) << recency[l]);
+    const xkb_layout_mask_t core_mask = policy->core_mask;
+    assert((core_mask & main_mask) == core_mask);
+}
+
+static void
+test_cycle_policy_update(struct xkb_machine * restrict sm,
+                         struct xkb_events * restrict events,
+                         xkb_layout_index_t * restrict recency,
+                         size_t recency_size,
+                         const struct policy_test * restrict test)
+{
+    if (test->lock) {
+        /* Update the locked layout before the cycle policy */
+        const struct xkb_state_components_update components = {
+            .size = sizeof(components),
+            .components = XKB_STATE_LAYOUT_LOCKED,
+            .locked_layout = (int32_t)test->locked,
+        };
+        const struct xkb_synthetic_update update = {
+            .size = sizeof(update),
+            .components = &components,
+        };
+        assert(xkb_machine_process_synthetic(sm, &update, events) ==
+                XKB_SUCCESS);
+        assert((xkb_layout_index_t)xkb_state_serialize_layout(
+            xkb_machine_get_state(sm), XKB_STATE_LAYOUT_LOCKED
+        ) == test->locked);
+    }
+    assert(xkb_machine_set_layout_cycle_policy
+            (sm, &test->policy) ==  test->status);
+    if (test->status != XKB_SUCCESS)
+        return;
+    test_recency_order(sm, &test->policy,
+                       test->recency, ARRAY_SIZE(test->recency),
+                       recency, recency_size);
+}
+
+static void
+test_layout_cycle_policy_recency_order(struct xkb_context *ctx)
+{
+    struct xkb_events * const events = xkb_events_new(ctx, NULL, NULL);
+
+    static const struct policy_test degenerated_keymap[] = {
+        {
+            .policy = {
+                .size = sizeof(degenerated_keymap->policy),
+                .main_mask = 0x0,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+        },
+        {
+            .policy = {
+                .size = sizeof(degenerated_keymap->policy),
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_INVALID_MAIN_LAYOUT,
+        },
+        {
+            .policy = {
+                .size = sizeof(degenerated_keymap->policy),
+                .main_mask = 0x0,
+                .core_mask = 0x1,
+            },
+            .status = XKB_ERROR_INVALID_CORE_LAYOUT,
+        },
+        {
+            .policy = {
+                .size = sizeof(degenerated_keymap->policy),
+                .flags = 0x100,
+                .main_mask = 0x0,
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_UNSUPPORTED_LAYOUT_CYCLE_POLICY_FLAGS,
+        },
+    };
+
+    static const struct policy_test one_layout_keymap[] = {
+        {
+            .policy = {
+                .size = sizeof(one_layout_keymap->policy),
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0},
+        },
+        {
+            /* Core = main is valid when main is all the layouts */
+            .policy = {
+                .size = sizeof(one_layout_keymap->policy),
+                .main_mask = 0x1,
+                .core_mask = 0x1,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0},
+        },
+        {
+            .policy = {
+                .size = sizeof(one_layout_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0},
+            .lock = true, .locked = 0,
+        },
+        {
+            .policy = {
+                .size = sizeof(one_layout_keymap->policy),
+                .main_mask = 0x0, /* invalid: empty */
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_INVALID_MAIN_LAYOUT,
+        },
+        {
+            .policy = {
+                .size = sizeof(one_layout_keymap->policy),
+                .main_mask = 0x2, /* invalid: out of range */
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_INVALID_MAIN_LAYOUT,
+        },
+        {
+            .policy = {
+                .size = sizeof(one_layout_keymap->policy),
+                .main_mask = 0x3, /* invalid: out of range */
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_INVALID_MAIN_LAYOUT,
+        },
+        {
+            .policy = {
+                .size = sizeof(one_layout_keymap->policy),
+                .main_mask = 0x1,
+                .core_mask = 0x2, /* invalid: not a subset of main */
+            },
+            .status = XKB_ERROR_INVALID_CORE_LAYOUT,
+        },
+        {
+            .policy = {
+                .size = sizeof(one_layout_keymap->policy),
+                .flags = 0x100,
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_UNSUPPORTED_LAYOUT_CYCLE_POLICY_FLAGS,
+        },
+    };
+
+    static const struct policy_test two_layouts_keymap[] = {
+        {
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .main_mask = 0x3,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1},
+        },
+        {
+            /* Core = main is valid when main is all the layouts */
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .main_mask = 0x3,
+                .core_mask = 0x3,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1},
+        },
+        {
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .main_mask = 0x3,
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {1, 0}, /* Reset, then sync with the locked layout */
+            .lock = true, .locked = 1,
+        },
+        {
+            /* The locked layout (#1) is a spare of the policy: promoted */
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {1, /* spare */ 0},
+        },
+        {
+            /* Locked #0 is a spare of the policy: promoted, #1 demoted */
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .main_mask = 0x2,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {1, /* spare */ 0},
+            .lock = true, .locked = 1,
+        },
+        {
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .main_mask = 0x2,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, /* spare */ 1},
+            .lock = true, .locked = 0,
+        },
+        {
+            /* Core must be a proper subset of main, unless main is all */
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .main_mask = 0x1,
+                .core_mask = 0x1,
+            },
+            .status = XKB_ERROR_INVALID_CORE_LAYOUT,
+        },
+        {
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .main_mask = 0x4, /* invalid: out of range */
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_INVALID_MAIN_LAYOUT,
+        },
+        {
+            /* Preserve: grow from 1 to 2 main layouts */
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x3,
+                .core_mask = 0x1,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1},
+        },
+        {
+            /* Preserve: shrink, core in main */
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {1, /* spare */ 0},
+            .lock = true, .locked = 1,
+        },
+        {
+            /* Preserve: grow again, the previous order is kept */
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x3,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {1, 0},
+        },
+        {
+            /* Preserve: shrink to one main layout again: truncation */
+            .policy = {
+                .size = sizeof(two_layouts_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {1, /* spare */ 0},
+        },
+    };
+
+    static const struct policy_test simple_keymap[] = {
+        {
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .main_mask = 0x0, /* invalid */
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_INVALID_MAIN_LAYOUT,
+        },
+        {
+            /* |main| = 1 */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1, 2, 3},
+        },
+        {
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = 0x100,
+                .main_mask = 0x1,
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_UNSUPPORTED_LAYOUT_CYCLE_POLICY_FLAGS,
+        },
+        {
+            /* |main| = 1 */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x2,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .main_mask = 0x20,  /* invalid */
+                .core_mask = 0x0,
+            },
+            .status = XKB_ERROR_INVALID_MAIN_LAYOUT,
+        },
+        {
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .main_mask = 0x1,
+                .core_mask = 0x1,  /* invalid (not a proper subset) */
+            },
+            .status = XKB_ERROR_INVALID_CORE_LAYOUT,
+        },
+        {
+            /* |main| = 2 (increase) */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x3,
+                .core_mask = 0x1,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 2 */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x3,
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 2 */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x6, /* #0 not included */
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 2 */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x5, /* #1 not included */
+                .core_mask = 0x1, /* #0 */
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1, 2, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 2 */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x5,
+                .core_mask = 0x4, /* #2 not in previous main */
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 2, 1, 3}, /* changed: core requirement */
+        },
+        {
+            /* |main| = 3 (increase) */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x7,
+                .core_mask = 0x4,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 2, 1, 3}, /* changed: promotion in RMLVO order */
+        },
+        {
+            /* |main| = 2 (decrease) */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x6,
+                .core_mask = 0x4,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 2, 1, 3}, /* unchanged */
+        },
+        {
+            /* |main| = 3 (increase) */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0xe,
+                .core_mask = 0xc,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 2, 3, 1}, /* changed: core requirement */
+        },
+        {
+            /* |main| = 2 (decrease) */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x6,
+                .core_mask = 0x4,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 2, 3, 1}, /* unchanged */
+        },
+        {
+            /* |main| = 4 (increase) */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0xf,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 2, 1, 3}, /* changed: promoted in RMLVO order */
+        },
+        {
+            /* |main| = 4 */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_NONE, /* do not preserve */
+                .main_mask = 0xf,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 1, 2, 3}, /* changed: canonical order */
+        },
+        {
+            /* |main| = 3 (decrease) */
+            .policy = {
+                .size = sizeof(simple_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_NONE, /* do not preserve */
+                .main_mask = 0xd,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 2, 3, /* spare */ 1},
+        },
+    };
+
+    /*
+     * Default behavior: the recency order is reset and the policy masks are
+     * exact, except for the locked layout, which is always main.
+     */
+    static const struct policy_test reset_keymap[] = {
+        {
+            /* Locked layout is already first main: initial order */
+            .policy = {
+                .size = sizeof(reset_keymap->policy),
+                .main_mask = 0x6,
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {1, 2, /* spare */ 0, 3},
+            .lock = true, .locked = 1,
+        },
+        {
+            /* Main is exactly the mask: spare first in index order */
+            .policy = {
+                .size = sizeof(reset_keymap->policy),
+                .main_mask = 0xc,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {2, 3, /* spare */ 0, 1},
+            .lock = true, .locked = 2,
+        },
+        {
+            /* Locked layout (#0) is a spare: promoted, last adjunct demoted */
+            .policy = {
+                .size = sizeof(reset_keymap->policy),
+                .main_mask = 0xc,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 2, /* spare */ 3, 1},
+            .lock = true, .locked = 0,
+        },
+        {
+            /* Same, but the last main is core: demote the other adjunct */
+            .policy = {
+                .size = sizeof(reset_keymap->policy),
+                .main_mask = 0xc,
+                .core_mask = 0x8,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {0, 3, /* spare */ 2, 1},
+            .lock = true, .locked = 0,
+        },
+        {
+            /* Locked layout (#2) is a spare: last adjunct (#1) demoted */
+            .policy = {
+                .size = sizeof(reset_keymap->policy),
+                .main_mask = 0x3,
+                .core_mask = 0x1,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {2, 0, /* spare */ 1, 3},
+            .lock = true, .locked = 2,
+        },
+        {
+            /* Same, but the last main (#1) is core: demote #0 instead */
+            .policy = {
+                .size = sizeof(reset_keymap->policy),
+                .main_mask = 0x3,
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {2, 1, /* spare */ 0, 3},
+            .lock = true, .locked = 2,
+        },
+        {
+            /* All main: locked first, then index order */
+            .policy = {
+                .size = sizeof(reset_keymap->policy),
+                .main_mask = 0xf,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {3, 0, 1, 2},
+            .lock = true, .locked = 3,
+        },
+        {
+            /* All main and all core: valid, nothing is ever displaced */
+            .policy = {
+                .size = sizeof(reset_keymap->policy),
+                .main_mask = 0xf,
+                .core_mask = 0xf,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {1, 0, 2, 3},
+            .lock = true, .locked = 1,
+        },
+    };
+
+    /*
+     * Preserve the recency order: only |main|, core and locked layout are
+     * guaranteed.
+     */
+    static const struct policy_test preserve_keymap[] = {
+        {
+            /* |main| = 2: main is {3, 0}, *not* the mask {0, 1} */
+            .policy = {
+                .size = sizeof(preserve_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x3,
+                .core_mask = 0x0,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {3, 0, /* spare */ 1, 2},
+            .lock = true, .locked = 3,
+        },
+        {
+            /*
+             * Core #1 is not in the first two layouts: rebuild. The locked
+             * layout (#3) is not in the policy mask, but it stays main by
+             * displacing the highest adjunct (#0).
+             */
+            .policy = {
+                .size = sizeof(preserve_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0x3,
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {3, 1, /* spare */ 0, 2},
+        },
+        {
+            /* Growth: previous order kept, entrants in layout index order */
+            .policy = {
+                .size = sizeof(preserve_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0xf,
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {3, 1, 0, 2},
+        },
+        {
+            .policy = {
+                .size = sizeof(preserve_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0xc,
+                .core_mask = 0x2, /* invalid: not a subset of main */
+            },
+            .status = XKB_ERROR_INVALID_CORE_LAYOUT,
+        },
+        {
+            /* |main| = 2 (decrease), core in main: truncation */
+            .policy = {
+                .size = sizeof(preserve_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0xa,
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {3, 1, /* spare */ 0, 2},
+        },
+        {
+            /*
+             * Lock the spare #2, then apply a compatible policy: #2 was
+             * promoted. The last adjunct (#3) is demoted, because #1 is core.
+             */
+            .policy = {
+                .size = sizeof(preserve_keymap->policy),
+                .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+                .main_mask = 0xa,
+                .core_mask = 0x2,
+            },
+            .status = XKB_SUCCESS,
+            .recency = {2, 1, /* spare */ 3, 0},
+            .lock = true, .locked = 2,
+        },
+    };
+
+    static const char simple_keymap_str[] =
+        "xkb_keymap {\n"
+        "  xkb_keycodes { <> = 1; };\n"
+        "  xkb_symbols { key <> {[0], [1], [2], [3]}; };\n"
+        "};";
+
+    static const struct {
+        const char *keymap;
+        size_t num_policies;
+        const struct policy_test *policies ATTR_COUNTED_BY(num_policies);
+    } tests[] = {
+        /* Degenerated keymap */
+        {
+            .keymap = "xkb_keymap {};",
+            .num_policies = ARRAY_SIZE(degenerated_keymap),
+            .policies = degenerated_keymap,
+        },
+        /* 1 layout: no recency order is stored */
+        {
+            .keymap = "xkb_keymap {\n"
+                      "  xkb_keycodes { <> = 1; };\n"
+                      "  xkb_symbols { key <> {[0]}; };\n"
+                      "};",
+            .num_policies = ARRAY_SIZE(one_layout_keymap),
+            .policies = one_layout_keymap,
+        },
+        /* 2 layouts */
+        {
+            .keymap = "xkb_keymap {\n"
+                      "  xkb_keycodes { <> = 1; };\n"
+                      "  xkb_symbols { key <> {[0], [1]}; };\n"
+                      "};",
+            .num_policies = ARRAY_SIZE(two_layouts_keymap),
+            .policies = two_layouts_keymap,
+        },
+        /* Simple keymap */
+        {
+            .keymap = simple_keymap_str,
+            .num_policies = ARRAY_SIZE(simple_keymap),
+            .policies = simple_keymap,
+        },
+        /* Reset the recency order (default) */
+        {
+            .keymap = simple_keymap_str,
+            .num_policies = ARRAY_SIZE(reset_keymap),
+            .policies = reset_keymap,
+        },
+        /* Preserve the recency order */
+        {
+            .keymap = simple_keymap_str,
+            .num_policies = ARRAY_SIZE(preserve_keymap),
+            .policies = preserve_keymap,
+        },
+    };
+
+    xkb_layout_index_t recency[ARRAY_SIZE(((struct policy_test*)0)->recency)] = {0};
+
+    for (size_t t = 0; t < ARRAY_SIZE(tests); t++) {
+        struct xkb_keymap * const keymap = xkb_keymap_new_from_buffer(
+            ctx, tests[t].keymap, strlen(tests[t].keymap),
+            XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS
+        );
+        assert(keymap);
+        struct xkb_machine_builder *builder =
+            xkb_machine_builder_new(keymap, NULL, NULL);
+        assert(builder);
+        struct xkb_machine *sm = xkb_machine_new(builder, NULL);
+        assert(sm);
+        const xkb_layout_index_t num_layouts = xkb_keymap_num_layouts(keymap);
+        /* This enables to check also the hidden spares */
+        assert((size_t)num_layouts <= ARRAY_SIZE(tests[t].policies[0].recency));
+
+        for (size_t p = 0; p < tests[t].num_policies; p++) {
+            fprintf(stderr, "------\n*** %s: keymap #%zu, policy %zu ***\n",
+                    __func__, t, p);
+            test_cycle_policy_update(sm, events, recency, ARRAY_SIZE(recency),
+                                     &tests[t].policies[p]);
+        }
+
+        xkb_machine_builder_unref(builder);
+        xkb_machine_unref(sm);
+        xkb_keymap_unref(keymap);
+    }
+
+    xkb_events_destroy(events);
+}
+
+static bool
+cycle_layouts(struct xkb_machine * restrict sm,
+              xkb_keycode_t cycle_key,
+              struct xkb_events * restrict events)
+{
+    assert(xkb_machine_process_key(sm, cycle_key, XKB_KEY_DOWN, events) ==
+           XKB_SUCCESS);
+    assert(xkb_machine_process_key(sm, cycle_key, XKB_KEY_UP, events) ==
+           XKB_SUCCESS);
+    return true;
+}
+
+static void
+test_layout_cycle_policy_cycle_dynamics(struct xkb_context *ctx)
+{
+    static const char keymap_str[] =
+        "xkb_keymap {\n"
+        "  xkb_keycodes {\n"
+        "    <LCTL> = 37;\n"
+        "    <LSGT> = 94;\n"
+        "  };\n"
+        "  xkb_symbols {\n"
+        "    key <LCTL> {[LockGroup(group=+Recent)]};\n"
+        "    key <LSGT> {[1], [2], [3], [4]};\n"
+        "  };\n"
+        "};";
+    struct xkb_keymap * const keymap = test_compile_buffer(
+        ctx, XKB_KEYMAP_FORMAT_TEXT_V2, keymap_str, sizeof(keymap_str)
+    );
+    assert(keymap);
+
+    struct xkb_events * const events = xkb_events_new(ctx, NULL, NULL);
+    assert(events);
+
+    struct xkb_machine_builder * const builder =
+        xkb_machine_builder_new(keymap, NULL, NULL);
+    assert(builder);
+
+    static const xkb_keycode_t cycle_key = KEY_LEFTCTRL + EVDEV_OFFSET;
+    enum { num_layouts = 4 };
+    assert(xkb_keymap_num_layouts(keymap) == (xkb_layout_index_t)num_layouts);
+
+    static const struct xkb_layout_cycle_policy none_all = {
+        .size = sizeof(none_all),
+        .flags = XKB_LAYOUT_CYCLE_POLICY_NONE,
+        .main_mask = (UINT64_C(1) << num_layouts) - 1,
+        .core_mask = 0x0,
+    };
+    static const struct xkb_layout_cycle_policy preserve_all = {
+        .size = sizeof(preserve_all),
+        .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+        .main_mask = 0xf,
+        .core_mask = 0x0,
+    };
+    static const struct xkb_layout_cycle_policy preserve_shrink = {
+        .size = sizeof(preserve_shrink),
+        .flags = XKB_LAYOUT_CYCLE_POLICY_PRESERVE_RECENCY,
+        .main_mask = 0x7,
+        .core_mask = 0x0,
+    };
+    static const struct xkb_layout_cycle_policy reset_main = {
+        .size = sizeof(reset_main),
+        .flags = XKB_LAYOUT_CYCLE_POLICY_NONE,
+        .main_mask = 0xc,
+        .core_mask = 0x8,
+    };
+
+    struct xkb_machine *sm;
+    xkb_layout_index_t recency[num_layouts] = {0};
+
+/* Check the recency order and that the locked layout is its first element */
+#define assert_machine_layout_recency_order(sm, recency, policy, ...) do {\
+    const xkb_layout_index_t expected[] = { __VA_ARGS__ };                \
+    test_recency_order((sm), (policy), expected, ARRAY_SIZE(expected),    \
+                       (recency), ARRAY_SIZE(recency));                   \
+} while (0)
+
+    /* Reference: without policy update, consecutive presses continue the cycle */
+    fprintf(stderr, "*** %s: no policy update ***\n", __func__);
+    sm = xkb_machine_new(builder, NULL);
+    assert(sm);
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &none_all, 1, 0, 2, 3);
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &none_all, 2, 0, 1, 3);
+    xkb_machine_unref(sm);
+
+    /* Default: the recency order is reset, so the running cycle is interrupted */
+    fprintf(stderr, "*** %s: reset policy interrupts the cycle ***\n", __func__);
+    sm = xkb_machine_new(builder, NULL);
+    assert(sm);
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &none_all, 1, 0, 2, 3);
+    assert(xkb_machine_set_layout_cycle_policy(sm, &none_all) == XKB_SUCCESS);
+    assert_machine_layout_recency_order(sm, recency, &none_all, 1, 0, 2, 3);
+    /* New cycle: switch to the previously used layout, *not* to the next one */
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &none_all, 0, 1, 2, 3);
+    xkb_machine_unref(sm);
+
+    /* Preserve: |main| changes, so the running cycle is interrupted */
+    fprintf(stderr, "*** %s: preserve policy, |main| shrinks ***\n", __func__);
+    sm = xkb_machine_new(builder, NULL);
+    assert(sm);
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &none_all, 1, 0, 2, 3);
+    assert(xkb_machine_set_layout_cycle_policy(sm, &preserve_shrink) ==
+           XKB_SUCCESS);
+    assert_machine_layout_recency_order(sm, recency, &preserve_shrink, 1, 0, 2, 3);
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &preserve_shrink, 0, 1, 2, 3);
+    /* The cycle goes through the main layouts only, then wraps */
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &preserve_shrink, 2, 1, 0, 3);
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &preserve_shrink, 1, 0, 2, 3);
+    xkb_machine_unref(sm);
+
+    /* Preserve: nothing changes, the running cycle is not interrupted */
+    fprintf(stderr, "*** %s: preserve policy, no change ***\n", __func__);
+    sm = xkb_machine_new(builder, NULL);
+    assert(sm);
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &none_all, 1, 0, 2, 3);
+    assert(xkb_machine_set_layout_cycle_policy(sm, &preserve_all) ==
+           XKB_SUCCESS);
+    assert_machine_layout_recency_order(sm, recency, &preserve_all, 1, 0, 2, 3);
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &preserve_all, 2, 0, 1, 3);
+    xkb_machine_unref(sm);
+
+    /* State reset restores the last policy */
+    fprintf(stderr, "*** %s: state reset ***\n", __func__);
+    sm = xkb_machine_new(builder, NULL);
+    assert(sm);
+    assert(xkb_machine_set_layout_cycle_policy(sm, &reset_main) == XKB_SUCCESS);
+    /* Locked layout #0 is a spare: promoted; #3 is core and stays main */
+    assert_machine_layout_recency_order(sm, recency, &reset_main, 0, 3, 2, 1);
+    assert(xkb_machine_update_latched_locked(sm, events, 0, 0, false, 0,
+                                             0, 0, true, 1) == XKB_SUCCESS);
+    assert_machine_layout_recency_order(sm, recency, &reset_main, 1, 3, 0, 2);
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &reset_main, 3, 1, 0, 2);
+    xkb_state_reset(xkb_machine_get_state(sm));
+    assert_machine_layout_recency_order(sm, recency, &reset_main, 0, 3, 2, 1);
+    /* The cycle was reset too */
+    assert(cycle_layouts(sm, cycle_key, events));
+    assert_machine_layout_recency_order(sm, recency, &reset_main, 3, 0, 2, 1);
+    xkb_machine_unref(sm);
+
+#undef assert_machine_layout_recency_order
+
+    xkb_machine_builder_unref(builder);
+    xkb_events_destroy(events);
+    xkb_keymap_unref(keymap);
+}
+
 int
 main(void)
 {
@@ -7180,6 +8116,8 @@ main(void)
     test_shortcuts_tweak(context);
     test_xkb_machine_builder_mods_remap_update(context);
     test_machine_builder_shortcut_layout_update(context);
+    test_layout_cycle_policy_recency_order(context);
+    test_layout_cycle_policy_cycle_dynamics(context);
 
     xkb_context_unref(context);
     return EXIT_SUCCESS;
