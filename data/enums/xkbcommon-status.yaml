@@ -23,6 +23,8 @@ xkb_status:
     value: 237
   - name: XKB_ERROR_UNSUPPORTED_KEYMAP_FORMAT
     value: 277
+  - name: XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER
+    value: 317
   - name: XKB_ERROR_LAYOUT_COUNT_LIMIT_EXCEEDED
     value: 366
   - name: XKB_ERROR_UNSUPPORTED_A11Y_FLAGS
