@@ -128,27 +128,39 @@ enum xkb_action_flags {
     ACTION_LOCK_ON_RELEASE = (1 << 10),
     ACTION_UNLOCK_ON_PRESS = (1 << 11),
     ACTION_LATCH_ON_PRESS = (1 << 12),
-    ACTION_PENDING_COMPUTATION = (1 << 13),
+    ACTION_USE_RECENCY_ORDER = (1 << 13),
+
+    /* Bits 14..19 reserved for future uses */
+
+    /*
+     * Runtime flags
+     */
+
+    ACTION_PENDING_COMPUTATION = (1 << 20),
     /**
      * Indicate that the action has an explicit `unlockOnPress` value.
      *
      * Used *during* keymap compilation.
      */
-    ACTION_EXPLICIT_UNLOCK_ON_PRESS = (1 << 14),
+    ACTION_EXPLICIT_UNLOCK_ON_PRESS = (1 << 21),
     /**
      * Indicate that the action has an explicit `unlockOnPress` value.
      *
      * Used *during* keymap compilation.
      */
-    ACTION_EXPLICIT_LOCK_ON_RELEASE = (1 << 15),
+    ACTION_EXPLICIT_LOCK_ON_RELEASE = (1 << 22),
     /**
      * Indicate that the LockGroup action is elligible to
      * @ref auto-fix-layout-switch-on-modifier-key "automatic behavior fixes".
      *
      * Used *after* keymap compilation.
      */
-    ACTION_AUTO_GROUP_LOCK_ON_MODIFIER_RELEASE = (1 << 16),
-    ACTION_USE_RECENCY_ORDER = (1 << 17),
+    ACTION_AUTO_GROUP_LOCK_ON_MODIFIER_RELEASE = (1 << 23),
+
+    ACTION_RUNTIME_FLAGS = ACTION_PENDING_COMPUTATION
+                         | ACTION_EXPLICIT_UNLOCK_ON_PRESS
+                         | ACTION_EXPLICIT_LOCK_ON_RELEASE
+                         | ACTION_AUTO_GROUP_LOCK_ON_MODIFIER_RELEASE,
 };
 
 enum {

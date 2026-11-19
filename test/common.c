@@ -10,8 +10,10 @@
  */
 
 #include "config.h"
+#include "state-priv.h"
 #include "test-config.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <locale.h>
@@ -180,14 +182,17 @@ consume_events(struct xkb_machine *sm,
  * See below for examples.
  */
 int
-test_key_seq_va(struct xkb_keymap *keymap, struct xkb_machine *sm,
-                struct xkb_events *events, va_list ap)
+test_key_seq_va(struct xkb_keymap *keymap, struct xkb_state *state0,
+                struct xkb_machine *sm, struct xkb_events *events,
+                va_list ap)
 {
     assert(!(!sm ^ !events));
 
     fprintf(stderr, "----\n");
 
-    struct xkb_state * const state = xkb_state_new(keymap);
+    struct xkb_state * const state = state0
+                                   ? state0
+                                   : xkb_state_new(keymap);
     assert(state);
 
     unsigned int count = 0;
@@ -202,6 +207,7 @@ test_key_seq_va(struct xkb_keymap *keymap, struct xkb_machine *sm,
             case REPEAT: opstr = "REPEAT"; break;
             case UP: opstr = "UP"; break;
             case BOTH: opstr = "BOTH"; break;
+            case LAYOUT_RECENCY_ORDER: opstr = "RECENCY"; break;
             case NEXT: opstr = "NEXT"; break;
             case FINISH: opstr = "FINISH"; break;
             default:
@@ -305,6 +311,32 @@ test_key_seq_va(struct xkb_keymap *keymap, struct xkb_machine *sm,
         fprintf(stderr, "]\n");
 
         keysym = va_arg(ap, int);
+        if (keysym == LAYOUT_RECENCY_ORDER) {
+            const xkb_layout_index_t * const recency_ref =
+                va_arg(ap, xkb_layout_index_t*);
+            xkb_layout_index_t recency[XKB_MAX_GROUPS] = {0};
+            xkb_layout_index_t num_layouts = 0;
+            struct xkb_state * const mstate = sm
+                ? xkb_machine_get_state(sm)
+                : state;
+            assert(xkb_state_get_layout_recency_order
+                   (mstate, recency, ARRAY_SIZE(recency), &num_layouts) ==
+                   XKB_SUCCESS);
+            assert(num_layouts == xkb_keymap_num_layouts(keymap));
+            for (xkb_layout_index_t l = 0; l < num_layouts; l++) {
+                assert_eq("recency #%"PRIu32,
+                          recency_ref[l], recency[l], "%"PRIu32, l);
+            }
+
+            const uint8_t cursor_ref = va_arg(ap, int);
+            uint8_t cursor = 0;
+            assert(xkb_state_get_layout_recency_order_cursor(mstate, &cursor) ==
+                   XKB_SUCCESS);
+            assert_eq("cursor", cursor_ref, cursor, "%u");
+
+            keysym = va_arg(ap, int);
+        }
+
         if (keysym == NEXT)
             continue;
         if (keysym == FINISH)
@@ -315,13 +347,15 @@ test_key_seq_va(struct xkb_keymap *keymap, struct xkb_machine *sm,
         goto fail;
     }
 
-    xkb_state_unref(state);
+    if (!state0)
+        xkb_state_unref(state);
     return 1;
 
 fail:
     fprintf(stderr, "Current state:\n");
     print_detailed_state(state);
-    xkb_state_unref(state);
+    if (!state0)
+        xkb_state_unref(state);
     return 0;
 }
 
@@ -332,7 +366,7 @@ test_key_seq(struct xkb_keymap *keymap, ...)
     int ret;
 
     va_start(ap, keymap);
-    ret = test_key_seq_va(keymap, NULL, NULL, ap);
+    ret = test_key_seq_va(keymap, NULL, NULL, NULL, ap);
     va_end(ap);
 
     return ret;
@@ -346,7 +380,7 @@ test_key_seq2(struct xkb_keymap *keymap, struct xkb_machine *sm,
     int ret;
 
     va_start(ap, events);
-    ret = test_key_seq_va(keymap, sm, events, ap);
+    ret = test_key_seq_va(keymap, NULL, sm, events, ap);
     va_end(ap);
 
     return ret;
