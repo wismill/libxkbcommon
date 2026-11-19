@@ -3994,6 +3994,13 @@ test_layout_index_named_bounds(struct xkb_context *ctx)
     assert((size_t)(count) == ARRAY_SIZE(ref));                           \
     assert_buffer_eq(msg,  (ref), (recency), (count),                     \
                      "%"PRIu32, ##__VA_ARGS__);                           \
+    if (sm) {                                                             \
+        assert(xkb_machine_get_layout_recency_order                       \
+               ((sm), (recency), (capacity), &(count)) == XKB_SUCCESS);   \
+        assert((size_t)(count) == ARRAY_SIZE(ref));                       \
+        assert_buffer_eq(msg, (ref), (recency),                           \
+                         (count), "%"PRIu32, ##__VA_ARGS__);              \
+    }                                                                     \
 } while (0)
 
 enum state_mode { LEGACY, SERVER, MACHINE };
@@ -4121,6 +4128,21 @@ test_basic_layout_recency_order_(struct xkb_context *ctx,
         assert_layout_recency_order_eq("out-of-band #%zu", sm, state,
                                        out_of_band[u],
                                        recency, ARRAY_SIZE(recency), count, u);
+        if (sm && count == 2) {
+            struct xkb_machine * const machine = sm;
+            //! [xkb_machine_get_layout_recency_order-example]
+            xkb_layout_index_t main_count = 0;
+            const enum xkb_status status =
+                xkb_machine_get_layout_recency_order(machine, NULL, 0, &main_count);
+            if (status == XKB_SUCCESS) {
+                // use `main_count`
+                assert(main_count == 2);
+            } else {
+                // handle error
+                exit(EXIT_FAILURE);
+            }
+            //! [xkb_machine_get_layout_recency_order-example]
+        }
     }
 
     xkb_state_unref(state);
