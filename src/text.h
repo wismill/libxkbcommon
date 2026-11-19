@@ -26,6 +26,8 @@ const char *
 LookupValue(const LookupEntry tab[], unsigned int value);
 
 #define GROUP_LAST_INDEX_NAME "last"
+#define GROUP_RECENT_INDEX_NAME "Recent"
+
 enum {
     CONTROL_NAMES_MIN_V1_INDEX = 7,
     CONTROL_NAMES_MIN_V2_INDEX = 0,
