@@ -128,6 +128,11 @@ enum xkb_action_flags {
     ACTION_LOCK_ON_RELEASE = (1 << 10),
     ACTION_UNLOCK_ON_PRESS = (1 << 11),
     ACTION_LATCH_ON_PRESS = (1 << 12),
+
+    /*
+     * Runtime flags
+     */
+
     ACTION_PENDING_COMPUTATION = (1 << 13),
     /**
      * Indicate that the action has an explicit `unlockOnPress` value.
@@ -149,6 +154,12 @@ enum xkb_action_flags {
      */
     ACTION_AUTO_GROUP_LOCK_ON_MODIFIER_RELEASE = (1 << 16),
     ACTION_USE_RECENCY_ORDER = (1 << 17),
+
+    ACTION_RUNTIME_FLAGS = ACTION_PENDING_COMPUTATION
+                         | ACTION_EXPLICIT_UNLOCK_ON_PRESS
+                         | ACTION_EXPLICIT_LOCK_ON_RELEASE
+                         | ACTION_AUTO_GROUP_LOCK_ON_MODIFIER_RELEASE
+                         | ACTION_USE_RECENCY_ORDER,
 };
 
 enum {

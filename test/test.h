@@ -151,8 +151,9 @@ test_key_seq2(struct xkb_keymap *keymap, struct xkb_machine *sm,
               struct xkb_events *events, ...);
 
 int
-test_key_seq_va(struct xkb_keymap *keymap, struct xkb_machine * sm,
-                struct xkb_events *events, va_list args);
+test_key_seq_va(struct xkb_keymap *keymap, struct xkb_state *state,
+                struct xkb_machine * sm, struct xkb_events *events,
+                va_list args);
 
 char *
 test_makedir(const char *parent, const char *path);
