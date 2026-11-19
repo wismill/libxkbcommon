@@ -10,6 +10,7 @@
 #include "test-config.h"
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -4152,6 +4153,77 @@ test_basic_layout_recency_order_(struct xkb_context *ctx,
             }
             //! [xkb_machine_get_layout_recency_order-example]
         }
+    }
+
+    /* Out-of-band recency update */
+    static const struct {
+        size_t count;
+        xkb_layout_index_t main_layouts[4];
+        enum xkb_status status;
+    } recency_updates[] = {
+        /* invalid */
+        {
+            .count = 0, /* invalid count */
+            .main_layouts = {0, 1, 2, 4},
+            .status = XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER,
+        },
+        {
+            .count = 2, /* invalid count */
+            .main_layouts = {0, 1, 2, 4},
+            .status = XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER,
+        },
+        {
+            .count = (uint32_t)ARRAY_SIZE(recency_updates->main_layouts),
+            .main_layouts = {0, 1, 2, 4}, /* invalid layout index */
+            .status = XKB_ERROR_INVALID_MAIN_LAYOUT
+        },
+        {
+            .count = (uint32_t)ARRAY_SIZE(recency_updates->main_layouts),
+            .main_layouts = {0, 1, 2, 2}, /* repeated layout index */
+            .status = XKB_ERROR_INVALID_LAYOUT_RECENCY_ORDER
+        },
+
+        /* valid */
+        {
+            .count = (uint32_t)ARRAY_SIZE(recency_updates->main_layouts),
+            .main_layouts = {0, 3, 1, 2},
+            .status = XKB_SUCCESS,
+        },
+        {
+            .count = (uint32_t)ARRAY_SIZE(recency_updates->main_layouts),
+            .main_layouts = {1, 0, 2, 3},
+            .status = XKB_SUCCESS,
+        },
+    };
+    for (size_t u = 0; u < ARRAY_SIZE(recency_updates); u++) {
+        fprintf(stderr, "*** Out-of-band recency update: %zu\n", u);
+        const struct xkb_layout_recency_order_update recency_update = {
+            .size = sizeof(recency_update),
+            .num_main_layouts = recency_updates[u].count,
+            .main_layouts = recency_updates[u].main_layouts,
+        };
+        const struct xkb_synthetic_update update = {
+            .size = sizeof(update),
+            .layout_recency_order = &recency_update,
+        };
+
+        if (state_mode == MACHINE) {
+            assert_eq("recency update", recency_updates[u].status,
+                      xkb_machine_process_synthetic(sm, &update, events), "%d");
+        } else {
+            assert_eq("recency update", recency_updates[u].status,
+                      xkb_state_update_synthetic(state, &update, NULL), "%d");
+        }
+
+        if (recency_updates[u].status != XKB_SUCCESS)
+            continue;
+
+        assert_layout_recency_order_eq("out-of-band recency update #%zu", sm,
+                                       state, recency_updates[u].main_layouts,
+                                       recency, ARRAY_SIZE(recency), count,
+                                       0 /* no cycle */, u);
+        assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) ==
+               recency_updates[u].main_layouts[0]);
     }
 
     xkb_state_unref(state);
