@@ -4825,6 +4825,122 @@ test_set_group_recent(struct xkb_context *ctx)
     xkb_keymap_unref(keymap);
 }
 
+static void
+test_latch_group_recent(struct xkb_context *ctx)
+{
+    fprintf(stderr, "=== %s ===\n", __func__);
+
+    static const char keymap_str[] =
+        "xkb_keymap {\n"
+        "  xkb_keycodes {\n"
+        "    <LCTL> = 37;\n"
+        "    <RCTL> = 105;\n"
+        "    <LALT> = 64;\n"
+        "    <RALT> = 108;\n"
+        "    <LSGT> = 94;\n"
+        "  };\n"
+        "  xkb_types {\n"
+        "    type \"ONE_LEVEL\" {};\n"
+        "  };\n"
+        "  xkb_symbols {\n"
+        "    key <LCTL> {[LatchGroup(group=+Recent, latchToLock)]};\n"
+        "    key <RCTL> {[LatchGroup(group=-Recent, latchToLock)]};\n"
+        "    key <LALT> {[LatchGroup(group=+Recent)]};\n"
+        "    key <RALT> {[LockGroup(group=+Recent)]};\n"
+        "    key <LSGT> {[1], [2], [3], [4]};\n"
+        "  };\n"
+        "};";
+
+    struct xkb_keymap *keymap = test_compile_buffer(
+        ctx, XKB_KEYMAP_FORMAT_TEXT_V2,
+        keymap_str, sizeof(keymap_str)
+    );
+    assert(keymap);
+    assert(xkb_keymap_num_layouts(keymap) == 4);
+
+    struct xkb_state *state = xkb_state_new(keymap);
+    assert(state);
+
+    #define assert_layout_recency_order(...) do {                            \
+        static const xkb_layout_index_t expected[] = { __VA_ARGS__ };         \
+        xkb_layout_index_t recency[ARRAY_SIZE(expected)] = {0};               \
+        xkb_layout_index_t count_ = 0;                                        \
+        assert(xkb_state_get_layout_recency_order                             \
+               (state, recency, ARRAY_SIZE(expected), &count_) ==             \
+               XKB_SUCCESS);                                                  \
+        assert(count_ == ARRAY_SIZE(expected));                               \
+        assert_buffer_eq("layout recency order", expected, recency,          \
+                         count_, "%"PRIu32);                                   \
+    } while (0)
+
+    /* Latch without latchToLock */
+    xkb_state_update_key(state, KEY_LEFTALT + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_LEFTALT + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LATCHED) == 1);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 1);
+    assert_layout_recency_order(0, 1, 2, 3);
+
+    /* A regular key press consumes the latch */
+    xkb_state_update_key(state, KEY_102ND + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_102ND + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LATCHED) == 0);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 0);
+    assert_layout_recency_order(0, 1, 2, 3);
+
+    /* latchToLock: the second press promotes the latch to a lock */
+    xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LATCHED) == 1);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 0);
+    xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LATCHED) == 0);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 1);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 1);
+    assert_layout_recency_order(1, 0, 2, 3);
+
+    /* The promoted lock does not run a cycle */
+    xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+    xkb_state_update_key(state, KEY_102ND + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_102ND + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 1);
+    assert_layout_recency_order(1, 0, 2, 3);
+
+    /* latchToLock with the least recent group */
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LATCHED) == 0);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 3);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 3);
+    assert_layout_recency_order(3, 1, 0, 2);
+    xkb_state_update_key(state, KEY_RIGHTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+
+    /*
+     * latchToLock while a cycle is running: the promotion locks the latched
+     * group and breaks the cycle, instead of continuing the cycle.
+     */
+    xkb_state_update_key(state, KEY_RIGHTALT + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 1);
+    assert_layout_recency_order(1, 3, 0, 2);
+    xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+    xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LATCHED) == 0);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 3);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_EFFECTIVE) == 3);
+    assert_layout_recency_order(3, 1, 0, 2);
+    xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_UP);
+    xkb_state_update_key(state, KEY_102ND + EVDEV_OFFSET, XKB_KEY_DOWN);
+    xkb_state_update_key(state, KEY_102ND + EVDEV_OFFSET, XKB_KEY_UP);
+    assert(xkb_state_serialize_layout(state, XKB_STATE_LAYOUT_LOCKED) == 3);
+    assert_layout_recency_order(3, 1, 0, 2);
+
+    #undef assert_layout_recency_order
+
+    xkb_state_unref(state);
+    xkb_keymap_unref(keymap);
+}
+
 int
 main(void)
 {
@@ -4893,6 +5009,7 @@ main(void)
     test_basic_layout_recency_order(context);
     test_lock_group_recent(context);
     test_set_group_recent(context);
+    test_latch_group_recent(context);
 
     xkb_context_unref(context);
     return EXIT_SUCCESS;
