@@ -142,6 +142,7 @@
       <classes visible="yes" title=""/>
       <concepts visible="yes" title=""/>
       <structs visible="yes" title=""/>
+      <records visible="yes" title=""/>
       <exceptions visible="yes" title=""/>
       <typedefs visible="yes" title=""/>
       <sequences visible="yes" title=""/>
@@ -186,6 +187,7 @@
       <interfaces visible="yes" title=""/>
       <classes visible="yes" title=""/>
       <structs visible="yes" title=""/>
+      <records visible="yes" title=""/>
       <exceptions visible="yes" title=""/>
       <namespaces visible="yes" title=""/>
       <concepts visible="yes" title=""/>
