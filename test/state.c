@@ -6,12 +6,14 @@
  */
 
 #include "config.h"
+#include "state-priv.h"
 #include "test-config.h"
 
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "xkbcommon/xkbcommon-status.h"
 #include "xkbcommon/xkbcommon-keysyms.h"
@@ -3986,6 +3988,217 @@ test_layout_index_named_bounds(struct xkb_context *ctx)
     xkb_keymap_unref(keymap);
 }
 
+#define assert_layout_recency_order_eq(msg, sm, state, ref, recency,      \
+                                       capacity, count, cursor_ref, ...) do { \
+    assert(xkb_state_get_layout_recency_order                             \
+           ((state), (recency), (capacity), &(count)) == XKB_SUCCESS);    \
+    assert((size_t)(count) == ARRAY_SIZE(ref));                           \
+    assert_buffer_eq(msg,  (ref), (recency), (count),                     \
+                     "%"PRIu32, ##__VA_ARGS__);                           \
+    uint8_t cursor = 0;                                                   \
+    assert(xkb_state_get_layout_recency_order_cursor(state, &cursor) ==   \
+           XKB_SUCCESS);                                                  \
+    assert_eq("cursor", cursor_ref, cursor, "%u");                        \
+} while (0)
+
+enum state_mode { LEGACY, SERVER, MACHINE };
+
+static void
+test_basic_layout_recency_order_(struct xkb_context *ctx,
+                                 struct xkb_keymap *keymap,
+                                 enum state_mode state_mode,
+                                 bool update_latched)
+{
+    struct xkb_state *state = NULL;
+    struct xkb_machine *sm = NULL;
+    struct xkb_events *events = NULL;
+
+    switch (state_mode) {
+    case LEGACY:
+        state = xkb_state_new(keymap);
+        break;
+    case SERVER:
+        state = xkb_state_new_with_mode(keymap, XKB_STATE_MODE_SERVER, NULL);
+        break;
+    default: {
+        events = xkb_events_new(ctx, NULL, NULL);
+        assert(events);
+        struct xkb_machine_builder * const builder =
+        xkb_machine_builder_new(keymap, NULL, NULL);
+        sm =  xkb_machine_new(builder, NULL);
+        assert(sm);
+        xkb_machine_builder_unref(builder);
+        state = xkb_machine_get_state(sm);
+        state = xkb_state_ref(state);
+        break;
+    }}
+    assert(state);
+
+    xkb_layout_index_t recency[5] = {0};
+    xkb_layout_index_t count = 0;
+
+    assert(xkb_state_get_layout_recency_order(state, NULL, 0, &count) ==
+           XKB_SUCCESS);
+    assert(count == 4);
+    assert(xkb_state_get_layout_recency_order(state, recency, 2, &count) ==
+           XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY);
+
+    /* Initial recency order */
+    static const xkb_layout_index_t initial_state[] = {0, 1, 2, 3};
+    assert_layout_recency_order_eq("", sm, state, initial_state,
+                                   recency, ARRAY_SIZE(recency), count,
+                                   0 /* no cycle */);
+
+    /* Next group switcher key press */
+    static const xkb_keycode_t key = KEY_COMPOSE + EVDEV_OFFSET;
+    if (state_mode == MACHINE) {
+        assert(xkb_machine_process_key(sm, key,
+                                       XKB_KEY_DOWN, events) == XKB_SUCCESS);
+    } else {
+        xkb_state_update_key(state, key, XKB_KEY_DOWN);
+    }
+    static const xkb_layout_index_t next_group_press[] = {1, 0, 2, 3};
+    assert_layout_recency_order_eq("", sm, state, next_group_press,
+                                   recency, ARRAY_SIZE(recency), count,
+                                   0 /* no cycle */);
+
+    /* Mask update */
+    if (state_mode == LEGACY) {
+        /*
+         * NOTE: xkb_state_update_mask() is a client API while group recency
+         * is a server API. Since xkb_state_new() enables to mix client and
+         * server APIs, we must ensure the state is consistent, although
+         * mixing APIs is highly discouraged.
+         */
+        static const xkb_layout_index_t masks_update[][4] = {
+            {2, 1, 0, 3},
+            {0, 2, 1, 3},
+            {0, 2, 1, 3}, /* repeat locked layout */
+            {1, 0, 2, 3}
+        };
+        xkb_layout_index_t prev = XKB_LAYOUT_INVALID;
+        for (size_t u = 0; u < ARRAY_SIZE(masks_update); u++) {
+            fprintf(stderr, "*** Masks update: %zu\n", u);
+            const enum xkb_state_component changed_ref = (masks_update[u][0] == prev)
+                ? 0
+                : (
+                    XKB_STATE_LAYOUT_LOCKED | XKB_STATE_LAYOUT_EFFECTIVE |
+                    ((!prev ^ !masks_update[u][0]) ? XKB_STATE_LEDS : 0)
+                );
+            const enum xkb_state_component changed = xkb_state_update_mask(
+                state, 0, 0, 0, 0, 0, masks_update[u][0]
+            );
+            assert_eq("xkb_state_update_mask", changed_ref, changed, "0x%d");
+            assert_layout_recency_order_eq("masks update #%zu", sm, state,
+                                           masks_update[u],
+                                           recency, ARRAY_SIZE(recency), count,
+                                           0 /* no cycle */, u);
+            prev = masks_update[u][0];
+        }
+    }
+
+    /* Out-of-band locked group update */
+    static const xkb_layout_index_t out_of_band[][4] = {
+        {2, 1, 0, 3},
+        {0, 2, 1, 3},
+        {0, 2, 1, 3}, /* repeat locked layout */
+        {2, 0, 1, 3},
+        {3, 2, 0, 1},
+    };
+    for (size_t u = 0; u < ARRAY_SIZE(out_of_band); u++) {
+        fprintf(stderr, "*** Out-of-band locked layout update: %zu\n", u);
+
+        const struct xkb_state_components_update components_update = {
+            .size = sizeof(components_update),
+            .components = XKB_STATE_LAYOUT_LOCKED
+                        | (update_latched ? XKB_STATE_LAYOUT_LATCHED : 0),
+            .latched_layout = (int32_t)(u % ARRAY_SIZE(out_of_band[u])),
+            .locked_layout = (int32_t)out_of_band[u][0],
+        };
+        const struct xkb_synthetic_update update = {
+            .size = sizeof(update),
+            .components = &components_update,
+        };
+        if (state_mode == MACHINE) {
+            assert(xkb_machine_process_synthetic(sm, &update, events) ==
+                   XKB_SUCCESS);
+        } else {
+            assert(xkb_state_update_synthetic(state, &update, NULL) ==
+                   XKB_SUCCESS);
+        }
+        assert_layout_recency_order_eq("out-of-band #%zu", sm, state,
+                                       out_of_band[u],
+                                       recency, ARRAY_SIZE(recency), count,
+                                       0 /* no cycle */, u);
+    }
+
+    xkb_state_unref(state);
+    xkb_machine_unref(sm);
+    xkb_events_destroy(events);
+}
+
+static void
+test_basic_layout_recency_order(struct xkb_context *ctx)
+{
+    struct xkb_keymap * keymap = test_compile_rules(
+        ctx, XKB_KEYMAP_FORMAT_TEXT_V1, "evdev", "pc104",
+        "us,in,ch,cz", NULL, "grp:menu_toggle"
+    );
+    assert(keymap);
+
+    enum { capacity = 5 };
+    xkb_layout_index_t recency[capacity] = {0};
+    xkb_layout_index_t count = 0;
+    uint8_t cursor = 0;
+
+    struct xkb_state *state;
+
+    /* Client state: invalid */
+    state = xkb_state_new_with_mode(keymap, XKB_STATE_MODE_CLIENT, NULL);
+    assert(state);
+    assert(xkb_state_get_layout_recency_order(state, recency, capacity, &count) ==
+           XKB_ERROR_UNEXPECTED_STATE_MODE);
+    assert(xkb_state_get_layout_recency_order_cursor(state, &cursor) ==
+           XKB_ERROR_UNEXPECTED_STATE_MODE);
+    xkb_state_unref(state);
+
+    /* Server companion: invalid */
+    struct xkb_events * const events = xkb_events_new(ctx, NULL, NULL);
+    assert(events);
+    struct xkb_machine_builder * const builder =
+        xkb_machine_builder_new(keymap, NULL, NULL);
+    assert(builder);
+    struct xkb_machine *sm =  xkb_machine_new(builder, NULL);
+    assert(sm);
+    xkb_machine_builder_unref(builder);
+    state = xkb_state_new_from_machine(sm, NULL);
+    assert(state);
+    assert(xkb_state_get_layout_recency_order(state, recency, capacity, &count) ==
+           XKB_ERROR_UNEXPECTED_STATE_MODE);
+    assert(xkb_state_get_layout_recency_order_cursor(state, &cursor) ==
+           XKB_ERROR_UNEXPECTED_STATE_MODE);
+    xkb_state_unref(state);
+    xkb_machine_unref(sm);
+    xkb_events_destroy(events);
+
+    /* Server state */
+    for (int state_mode = LEGACY; state_mode <= MACHINE; state_mode++) {
+        /*
+         * Recency order is independent of depressed, latch and effective layout.
+         * Check this by changing the latch layout on some updates.
+         */
+        for (uint8_t update_latched = 0; update_latched < 2; update_latched++) {
+            fprintf(stderr, "------\n*** %s: #%d (%s latch update) ***\n",
+                    __func__, state_mode,
+                    (update_latched ? "with" : "without"));
+            test_basic_layout_recency_order_(ctx, keymap, state_mode,
+                                             update_latched);
+        }
+    }
+
+    xkb_keymap_unref(keymap);
+}
+
 int
 main(void)
 {
@@ -4051,6 +4264,7 @@ main(void)
     test_void_action(context);
     test_extended_layout_indices(context);
     test_layout_index_named_bounds(context);
+    test_basic_layout_recency_order(context);
 
     xkb_context_unref(context);
     return EXIT_SUCCESS;
