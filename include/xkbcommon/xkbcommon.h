@@ -5195,6 +5195,45 @@ xkb_machine_set_layout_out_of_range_policy(
 );
 
 /**
+ * Retrieve the current main layouts in [recency order], i.e. from the most
+ * to the least recently used: the current [locked layout] comes first.
+ * @memberof xkb_machine
+ *
+ * @param[in] machine
+ *   The `xkb_machine` object to query.
+ * @param[out] buffer
+ *   A user-supplied buffer to write the recency order, or `NULL`.
+ * @param[in] buffer_size
+ *   The capacity of @p buffer. Ignored if @p buffer is `NULL`.
+ * @param[out] count
+ *   The destination for the number of main layouts.
+ *
+ * @returns `::XKB_SUCCESS` on success, otherwise one of the following
+ * [error codes](@ref xkb_status):
+ * - `::XKB_ERROR_INSUFFICIENT_BUFFER_CAPACITY`
+ *
+ * @post If @p buffer is not `NULL` and @p buffer_size ≥ @p \*count, then
+ * @p \*count is the number of items written in @p buffer.
+ *
+ * [recency order]: @ref layout-recency-order-def
+ * [locked layout]: @ref locked-group-def
+ *
+ * One can query only the number of main layouts by passing a `NULL` buffer:
+ *
+ * @figure
+ * @figcaption Querying the number of main layouts @endfigcaption
+ * @snippet{trimleft} "test/state.c" xkb_machine_get_layout_recency_order-example
+ * @endfigure
+ *
+ * @since 1.14.0
+ */
+XKB_EXPORT enum xkb_status
+xkb_machine_get_layout_recency_order(const struct xkb_machine *machine,
+                                     xkb_layout_index_t *buffer,
+                                     size_t buffer_size,
+                                     xkb_layout_index_t *count);
+
+/**
  * Process a key event – a pair ([keycode], [direction]) – through the XKB
  * [state machine], and collect the resulting [keyboard events] into an
  * [event batch].
