@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -49,6 +50,36 @@ is_aligned(const void *restrict pointer, size_t byte_count)
     return (uintptr_t) pointer % byte_count == 0;
 }
 
+// NOLINTNEXTLINE(bugprone-macro-parentheses)
+#define HAS_TYPE(x, T) (_Generic((x), T: 1, default: 0))
+
+#ifndef INT_WIDTH
+#if   INT_MAX ==  0x7f
+#define INT_WIDTH  8
+#elif INT_MAX ==  0x7fff
+#define INT_WIDTH 16
+#elif INT_MAX ==  0x7fffffff
+#define INT_WIDTH 32
+#elif INT_MAX ==  0x7fffffffffffffff
+#define INT_WIDTH 64
+#else
+#error "unsupported int width"
+#endif
+#endif
+
+#ifndef UINT_WIDTH
+#if   UINT_MAX ==  0xffu
+#define UINT_WIDTH  8
+#elif UINT_MAX ==  0xffffu
+#define UINT_WIDTH 16
+#elif UINT_MAX ==  0xffffffffu
+#define UINT_WIDTH 32
+#elif UINT_MAX ==  0xffffffffffffffffu
+#define UINT_WIDTH 64
+#else
+#error "unsupported unsigned width"
+#endif
+#endif
 
 #define ARRAY_SIZE(arr) ((sizeof(arr) / sizeof(*(arr))))
 
