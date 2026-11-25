@@ -19,14 +19,12 @@
 #include "utils.h"
 
 struct xkb_context {
-    int refcnt;
-
     ATTR_PRINTF(3, 0) void (*log_fn)(struct xkb_context *ctx,
                                      enum xkb_log_level level,
                                      const char *fmt, va_list args);
+    void *user_data;
     enum xkb_log_level log_level;
     int log_verbosity;
-    void *user_data;
 
     struct xkb_rule_names names_dflt;
 
@@ -45,6 +43,8 @@ struct xkb_context {
     bool use_environment_names : 1;
     bool use_secure_getenv : 1;
     bool pending_default_includes : 1;
+
+    int refcnt;
 };
 
 char *
