@@ -19,6 +19,19 @@
 
 # TODO: fix missing detailed description, examples, resolution
 
+- id: "saturated-reference-counter"
+  code: 6
+  type: error
+  added: 1.14.0
+  description: "Saturated reference counter"
+  details: |
+    A reference counter reached its maximum and cannot track further references.
+
+    The failure path depends on the nature of the object:
+    - objects with external references will allow further calls to
+      `*_ref()`/`*_unref()` but they will never be freed, thus creating a memory leak;
+    - internal objects are released, executing the corresponding normal exit path
+      to ensure the keyboard state remains consistent.
 - id: "deprecated-section"
   code: 21
   added: 1.14.0

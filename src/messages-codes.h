@@ -57,7 +57,9 @@ enum xkb_log_verbosity {
  * @name Codes of the log messages
  */
 enum xkb_message_code {
-    _XKB_LOG_MESSAGE_MIN_CODE = 21,
+    _XKB_LOG_MESSAGE_MIN_CODE = 6,
+    /** Saturated reference counter */
+    XKB_ERROR_SATURATED_REFERENCE_COUNTER = 6,
     /** XKB section is deprecated */
     XKB_WARNING_DEPRECATED_SECTION = 21,
     /** Warn on malformed number literals */
