@@ -132,12 +132,52 @@ ALIASES                += ownership{1}="@xrefitem ownership \"Ownership\" \
 ALIASES                += ref_counted{1}="@ref_counted{\1_new,\1_ref,\1_unref,}"
 ALIASES                += ref_counted{2}="@ref_counted{\1_new,\1_ref,\1_unref,\
                                                        ^^ ^^ @holds_ref{\1,\2,\1_unref}}"
-ALIASES                += ref_counted{4}="@ownership{\
+ALIASES                += ref_counted{3}="@ref_counted{\3,\1_ref,\1_unref,\
+                                                       ^^ ^^ @holds_ref{\1,\2,\1_unref}}"
+ALIASES                += ref_counted{4}="@ref_counted{\1,\2,\3,,\4}"
+ALIASES                += ref_counted{5}="@ownership{\
                             **[_Shared_ ownership](@ref shared-ownership) using _reference counting_**. \
                             Heap-allocated by `\1()`, which creates the *first* reference. \
                             Take additional references with `\2()` and release each of them \
                             with exactly one `\3()` call. The object is destroyed once its \
-                            last reference has been released.\4 \
+                            last reference has been released\4.\5 \
+                          }"
+ALIASES                += ref_counted_tree{2}="@ref_counted{\1_new,\1_ref,\1_unref,\, \
+                            together with every object it contains,\
+                            ^^ ^^ **Solely owns** every object created during the `\2()` call\, \
+                            for their entire lifetime. Its objects are never destroyed individually\, \
+                            even after their last shared reference has been released: they are freed \
+                            only when `\1` itself is destroyed. \
+                            @invariant The `\1` instance cannot be destroyed while one of its objects \
+                            has [shared references](@ref transfer-owned): each such object holds a \
+                            reference on its owner (the `\1`) for as long as the object is referenced\, \
+                            therefore keeping the `\1` alive. \
+                          }"
+ALIASES                += ext_ref_counted{3}="@ext_ref_counted{\1,\1_first,\1_next,\1_ref,\1_unref,\2,\3}"
+ALIASES                += ext_ref_counted{7}="@ownership{\
+                            **[_Shared_ ownership](@ref shared-ownership) using _reference counting_**. \
+                            Instances are created internally during a `\7()` call and are *owned* by the \
+                            corresponding `\6`. \
+                            One can then access the instances with a [borrowed reference](@ref transfer-call) \
+                            via `\2()` / `\3()`. \
+                            Take [shared references](@ref transfer-owned) with `\4()` and release \
+                            each of them with exactly one `\5()` call. ^^ ^^\
+                            **[Owns](@ref transfer-owned)** a [shared reference](@ref transfer-owned) \
+                            to its ancestors (up to the corresponding `\6`) while there are \
+                            [shared references](@ref transfer-owned) on the `\1` instance. \
+                            That reference is released on the last `\5()` call. \
+                            @invariant Holding a [shared reference](@ref transfer-owned) on an `\1` instance \
+                            keeps its *ancestors* (up to and including `\6`) alive: the corresponding `\6` \
+                            cannot be destroyed as long as any of its objects is referenced. \
+                            @invariant Conversely, releasing the last [shared reference](@ref transfer-owned) \
+                            on an `\1` instance releases the reference it held on its ancestors. \
+                            If no further reference to `\6` remains\, either explicit via `\6::\6_ref()` \
+                            or held implicitly by any of its objects with a [shared reference](@ref transfer-owned)\, \
+                            this destroys `\6` together with every object it contains, including this one. \
+                            Otherwise `\6` and all its objects live on until the last remaining reference \
+                            in the tree is released. \
+                            In either case\, the `\1` instance must not be accessed after its last \
+                            [shared reference](@ref transfer-owned) has been released.\
                           }"
 ALIASES                += heap_single_ownership{1}="@heap_single_ownership{\1_new,\1_destroy,}"
 ALIASES                += heap_single_ownership{2}="@heap_single_ownership{\1_new,\1_destroy,\

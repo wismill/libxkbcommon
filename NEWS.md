@@ -396,6 +396,10 @@ xkbcommon [1.14.0-beta2] – 2026-09-10
 
 ### Fixes
 
+- **xkbregistry**: fixed use-after-free when a child object (model, layout,
+  option, ISO 639/3166 code) outlived its context: holding a reference on any
+  object now keeps the whole context alive until it is released. Objects are
+  freed together with their context, never individually.
 - Fixed some functions accepting unsupported flags:
   - `xkb_context::xkb_context_new()`
   - `xkb_rmlvo_builder::xkb_rmlvo_builder_new()`
@@ -516,8 +520,8 @@ xkbcommon [1.14.0-beta2] – 2026-09-10
 
 ## Full changelog
 
-[1.13.2 → 1.14.0-beta1](https://github.com/xkbcommon/libxkbcommon/compare/xkbcommon-1.13.2...xkbcommon-1.14.0-beta1)
-[1.14.0-beta1 → 1.14.0-beta2](https://github.com/xkbcommon/libxkbcommon/compare/xkbcommon-1.14.0-beta1...xkbcommon-1.14.0-beta2)
+- [1.13.2 → 1.14.0-beta1](https://github.com/xkbcommon/libxkbcommon/compare/xkbcommon-1.13.2...xkbcommon-1.14.0-beta1)
+- [1.14.0-beta1 → 1.14.0-beta2](https://github.com/xkbcommon/libxkbcommon/compare/xkbcommon-1.14.0-beta1...xkbcommon-1.14.0-beta2)
 
 
 xkbcommon [1.13.2] – 2026-05-30

@@ -43,8 +43,34 @@ extern "C" {
  * of this library are the configuration UIs that allow a user to select their
  * keyboard layout of choice.
  *
+ * # Object lifetime
+ *
+ * All objects are *refcounted*. A context is created with an initial refcount
+ * of 1: releasing it with `rxkb_context::rxkb_context_unref()` frees the
+ * context together with every object it contains ([models], [layouts],
+ * [option groups], [options] and [ISO 639]/[ISO 3166] codes). Objects are
+ * therefore always freed with their context, never individually.
+ *
+ * The iteration functions (`rxkb_model::rxkb_model_first()`,
+ * `rxkb_layout::rxkb_layout_next()`, etc.) return *borrowed* references:
+ * the refcount of the returned object is *not* increased. To keep an object
+ * beyond the immediate scope, take a reference with its `_ref()` function.
+ * Taking the first reference on an object also keeps its ancestors — up to and
+ * including the context — alive, and the object is only unpinned when you
+ * release your last reference. Consequently, holding a reference on any object
+ * guarantees that the whole context, and every other object in it, remains
+ * valid until that reference is released.
+ *
+ * @warning Unref’ing an object that was never ref’ed is a programming error.
+ *
  * [RMLVO]: @ref RMLVO-intro
  * [MLVO]: @ref RMLVO-intro
+ * [models]: @ref rxkb_model
+ * [layouts]: @ref rxkb_layout
+ * [option groups]: @ref rxkb_option_group
+ * [options]: @ref rxkb_option
+ * [ISO 639]: @ref rxkb_iso639_code
+ * [ISO 3166]: @ref rxkb_iso3166_code
  *
  * @{
  */
@@ -60,6 +86,8 @@ extern "C" {
  * simultaneously.  Objects from different contexts are completely separated
  * and do not share any memory or state.
  *
+ * @ref_counted_tree{rxkb_context,rxkb_context_parse}
+ *
  * [models]: @ref rxkb_model
  * [layouts]: @ref rxkb_layout
  * [option groups]: @ref rxkb_option_group
@@ -71,6 +99,8 @@ struct rxkb_context;
  * @struct rxkb_model
  *
  * Opaque struct representing an XKB model.
+ *
+ * @ext_ref_counted{rxkb_model,rxkb_context,rxkb_context::rxkb_context_parse}
  */
 struct rxkb_model;
 
@@ -82,6 +112,8 @@ struct rxkb_model;
  *
  * For example, `us` is the base layout, `us(intl)` is the `intl` variant of the
  * layout `us`.
+ *
+ * @ext_ref_counted{rxkb_layout,rxkb_context,rxkb_context::rxkb_context_parse}
  */
 struct rxkb_layout;
 
@@ -91,6 +123,8 @@ struct rxkb_layout;
  * Opaque struct representing an option group. Option groups divide the
  * individual options into logical groups. Their main purpose is to indicate
  * whether some options are mutually exclusive or not.
+ *
+ * @ext_ref_counted{rxkb_option_group,rxkb_context,rxkb_context::rxkb_context_parse}
  */
 struct rxkb_option_group;
 
@@ -99,6 +133,8 @@ struct rxkb_option_group;
  *
  * Opaque struct representing an XKB option. Options are grouped inside an
  * @ref rxkb_option_group.
+ *
+ * @ext_ref_counted{rxkb_option,rxkb_context,rxkb_context::rxkb_context_parse}
  */
 struct rxkb_option;
 
@@ -113,6 +149,8 @@ struct rxkb_option;
  * You must not rely on the pointer value of this struct.
  *
  * See https://iso639-3.sil.org/code_tables/639/data for a list of codes.
+ *
+ * @ext_ref_counted{rxkb_iso639_code,rxkb_context,rxkb_context::rxkb_context_parse}
  */
 struct rxkb_iso639_code;
 
@@ -128,6 +166,8 @@ struct rxkb_iso639_code;
  *
  * See https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes for a list
  * of codes.
+ *
+ * @ext_ref_counted{rxkb_iso3166_code,rxkb_context,rxkb_context::rxkb_context_parse}
  */
 struct rxkb_iso3166_code;
 
@@ -309,8 +349,10 @@ RXKB_EXPORT bool
 rxkb_context_parse_default_ruleset(struct rxkb_context *ctx);
 
 /**
- * Increases the refcount of this object by one and returns the object.
+ * Take a new reference on a context.
  * @memberof rxkb_context
+ *
+ * Increases the refcount of this object by one and returns the object.
  *
  * @param ctx The xkb registry context
  * @return The passed-in object
@@ -321,11 +363,11 @@ RXKB_EXPORT struct rxkb_context*
 rxkb_context_ref(struct rxkb_context *ctx);
 
 /**
- * Decreases the refcount of this object by one.
+ * Release a reference on a context, and possibly free it.
  * @memberof rxkb_context
  *
- * Where the refcount of an object hits zero, associated resources will be
- * freed.
+ * Decreases the refcount of this object by one. Where the refcount hits zero,
+ * associated resources will be freed.
  *
  * @param ctx The xkb registry context
  * @return always `NULL`
@@ -490,25 +532,35 @@ RXKB_EXPORT struct rxkb_model *
 rxkb_model_next(struct rxkb_model *m);
 
 /**
- * Increase the refcount of the argument by one.
+ * Take a new reference on a model.
  * @memberof rxkb_model
+ *
+ * Increase the refcount of the argument by one. Taking the first reference on
+ * the object also keeps its ancestors (up to and including the [context]) alive
+ * until the last reference is released.
  *
  * @returns The argument passed in to this function.
  *
  * @sa `rxkb_model_unref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_model *
 rxkb_model_ref(struct rxkb_model *m);
 
 /**
- * Decrease the refcount of the argument by one.
+ * Release a reference on a model, and possibly free it.
  * @memberof rxkb_model
  *
- * When the refcount hits zero, all memory associated with this struct is freed.
+ * Decrease the refcount of the argument by one. When the last reference is
+ * released, the object is no longer pinned to its parent; it is freed together
+ * with its [context].
  *
  * @returns always `NULL`
  *
  * @sa `rxkb_model_ref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_model *
 rxkb_model_unref(struct rxkb_model *m);
@@ -587,25 +639,35 @@ RXKB_EXPORT struct rxkb_layout *
 rxkb_layout_next(struct rxkb_layout *l);
 
 /**
- * Increase the refcount of the argument by one.
+ * Take a new reference on a layout.
  * @memberof rxkb_layout
+ *
+ * Increase the refcount of the argument by one. Taking the first reference on
+ * the object also keeps its ancestors (up to and including the [context]) alive
+ * until the last reference is released.
  *
  * @returns The argument passed in to this function.
  *
  * @sa `rxkb_layout_unref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_layout *
 rxkb_layout_ref(struct rxkb_layout *l);
 
 /**
- * Decrease the refcount of the argument by one.
+ * Release a reference on a layout, and possibly free it.
  * @memberof rxkb_layout
  *
- * When the refcount hits zero, all memory associated with this struct is freed.
+ * Decrease the refcount of the argument by one. When the last reference is
+ * released, the object is no longer pinned to its parent; it is freed together
+ * with its [context].
  *
  * @returns always `NULL`
  *
  * @sa `rxkb_layout_ref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_layout *
 rxkb_layout_unref(struct rxkb_layout *l);
@@ -699,25 +761,35 @@ RXKB_EXPORT struct rxkb_option_group *
 rxkb_option_group_next(struct rxkb_option_group *g);
 
 /**
- * Increase the refcount of the argument by one.
+ * Take a new reference on an option group.
  * @memberof rxkb_option_group
+ *
+ * Increase the refcount of the argument by one. Taking the first reference on
+ * the object also keeps its ancestors (up to and including the [context]) alive
+ * until the last reference is released.
  *
  * @returns The argument passed in to this function.
  *
  * @sa `rxkb_option_group_unref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_option_group *
 rxkb_option_group_ref(struct rxkb_option_group *g);
 
 /**
- * Decrease the refcount of the argument by one.
+ * Release a reference on an option group, and possibly free it.
  * @memberof rxkb_option_group
  *
- * When the refcount hits zero, all memory associated with this struct is freed.
+ * Decrease the refcount of the argument by one. When the last reference is
+ * released, the object is no longer pinned to its parent; it is freed together
+ * with its [context].
  *
  * @returns always `NULL`
  *
  * @sa `rxkb_option_group_ref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_option_group *
 rxkb_option_group_unref(struct rxkb_option_group *g);
@@ -796,25 +868,35 @@ RXKB_EXPORT struct rxkb_option *
 rxkb_option_next(struct rxkb_option *o);
 
 /**
- * Increase the refcount of the argument by one.
+ * Take a new reference on an option.
  * @memberof rxkb_option
+ *
+ * Increase the refcount of the argument by one. Taking the first reference on
+ * the object also keeps its ancestors (up to and including the [context]) alive
+ * until the last reference is released.
  *
  * @returns The argument passed in to this function.
  *
  * @sa `rxkb_option_unref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_option *
 rxkb_option_ref(struct rxkb_option *o);
 
 /**
- * Decrease the refcount of the argument by one.
+ * Release a reference on an option, and possibly free it.
  * @memberof rxkb_option
  *
- * When the refcount hits zero, all memory associated with this struct is freed.
+ * Decrease the refcount of the argument by one. When the last reference is
+ * released, the object is no longer pinned to its parent; it is freed together
+ * with its [context].
  *
  * @returns always `NULL`
  *
  * @sa `rxkb_option_ref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_option *
 rxkb_option_unref(struct rxkb_option *o);
@@ -869,25 +951,35 @@ RXKB_EXPORT bool
 rxkb_option_is_layout_specific(struct rxkb_option *o);
 
 /**
- * Increase the refcount of the argument by one.
+ * Take a new reference on an ISO 639 code.
  * @memberof rxkb_iso639_code
+ *
+ * Increase the refcount of the argument by one. Taking the first reference on
+ * the object also keeps its ancestors (up to and including the [context]) alive
+ * until the last reference is released.
  *
  * @returns The argument passed in to this function.
  *
  * @sa `rxkb_iso639_code_unref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_iso639_code *
 rxkb_iso639_code_ref(struct rxkb_iso639_code *iso639);
 
 /**
- * Decrease the refcount of the argument by one.
+ * Release a reference on an ISO 639 code, and possibly free it.
  * @memberof rxkb_iso639_code
  *
- * When the refcount hits zero, all memory associated with this struct is freed.
+ * Decrease the refcount of the argument by one. When the last reference is
+ * released, the object is no longer pinned to its parent; it is freed together
+ * with its [context].
  *
  * @returns always `NULL`
  *
  * @sa `rxkb_iso639_code_ref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_iso639_code *
 rxkb_iso639_code_unref(struct rxkb_iso639_code *iso639);
@@ -947,25 +1039,35 @@ RXKB_EXPORT struct rxkb_iso639_code *
 rxkb_iso639_code_next(struct rxkb_iso639_code *iso639);
 
 /**
- * Increase the refcount of the argument by one.
+ * Take a new reference on an ISO 3166 code.
  * @memberof rxkb_iso3166_code
+ *
+ * Increase the refcount of the argument by one. Taking the first reference on
+ * the object also keeps its ancestors (up to and including the [context]) alive
+ * until the last reference is released.
  *
  * @returns The argument passed in to this function.
  *
  * @sa `rxkb_iso3166_code_unref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_iso3166_code *
 rxkb_iso3166_code_ref(struct rxkb_iso3166_code *iso3166);
 
 /**
- * Decrease the refcount of the argument by one.
+ * Release a reference on an ISO 3166 code, and possibly free it.
  * @memberof rxkb_iso3166_code
  *
- * When the refcount hits zero, all memory associated with this struct is freed.
+ * Decrease the refcount of the argument by one. When the last reference is
+ * released, the object is no longer pinned to its parent; it is freed together
+ * with its [context].
  *
  * @returns always `NULL`
  *
  * @sa `rxkb_iso3166_code_ref()`
+ *
+ * [context]: @ref rxkb_context
  */
 RXKB_EXPORT struct rxkb_iso3166_code *
 rxkb_iso3166_code_unref(struct rxkb_iso3166_code *iso3166);
