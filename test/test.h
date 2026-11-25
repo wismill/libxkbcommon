@@ -10,6 +10,7 @@
 
 #include <assert.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 /* Don't use compat names in internal code. */
 #define _XKBCOMMON_COMPAT_H
@@ -253,6 +254,38 @@ xkb_context_log_restore_config(
     xkb_context_set_user_data(ctx, backup->user_data);
     xkb_context_set_log_level(ctx, backup->level);
     xkb_context_set_log_verbosity(ctx, backup->verbosity);
+}
+
+typedef bool (*test_log_msg_func_t)(const char* log_entry, void *data);
+struct test_log_msg_config {
+    test_log_msg_func_t f;
+    void *data;
+};
+
+static inline void
+ATTR_PRINTF(3, 0)
+test_log_msg(struct xkb_context *ctx, enum xkb_log_level lvl,
+             const char *msg, va_list args)
+{
+    struct test_log_msg_config *test =
+        (struct test_log_msg_config *)xkb_context_get_user_data(ctx);
+    char * const log_entry = vasprintf_safe(msg, args);
+    assert(log_entry);
+    assert(test->f(log_entry, test->data));
+    free(log_entry);
+}
+
+struct test_log_id_data {
+    const char id[8];
+    size_t count;
+};
+
+static inline bool
+test_log_id_func(const char * restrict log_entry, void * restrict data)
+{
+    struct test_log_id_data *d = (struct test_log_id_data*)data;
+    if (strstr(log_entry, d->id)) d->count++;
+    return true;
 }
 
 static inline void
