@@ -20,12 +20,86 @@
 #include "src/utf8.h"
 #include "src/keysym.h"
 #include "src/compose/constants.h"
-#include "src/compose/parser.h"
-#include "src/compose/escape.h"
 #include "src/compose/dump.h"
+#include "src/compose/escape.h"
+#include "src/compose/parser.h"
+#include "src/compose/state.h"
 #include "src/util-random.h"
 #include "test/compose-iter.h"
 #include "test/util-text.h"
+
+static void
+test_compose_max_refcnt(struct xkb_context *ctx)
+{
+    const char buffer[] = "\n";
+    struct xkb_compose_table * const table = xkb_compose_table_new_from_buffer(
+        ctx, buffer, sizeof(buffer) - 1, "", XKB_COMPOSE_FORMAT_TEXT_V1,
+        XKB_COMPOSE_COMPILE_NO_FLAGS
+    );
+    assert(table);
+    assert(table->refcnt == 1);
+
+    struct xkb_compose_state * const state =
+        xkb_compose_state_new(table, XKB_COMPOSE_STATE_NO_FLAGS);
+    assert(state);
+    assert(state->refcnt == 1);
+
+    static_assert(XKB_ERROR_SATURATED_REFERENCE_COUNTER == 6, "");
+    struct test_log_id_data saturated_errors  = { .id = "XKB-006" };
+    struct test_log_msg_config log_msg_config = {
+        .f = test_log_id_func,
+        .data = &saturated_errors,
+    };
+
+    struct xkb_context_log_config_backup backup;
+    xkb_context_log_backup_config(ctx, &backup);
+
+    xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_ERROR);
+    xkb_context_set_user_data(ctx, &log_msg_config);
+    xkb_context_set_log_fn(ctx, test_log_msg);
+
+    /* State */
+
+    state->refcnt = UINT_MAX - 1;
+    assert(xkb_compose_state_ref(state));/* now at max → exactly one log entry */
+    assert(state->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    assert(xkb_compose_state_ref(state));/* no-op, no new warning */
+    assert(state->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    xkb_compose_state_unref(state);      /* no-op: object not freed */
+    assert(state->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    state->refcnt = 1;                   /* restore so the test doesn’t leak */
+    xkb_compose_state_unref(state);      /* now really freed (ASan/LSan checks) */
+    assert(saturated_errors.count == 1);
+
+    saturated_errors.count = 0;
+
+    /* Table */
+
+    table->refcnt = UINT_MAX - 1;
+    assert(xkb_compose_table_ref(table));/* now at max → exactly one log entry */
+    assert(table->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    assert(xkb_compose_table_ref(table));/* no-op, no new warning */
+    assert(table->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    xkb_compose_table_unref(table);      /* no-op: object not freed */
+    assert(table->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    table->refcnt = 1;                   /* restore so the test doesn’t leak */
+    xkb_compose_table_unref(table);      /* now really freed (ASan/LSan checks) */
+    assert(saturated_errors.count == 1);
+
+    xkb_context_log_restore_config(ctx, &backup);
+}
 
 static const char *
 compose_status_string(enum xkb_compose_status status)
@@ -1191,6 +1265,7 @@ main(int argc, char *argv[])
     unsetenv("XLOCALEDIR");
 #endif
 
+    test_compose_max_refcnt(ctx);
     test_compose_utf8_bom(ctx);
     test_invalid_encodings(ctx);
     test_seqs(ctx);

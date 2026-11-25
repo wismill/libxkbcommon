@@ -9,6 +9,7 @@
 #include "test-config.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,59 @@
 #include "test.h"
 #include "utils.h"
 
+static void
+test_state_max_refcnt(struct xkb_context *ctx)
+{
+    static const char keymap_str[] = "xkb_keymap {};";
+    struct xkb_keymap * const keymap = xkb_keymap_new_from_buffer(
+        ctx, keymap_str, sizeof(keymap_str),
+        XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS
+    );
+    assert(keymap);
+    struct xkb_state *state = xkb_state_new(keymap);
+    assert(state);
+    xkb_keymap_unref(keymap);
+
+    assert(xkb_state_get_refcnt(state) == 1);
+
+    static_assert(XKB_ERROR_SATURATED_REFERENCE_COUNTER == 6, "");
+    struct test_log_id_data saturated_errors  = { .id = "XKB-006" };
+    struct test_log_msg_config log_msg_config = {
+        .f = test_log_id_func,
+        .data = &saturated_errors,
+    };
+
+    struct xkb_context_log_config_backup backup;
+    xkb_context_log_backup_config(ctx, &backup);
+
+    xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_ERROR);
+    xkb_context_set_user_data(ctx, &log_msg_config);
+    xkb_context_set_log_fn(ctx, test_log_msg);
+
+    /* Get the max of the refcount bit field */
+    xkb_state_set_refcnt(state, UINT_MAX);
+    const unsigned int max = xkb_state_get_refcnt(state);
+    assert(max < UINT_MAX);
+
+    xkb_state_set_refcnt(state, max - 1);
+    assert(xkb_state_ref(state));    /* now at max → exactly one log entry */
+    assert(xkb_state_get_refcnt(state) == max);
+    assert(saturated_errors.count == 1);
+
+    assert(xkb_state_ref(state));    /* no-op, no new warning */
+    assert(xkb_state_get_refcnt(state) == max);
+    assert(saturated_errors.count == 1);
+
+    xkb_state_unref(state);          /* no-op: object not freed */
+    assert(xkb_state_get_refcnt(state) == max);
+    assert(saturated_errors.count == 1);
+
+    xkb_state_set_refcnt(state, 1);  /* restore so the test doesn’t leak */
+    xkb_state_unref(state);          /* now really freed (ASan/LSan checks) */
+    assert(saturated_errors.count == 1);
+
+    xkb_context_log_restore_config(ctx, &backup);
+}
 
 /* Reference implementation from XkbAdjustGroup in Xorg xserver */
 static int32_t
@@ -4010,6 +4064,8 @@ main(void)
     assert(state);
     xkb_state_unref(state);
     xkb_keymap_unref(keymap);
+
+    test_state_max_refcnt(context);
 
     test_group_wrap(context);
     test_state_modes(context);

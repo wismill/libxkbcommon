@@ -8,6 +8,8 @@
 #include "config.h"
 #include "test-config.h"
 
+#include <assert.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -28,6 +30,41 @@ static struct env {
     char *value;
 } environment[64];
 static int nenviron;
+
+static void
+test_max_refcnt(void)
+{
+    struct xkb_context *ctx = test_get_context(CONTEXT_NO_FLAG);
+    assert(ctx);
+    assert(ctx->refcnt == 1);
+
+    static_assert(XKB_ERROR_SATURATED_REFERENCE_COUNTER == 6, "");
+    struct test_log_id_data saturated_errors  = { .id = "XKB-006" };
+    struct test_log_msg_config log_msg_config = {
+        .f = test_log_id_func,
+        .data = &saturated_errors,
+    };
+    xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_ERROR);
+    xkb_context_set_user_data(ctx, &log_msg_config);
+    xkb_context_set_log_fn(ctx, test_log_msg);
+
+    ctx->refcnt = UINT_MAX - 1;
+    assert(xkb_context_ref(ctx));    /* now at max → exactly one log entry */
+    assert(ctx->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    assert(xkb_context_ref(ctx));    /* no-op, no new warning */
+    assert(ctx->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    xkb_context_unref(ctx);          /* no-op: object not freed */
+    assert(ctx->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    ctx->refcnt = 1;                 /* restore so the test doesn’t leak */
+    xkb_context_unref(ctx);          /* now really freed (ASan/LSan checks) */
+    assert(saturated_errors.count == 1);
+}
 
 static void
 buffer_env(const char *key)
@@ -392,6 +429,7 @@ main(void)
 
     xkb_context_unref(context);
 
+    test_max_refcnt();
     test_config_root_include_path();
     test_config_root_include_path_fallback();
     test_xkbdir_include_path();

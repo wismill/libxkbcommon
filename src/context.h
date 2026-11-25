@@ -42,7 +42,7 @@ struct xkb_context {
     bool use_secure_getenv : 1;
     bool pending_default_includes : 1;
 
-    int refcnt;
+    unsigned int refcnt;
 };
 
 XKB_EXPORT_PRIVATE xkb_context_log_fn_t
@@ -139,8 +139,8 @@ xkb_context_sanitize_rule_names(struct xkb_context *ctx,
  * Here we must have the silly 1 variant.
  */
 #define log_warn_func(ctx, id, fmt, ...) \
-    log_warn(ctx, id, "%s: " fmt, __func__, __VA_ARGS__)
+    log_warn(ctx, id, "%s: " fmt, __func__, ##__VA_ARGS__)
 #define log_err_func(ctx, id, fmt, ...) \
-    log_err(ctx, id, "%s: " fmt, __func__, __VA_ARGS__)
+    log_err(ctx, id, "%s: " fmt, __func__, ##__VA_ARGS__)
 #define log_err_func1(ctx, id, fmt) \
     log_err(ctx, id, "%s: " fmt, __func__)

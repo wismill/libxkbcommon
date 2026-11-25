@@ -9,13 +9,13 @@
 #include "config.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #if HAVE_XKB_EXTENSIONS_DIRECTORIES
-    #include <limits.h>
     #if HAVE_UNISTD_H && HAVE_DIRENT_H
         #include <dirent.h>
         #include <unistd.h>
@@ -394,14 +394,25 @@ xkb_context_include_path_get(struct xkb_context *ctx, unsigned int idx)
     return darray_item(ctx->includes, idx);
 }
 
+static_assert(HAS_TYPE(((struct xkb_context*)0)->refcnt, unsigned int),
+              "refcnt must be unsigned int so that REFCOUNT_MAX is UINT_MAX");
+#define CONTEXT_REFCOUNT_MAX UINT_MAX
+
 /**
  * Take a new reference on the context.
  */
 struct xkb_context *
 xkb_context_ref(struct xkb_context *ctx)
 {
-    assert(ctx->refcnt > 0);
-    ctx->refcnt++;
+    assert(ctx->refcnt);
+    if (ctx->refcnt < CONTEXT_REFCOUNT_MAX) {
+        ctx->refcnt++;
+        if (ctx->refcnt == CONTEXT_REFCOUNT_MAX) {
+            log_err_func1(ctx, XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                          "Saturated reference counter; "
+                          "xkb_context object will not be freed\n");
+        }
+    }
     return ctx;
 }
 
@@ -412,8 +423,10 @@ xkb_context_ref(struct xkb_context *ctx)
 void
 xkb_context_unref(struct xkb_context *ctx)
 {
-    assert(!ctx || ctx->refcnt > 0);
-    if (!ctx || --ctx->refcnt > 0)
+    assert(!ctx || ctx->refcnt);
+    if (!ctx || ctx->refcnt == CONTEXT_REFCOUNT_MAX)
+        return;
+    if (--ctx->refcnt)
         return;
 
     free(ctx->x11_atom_cache);
@@ -421,6 +434,8 @@ xkb_context_unref(struct xkb_context *ctx)
     atom_table_free(ctx->atom_table);
     free(ctx);
 }
+
+#undef CONTEXT_REFCOUNT_MAX
 
 static const char *
 log_level_to_prefix(enum xkb_log_level level)

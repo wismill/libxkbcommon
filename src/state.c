@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "context.h"
 #include "xkbcommon/xkbcommon.h"
 #include "xkbcommon/xkbcommon-status.h"
 #include "xkbcommon/xkbcommon-features.h"
@@ -124,6 +125,8 @@ static_assert(_XKB_STATE_TYPE_NUM_ENTRIES <
               (1 << XKB_STATE_MODE_INTERNAL_MIN_WIDTH),
               "Cannot encode xkb_state::mode");
 
+#define XKB_STATE_REFCOUNT_BITS (UINT_WIDTH - XKB_STATE_MODE_INTERNAL_MIN_WIDTH)
+
 /**
  * Common state
  *
@@ -140,7 +143,7 @@ struct xkb_state {
     struct out_of_range_group_policy out_of_range_group;
 
     enum xkb_state_mode_internal mode : XKB_STATE_MODE_INTERNAL_MIN_WIDTH;
-    int refcnt : (sizeof(int) * CHAR_BIT - XKB_STATE_MODE_INTERNAL_MIN_WIDTH);
+    unsigned int refcnt : XKB_STATE_REFCOUNT_BITS;
 };
 
 /**
@@ -2004,12 +2007,38 @@ xkb_state_new_with_mode(struct xkb_keymap * restrict keymap,
     return NULL;
 }
 
+static_assert(HAS_TYPE(((struct xkb_state*)0)->refcnt + 1u, unsigned int),
+              "Bitfield promotes to unsigned int");
+static_assert(XKB_STATE_REFCOUNT_BITS < 64, "Compute STATE_REFCOUNT_MAX");
+#define STATE_REFCOUNT_MAX \
+    ((unsigned int) ((UINT64_C(1) << XKB_STATE_REFCOUNT_BITS) - 1))
+
 struct xkb_state *
 xkb_state_ref(struct xkb_state *state)
 {
-    assert(state->refcnt > 0);
-    state->refcnt++;
+    assert(state->refcnt);
+    if (state->refcnt < STATE_REFCOUNT_MAX) {
+        state->refcnt++;
+        if (state->refcnt == STATE_REFCOUNT_MAX) {
+            log_err_func1(state->keymap->ctx,
+                          XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                          "Saturated reference counter; "
+                          "xkb_state object will not be freed\n");
+        }
+    }
     return state;
+}
+
+unsigned int
+xkb_state_get_refcnt(struct xkb_state *state)
+{
+    return state->refcnt;
+}
+
+void
+xkb_state_set_refcnt(struct xkb_state *state, unsigned int refcnt)
+{
+    state->refcnt = refcnt;
 }
 
 void
@@ -2044,8 +2073,10 @@ xkb_state_destroy(struct xkb_state *state)
 void
 xkb_state_unref(struct xkb_state *state)
 {
-    assert(!state || state->refcnt > 0);
-    if (!state || --state->refcnt > 0)
+    assert(!state || state->refcnt);
+    if (!state || state->refcnt == STATE_REFCOUNT_MAX)
+        return;
+    if (--state->refcnt)
         return;
 
     xkb_state_destroy(state);
@@ -3409,7 +3440,7 @@ struct xkb_machine_builder {
 
     enum xkb_machine_flags machine_flags;
     enum xkb_machine_builder_flags builder_flags;
-    int refcnt;
+    unsigned int refcnt;
 };
 
 struct xkb_machine_builder *
@@ -3492,19 +3523,34 @@ xkb_machine_builder_new(
     return builder;
 }
 
+static_assert(HAS_TYPE(((struct xkb_machine_builder*)0)->refcnt, unsigned int),
+              "refcnt must be unsigned int so that REFCOUNT_MAX is UINT_MAX");
+#define MACHINE_BUILDER_REFCOUNT_MAX UINT_MAX
+
 struct xkb_machine_builder *
 xkb_machine_builder_ref(struct xkb_machine_builder *builder)
 {
-    assert(builder->refcnt > 0);
-    builder->refcnt++;
+    assert(builder->refcnt);
+    if (builder->refcnt < MACHINE_BUILDER_REFCOUNT_MAX) {
+        builder->refcnt++;
+        if (builder->refcnt == MACHINE_BUILDER_REFCOUNT_MAX) {
+            log_err_func1(builder->keymap->ctx,
+                          XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                          "Saturated reference counter; "
+                          "xkb_machine_builder object will not be freed\n");
+        }
+    }
     return builder;
 }
 
 void
 xkb_machine_builder_unref(struct xkb_machine_builder *builder)
 {
-    assert(!builder || builder->refcnt > 0);
-    if (!builder || --builder->refcnt > 0)
+    assert(!builder || builder->refcnt);
+    if (!builder || builder->refcnt == MACHINE_BUILDER_REFCOUNT_MAX)
+        return;
+
+    if (--builder->refcnt)
         return;
 
     darray_free(builder->shortcuts.entries);
@@ -3512,6 +3558,8 @@ xkb_machine_builder_unref(struct xkb_machine_builder *builder)
     xkb_keymap_unref(builder->keymap);
     free(builder);
 }
+
+#undef MACHINE_BUILDER_REFCOUNT_MAX
 
 struct xkb_keymap *
 xkb_machine_builder_get_keymap(const struct xkb_machine_builder *builder)
@@ -3904,16 +3952,26 @@ error:
 struct xkb_machine *
 xkb_machine_ref(struct xkb_machine *sm)
 {
-    assert(sm->base.base.refcnt > 0);
-    sm->base.base.refcnt++;
+    assert(sm->base.base.refcnt);
+    if (sm->base.base.refcnt < STATE_REFCOUNT_MAX) {
+        sm->base.base.refcnt++;
+        if (sm->base.base.refcnt == STATE_REFCOUNT_MAX) {
+            log_err_func1(sm->base.base.keymap->ctx,
+                          XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                          "Saturated reference counter; "
+                          "xkb_machine object will not be freed\n");
+        }
+    }
     return sm;
 }
 
 void
 xkb_machine_unref(struct xkb_machine *sm)
 {
-    assert(!sm || sm->base.base.refcnt > 0);
-    if (!sm || --sm->base.base.refcnt > 0)
+    assert(!sm || sm->base.base.refcnt);
+    if (!sm || sm->base.base.refcnt == STATE_REFCOUNT_MAX)
+        return;
+    if (--sm->base.base.refcnt)
         return;
 
     xkb_state_destroy(&sm->base.base);
@@ -3922,6 +3980,9 @@ xkb_machine_unref(struct xkb_machine *sm)
     free(sm->config.modifiers.mappings);
     free(sm);
 }
+
+#undef XKB_STATE_REFCOUNT_BITS
+#undef STATE_REFCOUNT_MAX
 
 struct xkb_keymap *
 xkb_machine_get_keymap(const struct xkb_machine *sm)

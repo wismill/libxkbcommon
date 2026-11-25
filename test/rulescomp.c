@@ -14,11 +14,55 @@
 #include "evdev-scancodes.h"
 #include "src/keymap.h"
 #include "src/keysym.h"
+#include "src/rmlvo.h"
 #include "test.h"
 #include "utils.h"
 
 static void
-test_components_names_from_rules(struct xkb_context *ctx) {
+test_rmlvo_max_refcnt(struct xkb_context *ctx)
+{
+    struct xkb_rmlvo_builder * const builder =
+        xkb_rmlvo_builder_new(ctx, NULL, NULL, XKB_RMLVO_BUILDER_NO_FLAGS);
+    assert(builder);
+    assert(builder->refcnt == 1);
+
+    static_assert(XKB_ERROR_SATURATED_REFERENCE_COUNTER == 6, "");
+    struct test_log_id_data saturated_errors  = { .id = "XKB-006" };
+    struct test_log_msg_config log_msg_config = {
+        .f = test_log_id_func,
+        .data = &saturated_errors,
+    };
+
+    struct xkb_context_log_config_backup backup;
+    xkb_context_log_backup_config(ctx, &backup);
+
+    xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_ERROR);
+    xkb_context_set_user_data(ctx, &log_msg_config);
+    xkb_context_set_log_fn(ctx, test_log_msg);
+
+    builder->refcnt = UINT_MAX - 1;
+    assert(xkb_rmlvo_builder_ref(builder));/* now at max → exactly one log entry */
+    assert(builder->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    assert(xkb_rmlvo_builder_ref(builder));/* no-op, no new warning */
+    assert(builder->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    xkb_rmlvo_builder_unref(builder);      /* no-op: object not freed */
+    assert(builder->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    builder->refcnt = 1;                   /* restore so the test doesn’t leak */
+    xkb_rmlvo_builder_unref(builder);      /* now really freed (ASan/LSan checks) */
+    assert(saturated_errors.count == 1);
+
+    xkb_context_log_restore_config(ctx, &backup);
+}
+
+static void
+test_components_names_from_rules(struct xkb_context *ctx)
+{
     static const struct xkb_rule_names tests[] = {
         {
             .rules = "evdev",
@@ -247,6 +291,7 @@ main(int argc, char *argv[])
     /* Reject invalid flags */
     assert(!xkb_rmlvo_builder_new(ctx, NULL, NULL, -1));
     assert(!xkb_rmlvo_builder_new(ctx, NULL, NULL, 0xffff));
+    test_rmlvo_max_refcnt(ctx);
     static const struct xkb_rule_names rmlvo = { NULL };
     assert(!xkb_keymap_new_from_names2(ctx, &rmlvo,
                                         XKB_KEYMAP_FORMAT_TEXT_V1, -1));

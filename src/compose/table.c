@@ -6,6 +6,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <limits.h>
 
 #include "xkbcommon/xkbcommon.h"
 #include "features/enums.h"
@@ -72,26 +73,43 @@ xkb_compose_table_new(struct xkb_context *ctx, const char *func,
     return table;
 }
 
+static_assert(HAS_TYPE(((struct xkb_compose_table*)0)->refcnt, unsigned int),
+              "refcnt must be unsigned int so that REFCOUNT_MAX is UINT_MAX");
+#define COMPOSE_TABLE_REFCOUNT_MAX UINT_MAX
+
 struct xkb_compose_table *
 xkb_compose_table_ref(struct xkb_compose_table *table)
 {
-    assert(table->refcnt > 0);
-    table->refcnt++;
+    assert(table->refcnt);
+    if (table->refcnt < COMPOSE_TABLE_REFCOUNT_MAX) {
+        table->refcnt++;
+        if (table->refcnt == COMPOSE_TABLE_REFCOUNT_MAX) {
+            log_err_func1(table->ctx,
+                          XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                          "Saturated reference counter; "
+                          "xkb_compose_table object will not be freed\n");
+        }
+    }
     return table;
 }
 
 void
 xkb_compose_table_unref(struct xkb_compose_table *table)
 {
-    assert(!table || table->refcnt > 0);
-    if (!table || --table->refcnt > 0)
+    assert(!table || table->refcnt);
+    if (!table || table->refcnt == COMPOSE_TABLE_REFCOUNT_MAX)
         return;
+    if (--table->refcnt)
+        return;
+
     free(table->locale);
     darray_free(table->nodes);
     darray_free(table->utf8);
     xkb_context_unref(table->ctx);
     free(table);
 }
+
+#undef COMPOSE_TABLE_REFCOUNT_MAX
 
 struct xkb_compose_table *
 xkb_compose_table_new_from_file(struct xkb_context *ctx,

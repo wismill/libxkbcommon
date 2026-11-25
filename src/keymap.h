@@ -772,7 +772,7 @@ typedef struct {
 struct xkb_keymap {
     struct xkb_context *ctx;
 
-    int refcnt;
+    unsigned int refcnt;
     enum xkb_keymap_compile_flags flags;
     enum xkb_keymap_format format;
 

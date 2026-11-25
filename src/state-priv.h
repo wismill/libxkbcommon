@@ -55,6 +55,12 @@ struct xkb_event {
     };
 };
 
+XKB_EXPORT_PRIVATE unsigned int
+xkb_state_get_refcnt(struct xkb_state *state);
+
+XKB_EXPORT_PRIVATE void
+xkb_state_set_refcnt(struct xkb_state *state, unsigned int refcnt);
+
 XKB_EXPORT_PRIVATE void
 xkb_state_reset(struct xkb_state *state);
 

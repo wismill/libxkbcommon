@@ -9,6 +9,7 @@
 #include "test-config.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -104,6 +105,49 @@ test_supported_formats(void)
 
         previous = formats[k];
     }
+}
+
+static void
+test_max_refcnt(void)
+{
+    struct xkb_context *ctx = test_get_context(CONTEXT_NO_FLAG);
+    assert(ctx);
+
+    static const char degenerated_keymap[] = "xkb_keymap {};";
+    struct xkb_keymap * const keymap = xkb_keymap_new_from_buffer(
+        ctx, degenerated_keymap, sizeof(degenerated_keymap),
+        XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS
+    );
+    assert(keymap);
+    assert(keymap->refcnt == 1);
+    static_assert(XKB_ERROR_SATURATED_REFERENCE_COUNTER == 6, "");
+    struct test_log_id_data saturated_errors  = { .id = "XKB-006" };
+    struct test_log_msg_config log_msg_config = {
+        .f = test_log_id_func,
+        .data = &saturated_errors,
+    };
+    xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_ERROR);
+    xkb_context_set_user_data(ctx, &log_msg_config);
+    xkb_context_set_log_fn(ctx, test_log_msg);
+
+    keymap->refcnt = UINT_MAX - 1;
+    assert(xkb_keymap_ref(keymap));    /* now at max → exactly one log entry */
+    assert(keymap->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    assert(xkb_keymap_ref(keymap));   /* no-op, no new warning */
+    assert(keymap->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    xkb_keymap_unref(keymap);          /* no-op: object not freed */
+    assert(keymap->refcnt == UINT_MAX);
+    assert(saturated_errors.count == 1);
+
+    keymap->refcnt = 1;                /* restore so the test doesn’t leak */
+    xkb_keymap_unref(keymap);          /* now really freed (ASan/LSan checks) */
+    assert(saturated_errors.count == 1);
+
+    xkb_context_unref(ctx);
 }
 
 static void
@@ -1530,6 +1574,7 @@ main(int argc, char *argv[])
     }
 
     test_supported_formats();
+    test_max_refcnt();
     test_xkb_key();
     test_garbage_key();
     test_keymap();

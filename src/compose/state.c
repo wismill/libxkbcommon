@@ -6,30 +6,14 @@
 #include "config.h"
 
 #include <assert.h>
+#include <limits.h>
 
+#include "state.h"
 #include "context.h"
 #include "features/enums.h"
 #include "keysym.h"
 #include "table.h"
 #include "utils.h"
-
-struct xkb_compose_state {
-    int refcnt;
-    enum xkb_compose_state_flags flags;
-    struct xkb_compose_table *table;
-
-    /*
-     * Offsets into xkb_compose_table::nodes.
-     *
-     * They maintain the current and previous position in the trie; see
-     * xkb_compose_state_feed().
-     *
-     * This is also sufficient for inferring the current status; see
-     * xkb_compose_state_get_status().
-     */
-    uint32_t prev_context;
-    uint32_t context;
-};
 
 struct xkb_compose_state *
 xkb_compose_state_new(struct xkb_compose_table *table,
@@ -58,24 +42,40 @@ xkb_compose_state_new(struct xkb_compose_table *table,
     return state;
 }
 
+static_assert(HAS_TYPE(((struct xkb_compose_state*)0)->refcnt, unsigned int),
+              "refcnt must be unsigned int so that REFCOUNT_MAX is UINT_MAX");
+#define COMPOSE_STATE_REFCOUNT_MAX UINT_MAX
+
 struct xkb_compose_state *
 xkb_compose_state_ref(struct xkb_compose_state *state)
 {
-    assert(state->refcnt > 0);
-    state->refcnt++;
+    assert(state->refcnt);
+    if (state->refcnt < COMPOSE_STATE_REFCOUNT_MAX) {
+        state->refcnt++;
+        if (state->refcnt == COMPOSE_STATE_REFCOUNT_MAX) {
+            log_err_func1(state->table->ctx,
+                          XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                          "Saturated reference counter; "
+                          "xkb_compose_state object will not be freed\n");
+        }
+    }
     return state;
 }
 
 void
 xkb_compose_state_unref(struct xkb_compose_state *state)
 {
-    assert(!state || state->refcnt > 0);
-    if (!state || --state->refcnt > 0)
+    assert(!state || state->refcnt);
+    if (!state || state->refcnt == COMPOSE_STATE_REFCOUNT_MAX)
+        return;
+    if (--state->refcnt)
         return;
 
     xkb_compose_table_unref(state->table);
     free(state);
 }
+
+#undef COMPOSE_STATE_REFCOUNT_MAX
 
 struct xkb_compose_table *
 xkb_compose_state_get_compose_table(struct xkb_compose_state *state)

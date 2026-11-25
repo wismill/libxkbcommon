@@ -6,6 +6,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -161,19 +162,32 @@ xkb_rmlvo_builder_append_option(struct xkb_rmlvo_builder *rmlvo,
     return (status == XKB_SUCCESS);
 }
 
+static_assert(HAS_TYPE(((struct xkb_rmlvo_builder*)0)->refcnt, unsigned int),
+              "refcnt must be unsigned int so that REFCOUNT_MAX is UINT_MAX");
+#define RMLVO_REFCOUNT_MAX UINT_MAX
+
 struct xkb_rmlvo_builder *
 xkb_rmlvo_builder_ref(struct xkb_rmlvo_builder *rmlvo)
 {
-    assert(rmlvo->refcnt > 0);
-    rmlvo->refcnt++;
+    assert(rmlvo->refcnt);
+    if (rmlvo->refcnt < RMLVO_REFCOUNT_MAX) {
+        rmlvo->refcnt++;
+        if (rmlvo->refcnt == RMLVO_REFCOUNT_MAX) {
+            log_err_func1(rmlvo->ctx, XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                          "Saturated reference counter; "
+                          "xkb_rmlvo_builder object will not be freed\n");
+        }
+    }
     return rmlvo;
 }
 
 void
 xkb_rmlvo_builder_unref(struct xkb_rmlvo_builder *rmlvo)
 {
-    assert(!rmlvo || rmlvo->refcnt > 0);
-    if (!rmlvo || --rmlvo->refcnt > 0)
+    assert(!rmlvo || rmlvo->refcnt);
+    if (!rmlvo || rmlvo->refcnt == RMLVO_REFCOUNT_MAX)
+        return;
+    if (--rmlvo->refcnt)
         return;
 
     free(rmlvo->rules);
@@ -194,6 +208,8 @@ xkb_rmlvo_builder_unref(struct xkb_rmlvo_builder *rmlvo)
     xkb_context_unref(rmlvo->ctx);
     free(rmlvo);
 }
+
+#undef RMLVO_REFCOUNT_MAX
 
 /* NOTE: the converse function, `xkb_rules_names_to_rmlvo_builder`, is currently
  * only used in tests */

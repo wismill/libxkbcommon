@@ -26,14 +26,26 @@
 #include "keymap-priv.h"
 #include "messages-codes.h"
 #include "text.h"
+#include "utils.h"
 #include "util-mem.h"
 #include "util-numbers.h"
+
+static_assert(HAS_TYPE(((struct xkb_keymap*)0)->refcnt, unsigned int),
+              "refcnt must be unsigned int so that REFCOUNT_MAX is UINT_MAX");
+#define KEYMAP_REFCOUNT_MAX UINT_MAX
 
 struct xkb_keymap *
 xkb_keymap_ref(struct xkb_keymap *keymap)
 {
-    assert(keymap->refcnt > 0);
-    keymap->refcnt++;
+    assert(keymap->refcnt);
+    if (keymap->refcnt < KEYMAP_REFCOUNT_MAX) {
+        keymap->refcnt++;
+        if (keymap->refcnt == KEYMAP_REFCOUNT_MAX) {
+            log_err_func1(keymap->ctx, XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                          "Saturated reference counter; "
+                          "xkb_keymap object will not be freed\n");
+        }
+    }
     return keymap;
 }
 
@@ -56,8 +68,10 @@ clear_interpret(struct xkb_sym_interpret *interp)
 void
 xkb_keymap_unref(struct xkb_keymap *keymap)
 {
-    assert(!keymap || keymap->refcnt > 0);
-    if (!keymap || --keymap->refcnt > 0)
+    assert(!keymap || keymap->refcnt);
+    if (!keymap || keymap->refcnt == KEYMAP_REFCOUNT_MAX)
+        return;
+    if (--keymap->refcnt)
         return;
 
     if (keymap->keys) {
@@ -102,6 +116,8 @@ xkb_keymap_unref(struct xkb_keymap *keymap)
     xkb_context_unref(keymap->ctx);
     free(keymap);
 }
+
+#undef KEYMAP_REFCOUNT_MAX
 
 static const struct xkb_keymap_format_ops *
 get_keymap_format_ops(enum xkb_keymap_format format)

@@ -245,6 +245,66 @@ test_machine_builder(struct xkb_context *ctx)
     xkb_keymap_unref(keymap);
 }
 
+static void
+test_machine_max_refcnt(struct xkb_context *ctx)
+{
+    static const char keymap_str[] = "xkb_keymap {};";
+    struct xkb_keymap * const keymap = xkb_keymap_new_from_buffer(
+        ctx, keymap_str, sizeof(keymap_str),
+        XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS
+    );
+    assert(keymap);
+    struct xkb_machine_builder *builder =
+        xkb_machine_builder_new(keymap, NULL, NULL);
+    assert(builder);
+    xkb_keymap_unref(keymap);
+    struct xkb_machine *sm = xkb_machine_new(builder, NULL);
+    assert(sm);
+    xkb_machine_builder_unref(builder);
+    struct xkb_state *state = xkb_machine_get_state(sm);
+    assert(state);
+
+    assert(xkb_state_get_refcnt(state) == 1);
+
+    static_assert(XKB_ERROR_SATURATED_REFERENCE_COUNTER == 6, "");
+    struct test_log_id_data saturated_errors  = { .id = "XKB-006" };
+    struct test_log_msg_config log_msg_config = {
+        .f = test_log_id_func,
+        .data = &saturated_errors,
+    };
+
+    struct xkb_context_log_config_backup backup;
+    xkb_context_log_backup_config(ctx, &backup);
+
+    xkb_context_set_log_level(ctx, XKB_LOG_LEVEL_ERROR);
+    xkb_context_set_user_data(ctx, &log_msg_config);
+    xkb_context_set_log_fn(ctx, test_log_msg);
+
+    /* Get the max of the refcount bit field */
+    xkb_state_set_refcnt(state, UINT_MAX);
+    const unsigned int max = xkb_state_get_refcnt(state);
+    assert(max < UINT_MAX);
+
+    xkb_state_set_refcnt(state, max - 1);
+    assert(xkb_machine_ref(sm));    /* now at max → exactly one log entry */
+    assert(xkb_state_get_refcnt(state) == max);
+    assert(saturated_errors.count == 1);
+
+    assert(xkb_machine_ref(sm));    /* no-op, no new warning */
+    assert(xkb_state_get_refcnt(state) == max);
+    assert(saturated_errors.count == 1);
+
+    xkb_machine_unref(sm);          /* no-op: object not freed */
+    assert(xkb_state_get_refcnt(state) == max);
+    assert(saturated_errors.count == 1);
+
+    xkb_state_set_refcnt(state, 1);  /* restore so the test doesn’t leak */
+    xkb_machine_unref(sm);           /* now really freed (ASan/LSan checks) */
+    assert(saturated_errors.count == 1);
+
+    xkb_context_log_restore_config(ctx, &backup);
+}
+
 /* Check that derived state is correctly initialized */
 static void
 test_initial_derived_values(struct xkb_context *ctx)
@@ -7136,6 +7196,7 @@ main(void)
     xkb_events_destroy(NULL);
 
     test_machine_builder(context);
+    test_machine_max_refcnt(context);
     test_initial_derived_values(context);
 
     /* Degenerated keymap */
