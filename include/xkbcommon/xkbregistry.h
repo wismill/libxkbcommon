@@ -283,6 +283,32 @@ RXKB_EXPORT enum rxkb_log_level
 rxkb_context_get_log_level(struct rxkb_context *ctx);
 
 /**
+ * A custom function to handle logging messages.
+ * @memberof rxkb_context
+ *
+ * @param[in,out] context
+ *   The context in which the logging message was emitted.
+ * @param[in] level
+ *   The logging level of the message.
+ * @param[in] format
+ *   The format string, as in `vprintf(3)`.
+ * @param[in] args
+ *   The variable argument list for @a format, as in `vprintf(3)`.
+ *
+ * You may use `rxkb_context::rxkb_context_set_user_data()` on the context, and
+ * then call `rxkb_context::rxkb_context_get_user_data()` from within this
+ * function to provide it with additional private context.
+ *
+ * @sa `rxkb_context::rxkb_context_set_log_fn()`
+ * @sa `rxkb_context::rxkb_context_set_user_data()`
+ * @sa `rxkb_context::rxkb_context_get_user_data()`
+ */
+typedef void (*rxkb_context_log_fn_t)(struct rxkb_context *context,
+                                      enum rxkb_log_level level,
+                                      const char *format,
+                                      va_list args);
+
+/**
  * Set a custom function to handle logging messages.
  * @memberof rxkb_context
  *
@@ -300,13 +326,12 @@ rxkb_context_get_log_level(struct rxkb_context *ctx);
  * You may use `rxkb_context_set_user_data()` on the context, and then call
  * `rxkb_context_get_user_data()` from within the logging function to provide
  * it with additional private context.
+ *
+ * @sa `rxkb_context_log_fn_t`
  */
 RXKB_EXPORT void
 rxkb_context_set_log_fn(struct rxkb_context *ctx,
-                        void (*log_fn)(struct rxkb_context *ctx,
-                                       enum rxkb_log_level level,
-                                       const char *format, va_list args));
-
+                        rxkb_context_log_fn_t log_fn);
 
 /**
  * Parse the given ruleset.

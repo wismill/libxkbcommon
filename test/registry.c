@@ -20,6 +20,7 @@
 #include "xkbcommon/xkbregistry.h"
 
 #include "utils.h"
+#include "src/registry.h"
 #include "test.h"
 
 #define NO_VARIANT NULL
@@ -224,6 +225,61 @@ test_lifetime(void)
     (void)rxkb_layout_next(l);/* still held once */
     rxkb_layout_unref(l2);
     rxkb_layout_unref(l);
+}
+
+static void
+ATTR_PRINTF(3, 0)
+test_registry_log_msg(struct rxkb_context *ctx, enum rxkb_log_level lvl,
+                      const char *msg, va_list args)
+{
+    struct test_log_id_data *priv =
+        (struct test_log_id_data *)rxkb_context_get_user_data(ctx);
+    char * const log_entry = vasprintf_safe(msg, args);
+    assert(log_entry);
+    if (strstr(log_entry, priv->id)) priv->count++;
+    free(log_entry);
+}
+
+static void
+test_max_refcnt(void)
+{
+    /*
+     * Since all registry objects are based on `rxkb_object`, testing saturating
+     * refcnt of `rxkb_context` is enough to test all the registry object types.
+     */
+    struct rxkb_context * ctx = rxkb_context_new(RXKB_CONTEXT_NO_DEFAULT_INCLUDES);
+    assert(ctx);
+    struct rxkb_object *ctx_ = (struct rxkb_object *)ctx;
+    assert(ctx_->refcount == 1);
+
+    static_assert(XKB_ERROR_SATURATED_REFERENCE_COUNTER == 6, "");
+    struct test_log_id_data saturated_errors  = { .id = "XKB-006" };
+
+    rxkb_context_set_log_level(ctx, RXKB_LOG_LEVEL_ERROR);
+    rxkb_context_set_user_data(ctx, &saturated_errors);
+    rxkb_context_set_log_fn(ctx, test_registry_log_msg);
+
+    ctx_->refcount = OBJECT_REFCOUNT_MAX - 1;
+    /* now at max → exactly one log entry */
+    assert(rxkb_context_ref(ctx));
+    assert(ctx_->refcount == OBJECT_REFCOUNT_MAX);
+    assert(saturated_errors.count == 1);
+
+    /* no-op, no new warning */
+    assert(rxkb_context_ref(ctx));
+    assert(ctx_->refcount == OBJECT_REFCOUNT_MAX);
+    assert(saturated_errors.count == 1);
+
+    /* no-op: object not freed */
+    rxkb_context_unref(ctx);
+    assert(ctx_->refcount == OBJECT_REFCOUNT_MAX);
+    assert(saturated_errors.count == 1);
+
+    /* restore so the test doesn’t leak */
+    ctx_->refcount = 1;
+    /* now really freed (ASan/LSan checks) */
+    rxkb_context_unref(ctx);
+    assert(saturated_errors.count == 1);
 }
 
 static const char *
@@ -1295,6 +1351,7 @@ main(void)
     test_no_include_paths();
     test_invalid_include();
     test_lifetime();
+    test_max_refcnt();
     test_load_basic();
     test_load_full();
     test_load_merge();

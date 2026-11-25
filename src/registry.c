@@ -25,59 +25,10 @@
 #include "xkbcommon/xkbregistry.h"
 #include "messages-codes.h"
 #include "darray.h"
+#include "registry.h"
 #include "utils.h"
 #include "util-list.h"
 #include "util-mem.h"
-
-struct rxkb_object;
-
-/**
- * All our objects are refcounted and are linked to iterate through them.
- * Abstract those bits away into a shared parent class so we can generate
- * most of the functions through macros.
- *
- * Object tree:
- * - `rxkb_context`
- *   - `rxkb_model`
- *   - `rxkb_layout`
- *     - `rxkb_iso639_code`
- *     - `rxkb_iso3166_code`
- *   - `rxkb_option_group`
- *     - `rxkb_option`
- *
- * #parent is `NULL` only for `rxkb_context`.
- *
- * # Ownership model
- *
- * - Containment: a child is owned by its parent’s list and is freed by the
- *   parent’s destructor. A child is never freed directly because its #refcount
- *   drops.
- * - #refcount counts *outstanding references*: one per external reference
- *   on the object (taken via a `*_ref()` call), plus one internal pin per
- *   child of the object that has an external reference of its own:
- *   - `rxkb_context` starts at 1: its creator holds an external reference;
- *   - every other object starts at 0: no external reference, and no child
- *     holds a pin.
- * - An object with #refcount > 0 holds exactly one reference on its
- *   parent. It takes that internal pin on the first external reference
- *   (0 → 1 transition) and releases it when the last reference is dropped
- *   (1 → 0 transition).
- *   Therefore, if any object in the tree has an external reference, all its
- *   ancestors have #refcount > 0 and are alive, up to the context.
- * - Only the context is ever destroyed by its #refcount reaching 0, which
- *   means no object in the tree has an external reference. At that point every
- *   child has #refcount == 0 and the context frees the whole tree.
- * - Adding a hierarchy level only requires setting `parent` at creation;
- *   ref/unref are generic and need no per-type knowledge of the parent.
- *
- * @warning Do not take internal references on objects: the 0 ↔ 1 transitions
- * are what keep the pins balanced.
- */
-struct rxkb_object {
-    struct rxkb_object *parent;
-    uint32_t refcount;
-    struct list link;
-};
 
 struct rxkb_iso639_code {
     struct rxkb_object base;
@@ -108,10 +59,7 @@ struct rxkb_context {
 
     darray(char *) includes;
 
-
-    ATTR_PRINTF(3, 0) void (*log_fn)(struct rxkb_context *ctx,
-                                     enum rxkb_log_level level,
-                                     const char *fmt, va_list args);
+    ATTR_PRINTF(3, 0) rxkb_context_log_fn_t log_fn;
     enum rxkb_log_level log_level;
 
     void *userdata;
@@ -273,11 +221,24 @@ rxkb_object_ref(struct rxkb_object *object)
 {
     assert(object->parent || object->refcount);
 
-    object->refcount++;
+    if (object->refcount < OBJECT_REFCOUNT_MAX) {
+        object->refcount++;
 
-    if (object->parent && object->refcount == 1) {
-        /* First external reference on a child: pin the parent */
-        (void)rxkb_object_ref(object->parent);
+        if (object->parent && object->refcount == 1) {
+            /* First external reference on a child: pin the parent */
+            (void)rxkb_object_ref(object->parent);
+        } else if (object->refcount == OBJECT_REFCOUNT_MAX) {
+            /* Ref counter saturation */
+
+            /* Get the context */
+            struct rxkb_object *parent = object;
+            while (parent->parent) parent = parent->parent;
+            struct rxkb_context *ctx = (struct rxkb_context *)parent;
+
+            log_err(ctx, XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                    "Saturated reference counter; "
+                    "registry object will not be freed\n");
+        }
     }
 
     return object;
@@ -301,8 +262,15 @@ rxkb_object_unref(struct rxkb_object *object)
         return;
     }
 
-    if (--object->refcount > 0)
+    if (object->refcount == OBJECT_REFCOUNT_MAX) {
+        /* Counter saturated: do nothing */
         return;
+    }
+
+    if (--object->refcount) {
+        /* Remaining references */
+        return;
+    }
 
     if (object->parent) {
         /*
