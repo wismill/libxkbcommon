@@ -221,6 +221,40 @@ test_compile_rules(struct xkb_context *context, enum xkb_keymap_format format,
                    const char *rules, const char *model, const char *layout,
                    const char *variant, const char *options);
 
+struct xkb_context_log_config_backup {
+    xkb_context_log_fn_t fn;
+    void *user_data;
+    enum xkb_log_level level;
+    int verbosity;
+};
+
+extern xkb_context_log_fn_t
+xkb_context_get_log_fn(const struct xkb_context *ctx);
+
+static inline void
+xkb_context_log_backup_config(
+    struct xkb_context * restrict ctx,
+    struct xkb_context_log_config_backup * restrict backup
+)
+{
+    backup->fn = xkb_context_get_log_fn(ctx);
+    backup->user_data = xkb_context_get_user_data(ctx);
+    backup->level = xkb_context_get_log_level(ctx);
+    backup->verbosity = xkb_context_get_log_verbosity(ctx);
+}
+
+static inline void
+xkb_context_log_restore_config(
+    struct xkb_context * restrict ctx,
+    const struct xkb_context_log_config_backup * restrict backup
+)
+{
+    xkb_context_set_log_fn(ctx, backup->fn);
+    xkb_context_set_user_data(ctx, backup->user_data);
+    xkb_context_set_log_level(ctx, backup->level);
+    xkb_context_set_log_verbosity(ctx, backup->verbosity);
+}
+
 static inline void
 xkb_enable_quiet_logging(struct xkb_context *ctx)
 {
