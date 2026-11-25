@@ -65,6 +65,166 @@ struct test_option_group {
     struct test_option options[10];
 };
 
+static struct rxkb_context *
+test_parse_evdev(void)
+{
+    struct rxkb_context * const ctx =
+        rxkb_context_new(RXKB_CONTEXT_NO_DEFAULT_INCLUDES);
+    assert(ctx);
+
+    char *xkb_root = test_get_path("");
+    assert(rxkb_context_include_path_append(ctx, xkb_root));
+    free(xkb_root);
+    assert(rxkb_context_parse(ctx, "evdev"));
+    return ctx;
+}
+
+/**
+ * Lifetime regression test for the ownership model: after each scenario
+ * (and on completion), every context and all its objects must have been
+ * freed exactly once. Run under ASan+LSan or Valgrind; any “definitely
+ * lost” block rooted at `rxkb_context_new()`, or a heap-use-after-free on
+ * the `*_next()`/accessor calls below, indicates unbalanced ref/pins.
+ */
+static void
+test_lifetime(void)
+{
+    struct rxkb_context *ctx;
+
+    /* Model */
+    ctx = test_parse_evdev();
+    struct rxkb_model *m = rxkb_model_ref(rxkb_model_first(ctx));
+    assert(m);
+    rxkb_context_unref(ctx);      /* ctx must survive: pinned */
+    (void) rxkb_model_next(m);    /* walks parent + list */
+    assert(rxkb_model_get_name(m));
+    rxkb_model_unref(m);          /* releases pin -> teardown */
+
+    /* Layout */
+    ctx = test_parse_evdev();
+    struct rxkb_layout *l = rxkb_layout_ref(rxkb_layout_first(ctx));
+    assert(l);
+    rxkb_context_unref(ctx);
+    (void) rxkb_layout_next(l);
+    assert(rxkb_layout_get_name(l));
+    rxkb_layout_unref(l);
+
+    /* iso639 */
+    ctx = test_parse_evdev();
+    struct rxkb_iso639_code *iso639 = NULL;
+    for (l = rxkb_layout_first(ctx); l; l = rxkb_layout_next(l)) {
+        if ((iso639 = rxkb_layout_get_iso639_first(l)))
+            break;
+    }
+    assert(l && iso639);
+    iso639 = rxkb_iso639_code_ref(iso639);
+    rxkb_context_unref(ctx);
+    (void) rxkb_iso639_code_next(iso639); /* parent is the layout */
+    assert(rxkb_iso639_code_get_code(iso639));
+    rxkb_iso639_code_unref(iso639);
+
+    /* iso3166 */
+    ctx = test_parse_evdev();
+    struct rxkb_iso3166_code *iso3166 = NULL;
+    for (l = rxkb_layout_first(ctx); l; l = rxkb_layout_next(l)) {
+        if ((iso3166 = rxkb_layout_get_iso3166_first(l)))
+            break;
+    }
+    assert(l && iso3166);
+    iso3166 = rxkb_iso3166_code_ref(iso3166);
+    rxkb_context_unref(ctx);
+    (void) rxkb_iso3166_code_next(iso3166);
+    assert(rxkb_iso3166_code_get_code(iso3166));
+    rxkb_iso3166_code_unref(iso3166);
+
+    /* Option */
+    ctx = test_parse_evdev();
+    struct rxkb_option_group *g = rxkb_option_group_first(ctx);
+    assert(g);
+    struct rxkb_option *o = rxkb_option_ref(rxkb_option_first(g));
+    assert(o);
+    rxkb_context_unref(ctx); /* grandchild pins group+ctx */
+    (void) rxkb_option_next(o);
+    assert(rxkb_option_get_name(o));
+    rxkb_option_unref(o);
+
+    /*
+     * Zombie
+     *
+     * Hold the first layout A and a code of a *later* layout B, drop the
+     * context, then iterate from A. Every layout reachable by next()
+     * must be a live object whose accessors are valid.
+     */
+    ctx = test_parse_evdev();
+    struct rxkb_layout *a = rxkb_layout_first(ctx);
+    assert(a);
+    iso639 = NULL;
+    for (struct rxkb_layout *b = rxkb_layout_next(a); b; b = rxkb_layout_next(b))
+        if ((iso639 = rxkb_layout_get_iso639_first(b)))
+            break;
+    assert(iso639);
+    a = rxkb_layout_ref(a);
+    iso639 = rxkb_iso639_code_ref(iso639);
+    rxkb_context_unref(ctx);
+    for (struct rxkb_layout *b = rxkb_layout_next(a); b; b = rxkb_layout_next(b)) {
+        const char *name = rxkb_layout_get_name(b);
+        assert(name && strlen(name) > 0);
+    }
+    rxkb_iso639_code_unref(iso639);
+    rxkb_layout_unref(a);
+
+    /*
+     * Context references
+     *
+     * The context’s own count must nest: it survives until the last
+     * reference is released.
+     */
+    ctx = test_parse_evdev();
+    ctx = rxkb_context_ref(ctx);
+    rxkb_context_unref(ctx);
+    assert(rxkb_layout_first(ctx));   /* still alive: one reference left */
+    rxkb_context_unref(ctx);
+
+    /*
+     * Pin release
+     *
+     * Release the children *before* the context. Dropping the last external
+     * reference on a child releases its pin on the parent; this must not
+     * destroy the context, which is still referenced by its creator.
+     */
+    ctx = test_parse_evdev();
+    l = rxkb_layout_ref(rxkb_layout_first(ctx));
+    iso639 = NULL;
+    for (struct rxkb_layout *b = rxkb_layout_first(ctx); b; b = rxkb_layout_next(b))
+        if ((iso639 = rxkb_layout_get_iso639_first(b)))
+            break;
+    assert(iso639);
+    iso639 = rxkb_iso639_code_ref(iso639);
+    rxkb_iso639_code_unref(iso639);
+    rxkb_layout_unref(l);
+    for (struct rxkb_layout *b = rxkb_layout_first(ctx); b; b = rxkb_layout_next(b))
+        assert(rxkb_layout_get_name(b));  /* whole tree still usable */
+    rxkb_context_unref(ctx);
+
+    /*
+     * Multi
+     *
+     * several held children, released in a different order than taken,
+     * with the context dropped in the middle
+     */
+    ctx = test_parse_evdev();
+    m = rxkb_model_ref(rxkb_model_first(ctx));
+    l = rxkb_layout_ref(rxkb_layout_first(ctx));
+    struct rxkb_layout *l2 = rxkb_layout_ref(rxkb_layout_next(l));
+    l = rxkb_layout_ref(l);   /* second ref on same object */
+    rxkb_context_unref(ctx);
+    rxkb_layout_unref(l);
+    rxkb_model_unref(m);
+    (void)rxkb_layout_next(l);/* still held once */
+    rxkb_layout_unref(l2);
+    rxkb_layout_unref(l);
+}
+
 static const char *
 popularity_attr(enum popularity popularity)
 {
@@ -1129,6 +1289,7 @@ main(void)
     test_xml_error_handler();
     test_no_include_paths();
     test_invalid_include();
+    test_lifetime();
     test_load_basic();
     test_load_full();
     test_load_merge();

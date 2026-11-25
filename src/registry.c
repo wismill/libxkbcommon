@@ -34,6 +34,43 @@ struct rxkb_object;
  * All our objects are refcounted and are linked to iterate through them.
  * Abstract those bits away into a shared parent class so we can generate
  * most of the functions through macros.
+ *
+ * Object tree:
+ * - `rxkb_context`
+ *   - `rxkb_model`
+ *   - `rxkb_layout`
+ *     - `rxkb_iso639_code`
+ *     - `rxkb_iso3166_code`
+ *   - `rxkb_option_group`
+ *     - `rxkb_option`
+ *
+ * #parent is `NULL` only for `rxkb_context`.
+ *
+ * # Ownership model
+ *
+ * - Containment: a child is owned by its parent’s list and is freed by the
+ *   parent’s destructor. A child is never freed directly because its #refcount
+ *   drops.
+ * - #refcount counts *outstanding references*: one per external reference
+ *   on the object (taken via a `*_ref()` call), plus one internal pin per
+ *   child of the object that has an external reference of its own:
+ *   - `rxkb_context` starts at 1: its creator holds an external reference;
+ *   - every other object starts at 0: no external reference, and no child
+ *     holds a pin.
+ * - An object with #refcount > 0 holds exactly one reference on its
+ *   parent. It takes that internal pin on the first external reference
+ *   (0 → 1 transition) and releases it when the last reference is dropped
+ *   (1 → 0 transition).
+ *   Therefore, if any object in the tree has an external reference, all its
+ *   ancestors have #refcount > 0 and are alive, up to the context.
+ * - Only the context is ever destroyed by its #refcount reaching 0, which
+ *   means no object in the tree has an external reference. At that point every
+ *   child has #refcount == 0 and the context frees the whole tree.
+ * - Adding a hierarchy level only requires setting `parent` at creation;
+ *   ref/unref are generic and need no per-type knowledge of the parent.
+ *
+ * @warning Do not take internal references on objects: the 0 ↔ 1 transitions
+ * are what keep the pins balanced.
  */
 struct rxkb_object {
     struct rxkb_object *parent;
@@ -166,14 +203,21 @@ struct type_ * type_##_ref(struct type_ *object) { \
     return object; \
 } \
 struct type_ * type_##_unref(struct type_ *object) { \
-    if (!object) return NULL; \
-    assert(object->base.refcount >= 1); \
-    if (--object->base.refcount == 0) {\
-        type_##_destroy(object); \
-        list_remove(&object->base.link);\
-        free(object); \
-    } \
-    return NULL;\
+    if (object) \
+        rxkb_object_unref(&object->base); \
+    return NULL; \
+}
+
+/**
+ * Free a child owned by a parent’s list. Only called from the parent's
+ * destructor, when there is no external reference anymore.
+ */
+#define DECLARE_FREE_FOR_TYPE(type_) \
+static inline void type_##_free(struct type_ *object) { \
+    assert(object->base.refcount == 0); \
+    type_##_destroy(object); \
+    list_remove(&object->base.link); \
+    free(object); \
 }
 
 #define DECLARE_CREATE_FOR_TYPE(type_) \
@@ -214,7 +258,11 @@ type_##_next(struct type_ *o) \
 static void
 rxkb_object_init(struct rxkb_object *object, struct rxkb_object *parent)
 {
-    object->refcount = 1;
+    /*
+     * See `rxkb_object`: only the context (no parent) starts with an
+     * external reference.
+     */
+    object->refcount = parent ? 0 : 1;
     object->parent = parent;
     list_init(&object->link);
 }
@@ -222,9 +270,61 @@ rxkb_object_init(struct rxkb_object *object, struct rxkb_object *parent)
 static void *
 rxkb_object_ref(struct rxkb_object *object)
 {
-    assert(object->refcount >= 1);
-    ++object->refcount;
+    assert(object->parent || object->refcount);
+
+    object->refcount++;
+
+    if (object->parent && object->refcount == 1) {
+        /* First external reference on a child: pin the parent */
+        (void)rxkb_object_ref(object->parent);
+    }
+
     return object;
+}
+
+static void
+rxkb_context_destroy(struct rxkb_context *ctx);
+
+static void
+rxkb_object_unref(struct rxkb_object *object)
+{
+    assert(object->refcount);
+    if (!object->refcount) {
+        /*
+         * Contract violation: unref without a matching ref.
+         * Ignore to avoid underflowing the counter.
+         */
+
+        /* Impossible for rxkb_context */
+        assert(!object->parent);
+        return;
+    }
+
+    if (--object->refcount > 0)
+        return;
+
+    if (object->parent) {
+        /*
+         * Child
+         *
+         * Last external reference released: release the pin on the parent.
+         * This may destroy the whole tree, including `object`, so it must
+         * not be accessed afterwards.
+         */
+        rxkb_object_unref(object->parent);
+    } else {
+        /*
+         * Context is the root
+         *
+         * There is no external reference nor internal pin left: destroy
+         * the whole tree.
+         */
+        struct rxkb_context *ctx =
+            container_of(object, struct rxkb_context, base);
+        rxkb_context_destroy(ctx);
+        list_remove(&object->link);
+        free(ctx);
+    }
 }
 
 static void
@@ -261,6 +361,7 @@ rxkb_iso639_code_next(struct rxkb_iso639_code *code)
 }
 
 DECLARE_REF_UNREF_FOR_TYPE(rxkb_iso639_code);
+DECLARE_FREE_FOR_TYPE(rxkb_iso639_code);
 DECLARE_CREATE_FOR_TYPE(rxkb_iso639_code);
 DECLARE_GETTER_FOR_TYPE(rxkb_iso639_code, code);
 
@@ -298,6 +399,7 @@ rxkb_iso3166_code_next(struct rxkb_iso3166_code *code)
 }
 
 DECLARE_REF_UNREF_FOR_TYPE(rxkb_iso3166_code);
+DECLARE_FREE_FOR_TYPE(rxkb_iso3166_code);
 DECLARE_CREATE_FOR_TYPE(rxkb_iso3166_code);
 DECLARE_GETTER_FOR_TYPE(rxkb_iso3166_code, code);
 
@@ -310,6 +412,7 @@ rxkb_option_destroy(struct rxkb_option *o)
 }
 
 DECLARE_REF_UNREF_FOR_TYPE(rxkb_option);
+DECLARE_FREE_FOR_TYPE(rxkb_option);
 DECLARE_CREATE_FOR_TYPE(rxkb_option);
 DECLARE_GETTER_FOR_TYPE(rxkb_option, name);
 DECLARE_GETTER_FOR_TYPE(rxkb_option, brief);
@@ -332,14 +435,15 @@ rxkb_layout_destroy(struct rxkb_layout *l)
     free(l->variant);
 
     list_for_each_safe(iso639, tmp_639, &l->iso639s, base.link) {
-        rxkb_iso639_code_unref(iso639);
+        rxkb_iso639_code_free(iso639);
     }
     list_for_each_safe(iso3166, tmp_3166, &l->iso3166s, base.link) {
-        rxkb_iso3166_code_unref(iso3166);
+        rxkb_iso3166_code_free(iso3166);
     }
 }
 
 DECLARE_REF_UNREF_FOR_TYPE(rxkb_layout);
+DECLARE_FREE_FOR_TYPE(rxkb_layout);
 DECLARE_CREATE_FOR_TYPE(rxkb_layout);
 DECLARE_GETTER_FOR_TYPE(rxkb_layout, name);
 DECLARE_GETTER_FOR_TYPE(rxkb_layout, brief);
@@ -357,6 +461,7 @@ rxkb_model_destroy(struct rxkb_model *m)
 }
 
 DECLARE_REF_UNREF_FOR_TYPE(rxkb_model);
+DECLARE_FREE_FOR_TYPE(rxkb_model);
 DECLARE_CREATE_FOR_TYPE(rxkb_model);
 DECLARE_GETTER_FOR_TYPE(rxkb_model, name);
 DECLARE_GETTER_FOR_TYPE(rxkb_model, vendor);
@@ -373,7 +478,7 @@ rxkb_option_group_destroy(struct rxkb_option_group *og)
     free(og->description);
 
     list_for_each_safe(o, otmp, &og->options, base.link) {
-        rxkb_option_unref(o);
+        rxkb_option_free(o);
     }
 }
 
@@ -384,6 +489,7 @@ rxkb_option_group_allows_multiple(struct rxkb_option_group *g)
 }
 
 DECLARE_REF_UNREF_FOR_TYPE(rxkb_option_group);
+DECLARE_FREE_FOR_TYPE(rxkb_option_group);
 DECLARE_CREATE_FOR_TYPE(rxkb_option_group);
 DECLARE_GETTER_FOR_TYPE(rxkb_option_group, name);
 DECLARE_GETTER_FOR_TYPE(rxkb_option_group, description);
@@ -399,15 +505,15 @@ rxkb_context_destroy(struct rxkb_context *ctx)
     char **path;
 
     list_for_each_safe(m, mtmp, &ctx->models, base.link)
-        rxkb_model_unref(m);
+        rxkb_model_free(m);
     assert(list_empty(&ctx->models));
 
     list_for_each_safe(l, ltmp, &ctx->layouts, base.link)
-        rxkb_layout_unref(l);
+        rxkb_layout_free(l);
     assert(list_empty(&ctx->layouts));
 
     list_for_each_safe(og, ogtmp, &ctx->option_groups, base.link)
-        rxkb_option_group_unref(og);
+        rxkb_option_group_free(og);
     assert(list_empty(&ctx->option_groups));
 
     darray_foreach(path, ctx->includes)

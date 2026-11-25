@@ -31,15 +31,44 @@ extern "C" {
  * @defgroup registry Query for available RMLVO
  *
  * The libxkbregistry API to query for available rules, models, layouts,
- * variants and options (RMLVO). libxkbregistry is a separate library to
+ * variants and options ([RMLVO]). libxkbregistry is a separate library to
  * libxkbcommon.
  *
- * This library is the replacement for clients currently parsing evdev.xml
+ * This library is the replacement for clients currently parsing `evdev.xml`
  * directly. The library is intended to provide easy access to the set of
- * **possible** MLVO configurations for a given ruleset. It is not a library to
+ * **possible** [MLVO] configurations for a given ruleset. It is not a library to
  * apply these configurations, merely to enumerate them. The intended users of
  * this library are the configuration UIs that allow a user to select their
  * keyboard layout of choice.
+ *
+ * # Object lifetime
+ *
+ * All objects are *refcounted*. A context is created with an initial refcount
+ * of 1: releasing it with `rxkb_context::rxkb_context_unref()` frees the
+ * context together with every object it contains ([models], [layouts],
+ * [option groups], [options] and [ISO 639]/[ISO 3166] codes). Objects are
+ * therefore always freed with their context, never individually.
+ *
+ * The iteration functions (`rxkb_model::rxkb_model_first()`,
+ * `rxkb_layout::rxkb_layout_next()`, etc.) return *borrowed* references:
+ * the refcount of the returned object is *not* increased. To keep an object
+ * beyond the immediate scope, take a reference with its `_ref()` function.
+ * Taking the first reference on an object also keeps its ancestors — up to and
+ * including the context — alive, and the object is only unpinned when you
+ * release your last reference. Consequently, holding a reference on any object
+ * guarantees that the whole context, and every other object in it, remains
+ * valid until that reference is released.
+ *
+ * @warning Unref’ing an object that was never ref’ed is a programming error.
+ *
+ * [RMLVO]: @ref RMLVO-intro
+ * [MLVO]: @ref RMLVO-intro
+ * [models]: @ref rxkb_model
+ * [layouts]: @ref rxkb_layout
+ * [option groups]: @ref rxkb_option_group
+ * [options]: @ref rxkb_option
+ * [ISO 639]: @ref rxkb_iso639_code
+ * [ISO 3166]: @ref rxkb_iso3166_code
  *
  * @{
  */
