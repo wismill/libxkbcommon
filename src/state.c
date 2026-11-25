@@ -39,6 +39,7 @@
 #include "keysym.h"
 #include "messages-codes.h"
 #include "state-priv.h"
+#include "text.h"
 #include "utf8.h"
 #include "utils.h"
 #include "util-mem.h"
@@ -83,7 +84,7 @@ struct xkb_filter {
                  const struct xkb_key *key,
                  enum xkb_key_direction direction);
     uint32_t priv;
-    int refcnt;
+    unsigned int refcnt;
 };
 
 enum xkb_state_mode_internal {
@@ -446,6 +447,22 @@ xkb_filter_group_set_new(struct xkb_server_state *state,
 }
 
 static bool
+xkb_filter_refcount_saturating_inc(struct xkb_server_state * restrict state,
+                                   struct xkb_filter * restrict filter)
+{
+    if (!++filter->refcnt) {
+        log_err(state->base.keymap->ctx,
+                XKB_ERROR_SATURATED_REFERENCE_COUNTER,
+                "Saturated reference counter of a %s filter; "
+                "consume the key press and release the filter.\n",
+                ActionTypeText(filter->action.type));
+        filter->refcnt--;
+        return false;
+    }
+    return true;
+}
+
+static bool
 xkb_filter_group_set_func(struct xkb_server_state *state,
                           struct xkb_events *events,
                           struct xkb_filter *filter,
@@ -459,12 +476,15 @@ xkb_filter_group_set_func(struct xkb_server_state *state,
 
     switch (direction) {
     case XKB_KEY_DOWN:
-        filter->refcnt++;
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
         /* fallthrough */
     case XKB_KEY_REPEATED:
         return XKB_FILTER_CONSUME;
     default:
-        if (--filter->refcnt > 0)
+        if (--filter->refcnt)
             return XKB_FILTER_CONSUME;
     }
 
@@ -476,7 +496,7 @@ xkb_filter_group_set_func(struct xkb_server_state *state,
         state->base.components.locked_group = 0;
 
     filter->func = NULL;
-    return XKB_FILTER_CONTINUE;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static enum xkb_state_component
@@ -550,12 +570,15 @@ xkb_filter_group_lock_func(struct xkb_server_state *state,
 
     switch (direction) {
     case XKB_KEY_DOWN:
-        filter->refcnt++;
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
         /* fallthrough */
     case XKB_KEY_REPEATED:
         return XKB_FILTER_CONSUME;
     default:
-        if (--filter->refcnt > 0)
+        if (--filter->refcnt)
             return XKB_FILTER_CONSUME;
     }
 
@@ -570,7 +593,7 @@ xkb_filter_group_lock_func(struct xkb_server_state *state,
         /* Lock on key press: do nothing on key release. */
     }
     filter->func = NULL;
-    return XKB_FILTER_CONTINUE;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static bool
@@ -840,12 +863,15 @@ xkb_filter_mod_set_func(struct xkb_server_state *state,
 
     switch (direction) {
     case XKB_KEY_DOWN:
-        filter->refcnt++;
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
         /* fallthrough */
     case XKB_KEY_REPEATED:
         return XKB_FILTER_CONSUME;
     default:
-        if (--filter->refcnt > 0)
+        if (--filter->refcnt)
             return XKB_FILTER_CONSUME;
     }
 
@@ -856,7 +882,7 @@ xkb_filter_mod_set_func(struct xkb_server_state *state,
         state->base.components.locked_mods &= ~filter->action.mods.mods.mask;
 
     filter->func = NULL;
-    return XKB_FILTER_CONTINUE;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static void
@@ -897,12 +923,15 @@ xkb_filter_mod_lock_func(struct xkb_server_state *state,
 
     switch (direction) {
     case XKB_KEY_DOWN:
-        filter->refcnt++;
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
         /* fallthrough */
     case XKB_KEY_REPEATED:
         return XKB_FILTER_CONSUME;
     default:
-        if (--filter->refcnt > 0)
+        if (--filter->refcnt)
             return XKB_FILTER_CONSUME;
     }
 
@@ -911,7 +940,7 @@ xkb_filter_mod_lock_func(struct xkb_server_state *state,
         state->base.components.locked_mods &= ~filter->priv;
 
     filter->func = NULL;
-    return XKB_FILTER_CONTINUE;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static void
@@ -1161,7 +1190,10 @@ xkb_filter_pointer_move_func(struct xkb_server_state *state,
 
     switch (direction) {
     case XKB_KEY_DOWN:
-        filter->refcnt++;
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
         append_pointer_move(events, filter);
         return XKB_FILTER_CONSUME;
     case XKB_KEY_REPEATED:
@@ -1169,12 +1201,12 @@ xkb_filter_pointer_move_func(struct xkb_server_state *state,
             append_pointer_move(events, filter);
         return XKB_FILTER_CONSUME;
     default:
-        if (--filter->refcnt > 0)
+        if (--filter->refcnt)
             return XKB_FILTER_CONSUME;
     }
 
     filter->func = NULL;
-    return XKB_FILTER_CONSUME;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static void
@@ -1235,21 +1267,24 @@ xkb_filter_pointer_button_func(struct xkb_server_state *state,
     state->flags &= ~STATE_REQUIRE_KEY_EVENT;
 
     switch (direction) {
-        case XKB_KEY_DOWN:
-            filter->refcnt++;
-            /* fallthrough */
-            case XKB_KEY_REPEATED:
-                return XKB_FILTER_CONSUME;
-            default:
-                if (--filter->refcnt > 0)
-                    return XKB_FILTER_CONSUME;
+    case XKB_KEY_DOWN:
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
+        /* fallthrough */
+    case XKB_KEY_REPEATED:
+        return XKB_FILTER_CONSUME;
+    default:
+        if (--filter->refcnt)
+            return XKB_FILTER_CONSUME;
     }
 
     if (!filter->action.btn.count)
         append_pointer_button(events, filter, XKB_POINTER_BUTTON_RELEASED, 0);
 
     filter->func = NULL;
-    return XKB_FILTER_CONSUME;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 
@@ -1329,14 +1364,17 @@ xkb_filter_pointer_lock_button_func(struct xkb_server_state *state,
     state->flags &= ~STATE_REQUIRE_KEY_EVENT;
 
     switch (direction) {
-        case XKB_KEY_DOWN:
-            filter->refcnt++;
-            /* fallthrough */
-            case XKB_KEY_REPEATED:
-                return XKB_FILTER_CONSUME;
-            default:
-                if (--filter->refcnt > 0)
-                    return XKB_FILTER_CONSUME;
+    case XKB_KEY_DOWN:
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
+        /* fallthrough */
+    case XKB_KEY_REPEATED:
+        return XKB_FILTER_CONSUME;
+    default:
+        if (--filter->refcnt)
+            return XKB_FILTER_CONSUME;
     }
 
     const struct xkb_filter_pointer_lock_button_priv *priv =
@@ -1357,7 +1395,7 @@ xkb_filter_pointer_lock_button_func(struct xkb_server_state *state,
     }
 
     filter->func = NULL;
-    return XKB_FILTER_CONSUME;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static void
@@ -1400,18 +1438,21 @@ xkb_filter_pointer_set_default_button_func(struct xkb_server_state *state,
     state->flags &= ~STATE_REQUIRE_KEY_EVENT;
 
     switch (direction) {
-        case XKB_KEY_DOWN:
-            filter->refcnt++;
-            /* fallthrough */
-            case XKB_KEY_REPEATED:
-                return XKB_FILTER_CONSUME;
-            default:
-                if (--filter->refcnt > 0)
-                    return XKB_FILTER_CONSUME;
+    case XKB_KEY_DOWN:
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
+        /* fallthrough */
+    case XKB_KEY_REPEATED:
+        return XKB_FILTER_CONSUME;
+    default:
+        if (--filter->refcnt)
+            return XKB_FILTER_CONSUME;
     }
 
     filter->func = NULL;
-    return XKB_FILTER_CONTINUE;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static void
@@ -1446,18 +1487,21 @@ xkb_filter_terminate_server_func(struct xkb_server_state *state,
     state->flags &= ~STATE_REQUIRE_KEY_EVENT;
 
     switch (direction) {
-        case XKB_KEY_DOWN:
-            filter->refcnt++;
-            /* fallthrough */
-            case XKB_KEY_REPEATED:
-                return XKB_FILTER_CONSUME;
-            default:
-                if (--filter->refcnt > 0)
-                    return XKB_FILTER_CONSUME;
+    case XKB_KEY_DOWN:
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
+        /* fallthrough */
+    case XKB_KEY_REPEATED:
+        return XKB_FILTER_CONSUME;
+    default:
+        if (--filter->refcnt)
+            return XKB_FILTER_CONSUME;
     }
 
     filter->func = NULL;
-    return XKB_FILTER_CONSUME;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static void
@@ -1496,18 +1540,21 @@ xkb_filter_switch_virtual_console_func(struct xkb_server_state *state,
     state->flags &= ~STATE_REQUIRE_KEY_EVENT;
 
     switch (direction) {
-        case XKB_KEY_DOWN:
-            filter->refcnt++;
-            /* fallthrough */
-            case XKB_KEY_REPEATED:
-                return XKB_FILTER_CONSUME;
-            default:
-                if (--filter->refcnt > 0)
-                    return XKB_FILTER_CONSUME;
+    case XKB_KEY_DOWN:
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
+        /* fallthrough */
+    case XKB_KEY_REPEATED:
+        return XKB_FILTER_CONSUME;
+    default:
+        if (--filter->refcnt)
+            return XKB_FILTER_CONSUME;
     }
 
     filter->func = NULL;
-    return XKB_FILTER_CONSUME;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static inline void
@@ -1550,12 +1597,15 @@ xkb_filter_ctrls_func(struct xkb_server_state *state,
 
     switch (direction) {
     case XKB_KEY_DOWN:
-        filter->refcnt++;
+        if (!xkb_filter_refcount_saturating_inc(state, filter)) {
+            /* Saturated ref counter: release to avoid bricking the state */
+            break;
+        }
         /* fallthrough */
     case XKB_KEY_REPEATED:
         return XKB_FILTER_CONSUME;
     default:
-        if (--filter->refcnt > 0)
+        if (--filter->refcnt)
             return XKB_FILTER_CONSUME;
     }
 
@@ -1577,7 +1627,7 @@ xkb_filter_ctrls_func(struct xkb_server_state *state,
     }
 
     filter->func = NULL;
-    return XKB_FILTER_CONTINUE;
+    return filter->refcnt ? XKB_FILTER_CONSUME : XKB_FILTER_CONTINUE;
 }
 
 static bool
@@ -1748,6 +1798,27 @@ static const struct {
     [ACTION_TYPE_REDIRECT_KEY] = { xkb_filter_redirect_key_new,
                                    xkb_filter_redirect_key_func },
 };
+
+enum xkb_status
+xkb_filter_saturate_all(struct xkb_state * restrict base_state,
+                        size_t * restrict count)
+{
+    if (base_state->mode <= SERVER_COMPANION)
+        return XKB_ERROR_INVALID;
+
+    struct xkb_server_state *state = (struct xkb_server_state *)base_state;
+    struct xkb_filter *filter;
+    *count = 0;
+    darray_foreach(filter, state->filters) {
+        if (!filter->func)
+            continue;
+
+        filter->refcnt = (__typeof__(filter->refcnt))-1;
+        (*count)++;
+    }
+
+    return XKB_SUCCESS;
+}
 
 /**
  * Applies any relevant filters to the key, first from the list of filters

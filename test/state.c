@@ -30,7 +30,11 @@
 static void
 test_state_max_refcnt(struct xkb_context *ctx)
 {
-    static const char keymap_str[] = "xkb_keymap {};";
+    static const char keymap_str[] =
+        "xkb_keymap {\n"
+        "  xkb_keycodes { <LCTL> = 37; };\n"
+        "  xkb_symbols { key <LCTL> {[SetMods(mods=Control)]}; };\n"
+        "};";
     struct xkb_keymap * const keymap = xkb_keymap_new_from_buffer(
         ctx, keymap_str, sizeof(keymap_str),
         XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS
@@ -56,6 +60,28 @@ test_state_max_refcnt(struct xkb_context *ctx)
     xkb_context_set_user_data(ctx, &log_msg_config);
     xkb_context_set_log_fn(ctx, test_log_msg);
 
+    /*
+     * Filters
+     */
+    enum xkb_state_component changed;
+    assert(xkb_state_serialize_mods(state, XKB_STATE_MODS_EFFECTIVE) == 0);
+    changed = xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert(changed == (XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_EFFECTIVE));
+    assert(xkb_state_serialize_mods(state, XKB_STATE_MODS_EFFECTIVE) ==
+           (UINT32_C(1) << XKB_MOD_INDEX_CTRL));
+    assert(saturated_errors.count == 0);
+    size_t num_filters;
+    assert(xkb_filter_saturate_all(state, &num_filters) == XKB_SUCCESS);
+    assert(num_filters == 1);
+    changed = xkb_state_update_key(state, KEY_LEFTCTRL + EVDEV_OFFSET, XKB_KEY_DOWN);
+    assert(changed == (XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_EFFECTIVE));
+    assert(xkb_state_serialize_mods(state, XKB_STATE_MODS_EFFECTIVE) == 0);
+    assert(saturated_errors.count == 1);
+
+    /*
+     * State
+     */
+
     /* Get the max of the refcount bit field */
     xkb_state_set_refcnt(state, UINT_MAX);
     const unsigned int max = xkb_state_get_refcnt(state);
@@ -64,19 +90,19 @@ test_state_max_refcnt(struct xkb_context *ctx)
     xkb_state_set_refcnt(state, max - 1);
     assert(xkb_state_ref(state));    /* now at max → exactly one log entry */
     assert(xkb_state_get_refcnt(state) == max);
-    assert(saturated_errors.count == 1);
+    assert(saturated_errors.count == 2);
 
     assert(xkb_state_ref(state));    /* no-op, no new warning */
     assert(xkb_state_get_refcnt(state) == max);
-    assert(saturated_errors.count == 1);
+    assert(saturated_errors.count == 2);
 
     xkb_state_unref(state);          /* no-op: object not freed */
     assert(xkb_state_get_refcnt(state) == max);
-    assert(saturated_errors.count == 1);
+    assert(saturated_errors.count == 2);
 
     xkb_state_set_refcnt(state, 1);  /* restore so the test doesn’t leak */
     xkb_state_unref(state);          /* now really freed (ASan/LSan checks) */
-    assert(saturated_errors.count == 1);
+    assert(saturated_errors.count == 2);
 
     xkb_context_log_restore_config(ctx, &backup);
 }
