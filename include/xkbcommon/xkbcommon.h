@@ -1781,6 +1781,33 @@ XKB_EXPORT int
 xkb_context_get_log_verbosity(struct xkb_context *context);
 
 /**
+ * A custom function to handle logging messages.
+ * @memberof xkb_context
+ *
+ * @param[in,out] context
+ *   The context in which the logging message was emitted.
+ *   @transfer_borrowed{@p *context}
+ * @param[in] level
+ *   The logging level of the message.
+ * @param[in] format
+ *   The format string, as in `vprintf(3)`.
+ * @param[in] args
+ *   The variable argument list for @a format, as in `vprintf(3)`.
+ *
+ * You may use `xkb_context::xkb_context_set_user_data()` on the context, and
+ * then call `xkb_context::xkb_context_get_user_data()` from within this
+ * function to provide it with additional private context.
+ *
+ * @sa `xkb_context::xkb_context_set_log_fn()`
+ * @sa `xkb_context::xkb_context_set_user_data()`
+ * @sa `xkb_context::xkb_context_get_user_data()`
+ */
+typedef void (*xkb_context_log_fn_t)(struct xkb_context *context,
+                                     enum xkb_log_level level,
+                                     const char *format,
+                                     va_list args);
+
+/**
  * Set a custom function to handle logging messages.
  * @memberof xkb_context
  *
@@ -1801,12 +1828,12 @@ xkb_context_get_log_verbosity(struct xkb_context *context);
  * You may use `xkb_context::xkb_context_set_user_data()` on the context, and
  * then call `xkb_context::xkb_context_get_user_data()` from within the logging
  * function to provide it with additional private context.
+ *
+ * @sa `xkb_context_log_fn_t`
  */
 XKB_EXPORT void
 xkb_context_set_log_fn(struct xkb_context *context,
-                       void (*log_fn)(struct xkb_context *context,
-                                      enum xkb_log_level level,
-                                      const char *format, va_list args));
+                       xkb_context_log_fn_t log_fn);
 
 /** @} */
 

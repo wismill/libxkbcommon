@@ -553,11 +553,15 @@ xkb_context_new(enum xkb_context_flags flags)
     return ctx;
 }
 
+xkb_context_log_fn_t
+xkb_context_get_log_fn(const struct xkb_context *ctx)
+{
+    return ctx->log_fn;
+}
+
 void
 xkb_context_set_log_fn(struct xkb_context *ctx,
-                       void (*log_fn)(struct xkb_context *ctx,
-                                      enum xkb_log_level level,
-                                      const char *fmt, va_list args))
+                       xkb_context_log_fn_t log_fn)
 {
     ctx->log_fn = (log_fn ? log_fn : default_log_fn);
 }

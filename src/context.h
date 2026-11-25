@@ -19,9 +19,7 @@
 #include "utils.h"
 
 struct xkb_context {
-    ATTR_PRINTF(3, 0) void (*log_fn)(struct xkb_context *ctx,
-                                     enum xkb_log_level level,
-                                     const char *fmt, va_list args);
+    ATTR_PRINTF(3, 0) xkb_context_log_fn_t log_fn;
     void *user_data;
     enum xkb_log_level log_level;
     int log_verbosity;
@@ -46,6 +44,9 @@ struct xkb_context {
 
     int refcnt;
 };
+
+XKB_EXPORT_PRIVATE xkb_context_log_fn_t
+xkb_context_get_log_fn(const struct xkb_context *ctx);
 
 char *
 xkb_context_getenv(struct xkb_context *ctx, const char *name);
