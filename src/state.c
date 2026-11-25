@@ -208,8 +208,11 @@ struct xkb_overlaid_key {
     const struct xkb_key *old;
     /** The target key */
     const struct xkb_key *new;
-    /** Counter of key currently down */
-    int refcnt;
+    /**
+     * Counter of key currently down.
+     * 64 bits makes overflow unreachable: about 580 years at 1 ns per event.
+     */
+    uint64_t refcnt;
 };
 
 struct xkb_shortcuts_config_entry {
@@ -4411,6 +4414,20 @@ undo_tweaks(const struct xkb_state *state,
     }
 }
 
+enum xkb_status
+xkb_overlaid_key_saturate_all(struct xkb_machine *sm, size_t *count)
+{
+    *count = 0;
+    struct xkb_overlaid_key *entry;
+    darray_foreach(entry, sm->overlays.keys) {
+        if (entry->old) {
+            entry->refcnt = (__typeof__(entry->refcnt))-1;
+            (*count)++;
+        }
+    }
+    return XKB_SUCCESS;
+}
+
 static const struct xkb_key *
 process_overlayable_key(struct xkb_machine *sm,
                         const struct xkb_key * key,
@@ -4421,7 +4438,12 @@ process_overlayable_key(struct xkb_machine *sm,
     struct xkb_overlaid_key *available_entry = NULL;
     darray_foreach(entry, sm->overlays.keys) {
         if (entry->old == key) {
-            /* Maintain the key overlaid */
+            /*
+             * Maintain the key overlaid.
+             *
+             * NOTE: ref counter overflow is not handled because it is
+             * unreachable, see the `xkb_overlaid_key::refcnt` note.
+             */
             switch (direction) {
             case XKB_KEY_DOWN:
                 entry->refcnt++;
@@ -4433,7 +4455,7 @@ process_overlayable_key(struct xkb_machine *sm,
                 entry->refcnt--;
                 break;
             }
-            if (entry->refcnt <= 0)
+            if (!entry->refcnt)
                 entry->old = NULL;
             return entry->new;
         } else if (!entry->old && !available_entry) {

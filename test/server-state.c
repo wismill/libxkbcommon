@@ -248,7 +248,11 @@ test_machine_builder(struct xkb_context *ctx)
 static void
 test_machine_max_refcnt(struct xkb_context *ctx)
 {
-    static const char keymap_str[] = "xkb_keymap {};";
+    static const char keymap_str[] =
+        "xkb_keymap {\n"
+        "  xkb_keycodes { <AE01> = 10; <KP1> = 87; };\n"
+        "  xkb_symbols { key <AE01> { overlay1 = <KP1> }; };\n"
+        "};";
     struct xkb_keymap * const keymap = xkb_keymap_new_from_buffer(
         ctx, keymap_str, sizeof(keymap_str),
         XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS
@@ -280,6 +284,54 @@ test_machine_max_refcnt(struct xkb_context *ctx)
     xkb_context_set_user_data(ctx, &log_msg_config);
     xkb_context_set_log_fn(ctx, test_log_msg);
 
+    /* Overlay key */
+    const enum xkb_action_controls overlay1 = overlays_to_controls(0x1);
+    const struct xkb_state_components_update components_update = {
+        .size = sizeof(components_update),
+        .components = XKB_STATE_CONTROLS_EFFECTIVE,
+        .affect_controls = UINT32_MAX,
+        .controls = (uint32_t)overlay1,
+    };
+    const struct xkb_synthetic_update state_update = {
+        .size = sizeof(state_update),
+        .components = &components_update,
+    };
+    struct xkb_events *events = xkb_events_new(ctx, NULL, NULL);
+    assert(events);
+    assert(xkb_machine_process_synthetic(sm, &state_update, events) ==
+            XKB_SUCCESS);
+    assert(xkb_machine_process_key
+           (sm, KEY_1 + EVDEV_OFFSET, XKB_KEY_DOWN, events) == XKB_SUCCESS);
+    assert(saturated_errors.count == 0);
+    const struct xkb_event *event = xkb_events_next(events);
+    assert(event);
+    assert(xkb_event_get_type(event) == XKB_EVENT_TYPE_KEY);
+    xkb_keycode_t keycode;
+    enum xkb_key_direction direction;
+    assert(xkb_event_get_keycode(event, &keycode, &direction) == XKB_SUCCESS);
+    assert(keycode == KEY_KP1 + EVDEV_OFFSET);
+    size_t num_overlay_keys = 0;
+    assert(xkb_overlaid_key_saturate_all(sm, &num_overlay_keys) ==
+           XKB_SUCCESS);
+    assert(num_overlay_keys == 1);
+    assert(xkb_machine_process_key
+           (sm, KEY_1 + EVDEV_OFFSET, XKB_KEY_DOWN, events) == XKB_SUCCESS);
+    assert(saturated_errors.count == 1);
+    event = xkb_events_next(events);
+    assert(event);
+    assert(xkb_event_get_type(event) == XKB_EVENT_TYPE_KEY);
+    assert(xkb_event_get_keycode(event, &keycode, &direction) == XKB_SUCCESS);
+    assert(keycode == KEY_KP1 + EVDEV_OFFSET);
+    assert(xkb_machine_process_key
+           (sm, KEY_1 + EVDEV_OFFSET, XKB_KEY_UP, events) == XKB_SUCCESS);
+    assert(saturated_errors.count == 1);
+    event = xkb_events_next(events);
+    assert(event);
+    assert(xkb_event_get_type(event) == XKB_EVENT_TYPE_KEY);
+    assert(xkb_event_get_keycode(event, &keycode, &direction) == XKB_SUCCESS);
+    assert(keycode == KEY_1 + EVDEV_OFFSET);
+    xkb_events_destroy(events);
+
     /* Get the max of the refcount bit field */
     xkb_state_set_refcnt(state, UINT_MAX);
     const unsigned int max = xkb_state_get_refcnt(state);
@@ -288,19 +340,19 @@ test_machine_max_refcnt(struct xkb_context *ctx)
     xkb_state_set_refcnt(state, max - 1);
     assert(xkb_machine_ref(sm));    /* now at max → exactly one log entry */
     assert(xkb_state_get_refcnt(state) == max);
-    assert(saturated_errors.count == 1);
+    assert(saturated_errors.count == 2);
 
     assert(xkb_machine_ref(sm));    /* no-op, no new warning */
     assert(xkb_state_get_refcnt(state) == max);
-    assert(saturated_errors.count == 1);
+    assert(saturated_errors.count == 2);
 
     xkb_machine_unref(sm);          /* no-op: object not freed */
     assert(xkb_state_get_refcnt(state) == max);
-    assert(saturated_errors.count == 1);
+    assert(saturated_errors.count == 2);
 
     xkb_state_set_refcnt(state, 1);  /* restore so the test doesn’t leak */
     xkb_machine_unref(sm);           /* now really freed (ASan/LSan checks) */
-    assert(saturated_errors.count == 1);
+    assert(saturated_errors.count == 2);
 
     xkb_context_log_restore_config(ctx, &backup);
 }

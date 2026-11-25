@@ -59,6 +59,10 @@ struct xkb_event {
 XKB_EXPORT_PRIVATE enum xkb_status
 xkb_filter_saturate_all(struct xkb_state *state, size_t *count);
 
+/* Only for testing */
+XKB_EXPORT_PRIVATE enum xkb_status
+xkb_overlaid_key_saturate_all(struct xkb_machine *sm, size_t *count);
+
 XKB_EXPORT_PRIVATE unsigned int
 xkb_state_get_refcnt(struct xkb_state *state);
 
