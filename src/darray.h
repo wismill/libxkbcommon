@@ -239,7 +239,7 @@ darray_next_alloc(darray_size_t alloc, darray_size_t need, size_t itemSize)
 
 #define darray_foreach_from(i, arr, from) \
     if ((arr).item) \
-    for ((i) = &(arr).item[from]; (i) < &(arr).item[(arr).size]; (i)++)
+    for ((i) = &(arr).item[(from)]; (i) < &(arr).item[(arr).size]; (i)++)
 
 /* Iterate on index and value at the same time, like Python's enumerate. */
 #define darray_enumerate(idx, val, arr) \
@@ -250,7 +250,7 @@ darray_next_alloc(darray_size_t alloc, darray_size_t need, size_t itemSize)
 
 #define darray_enumerate_from(idx, val, arr, from) \
     if ((arr).item) \
-    for ((idx) = (from), (val) = &(arr).item[from]; \
+    for ((idx) = (from), (val) = &(arr).item[(idx)]; \
          (idx) < (arr).size; \
          (idx)++, (val)++)
 
